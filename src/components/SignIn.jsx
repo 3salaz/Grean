@@ -17,7 +17,7 @@ function SignInModal({ handleClose }) {
       await googleSignIn();
       toast.success('Signed in successfully with Google!');
       handleClose();
-      navigate("/profile");
+      navigate("/account");
     } catch (error) {
       console.log(error);
       toast.error('Error signing in with Google. Please try again.');
@@ -31,7 +31,7 @@ function SignInModal({ handleClose }) {
       await signIn(email, password);
       handleClose();
       toast.success('Signed in successfully!');
-      navigate('/profile')
+      navigate('/account')
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         toast.error('User not found. Please check your email and try again.');

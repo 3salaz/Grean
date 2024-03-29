@@ -1,6 +1,15 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { collection, doc, getDocs, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase"; // Adjust this import path as necessary
+import {
+  collection,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
+import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { UserAuth } from "./AuthContext";
@@ -11,143 +20,231 @@ export const usePickups = () => useContext(PickupContext);
 
 export const PickupsProvider = ({ children }) => {
   const [pickups, setPickups] = useState([]);
-  const [userPickups, setUserPickups] = useState([]);
-  const [userUid, setUserUid] = useState(null);
-  const { user } = UserAuth(); // Call UserAuth at the top level
-  // Initialize visiblePickups from localStorage or default to empty array
-  const [visiblePickups, setVisiblePickups] = useState(() => JSON.parse(localStorage.getItem("visiblePickups")) || []);
+  // User Accepted For User / Admin
+  const [userAcceptedPickups, setUserAcceptedPickups] = useState([]);
+  // All Accepted is for Admin
+  const [allAcceptedPickups, setAllAcceptedPickups] = useState([]);
+
+  // For notification modal, we need to be able to see all pickups that are open and
+  const [visiblePickups, setVisiblePickups] = useState([]);
+  const [completedPickups, setCompletedPickups] = useState([]);
+  const [userCreatedPickups, setUserCreatedPickups] = useState([]);
+  const { user } = UserAuth();
 
   useEffect(() => {
-    if (user?.uid) {
-      setUserUid(user.uid); // Store user's UID in state
-    }
-  }, [user?.uid]);
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "pickups"), (querySnapshot) => {
-      const fetchedPickups = [];
-      const deletedPickupIds = new Set(JSON.parse(localStorage.getItem("deletedPickupIds") || "[]"));
+    if (user) {
+      const unsubscribe = onSnapshot(
+        collection(db, "pickups"),
+        (querySnapshot) => {
+          const currentUserPickups = [];
+          const currentUserAccepted = [];
+          const currentCompleted = [];
   
-      querySnapshot.forEach((doc) => {
-        const pickup = { id: doc.id, ...doc.data() };
-        if (!pickup.accepted && !deletedPickupIds.has(pickup.id)) {
-          fetchedPickups.push(pickup);
+          querySnapshot.forEach((doc) => {
+            const pickup = { id: doc.id, ...doc.data() };
+  
+            // Assuming 'createdBy' stores the UID of the user who created the pickup
+            if (pickup.createdBy === user.uid) {
+              currentUserPickups.push(pickup);
+  
+              // Check if the pickup is accepted but not completed
+              if (pickup.isAccepted && !pickup.isComplete) {
+                currentUserAccepted.push(pickup);
+              }
+  
+              // Check if the pickup is completed
+              if (pickup.isComplete) {
+                currentCompleted.push(pickup);
+              }
+            }
+          });
+  
+          setUserCreatedPickups(currentUserPickups);
+          setUserAcceptedPickups(currentUserAccepted);
+          setCompletedPickups(currentCompleted);
         }
-      });
+      );
   
-      setPickups(fetchedPickups);
-      setVisiblePickups(fetchedPickups); // This now only includes pickups that are not accepted
-    });
-  
-    return () => unsubscribe(); // Cleanup on unmount
-  }, []);
-
-  // Update localStorage whenever visiblePickups changes
-  useEffect(() => {
-    localStorage.setItem("visiblePickups", JSON.stringify(visiblePickups));
-  }, [visiblePickups]);
-
-  useEffect(() => {
-    // Persist userPickups to localStorage whenever it changes
-    localStorage.setItem("userPickups", JSON.stringify(userPickups));
-  }, [userPickups]);
-
-  const fetchAllPickups = async () => {
-    try {
-      // Fetch all pickups from the database
-      // This is a placeholder, replace with your actual database call
-      const querySnapshot = await getDocs(collection(db, "pickups"));
-      const allPickups = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  
-      // Update the state with all fetched pickups
-      setVisiblePickups(allPickups);
-    } catch (error) {
-      console.error("Error fetching pickups: ", error);
-      // Handle the error appropriately, perhaps show a notification
+      return () => unsubscribe();
     }
-  };
+  }, [user]);
 
-  const acceptPickup = async (pickupId) => {
-    const pickupRef = doc(db, "pickups", pickupId); // Reference to the pickup document in Firestore
-  
-    try {
-      // Update the pickup document in Firestore
-      await updateDoc(pickupRef, {
-        accepted: true,
-        acceptedBy: userUid, // Set the UID of the user who accepted the pickup
-      });
-  
-      // Proceed with updating local state and localStorage as before
-      const pickup = pickups.find((p) => p.id === pickupId);
+  // Create Pickups
 
-      if (pickup) {
-        const updatedUserPickups = [...userPickups, pickup];
-        setUserPickups(updatedUserPickups);
-        localStorage.setItem("userPickups", JSON.stringify(updatedUserPickups));
-        setVisiblePickups(visiblePickups.filter((p) => p.id !== pickupId));
-  
-        const deletedPickupIds = new Set(JSON.parse(localStorage.getItem("deletedPickupIds") || "[]"));
-        deletedPickupIds.add(pickupId);
-        localStorage.setItem("deletedPickupIds", JSON.stringify(Array.from(deletedPickupIds)));
-      }
-    } catch (error) {
-      console.error("Error accepting pickup: ", error);
-      // Handle the error appropriately, e.g., show an error message to the user
-    }
-    
-    setVisiblePickups((currentVisiblePickups) =>
-    currentVisiblePickups.filter((pickup) => pickup.id !== pickupId)
-  );
-  }
-
-  const deletePickup = (pickupId) => {
-    // Add the deleted pickup ID to a set stored in localStorage
-    const deletedPickupIds = new Set(
-      JSON.parse(localStorage.getItem("deletedPickupIds") || "[]")
-    );
-    deletedPickupIds.add(pickupId);
-    localStorage.setItem(
-      "deletedPickupIds",
-      JSON.stringify(Array.from(deletedPickupIds))
-    );
-
-    // Update visible pickups
-    setVisiblePickups((currentVisiblePickups) =>
-      currentVisiblePickups.filter((pickup) => pickup.id !== pickupId)
-    );
-  };
-
-  const addPickup = async (pickupData) => {
+  const createPickup = async (pickupData) => {
     const newPickupId = uuidv4();
-    const newPickupRef = doc(db, "pickups", newPickupId);
     const newPickup = {
       ...pickupData,
       id: newPickupId,
       createdAt: serverTimestamp(),
-      lastUpdate: serverTimestamp(),
-      isOpen: true,
+      isAccepted: false, // Ensure new pickups are marked as not accepted
+      isCompleted: false,
+      createdBy: user.uid, // Add the createdBy field
     };
 
     try {
-      await setDoc(newPickupRef, newPickup);
-      toast.success("Pickup request submitted successfully!");
-      // Optionally, update local state here if needed
+      await setDoc(doc(db, "pickups", newPickupId), newPickup);
+      toast.success("Pickup added successfully!");
     } catch (error) {
       console.error("Error adding pickup:", error);
-      toast.error("Error submitting pickup request. Please try again.");
+      toast.error("Error adding pickup. Please try again.");
+    }
+  };
+
+  // Read
+  useEffect(() => {
+    if (user) {
+      const unsubscribe = onSnapshot(
+        collection(db, "pickups"),
+        (querySnapshot) => {
+          const allPickups = [];
+          const currentUserAccepted = [];
+          const allAccepted = [];
+          const createdPickups = [];
+
+          querySnapshot.forEach((doc) => {
+            const pickup = { id: doc.id, ...doc.data() };
+            allPickups.push(pickup);
+
+            // Check for accepted pickups
+            if (pickup.isAccepted) {
+              allAccepted.push(pickup);
+              if (pickup.acceptedBy === user.uid) {
+                currentUserAccepted.push(pickup);
+              }
+            }
+
+            // Check for pickups created by the user
+            if (pickup.createdBy === user.uid) {
+              createdPickups.push(pickup);
+            }
+          });
+
+          setPickups(allPickups);
+          setUserAcceptedPickups(currentUserAccepted);
+          setAllAcceptedPickups(allAccepted);
+          setUserCreatedPickups(createdPickups); // Set pickups created by the user
+
+          // Filter for visiblePickups: not accepted and open
+          const filteredVisiblePickups = allPickups.filter(
+            (pickup) => !pickup.isAccepted
+          );
+          const filterIsCompleted = allPickups.filter(
+            (pickup) => pickup.isCompleted
+          );
+          setCompletedPickups(filterIsCompleted);
+          setVisiblePickups(filteredVisiblePickups); // Set visiblePickups
+        }
+      );
+
+      return () => unsubscribe(); // Cleanup on unmount
+    }
+  }, [user]); // Depend on user to refetch when the user changes
+
+  // Update Pickup
+
+  const acceptPickup = async (pickupId) => {
+    if (!user) {
+      toast.error("You must be logged in to accept pickups.");
+      return;
+    }
+
+    const pickupRef = doc(db, "pickups", pickupId);
+    try {
+      await updateDoc(pickupRef, {
+        isAccepted: true,
+        acceptedBy: user.uid
+      });
+
+      // Optimistically update the local state to reflect the accepted pickup
+      setPickups((pickups) =>
+        pickups.filter((pickup) => pickup.id !== pickupId)
+      );
+      toast.success("Pickup accepted successfully!");
+    } catch (error) {
+      console.error("Error accepting pickup: ", error);
+      toast.error("Error accepting pickup. Please try again.");
+    }
+  };
+
+  // Delete Pickups
+  const deletePickup = async (pickupId) => {
+    if (!user) {
+      toast.error("You must be logged in to delete pickups.");
+      return;
+    }
+
+    const pickupRef = doc(db, "pickups", pickupId);
+    const pickupSnapshot = await getDoc(pickupRef);
+
+    if (!pickupSnapshot.exists()) {
+      toast.error("Pickup does not exist.");
+      return;
+    }
+
+    const pickupData = pickupSnapshot.data();
+    if (pickupData.createdBy !== user.uid) {
+      toast.error("You are not authorized to delete this pickup.");
+      return;
+    }
+
+    try {
+      await deleteDoc(pickupRef);
+      setPickups((currentPickups) =>
+        currentPickups.filter((pickup) => pickup.id !== pickupId)
+      );
+      toast.success("Pickup deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting pickup: ", error);
+      toast.error("Error deleting pickup. Please try again.");
+    }
+  };
+
+  // Complete Pickup
+  const completePickup = async (pickupId, weight) => {
+    if (!user) {
+      toast.error("You must be logged in to complete pickups.");
+      return;
+    }
+    try {
+      const pickupRef = doc(db, "pickups", pickupId);
+      await updateDoc(pickupRef, {
+        isCompleted: true,
+        ...(weight && { weight: weight }),
+      });
+  
+      // Find the completed pickup in userAcceptedPickups
+      const completedPickup = userAcceptedPickups.find(pickup => pickup.id === pickupId);
+      if (completedPickup) {
+        // Update local state to move the completed pickup
+        setUserAcceptedPickups(prev => prev.filter(pickup => pickup.id !== pickupId));
+        setCompletedPickups(prev => [...prev, { ...completedPickup, isCompleted: true }]);
+      }
+  
+      toast.success("Pickup completed successfully!");
+    } catch (error) {
+      console.error("Error completing pickup:", error);
+      toast.error("Error completing pickup. Please try again.");
     }
   };
 
   return (
     <PickupContext.Provider
       value={{
+        // CREATE
+        createPickup,
+        // READ
         pickups,
         visiblePickups,
-        userPickups,
-        fetchAllPickups,
-        deletePickup,
+        userAcceptedPickups,
+        allAcceptedPickups,
+        completedPickups,
+        userCreatedPickups,
+        // UPDATE
         acceptPickup,
-        addPickup,
+        // DELETE
+        deletePickup,
+        completePickup,
       }}
     >
       {children}

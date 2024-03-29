@@ -6,8 +6,9 @@ import ReactMapGl, {
   FullscreenControl,
   GeolocateControl,
 } from "react-map-gl";
+import { useLocations } from "../context/LocationContext";
 
-function Map() {
+function MapGl() {
   const [viewPort, setViewPort] = useState({
     center: [-122.433247, 37.742646], // starting position
     latitide: 37.742646,
@@ -24,49 +25,15 @@ function Map() {
 
   const [popupInfo, setPopupInfo] = useState(null);
   
-  const locations = useMemo(() => [
-    {
-      businessName: "3salaz",
-      city: "San Francisco",
-      population: "8,175,133",
-      busisnessLogo: "https://placeholder.com/350",
-      state: "California",
-      latitude: 37.756487,
-      longitude: -122.428322,
-      website: "https://google.com",
-      description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint, voluptatibus velit inventore accusamus optio quas corrupti obcaecati consequuntur ex similique rerum animi tempora quae, eos rem magni saepe itaque quos!"
-    },
-    {
-      city: "San Francisco",
-      population: "8,175,133",
-      state: "California",
-      latitude: 37.656487,
-      longitude: -122.388322,
-    },
-    {
-      city: "San Francisco",
-      population: "8,175,133",
-      state: "California",
-      latitude: 37.616487,
-      longitude: -122.388322,
-    },
-    {
-      city: "San Francisco",
-      population: "8,175,133",
-      state: "California",
-      latitude: 37.696487,
-      longitude: -122.388322,
-    },
-  ], []);
+  const { locations } = useLocations(); // Use the context to get locations
 
   const pins = useMemo(
     () =>
-      
       locations.map((location, index) => (
         <Marker
           key={`marker-${index}`}
-          longitude={location.longitude}
-          latitude={location.latitude}
+          longitude={location.lng}
+          latitude={location.lat}
           anchor="bottom"
           onClick={(e) => {
             // If we let the click event propagates to the map, it will immediately close the popup
@@ -86,7 +53,9 @@ function Map() {
       )),
     [locations]
   );
+
   // initialize map when component mounts
+
   return (
     <div id="map" className="h-[83svh] w-full">
       <ReactMapGl
@@ -106,8 +75,8 @@ function Map() {
         {popupInfo && (
           <Popup
             anchor="top"
-            longitude={Number(popupInfo.longitude)}
-            latitude={Number(popupInfo.latitude)}
+            longitude={Number(popupInfo.lng)}
+            latitude={Number(popupInfo.lat)}
             onClose={() => setPopupInfo(null)}
             className="border-grean border-b-4"
           >
@@ -144,4 +113,4 @@ function Map() {
   );
 }
 
-export default Map;
+export default MapGl;

@@ -19,7 +19,7 @@ function SignUpModal({ handleClose }) {
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn();
-      navigate("/profile");
+      navigate("/account");
       handleClose();
     } catch (e) {
       console.log(error);

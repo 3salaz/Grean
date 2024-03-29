@@ -136,8 +136,8 @@ function Navbar() {
                 <span className="sr-only">Open Users Menu</span>
                 <img
                   className="h-10 w-10 rounded-full bg-white"
-                  src={user.photoURL || avatar}
-                  alt="users profile pic"
+                  src={user.photoURL}
+                  alt="Users Pic"
                 ></img>
               </motion.button>
             </div>

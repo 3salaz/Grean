@@ -21,6 +21,7 @@ import About from "./routes/About";
 import Services from "./routes/Services";
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
+import Settings from "./routes/Settings";
 
 function App() {
   return (
@@ -45,6 +46,20 @@ function App() {
             }
           ></Route>
           <Route path="/about" element={<About />}></Route>
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <ProfileProvider>
+                  <LocationsProvider>
+                    <PickupsProvider>
+                      <Settings />
+                    </PickupsProvider>
+                  </LocationsProvider>
+                </ProfileProvider>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route path="/services" element={<Services />}></Route>
           <Route path="/contact" element={<Contact />}></Route>
           <Route path="/admin" element={<Admin />}></Route>

@@ -1,28 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useCycle, motion } from "framer-motion";
 import ProfileTab from "../components/Tabs/Profile/ProfileTab";
 import StatsTab from "../components/Tabs/Stats/StatsTab";
 import MapTab from "../components/Tabs/Map/MapTab";
 import Map from "../components/Map";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
-import { db } from "../firebase";
-import { UserAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
 
 function Account() {
-  const { user } = UserAuth();
   const [active, setActive] = useState(1);
   const [cycleComponent] = useCycle(false, true);
-  const [pickups, setPickups] = useState([]);
-  const [pickupIds, setPickupIds] = useState(new Set());
-  const pickupIdsRef = useRef(pickupIds); // Initialize ref with the current pickupIds
+
   
   const MenuItems = [
     { name: "Profile",icon: "person-circle-outline",dis: "translate-x-[-4rem]"},

@@ -1,24 +1,45 @@
 import { motion } from "framer-motion";
 import { usePickups } from "../../../context/PickupsContext";
+import { useEffect, useState } from "react";
 
 function Calendar({ handleClose }) {
-  const { userPickups } = usePickups();
+  const { userAcceptedPickups, completePickup } = usePickups();
+  const [formInputs, setFormInputs] = useState({});
+
+  useEffect(() => {
+    const initialFormStates = {};
+    userAcceptedPickups.forEach((pickup) => {
+      initialFormStates[pickup.id] = { weight: "", receipt: null };
+    });
+    setFormInputs(initialFormStates);
+  }, [userAcceptedPickups]); // Depend on userAcceptedPickups to re-run this effect
+
+  // Handle changes in form inputs and update the state
+  const handleInputChange = (pickupId, name, value) => {
+    setFormInputs((prev) => ({
+      ...prev,
+      [pickupId]: {
+        ...prev[pickupId],
+        [name]: value,
+      },
+    }));
+  };
 
   function formatDateInfo(dateString) {
-    if (!dateString) return { dayOfWeek: '', monthName: '', day: '', year: '' };
+    if (!dateString) return { dayOfWeek: "", monthName: "", day: "", year: "" };
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      return { dayOfWeek: 'Invalid Date', monthName: '', day: '', year: '' };
+      return { dayOfWeek: "Invalid Date", monthName: "", day: "", year: "" };
     }
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      weekday: 'long', // "Monday", "Tuesday", etc.
-      month: 'long', // "January", "February", etc.
-      day: 'numeric', // 1, 2, 3, etc.
-      year: 'numeric' // 2021, 2022, etc.
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      weekday: "long", // "Monday", "Tuesday", etc.
+      month: "long", // "January", "February", etc.
+      day: "numeric", // 1, 2, 3, etc.
+      year: "numeric", // 2021, 2022, etc.
     });
 
     const formattedDate = formatter.formatToParts(date).reduce((acc, part) => {
-      if (part.type !== 'literal') {
+      if (part.type !== "literal") {
         acc[part.type] = part.value;
       }
       return acc;
@@ -28,67 +49,127 @@ function Calendar({ handleClose }) {
       dayOfWeek: formattedDate.weekday,
       monthName: formattedDate.month,
       day: formattedDate.day,
-      year: formattedDate.year
+      year: formattedDate.year,
     };
   }
+
+  // Corrected handleSubmit function
+  const handleSubmit = async (pickupId, e) => {
+    e.preventDefault();
+    const { weight } = formInputs[pickupId] || {}; // Ensure we don't destructure undefined
+
+    // Assuming receipt handling is done elsewhere and we only need to pass weight
+    await completePickup(pickupId, weight);
+
+    // Clear form inputs for this pickup after submission
+    setFormInputs((prev) => ({
+      ...prev,
+      [pickupId]: { weight: "" },
+    }));
+
+    handleClose(); // Close the form/modal if needed
+  };
+
   return (
     <div
       id="calendar"
-      className="w-full absolute top-0 h-full bg-black bg-opacity-40 bg-blur-10 z-20 flex justify-center items-center"
+      className="w-full absolute top-0 h-full bg-black bg-opacity-40 bg-blur-10 z-20 flex justify-center items-center px-2"
     >
-      <div className="max-w-[600px] h-[96%] container drop-shadow-2xl rounded-lg text-slate bg-white border-grean border-4">
+      <div className="max-w-[600px] h-[90%] container drop-shadow-2xl rounded-lg text-slate bg-white border-grean border-4">
         <motion.section className="h-full w-full flex flex-col items-center  justify-center z-[100] py-4">
           <header className="w-full flex gap-2 justify-start items-center pl-12">
             <section className="text-8xl font-bold">
-              {userPickups === null ? "Loading..." : userPickups.length}
+              {userAcceptedPickups === null
+                ? "Loading..."
+                : userAcceptedPickups.filter((pickup) => !pickup.isCompleted)
+                    .length}
             </section>
             <section className="h-full flex flex-col justify-end items-start pb-4">
               <div className="text-2xl font-bold">My Schedule</div>
               <div className="text-md">Pickups Accepted</div>
             </section>
           </header>
-          <main className="w-[90%] max-w-[90%] h-[48rem] flex gap-2 overflow-x-scroll snap-proximity snap-x no-scroll">
-            {userPickups.map((pickup) => {
-              // Move the declaration here
-              const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupDate);
 
-              return (
-                <section key={pickup.id} className="min-w-[90%] bg-slate-700 rounded-lg snap-center shadow-xl p-2">
-                  {/* Now you can use the variables here */}
-                  <div className="w-full flex items-center justify-between px-4 gap-3 h-[30%] text-white">
-                    <div className="flex flex-col text-left">
-                      <div className="text-5xl text-orange">{dayOfWeek}</div>
-                      <div className="text-2xl">{monthName} {day}, {year}</div>
-                    </div>
-                  </div>
-                  <div className="w-full bg-white text-slate-800 rounded-md h-[60%]">
-                  <div className="text-center flex flex-col gap-4">
-                    <div>
-                      <div className="text-3xl">{pickup.name}</div>
-                      <div className="text-2xl font-bold">
-                        {pickup.username}
+          <main className="w-[90%] max-w-[90%] h-[48rem] flex gap-2 overflow-x-scroll snap-proximity snap-x no-scroll">
+            {userAcceptedPickups
+              .filter((pickup) => !pickup.isCompleted)
+              .map((pickup) => {
+                // Assuming formatDateInfo is correctly implemented to parse pickupDate
+                const { dayOfWeek, monthName, day, year } = formatDateInfo(
+                  pickup.pickupDate
+                );
+
+                return (
+                  <section
+                    key={pickup.id}
+                    className="min-w-[90%] bg-slate-700 rounded-lg snap-center shadow-xl p-2"
+                  >
+                    <div className="w-full flex items-center justify-between px-4 gap-3 h-[25%] text-white">
+                      <div className="flex flex-col text-left">
+                        <div className="text-5xl text-orange">{dayOfWeek}</div>
+                        <div className="text-2xl">
+                          {monthName} {day}, {year}
+                        </div>
                       </div>
-                      <div className="text-lg">{pickup.address}</div>
-                      <div className="text-lg">
-                        {pickup.city || "San Francisco"}, {pickup.pickupState || "Ca"}
+                    </div>
+                    <div className="w-full bg-white text-slate-800 rounded-md h-[75%]">
+                      <div className="text-center flex flex-col gap-4 p-4 justify-center h-full">
+                        {/* Adjusted to display businessAddress and pickupNote */}
+                        <div className="text-lg">{pickup.businessAddress}</div>
+                        <div className="text-xl font-bold">
+                          Pickup Note: {pickup.pickupNote}
+                        </div>
+                        <div>{pickup.id}</div>
+
+                        {/* Displaying pickupTime */}
+                        <div className="text-5xl font-bold">
+                          {pickup.pickupTime}
+                        </div>
+
+                        {/* Assuming you have a way to generate directions based on businessAddress */}
+                        <a
+                          href={`https://maps.google.com/?q=${pickup.businessAddress}`}
+                          className="text-xl text-orange underline"
+                        >
+                          Get Directions
+                        </a>
+                        <div className="bg-light-gray p-4 rounded-md">
+                          <form
+                            className="flex flex-col gap-4 container"
+                            onSubmit={(e) => handleSubmit(pickup.id, e)}
+                          >
+                            <label>Weight of Pickup</label>
+                            <div className="flex gap-2 items-center justify-center">
+                              <input
+                                name="weight"
+                                type="number"
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    pickup.id,
+                                    "weight",
+                                    e.target.value
+                                  )
+                                }
+                                value={formInputs[pickup.id]?.weight || ""}
+                                required
+                              />
+                              <span>Lbs</span>
+                            </div>
+                            <div>
+                              <button
+                                type="submit"
+                                className="bg-grean py-1 px-3 rounded-full"
+                              >
+                                Complete Pickup
+                              </button>
+                            </div>
+                          </form>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="text-5xl font-bold">{pickup.pickupTime}</div>
-                    </div>
-                    <div>
-                      <a
-                        href={pickup.directions}
-                        className="text-xl text-orange underline"
-                      >
-                        {pickup.directions}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                </section>
-              );
-            })}
+                  </section>
+                );
+              })}
           </main>
 
           <footer className="w-full px-8">

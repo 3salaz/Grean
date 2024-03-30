@@ -20,7 +20,7 @@ function LandingPage() {
     ></img>
     <div className="h-full w-full absolute z-20 flex items-center justify-center text-center">
       <div className="w-full flex flex-col items-center justify-center">
-        <div className="w-full">
+        <div className="w-full absolute">
           <AnimatedTextWord text="GREAN" />
         </div> 
         {user ? (
@@ -37,13 +37,13 @@ function LandingPage() {
           <motion.button
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
-            className=""
             onClick={() => (signInModalOpen ? closeModal() : openModal())}
+            className='w-full flex justify-center'
           >
-            <div className="w-36 p-2 bg-white rounded-lg flex items-center justify-center">
+            <div className="absolute w-32 text-center bottom-40 p-2 bg-white rounded-lg flex items-center justify-center">
               Sign In
             </div>
-        </motion.button>
+          </motion.button>
         )}
         {signInModalOpen && (
           <SignInModal modalOpen={signInModalOpen} handleClose={closeModal} />

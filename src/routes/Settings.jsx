@@ -1,20 +1,16 @@
 import UserHeader from '../components/UserHeader';
-import ProfileForm from '../components/Tabs/Profile/ProfileForm'
+import ProfileUpdate from '../components/ProfileUpdate'
 
 function Settings() {
   return (
-    <section
-    id="profileTab"
-    className="w-full h-[83svh] z-10 bg-white absolute top-0 flex items-center justify-center"
+    <main
+    id="profileUpdate"
+    className="w-full h-[90%] z-10 absolute top-[8%] flex flex-col items-center justify-center"
   >
     {/* Card */}
-    <main className="container mx-auto h-full flex items-center justify-center">
-      <div className="w-full h-full flex flex-col items-center relative">
           <UserHeader/>
-          <ProfileForm/>
-      </div>
-    </main>
-  </section>
+          <ProfileUpdate/>
+  </main>
   )
 }
 

@@ -60,29 +60,29 @@ function Pickup({ handleClose }) {
   return (
     <div
       id="pickup"
-      className="w-full absolute top-0 h-full bg-black bg-opacity-40 z-20 flex justify-center items-center px-4"
+      className="w-full h-[90%] bg-white flex justify-center items-center overflow-auto"
     >
-      <div className="bg-white max-w-[600px] h-[90%] container rounded-md drop-shadow-2xl flex items-center justify-center">
-        <form
-          className="h-full w-full px-4 py-2 flex flex-col justify-between"
-          onSubmit={handleSubmit}
-        >
-          <section className="flex flex-col gap-4">
-            <header className="text-center text-3xl font-bold bg-grean py-4 rounded-md text-white">
+      <form
+        className="flex flex-col w-full h-full  border-white border-4 rounded-t-lg"
+        onSubmit={handleSubmit}
+      >
+          <header className="h-[15%] min-h-[75px] flex flex-col gap-1 bg-grean">
+            <div className="text-center text-xl font-bold text-white">
               Pickup Request
-            </header>
-            <img
-              className="object-cover h-52 w-full bg-green"
-              src={mapScreen}
-            ></img>
-            <section className="flex flex-col gap-8 overflow-auto">
-              <label className="flex flex-col font-bold">
+            </div>
+            <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
+              Schedule your next pickup!
+            </div>
+          </header>
+          <main className="px-2 bg-grean h-[85%]">
+            <section className="flex flex-col gap-2 overflow-auto">
+              <label className="flex flex-col font-bold gap-1 text-sm">
                 Business Address:
                 <select
                   name="pickupAddress"
                   value={formData.address}
                   onChange={handleChange}
-                  className="rounded-lg p-2 font-normal"
+                  className="rounded-lg p-2 font-normal text-xs"
                 >
                   {/* Ensure there's a default option or handling for when businessAddress is not yet fetched */}
                   {formData.businessAddress && (
@@ -93,7 +93,7 @@ function Pickup({ handleClose }) {
                 </select>
               </label>
               <div className="flex">
-                <label className="flex flex-col font-bold basis-1/2 items-center justify-center">
+                <label className="flex flex-col text-sm font-bold basis-1/2 items-center justify-center">
                   Date:
                   <input
                     type="date"
@@ -101,18 +101,18 @@ function Pickup({ handleClose }) {
                     value={formData.pickupDate}
                     min={getCurrentDate()}
                     onChange={handleChange}
-                    className="text-2xl font-normal"
+                    className="text-xs font-normal"
                   />
                 </label>
 
-                <label className="flex flex-col font-bold basis-1/2 items-center justify-center">
+                <label className="flex flex-col text-sm font-bold basis-1/2 items-center justify-center">
                   Time:
                   <input
                     type="time"
                     name="pickupTime"
                     value={formData.pickupTime}
                     onChange={handleChange}
-                    className="text-2xl font-normal"
+                    className="text-xm font-normal"
                   />
                 </label>
               </div>
@@ -131,31 +131,21 @@ function Pickup({ handleClose }) {
                 className="block rounded-md border-0 p-2 text-black shadow-sm ring-1 ring-inset ring-grean placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
                 defaultValue={""}
                 onChange={handleChange}
-                
               />
             </section>
-          </section>
+          </main>
 
-          <section className="flex items-center justify-center flex-row gap-8 p-4">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="bg-grean text-white px-2 p-1 rounded-md w-40"
-              type="submit"
-            >
-              Submit
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="bg-red-500 text-white px-2 p-1 rounded-md w-40"
-              onClick={handleClose}
-            >
-              Close
-            </motion.button>
-          </section>
-        </form>
-      </div>
+        <section className="flex items-center justify-center flex-row pt-2 bg-white w-full">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="bg-grean text-white px-2 p-1 rounded-md w-40"
+            type="submit"
+          >
+            Submit
+          </motion.button>
+        </section>
+      </form>
     </div>
   );
 }

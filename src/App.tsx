@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
 import { PickupsProvider } from "./context/PickupsContext";
 
@@ -14,7 +14,6 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Components
 import Navbar from "./components/Navbar";
-
 import Admin from "./components/Admin/Admin";
 import Contact from "./routes/Contact";
 import About from "./routes/About";
@@ -22,13 +21,18 @@ import Services from "./routes/Services";
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
 import Settings from "./routes/Settings";
+import Tabbar from "./components/TabBar";
+import { useState } from "react";
 
 function App() {
+  const [activeTab, setActiveTab] = useState(1);
+  const location = useLocation(); // Get the current path
+
   return (
     <AuthContextProvider>
       <ToastContainer />
       <Navbar />
-      <main className="absolute top-[8svh] w-full bg-grean">
+      <main className="h-[82svh] w-full bg-white">
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route
@@ -38,7 +42,7 @@ function App() {
                 <ProfileProvider>
                   <LocationsProvider>
                     <PickupsProvider>
-                      <Account />
+                      <Account active={activeTab} />
                     </PickupsProvider>
                   </LocationsProvider>
                 </ProfileProvider>
@@ -65,6 +69,9 @@ function App() {
           <Route path="/admin" element={<Admin />}></Route>
         </Routes>
       </main>
+      {location.pathname !== "/settings" && location.pathname !== "/" && (
+        <Tabbar active={activeTab} setActive={setActiveTab} />
+      )}
     </AuthContextProvider>
   );
 }

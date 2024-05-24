@@ -27,8 +27,9 @@ function MainStats() {
   const statsType = isMonthly ? "monthly" : "overall";
 
   return (
-    <div className="w-full flex flex-col items-center justify-center bg-grean p-4  rounded-md  drop-shadow-2xl">
+    <div className="w-full h-full flex flex-col items-center justify-center p-4  rounded-md  drop-shadow-2xl">
       <section className="px-4 flex flex-col gap-3">
+
         <section className="px-4 flex flex-col gap-3">
           <div className="w-full flex flex-col gap-4 text-white">
             <section className="w-full bg-orange py-2 rounded-md">
@@ -92,10 +93,10 @@ function MainStats() {
             </div>
           </section>
         </section>
-        <div id="tabButtons" className="flex justify-center gap-4 text-center">
+        <div id="tabButtons" className="flex p-4 justify-center items-center text-center">
           <motion.button
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.8 }}
+            whileTap={{ scale: 0.9 }}
             className={`bg-white py-2 px-4 rounded-lg hover:border-2 hover:border-grean hover:text-grean hover:bg-white font-bold`}
             onClick={toggleStatsView}
           >

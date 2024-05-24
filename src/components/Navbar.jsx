@@ -1,5 +1,4 @@
 import logo from "../assets/logo.png";
-import avatar from "../assets/avatar.svg";
 import { motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
@@ -24,9 +23,9 @@ function Navbar() {
       console.log(e.message);
     }
   };
-
+  
   return (
-    <nav id="navbar" className="bg-grean top-0 inset-x-0 h-[8svh] z-50 relative">
+    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative">
       {/* signUp modal */}
       {signUpOpen && (
         <SignUpModal
@@ -262,22 +261,14 @@ function Navbar() {
           }}
           initial="closed"
           animate="open"
-          className="relative"
+          className="relative container mx-auto"
         >
           <div
-            className="absolute top-2 right-2 drop-shadow-lg z-30 w-36 rounded-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="absolute top-0 right-0 drop-shadow-lg z-30 w-36 rounded-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
           >
             {/* <!-- Active: "bg-gray-100", Not Active: "" --> */}
-            <Link
-              to="/settings"
-              className="block p-2 text-sm text-gray-700 w-full text-center"
-              role="menuitem"
-              tabIndex="-1"
-              id="user-menu-item-1"
-            >
-              Settings
-            </Link>
+
             <motion.button
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { usePickups } from "../../../context/PickupsContext";
-import { useProfile } from "../../../context/ProfileContext";
-import noPickupIcon from "../../../assets/no-pickups.svg";
+import { usePickups } from "../../../../context/PickupsContext";
+import { useProfile } from "../../../../context/ProfileContext";
+import noPickupIcon from "../../../../assets/no-pickups.svg";
 
 function Alerts() {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();

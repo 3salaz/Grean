@@ -7,7 +7,7 @@ import { GoogleButton } from "react-google-button";
 import { toast } from "react-hot-toast";
 
 
-function SignUpModal({ handleClose }) {
+function SignUp({ handleClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,7 +31,7 @@ function SignUpModal({ handleClose }) {
     setError("");
     try {
         await createUser(email, password);
-        navigate('/account');
+        navigate('/settings');
         handleClose();
     } catch (e) {
       setError(e.message);
@@ -173,4 +173,4 @@ function SignUpModal({ handleClose }) {
   );
 }
 
-export default SignUpModal;
+export default SignUp;

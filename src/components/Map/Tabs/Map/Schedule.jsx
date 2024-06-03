@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { usePickups } from "../../../context/PickupsContext";
+import { usePickups } from "../../../../context/PickupsContext";
 import { useEffect, useState } from "react";
 
 function Schedule({ handleClose }) {

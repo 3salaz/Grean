@@ -1,23 +1,21 @@
-import { motion } from "framer-motion";
-import Backdrop from "./Backdrop";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 import { GoogleButton } from "react-google-button";
 import { toast } from 'react-toastify';
 
-function SignInModal({ handleClose }) {
+function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { signIn, googleSignIn } = UserAuth();
+  const { signIn, googleSignIn, user } = UserAuth();
   const navigate = useNavigate();
+
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn();
       toast.success('Signed in successfully with Google!');
-      handleClose();
-      navigate("/account");
+      navigate("/settings");
     } catch (error) {
       console.log(error);
       toast.error('Error signing in with Google. Please try again.');
@@ -29,83 +27,39 @@ function SignInModal({ handleClose }) {
     setError("");
     try {
       await signIn(email, password);
-      handleClose();
       toast.success('Signed in successfully!');
-      navigate('/account')
+      navigate('/settings');
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         toast.error('User not found. Please check your email and try again.');
-      }
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error('Email address is already in use.'); // Display error toast message
-      }
-       else {
+      } else {
         setError(error.message);
-        // console.error(error);
         toast.error('Error signing in. Please check your credentials and try again.');
       }
     }
   };
-  
 
-  useEffect((user, navigate) => {
-    if (user != null) {
-      navigate("/profile");
+  useEffect(() => {
+    if (user) {
+      navigate("/settings");
     }
-  }, []);
-
-  const dropIn = {
-    hidden: {
-      y: "-100vh",
-      opacity: 0,
-    },
-    visible: {
-      y: "0",
-      opacity: 1,
-      transition: {
-        duration: 0.1,
-        type: "spring",
-        damping: 20,
-        stiffness: 300,
-      },
-    },
-    exit: {
-      y: "100vh",
-      opacity: 0,
-    },
-  };
+  }, [user, navigate]);
 
   return (
-    <Backdrop onClick={handleClose}>
-      <motion.div
+    <div className="w-full">
+      <div
+        className="h-full w-full px-2"
         onClick={(e) => e.stopPropagation()}
-        variants={dropIn}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="h-[92vh] w-full px-4"
       >
         <div className="flex w-full justify-center items-center">
           <div className="container h-full flex items-center justify-cente max-w-lg">
-            <div className="container max-w-3xl mx-auto bg-white rounded-md md:drop-shadow-lg">
-              <div className="w-full p-4 py-4 rounded-md">
+            <div className="container max-w-3xl mx-auto bg-white rounded-md">
+              <div className="w-full rounded-md">
                 <div className="w-full flex items-end justify-end">
-                  <motion.button
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="bg-red-500 stroke-slate-400 text-white rounded-md p-1 w-10 h-10 flex justify-center text-center items-center"
-                    onClick={handleClose}
-                  >
-                    <ion-icon
-                      className="stroke-slate-500"
-                      size="large"
-                      name="close-circle-outline"
-                    ></ion-icon>
-                  </motion.button>
                 </div>
                 <div className="mx-auto w-full">
                   <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-[#75B657]">
-                    Login to your account
+                    Sign In To Your Account
                   </h2>
                 </div>
                 <div className="mt-8">
@@ -127,7 +81,7 @@ function SignInModal({ handleClose }) {
                         placeholder="Enter Your Email"
                         required
                         className="block w-full rounded-md border-1 px-2 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      ></input>
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <label
@@ -154,14 +108,14 @@ function SignInModal({ handleClose }) {
                         autoComplete="current-password"
                         required
                         className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      ></input>
+                      />
                     </div>
                     <div className="w-full flex items-center justify-end">
                       <button
                         type="submit"
                         className="bg-[#75B657] rounded-xl w-24 p-1 text-lg text-white"
                       >
-                        Login
+                        Sign In
                       </button>
                     </div>
                   </form>
@@ -175,16 +129,16 @@ function SignInModal({ handleClose }) {
                     </Link>
                   </p>
                 </div>
-                <div className="w-full flex flex-col items-center justify-center gap-8 py-8">
-                  <GoogleButton onClick={handleGoogleSignIn} />
+                <div className="w-full flex flex-col items-center justify-center py-8">
+                  <GoogleButton className="w-full" onClick={handleGoogleSignIn} />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </motion.div>
-    </Backdrop>
+      </div>
+    </div>
   );
 }
 
-export default SignInModal;
+export default SignIn;

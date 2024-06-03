@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { usePickups } from "../../../context/PickupsContext";
-import { useProfile } from "../../../context/ProfileContext"; // Import the useProfile hook
+import { usePickups } from "../../../../context/PickupsContext";
+import { useProfile } from "../../../../context/ProfileContext"; // Import the useProfile hook
 import Pickup from "./Pickup";
 import Schedule from "./Schedule";
 import Alerts from "./Alerts";
 import Map from "../../Map";
-import Modal from "../../Modal"; // Import the new Modal component
+import Modal from "../../../UI/Modal"; // Import the new Modal component
 
 function MapTab() {
   const { profile } = useProfile(); // Access the user's profile, including the userRole

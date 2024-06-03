@@ -1,42 +1,49 @@
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import { motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { UserAuth } from "../context/AuthContext";
+import { UserAuth } from "../../context/AuthContext";
+import SideNav from "./SideNav";
+import Button from "../UI/Button";
 import { useState } from "react";
-import SignUpModal from "./SignUp";
+import Modal from "../UI/Modal";
+import MultiStepForm from "../UI/MultiStepForm";
 
 function Navbar() {
   const { user, logOut } = UserAuth();
   const navigate = useNavigate();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, toggleAccountNav] = useCycle(false, true);
-  const [signUpOpen, setSignUpOpen] = useState(false);
-  const closeSignUp = () => setSignUpOpen(false);
-  const openSignUp = () => setSignUpOpen(true);
+
+  const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
+  const openSignUpModal = () => setSignUpModalOpen(true);
+  const closeSignUpModal = () => setSignUpModalOpen(false);
+
   const handleLogout = async () => {
     try {
       await logOut();
       navigate("/");
-      console.log("your are logged out");
+      console.log("you are logged out");
       toggleAccountNav();
     } catch (e) {
       console.log(e.message);
     }
   };
-  
+
   return (
     <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative">
-      {/* signUp modal */}
-      {signUpOpen && (
-        <SignUpModal
-          modalOpen={signUpOpen}
-          handleClose={closeSignUp}
-        />
-      )}
+      <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
+          <Modal
+            isOpen={isSignUpModalOpen}
+            handleClose={closeSignUpModal}
+            width="max-w-lg"
+            height="h-[80%]"
+            bgColor="bg-white"
+            borderColor="border-blue-700"
+          >
+            <MultiStepForm /> {/* Use the MultiStepForm here */}
+          </Modal>
 
-      {/* Nav container */}
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
-        {/* <!-- Mobile menu button--> */}
         <div className="absolute z-30 md:hidden">
           <button
             type="button"
@@ -68,6 +75,7 @@ function Navbar() {
             ></motion.span>
           </button>
         </div>
+
         {/* Navbar */}
         <div className="relative flex flex-1 items-center justify-center sm:items-stretch sm:justify-start sm:hidden md:flex">
           <div className="flex flex-shrink-0 items-center">
@@ -75,12 +83,12 @@ function Navbar() {
               <img
                 className="sm:block h-10 w-10 lg:hidden rounded-full"
                 src={logo}
-                alt="Company logo"
+                alt="Grean Logo"
               ></img>
               <img
                 className="hidden h-10 w-auto lg:block rounded-full"
                 src={logo}
-                alt="Company logo"
+                alt="Grean Logo"
               ></img>
             </Link>
           </div>
@@ -117,13 +125,12 @@ function Navbar() {
 
         {/* Account Nav / Alerts */}
         <div className="absolute inset-y-0 right-2 flex gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-
-          {/* <!-- Profile dropdown --> */}
+          {/* Profile dropdown */}
           {user ? (
             <div className="relative z-30">
-              <motion.button
+              <Button
                 type="button"
-                className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                className=""
                 id="user-menu-button"
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -134,120 +141,26 @@ function Navbar() {
               >
                 <span className="sr-only">Open Users Menu</span>
                 <img
-                  className="h-10 w-10 rounded-full bg-white"
+                  className="h-10 w-10 rounded-full"
                   src={user.photoURL}
                   alt="Users Pic"
                 ></img>
-              </motion.button>
+              </Button>
             </div>
           ) : (
-            <motion.button
+            <Button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="bg-red-600 rounded-md p-2"
-              onClick={() => (signUpOpen ? closeSignUp() : openSignUp())}
+              onClick={openSignUpModal}
             >
-              <div className="w-16 p-1 text-white  flex items-center justify-center font-bold text-sm">
+              <div className="w-16 p-1 text-white flex items-center justify-center font-bold text-sm">
                 Sign Up
               </div>
-            </motion.button>
+            </Button>
           )}
         </div>
       </div>
-
-      {mobileNav && (
-        <motion.div
-          variants={{
-            open: {
-              x: "0%",
-            },
-            closed: {
-              x: "-100%",
-            },
-          }}
-          initial="closed"
-          animate="open"
-          className="fixed inset-0 space-y-10 p-6 bg-[#75B657] mx-auto flex flex-col justify-center"
-        >
-          <div className="container mx-auto">
-            <div className="text-center flex items-center">
-              <Link to="/">
-                <img className="w-32 rounded-full" src={logo} alt="logo"></img>
-              </Link>
-            </div>
-            <div className="space-y-5 pt-16">
-              <Link 
-                onClick={mobileNav} 
-                to="/"
-                href="#landing"
-                className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium"
-                aria-current="page">
-                    Home
-              </Link>
-              <Link
-                onClick={mobileNav}
-                to="/services"
-                className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-              >
-                Services
-              </Link>
-              <Link
-                onClick={mobileNav}
-                to="/about"
-                className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-              >
-                About
-              </Link>
-
-              <Link
-                onClick={mobileNav}
-                to="/contact"
-                className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-
-          <div className="w-full bg-white h-px"></div>
-          <ul className="flex items-center justify-center gap-x-5">
-            <li className="w-14 h-14 rounded-md bg-white">
-              <a
-                href="https://google.com"
-                className="w-full h-full flex items-center justify-center"
-              >
-                <ion-icon
-                  className="w-full h-full flex items-center justify-center"
-                  name="logo-instagram"
-                ></ion-icon>
-              </a>
-            </li>
-
-            <li className="w-14 h-14 rounded-md bg-white">
-              <a
-                href="https://google.com"
-                className="w-full h-full flex items-center justify-center"
-              >
-                <ion-icon
-                  className="w-full h-full flex items-center justify-center"
-                  name="logo-twitter"
-                ></ion-icon>
-              </a>
-            </li>
-            <li className="w-14 h-14 rounded-md bg-white">
-              <a
-                href="https://google.com"
-                className="w-full h-full flex items-center justify-center"
-              >
-                <ion-icon
-                  className="w-full h-full flex items-center justify-center"
-                  name="logo-linkedin"
-                ></ion-icon>
-              </a>
-            </li>
-          </ul>
-        </motion.div>
-      )}
 
       {accountNav && (
         <motion.div
@@ -267,9 +180,7 @@ function Navbar() {
             className="absolute top-0 right-0 drop-shadow-lg z-30 w-36 rounded-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
           >
-            {/* <!-- Active: "bg-gray-100", Not Active: "" --> */}
-
-            <motion.button
+            <Button
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleLogout}
@@ -279,7 +190,7 @@ function Navbar() {
               id="user-menu-item-2"
             >
               Sign out
-            </motion.button>
+            </Button>
           </div>
         </motion.div>
       )}

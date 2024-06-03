@@ -1,9 +1,11 @@
-import LandingPage from "../components/LandingPage";
+import Landing from "../components/Views/Landing";
+import Contact from "../components/Views/Contact";
 function Home() {
   return (
-    <div className="w-full h-full bg-grean bg-blur-60 absolute top-0 flex items-center justify-center">
-      <LandingPage/>
-    </div>
+    <main className="h-[92svh] overflow-auto snap-y snap-mandatory hide-scroll overscroll-none w-full">
+        <Landing />
+        <Contact />
+    </main>
   );
 }
 

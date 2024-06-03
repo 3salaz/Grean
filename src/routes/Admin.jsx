@@ -1,6 +1,6 @@
 import { addDoc, collection } from "firebase/firestore";
 import { useState } from "react";
-import { db } from "../../firebase";
+import { db } from "../firebase";
 
 function Admin() {
   const [displayName, setDisplayName] = useState("");

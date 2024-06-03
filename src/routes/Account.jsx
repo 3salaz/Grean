@@ -1,6 +1,6 @@
-import ProfileTab from "../components/Tabs/Profile/ProfileTab";
-import StatsTab from "../components/Tabs/Stats/StatsTab";
-import MapTab from "../components/Tabs/Map/MapTab";
+import ProfileTab from "../components/Map/Tabs/Profile/ProfileTab";
+import StatsTab from "../components/Map/Tabs/Stats/StatsTab";
+import MapTab from "../components/Map/Tabs/Map/MapTab";
 
 function Account({ active }) {
   return (

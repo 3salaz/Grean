@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import ProfileHeader from "../../UserHeader";
-import { useProfile } from "../../../context/ProfileContext";
+import ProfileHeader from "../../../UserHeader";
+import { useProfile } from "../../../../context/ProfileContext";
 
 // Modal Component
 const Modal = ({ isOpen, onClose, pickup }) => {

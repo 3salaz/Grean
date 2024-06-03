@@ -7,7 +7,7 @@ import ReactMapGl, {
   FullscreenControl,
   GeolocateControl,
 } from "react-map-gl";
-import { useLocations } from "../context/LocationContext";
+import { useLocations } from "../../context/LocationContext";
 
 function Map() {
   const [viewPort, setViewPort] = useState({

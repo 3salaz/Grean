@@ -8,31 +8,29 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 
-import {auth} from "../firebase";
+import { auth } from "../firebase";
 
 const UserContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-  // google sign In
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
+
   const createUser = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
-  // google sign in
+
   const googleSignIn = () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
+    return signInWithPopup(auth, provider);
   };
-  // sign in
+
   const signIn = (email, password) => {
-    console.log(signInWithEmailAndPassword(auth, email, password))
     return signInWithEmailAndPassword(auth, email, password);
   };
-  // logout
+
   const logOut = () => {
     return signOut(auth);
   };
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -41,7 +39,7 @@ export const AuthContextProvider = ({ children }) => {
     return () => {
       unsubscribe();
     };
-  });
+  }, []);
 
   return (
     <UserContext.Provider

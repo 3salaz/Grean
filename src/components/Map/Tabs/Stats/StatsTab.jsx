@@ -1,4 +1,4 @@
-import ProfileHeader from "../../UserHeader";
+import ProfileHeader from "../../../UserHeader";
 import MainStats from "./MainStats";
 
 function StatsTab() {

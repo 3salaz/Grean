@@ -13,15 +13,17 @@ import Account from "./routes/Account";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Components
-import Navbar from "./components/Navbar";
-import Admin from "./components/Admin/Admin";
+import Navbar from "./components/Navigation/Navbar";
+import Tabbar from "./components/Navigation/TabBar";
+
+
+import Admin from "./routes/Admin";
 import Contact from "./routes/Contact";
 import About from "./routes/About";
 import Services from "./routes/Services";
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
 import Settings from "./routes/Settings";
-import Tabbar from "./components/TabBar";
 import { useState } from "react";
 
 function App() {

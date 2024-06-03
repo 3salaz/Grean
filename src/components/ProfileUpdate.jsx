@@ -138,7 +138,7 @@ const ProfileUpdate = () => {
   return (
     <form className="container mx-auto h-full rounded-lg flex flex-col items-center">
       <main className="w-full h-full flex flex-col justify-between">
-        <div className=" min-h-[80%] max-h-[80%] w-full basis-2/3 overflow-auto bg-slate-800">
+        <div className=" min-h-[80%] max-h-[80%] w-full overflow-auto bg-grean">
           <section className=" p-2 h-full" id="profileFormDetails">
             <div className="bg-white text-slate-800 flex flex-col h-full w-full gap-4 rounded-md">
               <div className="rounded-md drop-shadow-lg p-1 gap-4 flex flex-col w-full">
@@ -498,7 +498,7 @@ const ProfileUpdate = () => {
           </section>
         </div>
 
-        <div className="min-h-[20%] max-h-[20%] flex flex-col items-center justify-center w-full basis-1/3 p-2">
+        <div className="min-h-[20%] max-h-[20%] flex flex-col items-center justify-center w-full p-2 bg-slate-800">
           <section className="flex w-full items-center justify-center gap-2 p-2 h-[70%]">
             {roles.map((role) => (
               <div className="flex flex-col items-center justify-center">
@@ -529,10 +529,18 @@ const ProfileUpdate = () => {
             ))}
           </section>
           <section
-            className="flex w-full items-center justify-center"
+            className="flex w-full items-center justify-center h-[30%]"
             id="profileFormBtns"
           >
             <div className="flex items-center gap-4 w-full">
+              <Link
+                to="/account"
+                type="button"
+                onClick={handleEdit}
+                className="w-full h-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none focus:bg-blue-600 text-center"
+              >
+                Back
+              </Link>
               {editMode ? (
                 <button
                   type="button"
@@ -550,13 +558,6 @@ const ProfileUpdate = () => {
                   Unlock
                 </button>
               )}
-              <Link to="/account"
-                type="button"
-                onClick={handleEdit}
-                className="w-full h-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none focus:bg-blue-600 text-center"
-              >
-                Back
-              </Link>
             </div>
           </section>
         </div>

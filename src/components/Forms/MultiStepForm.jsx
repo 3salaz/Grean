@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Button from "../UI/Button";
+import Button from "../Layout/Button";
 
 const MultiStepForm = () => {
   const [step, setStep] = useState(1);

@@ -3,10 +3,10 @@ import { motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import SideNav from "./SideNav";
-import Button from "../UI/Button";
+import Button from "./Button";
 import { useState } from "react";
-import Modal from "../UI/Modal";
-import MultiStepForm from "../UI/MultiStepForm";
+import Modal from "./Modal";
+import MultiStepForm from "../Forms/MultiStepForm";
 
 function Navbar() {
   const { user, logOut } = UserAuth();
@@ -30,18 +30,8 @@ function Navbar() {
   };
 
   return (
-    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative">
+    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative drop-shadow-lg">
       <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
-          <Modal
-            isOpen={isSignUpModalOpen}
-            handleClose={closeSignUpModal}
-            width="max-w-lg"
-            height="h-[80%]"
-            bgColor="bg-white"
-            borderColor="border-blue-700"
-          >
-            <MultiStepForm /> {/* Use the MultiStepForm here */}
-          </Modal>
 
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <div className="absolute z-30 md:hidden">
@@ -177,7 +167,7 @@ function Navbar() {
           className="relative container mx-auto"
         >
           <div
-            className="absolute top-0 right-0 drop-shadow-lg z-30 w-36 rounded-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="absolute top-0 right-0 drop-shadow-lg z-30 w-36 rounded-bl-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
           >
             <Button
@@ -194,6 +184,18 @@ function Navbar() {
           </div>
         </motion.div>
       )}
+
+      {/* Place the Modal here */}
+      <Modal
+        isOpen={isSignUpModalOpen}
+        handleClose={closeSignUpModal}
+        width="max-w-lg"
+        height="h-[80%] pt-10"
+        bgColor="bg-white"
+        borderColor="border-blue-700"
+      >
+        <MultiStepForm /> {/* Use the MultiStepForm here */}
+      </Modal>
     </nav>
   );
 }

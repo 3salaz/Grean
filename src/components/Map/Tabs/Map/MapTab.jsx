@@ -6,7 +6,7 @@ import Pickup from "./Pickup";
 import Schedule from "./Schedule";
 import Alerts from "./Alerts";
 import Map from "../../Map";
-import Modal from "../../../UI/Modal"; // Import the new Modal component
+import Modal from "../../../Layout/Modal"; // Import the new Modal component
 
 function MapTab() {
   const { profile } = useProfile(); // Access the user's profile, including the userRole

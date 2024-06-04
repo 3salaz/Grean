@@ -13,9 +13,8 @@ import Account from "./routes/Account";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Components
-import Navbar from "./components/Navigation/Navbar";
-import Tabbar from "./components/Navigation/TabBar";
-
+import Navbar from "./components/Layout/Navbar";
+import Tabbar from "./components/Layout/TabBar";
 
 import Admin from "./routes/Admin";
 import Contact from "./routes/Contact";
@@ -34,7 +33,7 @@ function App() {
     <AuthContextProvider>
       <ToastContainer />
       <Navbar />
-      <main className="h-[82svh] w-full bg-white">
+      <main className="h-[82svh] w-full bg-white relative"> {/* Added relative */}
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route
@@ -79,3 +78,4 @@ function App() {
 }
 
 export default App;
+

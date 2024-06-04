@@ -1,5 +1,5 @@
-import UserHeader from '../components/UserHeader';
-import ProfileUpdate from '../components/ProfileUpdate'
+import UserHeader from '../components/Common/UserHeader';
+import ProfileUpdate from '../components/Common/ProfileUpdate'
 
 function Settings() {
   return (

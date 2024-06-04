@@ -36,7 +36,7 @@ function AnimatedTextWord({text}) {
         variants={container}
         initial="hidden"
         animate="visible"
-        className='z-10 overflow-hidden flex items-center justify-center text-5xl md:text-6xl font-bold font-fam text-grean drop-shadow-xl'>
+        className='z-10 overflow-hidden flex items-center justify-center text-5xl md:text-6xl font-bold font-fam text-grean drop-shadow-3xl'>
         {words.map((word, index) => (
             <motion.span variants={child} className='mr-2.5' key={index}>
                 {word}

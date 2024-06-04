@@ -18,7 +18,7 @@ function Pickup({ handleClose }) {
   useEffect(() => {
     // Check if profile data is available and has the address field
     console.log(profile);
-    
+
     if (profile && profile.fullAddress) {
       setFormData((prevData) => ({
         ...prevData,

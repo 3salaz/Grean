@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ProfileHeader from "../../../UserHeader";
+import ProfileHeader from "../../../Common/UserHeader";
 import { useProfile } from "../../../../context/ProfileContext";
 
 // Modal Component

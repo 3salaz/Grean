@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { UserAuth } from "../context/AuthContext";
+import { UserAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import { useLocations } from "../context/LocationContext";
-import { useProfile } from "../context/ProfileContext";
+import { useLocations } from "../../context/LocationContext";
+import { useProfile } from "../../context/ProfileContext";
 import { motion } from "framer-motion";
 
 const ProfileUpdate = () => {

@@ -1,6 +1,6 @@
-import { UserAuth } from "../context/AuthContext";
+import { UserAuth } from "../../context/AuthContext";
 import { motion } from "framer-motion";
-import avatar from "../assets/avatar.svg";
+import avatar from "../../assets/avatar.svg";
 import { Link } from "react-router-dom";
 
 function UserHeader() {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import { GoogleButton } from "react-google-button";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -14,11 +14,11 @@ function SignIn() {
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn();
-      toast.success('Signed in successfully with Google!');
+      toast.success("Signed in successfully with Google!");
       navigate("/settings");
     } catch (error) {
       console.log(error);
-      toast.error('Error signing in with Google. Please try again.');
+      toast.error("Error signing in with Google. Please try again.");
     }
   };
 
@@ -27,14 +27,16 @@ function SignIn() {
     setError("");
     try {
       await signIn(email, password);
-      toast.success('Signed in successfully!');
-      navigate('/settings');
+      toast.success("Signed in successfully!");
+      navigate("/settings");
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        toast.error('User not found. Please check your email and try again.');
+      if (error.code === "auth/user-not-found") {
+        toast.error("User not found. Please check your email and try again.");
       } else {
         setError(error.message);
-        toast.error('Error signing in. Please check your credentials and try again.');
+        toast.error(
+          "Error signing in. Please check your credentials and try again."
+        );
       }
     }
   };
@@ -46,17 +48,13 @@ function SignIn() {
   }, [user, navigate]);
 
   return (
-    <div className="w-full">
-      <div
-        className="h-full w-full px-2"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="w-full bg-white rounded-md drop-shadow-lg">
+      <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
         <div className="flex w-full justify-center items-center">
           <div className="container h-full flex items-center justify-cente max-w-lg">
-            <div className="container max-w-3xl mx-auto bg-white rounded-md">
+            <div className="container max-w-3xl mx-auto rounded-md">
               <div className="w-full rounded-md">
-                <div className="w-full flex items-end justify-end">
-                </div>
+                <div className="w-full flex items-end justify-end"></div>
                 <div className="mx-auto w-full">
                   <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-[#75B657]">
                     Sign In To Your Account
@@ -64,26 +62,26 @@ function SignIn() {
                 </div>
                 <div className="mt-8">
                   <form className="space-y-4" onSubmit={handleSignIn}>
-                    <label
-                      id="email"
-                      htmlFor="email"
-                      className="block text-sm font-medium leading-6 text-grean text-left"
-                    >
-                      Email address
-                    </label>
-                    <div className="mt-2">
+                    <div className="flex flex-col">
+                      <label
+                        id="email"
+                        htmlFor="email"
+                        className="block text-sm font-medium leading-6 text-grean text-left"
+                      >
+                        Email address
+                      </label>
                       <input
                         onChange={(e) => setEmail(e.target.value)}
                         id="email"
                         name="email"
                         type="email"
                         autoComplete="email"
-                        placeholder="Enter Your Email"
+                        placeholder="Enter your email"
                         required
                         className="block w-full rounded-md border-1 px-2 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
                       <label
                         id="password"
                         htmlFor="password"
@@ -91,24 +89,23 @@ function SignIn() {
                       >
                         Password
                       </label>
-                      <div className="text-sm">
-                        <a
-                          href="https://google.com"
-                          className="font-semibold text-slate-500 hover:text-slate-800"
-                        >
-                          Forgot password?
-                        </a>
-                      </div>
-                    </div>
-                    <div className="mt-2">
                       <input
-                        onChange={(e) => setPassword(e.target.value)}
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        required
-                        className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          onChange={(e) => setPassword(e.target.value)}
+                          name="password"
+                          type="password"
+                          autoComplete="current-password"
+                          placeholder="Enter your password"
+                          required
+                          className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                    </div>
+                    <div className="text-sm">
+                      <a
+                        href="https://google.com"
+                        className="font-semibold text-blue-400 hover:text-slate-800"
+                      >
+                        Forgot password?
+                      </a>
                     </div>
                     <div className="w-full flex items-center justify-end">
                       <button
@@ -118,6 +115,7 @@ function SignIn() {
                         Sign In
                       </button>
                     </div>
+
                   </form>
                   <p className="mt-4 text-center text-sm text-gray-500">
                     Not a member?
@@ -130,7 +128,10 @@ function SignIn() {
                   </p>
                 </div>
                 <div className="w-full flex flex-col items-center justify-center py-8">
-                  <GoogleButton className="w-full" onClick={handleGoogleSignIn} />
+                  <GoogleButton
+                    className="w-full"
+                    onClick={handleGoogleSignIn}
+                  />
                 </div>
               </div>
             </div>

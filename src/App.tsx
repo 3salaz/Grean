@@ -17,13 +17,13 @@ import Navbar from "./components/Layout/Navbar";
 import Tabbar from "./components/Layout/TabBar";
 
 import Admin from "./routes/Admin";
-import Contact from "./routes/Contact";
 import About from "./routes/About";
-import Services from "./routes/Services";
+import Settings from "./routes/Settings";
+
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
-import Settings from "./routes/Settings";
 import { useState } from "react";
+import AccountSetup from "./routes/AccountSetup";
 
 function App() {
   const [activeTab, setActiveTab] = useState(1);
@@ -31,9 +31,15 @@ function App() {
 
   return (
     <AuthContextProvider>
-      <ToastContainer />
       <Navbar />
-      <main className="h-[82svh] w-full bg-white relative"> {/* Added relative */}
+
+      <main className="h-[82svh] w-full bg-white relative">
+        {" "}
+        {/* Added relative */}
+        <ToastContainer
+          position="top-center"
+          style={{ top: "8%", left: "50%", transform: "translateX(-50%)" }}
+        />
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route
@@ -48,6 +54,18 @@ function App() {
                   </LocationsProvider>
                 </ProfileProvider>
               </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/setup"
+            element={
+                <ProfileProvider>
+                  <LocationsProvider>
+                    <PickupsProvider>
+                      <AccountSetup />
+                    </PickupsProvider>
+                  </LocationsProvider>
+                </ProfileProvider>
             }
           ></Route>
           <Route path="/about" element={<About />}></Route>
@@ -65,12 +83,10 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          <Route path="/services" element={<Services />}></Route>
-          <Route path="/contact" element={<Contact />}></Route>
           <Route path="/admin" element={<Admin />}></Route>
         </Routes>
       </main>
-      {location.pathname !== "/settings" && location.pathname !== "/" && (
+      {location.pathname !== "/setup" && location.pathname !== "/" && (
         <Tabbar active={activeTab} setActive={setActiveTab} />
       )}
     </AuthContextProvider>
@@ -78,4 +94,3 @@ function App() {
 }
 
 export default App;
-

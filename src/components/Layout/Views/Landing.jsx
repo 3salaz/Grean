@@ -14,7 +14,7 @@ function Landing() {
   const { user } = UserAuth(); 
 
   return (
-    <section className="relative h-full w-full flex justify-center items-center snap-always snap-center">
+    <section className="relative h-full w-full flex justify-center items-center">
       <img className="absolute inset-0 w-full h-full object-cover" src={Background} alt="Woman sitting atop a rock edge which is extending outwards over a river."/>
       <div className="relative z-20 flex flex-col items-center gap-8 justify-center text-center w-full">
         <AnimatedTextWord text="GREAN" />

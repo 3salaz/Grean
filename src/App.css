@@ -47,6 +47,17 @@ body {
     color: white;
 }
 
+/* Map Popup */
+/* styles.css */
+.custom-popup {
+    max-width: 600px; /* Adjust the maximum width as needed */
+    width: 100%; /* Ensure the popup takes the full width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    overflow: hidden; /* Ensure the content does not overflow */
+    z-index: 50;
+  }
+  /* You can also add any other custom styles you want to apply to the popup */
+  
 /* Animate Bounce */
 /* styles.css */
 @keyframes bounce {
@@ -64,3 +75,4 @@ body {
   .bounce {
     animation: bounce 2s infinite;
   }
+

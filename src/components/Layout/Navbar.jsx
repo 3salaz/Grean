@@ -5,18 +5,12 @@ import { UserAuth } from "../../context/AuthContext";
 import SideNav from "./SideNav";
 import Button from "./Button";
 import { useState } from "react";
-import Modal from "./Modal";
-import MultiStepForm from "../Forms/MultiStepForm";
 
 function Navbar() {
   const { user, logOut } = UserAuth();
   const navigate = useNavigate();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, toggleAccountNav] = useCycle(false, true);
-
-  const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
-  const openSignUpModal = () => setSignUpModalOpen(true);
-  const closeSignUpModal = () => setSignUpModalOpen(false);
 
   const handleLogout = async () => {
     try {
@@ -142,11 +136,10 @@ function Navbar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="bg-red-600 rounded-md p-2"
-              onClick={openSignUpModal}
             >
-              <div className="w-16 p-1 text-white flex items-center justify-center font-bold text-sm">
+              <Link to='/setup' className="w-16 p-1 text-white flex items-center justify-center font-bold text-sm">
                 Sign Up
-              </div>
+              </Link>
             </Button>
           )}
         </div>
@@ -184,18 +177,6 @@ function Navbar() {
           </div>
         </motion.div>
       )}
-
-      {/* Place the Modal here */}
-      <Modal
-        isOpen={isSignUpModalOpen}
-        handleClose={closeSignUpModal}
-        width="max-w-lg"
-        height="h-[80%] pt-10"
-        bgColor="bg-white"
-        borderColor="border-blue-700"
-      >
-        <MultiStepForm /> {/* Use the MultiStepForm here */}
-      </Modal>
     </nav>
   );
 }

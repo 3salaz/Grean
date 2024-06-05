@@ -45,7 +45,7 @@ function MapTab() {
       {/* UI for modals' trigger buttons */}
       <div id="actionBtns" className="absolute w-full bottom-8 z-10 flex items-center justify-center">
         <div className="container mx-auto">
-          <div className="max-w-[650px] flex justify-end m-auto rounded-md drop-shadow-xl">
+          <div className="max-w-[650px] flex justify-end m-auto rounded-md">
             <div className="flex justify-center items-end w-full gap-8 px-5">
               {/* Conditional rendering for Pickup request button based on userRole */}
               {profile?.userRole === "Business" && (

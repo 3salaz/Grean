@@ -12,7 +12,7 @@ import { useLocations } from "../../context/LocationContext";
 function Map() {
   const [viewPort, setViewPort] = useState({
     center: [-122.433247, 37.742646], // starting position
-    latitide: 37.742646,
+    latitude: 37.742646,
     longitude: -122.433247,
     zoom: 11,
   });
@@ -44,13 +44,19 @@ function Map() {
           latitude={location.lat}
           anchor="bottom"
           onClick={(e) => {
-            // If we let the click event propagates to the map, it will immediately close the popup
+            // If we let the click event propagate to the map, it will immediately close the popup
             // with `closeOnClick: true`
             e.originalEvent.stopPropagation();
             setPopupInfo(location);
+            setViewPort((prev) => ({
+              ...prev,
+              latitude: location.lat,
+              longitude: location.lng,
+              zoom: 14, // Zoom in on the clicked location
+            }));
           }}
         >
-          <div className="flex flex-col items-center justify-center rounded-full p-1 drop-shadow-xl border-grean text-grean border-2 hover:text-orange hover:border-orange slate-800 bg-white">
+          <div className="flex flex-col items-center justify-center rounded-full p-1 border-grean text-grean border-2 hover:text-orange hover:border-orange slate-800 bg-white">
             <ion-icon
               className="w-full h-full flex items-center justify-center"
               name="pin-sharp"
@@ -97,44 +103,69 @@ function Map() {
           <GeolocateControl position="top-left" />
           <FullscreenControl position="top-left" />
           <NavigationControl position="top-left" />
-          {/* <ScaleControl /> */}
           {pins}
-          {popupInfo && (
-            <Popup
-              anchor="top"
-              longitude={Number(popupInfo.lng)}
-              latitude={Number(popupInfo.lat)}
-              onClose={() => setPopupInfo(null)}
-              className="border-grean border-b-4"
-            >
-              <div className="bg-white flex flex-col gap-1">
-                <header>
-                  <div className="flex items-center justify-center">
-                    <img className="w-full rounded-full basis-1/3" src={popupInfo.busisnessLogo} alt="business logo" /> 
-                  </div>
+          <AnimatePresence>
+            {popupInfo && (
+              <Popup
+                anchor="top"
+                longitude={Number(popupInfo.lng)}
+                latitude={Number(popupInfo.lat)}
+                closeButton={false}
+                closeOnClick={false}
+                onClose={() => setPopupInfo(null)}
+                className="custom-popup max-w-md md:max-w-lg"
+                maxWidth="600px"
+              >
+                <motion.div
+                  className="flex flex-col gap-2 rounded-md bg-grean drop-shadow-lg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <header className="relative">
+                    <div className="absolute top-0 right-0 p-2">
+                      <button
+                        onClick={() => setPopupInfo(null)}
+                        className="text-white bg-red-500 hover:bg-red-700 rounded-full p-1"
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-center w-full py-2">
+                      <img className=" h-20 w-20 bg-white aspect-square items-center justify-center flex rounded-full" src={popupInfo.busisnessLogo} alt="logo" />
+                    </div>
 
-                  <div className="flex text-[16px] items-center justify-center">
-                    <div className="text-2xl">{popupInfo.businessName}</div>
+                    <div className="flex text-[16px] items-center justify-center">
+                      <div className="text-2xl">{popupInfo.businessName}</div>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <a href={popupInfo.website} className="text-white font-bold basis-1/3 text-center" target="_new">
+                        Website
+                      </a>
+                    </div>
+                  </header>
+                  <div id="stats" className="flex gap-1 text-white text-center px-2">
+                    <div className="basis-1/3 bg-white text-grean rounded-sm flex flex-col p-2">
+                      <div className="font-bold">Plastic</div>
+                      <div>12lbs</div>
+                    </div>
+                    <div className="basis-1/3 bg-white text-grean rounded-sm flex flex-col p-2">
+                      <div className="font-bold">Aluminum</div>
+                      <div>12lbs</div>
+                    </div>
+                    <div className="basis-1/3 bg-white text-grean rounded-sm flex flex-col p-2">
+                      <div className="font-bold">Total</div>
+                      <div>24lbs</div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <a className="text-grean font-bold basis-1/3 text-center" target="_new" href={popupInfo.website}>
-                      Website
-                    </a>
+                  <div className="w-full">
+                    <div className="text-center">{popupInfo.description}</div>
                   </div>
-                </header>
-                <div id="stats" className="flex gap-1 text-white text-center">
-                  <div className="basis-1/3 bg-grean rounded-sm">
-                    Trash: 12lbs
-                  </div>
-                  <div className="basis-1/3 bg-grean rounded-sm">Home: 12lbs</div>
-                  <div className="basis-1/3 bg-grean rounded-sm">Car: 12lbs</div>
-                </div>
-                <div>
-                  <div className="text-center">{popupInfo.description}</div>
-                </div>
-              </div>
-            </Popup>
-          )}
+                </motion.div>
+              </Popup>
+            )}
+          </AnimatePresence>
         </ReactMapGl>
       )}
     </div>

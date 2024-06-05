@@ -46,11 +46,14 @@ const MultiStepForm = () => {
 
       {step === 2 && (
         <section className="min-h-[80%]">
-          <h2 className="text-xl mb-4">Role</h2>
+          <h2 className="text-xl mb-2 font-bold">Role</h2>
+          <p className="text-sm">Select the role you plan to have with Grean.</p>
+          <p className="text-xs pb-4">(This can be changed later in your settings)</p>
           <select className="w-full mb-4 p-2 border rounded">
-            <option>Select Role</option>
-            <option>Admin</option>
-            <option>User</option>
+            <label>Select Role</label>
+            <option>Driver</option>
+            <option>Business</option>
+            <option>Home</option>
           </select>
         </section>
       )}

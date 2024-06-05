@@ -6,7 +6,7 @@ import { useLocations } from "../../context/LocationContext";
 import { useProfile } from "../../context/ProfileContext";
 import { motion } from "framer-motion";
 
-const ProfileUpdate = () => {
+const ProfileForm = () => {
   const { user } = UserAuth();
   const { profile, updateProfile } = useProfile();
   const { updateLocation } = useLocations();
@@ -136,14 +136,14 @@ const ProfileUpdate = () => {
   ];
 
   return (
-    <form className="container mx-auto h-full rounded-lg flex flex-col items-center">
-      <main className="w-full h-full flex flex-col justify-between">
-        <div className=" min-h-[80%] max-h-[80%] w-full overflow-auto bg-grean">
+    <form className="h-full rounded-lg flex flex-col items-center">
+      <main className="container mx-auto h-full flex flex-col justify-between">
+        <div className=" min-h-[80%] max-h-[80%] w-full overflow-auto ">
           <section className=" p-2 h-full" id="profileFormDetails">
-            <div className="bg-white text-slate-800 flex flex-col h-full w-full gap-4 rounded-md">
-              <div className="rounded-md drop-shadow-lg p-1 gap-4 flex flex-col w-full">
+            <div className="flex flex-col h-full w-full gap-4 rounded-md">
+              <div className="rounded-md p-1 gap-4 flex flex-col w-full bg-white">
                 {/* Profile */}
-                <div className="bg-light-grey flex flex-col justify-start items-start gap-2">
+                <div className="flex flex-col justify-start items-start gap-2">
                   <div className="flex items-center gap-1">
                     <ion-icon
                       size="small"
@@ -209,13 +209,13 @@ const ProfileUpdate = () => {
               </div>
 
               <div
-                className={`rounded-md drop-shadow-lg p-2 gap-4 flex flex-col text-xs ${
+                className={`rounded-md gap-4 flex flex-col text-xs ${
                   formData.userRole === "Business" ? "bg-auto" : "bg-auto"
                 }`}
               >
                 {/* Business Info */}
                 {formData.userRole === "Business" && (
-                  <div className="">
+                  <div className="w-full bg-white p-2 rounded-md drop-shadow-lg">
                     {/* Profile */}
                     <div className="bg-light-grey flex flex-col justify-center items-start gap-2">
                       <div className="flex items-center gap-1">
@@ -504,10 +504,10 @@ const ProfileUpdate = () => {
               <div className="flex flex-col items-center justify-center">
                 <motion.div
                   key={role.name}
-                  className={`flex flex-col items-center justify-center border aspect-square w-16 h-16 text-center rounded-md gap-1 cursor-pointer ${
+                  className={`flex flex-col items-center justify-center border aspect-square w-20 h-20 text-center rounded-sm gap-2 cursor-pointer ${
                     formData.userRole === role.name
-                      ? "border-slate-800 bg-grean text-white font-bold "
-                      : "border-none"
+                      ? "bg-grean text-white font-bold border-white"
+                      : "border-none text-white border-white"
                   }`}
                   whileTap={{ scale: 0.9 }}
                   onClick={() =>
@@ -566,4 +566,4 @@ const ProfileUpdate = () => {
   );
 };
 
-export default ProfileUpdate;
+export default ProfileForm;

@@ -7,16 +7,16 @@ const Modal = ({ isOpen, handleClose, width, height, bgColor, borderColor, child
   return (
     <AnimatePresence>
       <motion.div
-        className={`fixed inset-0 flex items-center justify-center z-50`}
+        className={`fixed inset-0 flex items-center justify-center z-50 container mx-auto`}
         onClick={handleClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className={`relative p-4 ${bgColor} ${borderColor} ${width} ${height}`}
+          className={`relative p-4 w-full`}
           onClick={(e) => e.stopPropagation()}
-          initial={{ y: "-100vh" }}
+          initial={{ y: "200vh" }}
           animate={{ y: "0" }}
           exit={{ y: "100vh" }}
         >

@@ -136,7 +136,7 @@ const ProfileForm = () => {
   ];
 
   return (
-    <form className="h-full rounded-lg flex flex-col items-center">
+    <form className="h-[90%] rounded-lg flex flex-col items-center">
       <main className="container mx-auto h-full flex flex-col justify-between">
         <div className=" min-h-[80%] max-h-[80%] w-full overflow-auto ">
           <section className=" p-2 h-full" id="profileFormDetails">
@@ -528,8 +528,8 @@ const ProfileForm = () => {
               </div>
             ))}
           </section>
-          <section
-            className="flex w-full items-center justify-center h-[30%]"
+
+          <section className="flex w-full items-center justify-center h-[30%]"
             id="profileFormBtns"
           >
             <div className="flex items-center gap-4 w-full">

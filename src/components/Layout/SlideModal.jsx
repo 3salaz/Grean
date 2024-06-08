@@ -4,9 +4,9 @@ import Button from "./Button";
 const SlideModal = ({ isOpen, handleClose, children }) => {
   return (
     <motion.div
-      initial={{ y: "90%" }}
+      initial={{ y: "100%" }}
       animate={{ y: isOpen ? 0 : "110%" }}
-      exit={{ y: "90%" }}
+      exit={{ y: "100%" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="fixed bottom-[10svh] left-0 right-0 z-20 bg-grean shadow-lg rounded-t-lg p-2 pb-6"
     >

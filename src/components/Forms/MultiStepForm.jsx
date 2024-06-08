@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { UserAuth } from "../../context/AuthContext";
 import { useProfile } from "../../context/ProfileContext";
 import { useLocations } from "../../context/LocationContext";

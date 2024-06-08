@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ProfileHeader from "../../Common/UserHeader";
 import { useProfile } from "../../../context/ProfileContext";
 
@@ -7,7 +7,7 @@ const Modal = ({ isOpen, onClose, pickup }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
+      <div className="absolute inset-0 bg-black opacity-80"></div>
       <div className="bg-white p-4 rounded shadow-lg z-10">
         <h2 className="text-2xl font-bold mb-4">Pickup Details</h2>
         <div>Date: {pickup.date}</div>
@@ -16,7 +16,7 @@ const Modal = ({ isOpen, onClose, pickup }) => {
         <div>Price: ${pickup.price}</div>
         <button
           onClick={onClose}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          className="mt-4 px-4 py-2 bg-blue-500 text-slate-800 rounded"
         >
           Close
         </button>
@@ -32,9 +32,9 @@ const CircularProgress = ({ level, pounds, maxPounds }) => {
 
   // Calculate the stroke-dashoffset based on the progress
   const strokeDashoffset = 440 - (440 * progress) / 100;
-
+  
   return (
-    <div className="flex flex-col items-center justify-center text-white">
+    <div className="flex flex-col gap-2 items-center justify-center text-white">
       <svg
         className="w-32 h-32 text-white"
         viewBox="0 0 160 160"
@@ -73,7 +73,7 @@ const CircularProgress = ({ level, pounds, maxPounds }) => {
           {pounds} lbs
         </text>
       </svg>
-      <div className="text-center mt-4">
+      <div className="text-center">
         <h2 className="text-2xl font-bold">Level {level}</h2>
       </div>
       <section className="text-center">
@@ -125,6 +125,8 @@ const ProfileTab = () => {
     },
   ];
 
+  const { profile } = useProfile();
+
   // Example effect to update pounds and level (you can replace this with your actual logic)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -150,7 +152,7 @@ const ProfileTab = () => {
     setModalOpen(false);
     setSelectedPickup(null);
   };
-  const { profile } = useProfile();
+
 
   // Determine user role and set appropriate icon and text
   const getUserRoleInfo = () => {
@@ -171,9 +173,10 @@ const ProfileTab = () => {
   return (
       <main id="profileTab" className="w-full h-full z-20 flex flex-col items-center relative">
         <ProfileHeader />
-        <div className="w-full container h-[90%] flex flex-col items-center justify-center gap-2 overflow-auto rounded-t-md">
-          <div className="bg-slate-800 w-full h-full p-4 flex flex-col gap-2 overflow-auto">
-          <div className="flex items-center gap-2 text-white text-center">
+
+        <div className="w-full h-[90%] flex flex-col items-center justify-center gap-2 overflow-auto bg-slate-800 rounded-t-md text-white">
+          <div className="w-full  container rounded-t-md h-full p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-center">
               <ion-icon name={userRoleInfo.icon} size="large"></ion-icon>
               <span>{userRoleInfo.text}</span>
             </div>
@@ -198,7 +201,7 @@ const ProfileTab = () => {
                     onClick={() => setActiveTab(index)}
                     className={`cursor-pointer border-solid border px-2 pt-1 basis-1/3 ${
                       activeTab === index
-                        ? "border-b-transparent border-l-white border-r-white border-t-white"
+                        ? "border-b-transparent border-l-white border-r-white border-t-white bg-grean"
                         : "border-b-white border-l-transparent border-r-transparent border-t-transparent"
                     }`}
                   >
@@ -222,21 +225,23 @@ const ProfileTab = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full flex flex-col bg-white rounded-md">
-              <div className="text-2xl text-grean font-bold w-full text-center p-2">
+          </div>
+
+          <div className="w-full flex flex-col bg-white text-slate-800 rounded-t-md overflow-auto">
+              <div className="text-2xl text-grean font-bold w-full text-center">
                 History
               </div>
-              <ul className="w-full text-center">
-                <li className="border-b border-gray-300 px-4 flex justify-between font-bold">
+              <div className="border-b border-gray-300 px-4 flex justify-between font-bold">
                   <div>Date</div>
                   <div>Aluminum Weight</div>
                   <div>Plastic Weight</div>
                   <div>Price</div>
-                </li>
+              </div>
+              <ul className="w-full text-center overflow-auto">
                 {pickupHistory.map((pickup, index) => (
                   <li
                     key={index}
-                    className="border-b border-gray-300 py-2 px-4 flex justify-between cursor-pointer"
+                    className="border-b border-slate-800 py-2 px-4 flex justify-between cursor-pointers"
                     onClick={() => handlePickupClick(pickup)}
                   >
                     <div>{pickup.date}</div>
@@ -246,9 +251,9 @@ const ProfileTab = () => {
                   </li>
                 ))}
               </ul>
-            </div>
           </div>
         </div>
+
         <Modal
           isOpen={modalOpen}
           onClose={closeModal}

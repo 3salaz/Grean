@@ -28,7 +28,6 @@ function MapTab() {
   return (
     <main id="mapTab" className="relative w-full h-full">
       <Map />
-      
       {/* Modals */}
       <SlideModal isOpen={profile?.userRole === "Business" && pickupOpen} handleClose={closePickup}>
         <Pickup handleClose={closePickup} />

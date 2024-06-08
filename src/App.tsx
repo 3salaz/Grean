@@ -19,7 +19,6 @@ import Tabbar from "./components/Layout/TabBar";
 import Admin from "./routes/Admin";
 import About from "./routes/About";
 import Settings from "./routes/Settings";
-
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
 import { useState } from "react";

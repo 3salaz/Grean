@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import ProfileHeader from "../../../Common/UserHeader";
-import { useProfile } from "../../../../context/ProfileContext";
+import ProfileHeader from "../../Common/UserHeader";
+import { useProfile } from "../../../context/ProfileContext";
 
 // Modal Component
 const Modal = ({ isOpen, onClose, pickup }) => {
@@ -171,8 +171,8 @@ const ProfileTab = () => {
   return (
       <main id="profileTab" className="w-full h-full z-20 flex flex-col items-center relative">
         <ProfileHeader />
-        <div className="w-full container h-[89%] flex flex-col items-center justify-center gap-2 overflow-auto">
-          <div className="bg-slate-800 w-full h-full p-4 flex flex-col gap-2 overflow-auto rounded-t-md">
+        <div className="w-full container h-[90%] flex flex-col items-center justify-center gap-2 overflow-auto rounded-t-md">
+          <div className="bg-slate-800 w-full h-full p-4 flex flex-col gap-2 overflow-auto">
           <div className="flex items-center gap-2 text-white text-center">
               <ion-icon name={userRoleInfo.icon} size="large"></ion-icon>
               <span>{userRoleInfo.text}</span>

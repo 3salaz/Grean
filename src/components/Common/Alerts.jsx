@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { usePickups } from "../../../../context/PickupsContext";
-import { useProfile } from "../../../../context/ProfileContext";
-import noPickupIcon from "../../../../assets/no-pickups.svg";
+import { usePickups } from "../../context/PickupsContext";
+import { useProfile } from "../../context/ProfileContext";
+import noPickupIcon from "../../assets/no-pickups.svg";
 
 function Alerts() {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();
@@ -26,11 +26,11 @@ function Alerts() {
   return (
     <div
       id="alerts"
-      className="w-full h-[95%] bg-grean flex justify-center items-center overflow-auto"
+      className="w-full h-full flex justify-center items-center overflow-auto"
     >
       <div className="max-h-full min-h-full h-full w-full">
         {profile?.userRole === "Business" ? (
-          <section className="h-full bg-grean flex flex-col border-white border-4 rounded-t-lg">
+          <section className="h-full bg-grean flex flex-col justify-start border-white border-4 rounded-t-lg">
             <header className="h-[15%] flex flex-col gap-1 py-2">
               <div className="text-center text-xl font-bold text-white">
                 My Pickup Request

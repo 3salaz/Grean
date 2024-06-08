@@ -11,16 +11,16 @@ const Button = ({
   ...props
 }) => {
   const variants = {
-    primary: "bg-white text-grean hover:bg-grean hover:text-white",
+    primary: "bg-grean text-white hover:bg-grean hover:text-white",
     secondary: "bg-gray-500 text-white hover:bg-gray-700",
     alert: "bg-red-500 text-white hover:bg-red-700",
   };
   
 
   const sizes = {
-    small: "px-2 py-1 text-sm",
-    medium: "px-4 py-2 text-base",
-    large: "px-6 py-3 text-lg",
+    small: "px-2 py-1 text-sm w-10",
+    medium: "px-4 py-2 text-base w-30",
+    large: "px-6 py-3 text-lg w-50",
   };
 
   const shapes = {

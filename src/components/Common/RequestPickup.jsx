@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
-import { usePickups } from "../../../../context/PickupsContext";
-import { useProfile } from "../../../../context/ProfileContext";
+import { usePickups } from "../../context/PickupsContext";
+import { useProfile } from "../../context/ProfileContext";
 
-function Pickup({ handleClose }) {
+function RequestPickup({ handleClose }) {
   const { createPickup } = usePickups();
   const { profile } = useProfile();
 
@@ -56,22 +56,23 @@ function Pickup({ handleClose }) {
   return (
     <div
       id="pickup"
-      className="w-full h-[90%] bg-white flex justify-center items-center overflow-auto"
+      className="w-full h-full flex justify-center items-center overflow-auto py-2"
     >
       <form
-        className="flex flex-col w-full h-full  border-white border-4 rounded-t-lg px-2"
+        className="flex flex-col gap-2 w-full h-full px-2"
         onSubmit={handleSubmit}
       >
-        <header className="h-[15%] min-h-[75px] flex flex-col gap-1 bg-grean">
-          <div className="text-center text-xl font-bold text-white">
-            Pickup Request
+
+        <header className="flex flex-col gap-1">
+          <div className="text-center text-xl font-bold text-grean">
+            Request Pickup
           </div>
-          <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
+          <div className="text-xs text-center text-white font-bold bg-grean container p-2 mx-auto">
             Schedule your next pickup!
           </div>
         </header>
 
-        <main className=" bg-grean h-[75%] px-2">
+        <main className="">
           <section className="flex flex-col gap-2 overflow-auto">
             <label className="flex flex-col font-bold gap-1 text-sm text-center">
               Business Address:
@@ -83,7 +84,7 @@ function Pickup({ handleClose }) {
               >
                 {/* Ensure there's a default option or handling for when businessAddress is not yet fetched */}
                 {formData.businessAddress && (
-                  <option value={formData.businessAddress}>
+                  <option className="text-center" value={formData.businessAddress}>
                     {formData.businessAddress}
                   </option>
                 )}
@@ -99,7 +100,6 @@ function Pickup({ handleClose }) {
                   min={getCurrentDate()}
                   onChange={handleChange}
                   className="text-sm font-normal p-2 rounded-md "
-
                 />
               </label>
 
@@ -126,7 +126,7 @@ function Pickup({ handleClose }) {
               id="pickupNote"
               name="pickupNote"
               rows={3}
-              className="block rounded-md border-0 p-2 text-black shadow-sm ring-1 ring-inset ring-grean placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
+              className="block rounded-md p-2 text-black shadow-sm ring-1 ring-inset ring-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
               defaultValue={""}
               onChange={handleChange}
             />
@@ -143,9 +143,10 @@ function Pickup({ handleClose }) {
             Submit
           </motion.button>
         </section>
+        
       </form>
     </div>
   );
 }
 
-export default Pickup;
+export default RequestPickup;

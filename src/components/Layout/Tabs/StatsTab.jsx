@@ -1,5 +1,5 @@
-import ProfileHeader from "../../../Common/UserHeader";
-import MainStats from "./MainStats";
+import ProfileHeader from "../../Common/UserHeader";
+import MainStats from "../../Common/MainStats";
 
 function StatsTab() {
   return (
@@ -9,11 +9,11 @@ function StatsTab() {
     >
       <ProfileHeader />  
        
-      <section className="h-[85%] flex items-center justify-center px-2 bg-grean w-full rounded-t-md">
+      <section className="h-[80%] flex items-center justify-center px-2 bg-grean w-full rounded-t-md">
         <MainStats />
       </section>
 
-      <footer className="w-full flex justify-center items-center py-6">
+      <footer className="w-full flex justify-center items-center py-2 h-[10%]">
         <p className="text-black font-bold">
           Learn More:{" "}
           <a className="text-grean" href="https://grean.global">

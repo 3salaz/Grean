@@ -15,7 +15,7 @@ function SignIn() {
     try {
       await googleSignIn();
       toast.success("Signed in successfully with Google!");
-      navigate("/settings");
+      navigate("/account");
     } catch (error) {
       console.log(error);
       toast.error("Error signing in with Google. Please try again.");
@@ -28,7 +28,7 @@ function SignIn() {
     try {
       await signIn(email, password);
       toast.success("Signed in successfully!");
-      navigate("/settings");
+      navigate("/account");
     } catch (error) {
       if (error.code === "auth/user-not-found") {
         toast.error("User not found. Please check your email and try again.");
@@ -43,7 +43,7 @@ function SignIn() {
 
   useEffect(() => {
     if (user) {
-      navigate("/settings");
+      navigate("/account");
     }
   }, [user, navigate]);
 
@@ -120,7 +120,7 @@ function SignIn() {
                   <p className="mt-4 text-center text-sm text-gray-500">
                     Not a member?
                     <Link
-                      to="/signup"
+                      to="/setup"
                       className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
                     >
                       Sign up

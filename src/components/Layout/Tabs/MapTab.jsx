@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { usePickups } from "../../../../context/PickupsContext";
-import { useProfile } from "../../../../context/ProfileContext"; // Import the useProfile hook
-import Pickup from "./Pickup";
-import Schedule from "./Schedule";
-import Alerts from "./Alerts";
-import Map from "../../Map";
-import Modal from "../../../Layout/Modal"; // Import the new Modal component
+import { usePickups } from "../../../context/PickupsContext";
+import { useProfile } from "../../../context/ProfileContext"; // Import the useProfile hook
+import Pickup from "../../Common/RequestPickup";
+import Schedule from "../../Common/Schedule";
+import Alerts from "../../Common/Alerts";
+import Map from "../Map";
+import SlideModal from "../SlideModal"; // Import the new SlideModal component
 
 function MapTab() {
   const { profile } = useProfile(); // Access the user's profile, including the userRole
@@ -30,17 +30,17 @@ function MapTab() {
       <Map />
       
       {/* Modals */}
-      <Modal isOpen={profile?.userRole === "Business" && pickupOpen} handleClose={closePickup}>
+      <SlideModal isOpen={profile?.userRole === "Business" && pickupOpen} handleClose={closePickup}>
         <Pickup handleClose={closePickup} />
-      </Modal>
+      </SlideModal>
 
-      <Modal isOpen={alertsOpen} handleClose={closeAlerts}>
+      <SlideModal isOpen={alertsOpen} handleClose={closeAlerts}>
         <Alerts handleClose={closeAlerts} />
-      </Modal>
+      </SlideModal>
 
-      <Modal isOpen={scheduleOpen} handleClose={closeSchedule}>
+      <SlideModal isOpen={scheduleOpen} handleClose={closeSchedule}>
         <Schedule handleClose={closeSchedule} />
-      </Modal>
+      </SlideModal>
 
       {/* UI for modals' trigger buttons */}
       <div id="actionBtns" className="absolute w-full bottom-8 z-10 flex items-center justify-center">

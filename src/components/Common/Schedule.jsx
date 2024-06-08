@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { usePickups } from "../../../../context/PickupsContext";
+import { usePickups } from "../../context/PickupsContext";
 import { useEffect, useState } from "react";
 
 function Schedule({ handleClose }) {
@@ -79,11 +79,11 @@ function Schedule({ handleClose }) {
 
   return (
     <div
-      id="calendar"
-      className="w-full h-[90%] flex justify-center items-center overflow-auto bg-white rounded-lg"
+      id="schedule"
+      className="w-full h-full flex justify-center items-center overflow-auto bg-white rounded-lg"
     >
       <div className="max-w-[600px] h-full container rounded-lg text-slate-800">
-        <section className="h-full w-full flex flex-col items-center justify-center z-[100] gap-2">
+        <section className="h-full w-full flex flex-col items-center justify-center gap-2">
           <header className="w-full flex gap-2 justify-start items-center p-2 px-4">
             <section className="text-5xl font-bold">
               {userAcceptedPickups === null

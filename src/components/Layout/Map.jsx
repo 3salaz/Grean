@@ -73,7 +73,7 @@ function Map() {
       <AnimatePresence>
         {isLoading && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-white h-[80%] mt-[8svh]"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-white h-[80%] mt-[8svh]"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

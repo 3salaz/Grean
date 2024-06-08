@@ -7,7 +7,7 @@ import PaginationBubbles from "../components/Common/PaginationBubbles";
 function Home() {
   const sectionsRef = useRef([]);
   const [activeSection, setActiveSection] = useState(0);
-
+  
   const handleScroll = () => {
     const offset = window.innerHeight / 2; // Adjust the offset as needed
     const sectionPositions = sectionsRef.current.map(

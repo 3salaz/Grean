@@ -8,8 +8,8 @@ function Tabbar({ active, setActive }) {
   ];
 
   return (
-    <footer className="bg-slate-800 z-10 w-full border-t-[2px] border-t-white h-[10svh]">
-      <ul id="tabs" className="flex relative z-50 justify-center">
+    <footer className="bg-slate-800 w-full border-t-[2px] border-t-white h-[10svh] z-50">
+      <ul id="tabs" className="flex relative justify-center z-50 bg-slate-800">
         <span
           className={`bg-grean duration-500 ${MenuItems[active].dis} border-4 border-white h-16 w-16 absolute -top-5 rounded-full`}
         >

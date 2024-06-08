@@ -11,7 +11,7 @@ function Landing() {
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const closeModal = () => setSignInModalOpen(false);
   const openModal = () => setSignInModalOpen(true);
-  const { user } = UserAuth(); 
+  const { user } = UserAuth();
 
   return (
     <section className="relative h-full w-full flex justify-center items-center">
@@ -22,12 +22,13 @@ function Landing() {
           {user ? (
             <Link to="/account">
               <Button
-                className="w-20 h-20 border-4 border-grean flex items-center justify-center"
+                className="w-20 h-20 border-4 border-white flex items-center justify-center"
                 variant="primary" size="small" shape="circle"
               >
                 Account
               </Button>
             </Link>
+
           ) : (
             <Button
               whileHover={{ scale: 1.2 }}

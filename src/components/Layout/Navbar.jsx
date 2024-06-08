@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import SideNav from "./SideNav";
 import Button from "./Button";
-import { useState } from "react";
 
 function Navbar() {
   const { user, logOut } = UserAuth();
@@ -22,7 +21,7 @@ function Navbar() {
       console.log(e.message);
     }
   };
-
+  
   return (
     <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative drop-shadow-lg">
       <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
@@ -119,6 +118,7 @@ function Navbar() {
                 aria-expanded="false"
                 aria-haspopup="true"
                 aria-controls="user-menu"
+                shape="square"
                 onClick={() => toggleAccountNav()}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
@@ -136,6 +136,7 @@ function Navbar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="bg-red-600 rounded-md p-2"
+              
             >
               <Link to='/setup' className="w-16 p-1 text-white flex items-center justify-center font-bold text-sm">
                 Sign Up

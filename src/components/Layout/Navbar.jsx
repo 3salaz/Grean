@@ -1,4 +1,5 @@
 import logo from "../../assets/logo.png";
+import avatar from "../../assets/avatar.svg"
 import { motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
@@ -113,20 +114,21 @@ function Navbar() {
             <div className="relative z-30">
               <Button
                 type="button"
-                className=""
                 id="user-menu-button"
                 aria-expanded="false"
                 aria-haspopup="true"
                 aria-controls="user-menu"
-                shape="square"
+                variant="primary"
+                shape="circle"
                 onClick={() => toggleAccountNav()}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
+                className="justify-end"
               >
                 <span className="sr-only">Open Users Menu</span>
                 <img
-                  className="h-10 w-10 rounded-full"
-                  src={user.photoURL}
+                  className="h-10 w-10 rounded-full bg-white"
+                  src={user.photoURL || avatar} 
                   alt="Users Pic"
                 ></img>
               </Button>
@@ -135,10 +137,12 @@ function Navbar() {
             <Button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="bg-red-600 rounded-md p-2"
+              variant="white"
+              size="small"
+              // className="bg-red-600 rounded-md p-2"
               
             >
-              <Link to='/setup' className="w-16 p-1 text-white flex items-center justify-center font-bold text-sm">
+              <Link to='/setup' className="w-16 p-1 flex items-center justify-center font-bold text-sm">
                 Sign Up
               </Link>
             </Button>

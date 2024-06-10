@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
 import { usePickups } from "../../context/PickupsContext";
 import { useProfile } from "../../context/ProfileContext";
+import Button from "../Layout/Button";
 
 function RequestPickup({ handleClose }) {
   const { createPickup } = usePickups();
@@ -17,8 +18,6 @@ function RequestPickup({ handleClose }) {
 
   useEffect(() => {
     // Check if profile data is available and has the address field
-    console.log(profile);
-
     if (profile && profile.fullAddress) {
       setFormData((prevData) => ({
         ...prevData,
@@ -134,14 +133,15 @@ function RequestPickup({ handleClose }) {
         </main>
 
         <section className="flex h-[10%] items-end justify-center flex-row w-full">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="bg-grean text-white px-2 p-1 rounded-md w-40"
-            type="submit"
-          >
-            Submit
-          </motion.button>
+          <Button
+          variant="primary"
+          type="submit"
+          size="medium"
+          onClick={handleClose}
+        >
+          Request Pickup
+        </Button>
+          
         </section>
         
       </form>

@@ -5,11 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLocations } from "../../context/LocationContext";
 import { useProfile } from "../../context/ProfileContext";
 import { motion } from "framer-motion";
+import { Form, Input, Button, Row, Col } from "antd";
+
 
 const ProfileForm = () => {
   const { user } = UserAuth();
   const { profile, updateProfile } = useProfile();
   const { updateLocation } = useLocations();
+  const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -33,20 +36,19 @@ const ProfileForm = () => {
     businessEmail: formData.businessEmail || "",
     businessWebsite: formData.businessWebsite || "",
   };
-
+  
   const [editMode, setEditMode] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  console.log(error);
 
   useEffect(() => {
     setFormData(profile || {});
-  }, [profile]);
+    form.setFieldsValue(profile || {});
+  }, [profile, form]);
 
   const handleGeocodeAddress = async () => {
     const fullAddress = `${formData.street}, ${formData.city}, California`;
-    console.log(fullAddress);
     const apiUrl = `https://geocode.maps.co/search?q=${encodeURIComponent(
       fullAddress
     )}&api_key=660502575887c637237148utr0d3092`;
@@ -58,10 +60,12 @@ const ProfileForm = () => {
       if (data && data.length > 0) {
         const { lat, lon } = data[0];
         setCoordinates({ lat, lng: lon });
+        console.log(coordinates)
         setError("");
         return { lat, lng: lon };
       } else {
         setError("No results found. Please try a different address.");
+        console.log(error)
         return null;
       }
     } catch (err) {
@@ -71,13 +75,11 @@ const ProfileForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (values) => {
     let coords = { lat: null, lng: null };
-    const fullAddress = `${formData.street}, ${formData.city}, California`;
+    const fullAddress = `${values.street}, ${values.city}, California`;
 
-    if (formData.userRole === "Business") {
+    if (values.userRole === "Business") {
       const geocodedCoords = await handleGeocodeAddress();
       if (!geocodedCoords) {
         toast.error(
@@ -87,16 +89,16 @@ const ProfileForm = () => {
       }
       coords = geocodedCoords;
     }
-    console.log(coordinates);
+
     const updatedFormData = {
-      ...formData,
+      ...values,
       fullAddress,
       ...(coords.lat && coords.lng ? { lat: coords.lat, lng: coords.lng } : {}),
     };
 
     try {
       await updateProfile(updatedFormData);
-      if (formData.userRole === "Business" && coords.lat && coords.lng) {
+      if (values.userRole === "Business" && coords.lat && coords.lng) {
         await updateLocation({ ...locationData, ...coords });
       }
       toast.success("Profile saved successfully!");
@@ -107,26 +109,8 @@ const ProfileForm = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (name === "email" && !isValidEmail(value)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    setError(null);
-  };
-
   const handleEdit = () => {
     setEditMode((prevEditMode) => !prevEditMode);
-  };
-
-  const isValidEmail = (email) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
   };
 
   const roles = [
@@ -136,10 +120,15 @@ const ProfileForm = () => {
   ];
 
   return (
-    <form className="h-[90%] rounded-lg flex flex-col items-center">
+    <Form
+      form={form}
+      className="h-[90%] rounded-lg flex flex-col items-center"
+      onFinish={handleSubmit}
+      layout="vertical"
+    >
       <main className="container mx-auto h-full flex flex-col justify-between">
-        <div className=" min-h-[80%] max-h-[80%] w-full overflow-auto ">
-          <section className=" p-2 h-full" id="profileFormDetails">
+        <div className="min-h-[80%] max-h-[80%] w-full overflow-auto">
+          <section className="p-2 h-full" id="profileFormDetails">
             <div className="flex flex-col h-full w-full gap-4 rounded-md">
               <div className="rounded-md p-1 gap-4 flex flex-col w-full bg-white">
                 {/* Profile */}
@@ -157,66 +146,47 @@ const ProfileForm = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2 w-full text-xs">
+                <Row gutter={16} className="w-full text-xs">
                   {/* First Name */}
-                  <div
-                    id="firstName"
-                    className="flex items-center flex-col basis-1/2"
-                  >
-                    <label className="block text-gray-700" htmlFor="firstName">
-                      First Name
-                    </label>
-                    <input
-                      className={`px-4 py-2 border w-full  md:basis-4/6 rounded-md focus:outline-none focus:border-blue-500 text-center
-                ${
-                  editMode
-                    ? "bg-slate-100 border-slate-200"
-                    : "bg-slate-200 border-grean"
-                }
-              `}
-                      type="text"
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label="First Name"
                       name="firstName"
-                      value={formData.firstName}
-                      readOnly={!editMode}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                      rules={[
+                        { required: true, message: "Please input your first name!" },
+                      ]}
+                    >
+                      <Input
+                        className={`px-4 py-2 border w-full rounded-md text-center ${
+                          editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                        }`}
+                      />
+                    </Form.Item>
+                  </Col>
 
                   {/* Last Name */}
-                  <div
-                    id="lastName"
-                    className="flex items-center flex-col basis-1/2"
-                  >
-                    <label className="block text-gray-700" htmlFor="lastName">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label="Last Name"
                       name="lastName"
-                      value={formData.lastName}
-                      readOnly={!editMode}
-                      onChange={handleChange}
-                      required
-                      className={`py-2 border rounded-md focus:outline-none focus:border-blue-500 text-center w-full ${
-                        editMode // Toggle className based on editMode
-                          ? "bg-slate-100 border-slate-200"
-                          : "bg-slate-200 border-grean"
-                      }`}
-                    />
-                  </div>
-                </div>
+                      rules={[
+                        { required: true, message: "Please input your last name!" },
+                      ]}
+                    >
+                      <Input
+                        className={`px-4 py-2 border w-full rounded-md text-center ${
+                          editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                        }`}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
               </div>
 
-              <div
-                className={`rounded-md gap-4 flex flex-col text-xs ${
-                  formData.userRole === "Business" ? "bg-auto" : "bg-auto"
-                }`}
-              >
+              <div className={`rounded-md gap-4 flex flex-col bg-white text-xs ${formData.userRole === "Business" ? "bg-auto" : "bg-auto"}`}>
                 {/* Business Info */}
                 {formData.userRole === "Business" && (
                   <div className="w-full bg-white p-2 rounded-md drop-shadow-lg">
-                    {/* Profile */}
                     <div className="bg-light-grey flex flex-col justify-center items-start gap-2">
                       <div className="flex items-center gap-1">
                         <ion-icon
@@ -228,270 +198,218 @@ const ProfileForm = () => {
                       </div>
                       <div className="text-xs">Business details.</div>
                     </div>
-                    <div className="flex w-full flex-wrap rounded-lg bg-white">
-                      {/* Business */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label
-                          htmlFor="businessName"
-                          className="block text-gray-700 basis-2/6"
-                        >
-                          Business Name:
-                        </label>
-                        <input
-                          id="businessName"
-                          type="text"
+                    <Row gutter={16} className="w-full flex-wrap rounded-lg bg-white">
+                      {/* Business Name */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Business Name"
                           name="businessName"
-                          value={formData.businessName}
-                          readOnly={!editMode}
-                          onChange={handleChange}
-                          required
-                          className={`px-4 py-2 w-full border md:basis-4/6 rounded-md focus:outline-none focus:border-blue-500 text-center 
-                      ${
-                        editMode
-                          ? "bg-slate-100 border-slate-200"
-                          : "bg-slate-200 border-grean font-bold"
-                      }`}
-                        />
-                      </div>
+                          rules={[
+                            { required: true, message: "Please input your business name!" },
+                          ]}
+                        >
+                          <Input
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
+
                       {/* Street */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label htmlFor="street" className="block text-gray-700">
-                          Street:
-                        </label>
-                        <input
-                          id="street"
-                          type="text"
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Street"
                           name="street"
-                          value={formData.street}
-                          readOnly={!editMode}
-                          onChange={handleChange}
-                          required
-                          className={`px-4 py-2 w-full border  md:basis-4/6 rounded-md focus:outline-none focus:border-blue-500 text-center                       ${
-                            editMode
-                              ? "bg-slate-100 border-slate-200"
-                              : "bg-slate-200 border-grean font-bold"
-                          }`}
-                        />
-                      </div>
+                          rules={[
+                            { required: true, message: "Please input your street address!" },
+                          ]}
+                        >
+                          <Input
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
 
                       {/* City */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label htmlFor="city" className="block text-gray-700">
-                          City:
-                        </label>
-                        <input
-                          id="city"
-                          type="text"
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="City"
                           name="city"
-                          value={formData.city}
-                          readOnly={!editMode}
-                          onChange={handleChange}
-                          required
-                          className={`px-4 py-2 w-full border  md:basis-4/6 rounded-md focus:outline-none focus:border-blue-500 text-center                       
-                        ${
-                          editMode
-                            ? "bg-slate-100 border-slate-200"
-                            : "bg-slate-200 border-grean font-bold"
-                        }`}
-                        />
-                      </div>
+                          rules={[
+                            { required: true, message: "Please input your city!" },
+                          ]}
+                        >
+                          <Input
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                      {/* State - Preset to California and Read-only */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label htmlFor="state" className="block text-gray-700">
-                          State:
-                        </label>
-                        <input
-                          id="state"
-                          type="text"
+                      {/* State */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="State"
                           name="state"
-                          value="California"
-                          readOnly
-                          className={`px-4 py-2 w-full border  md:basis-4/6 rounded-md focus:outline-none focus:border-blue-500 text-center read-only-styles
-                        ${
-                          editMode
-                            ? "bg-slate-100 border-slate-200"
-                            : "bg-slate-200 border-grean font-bold"
-                        }`}
-                        />
-                      </div>
+                          initialValue="California"
+                        >
+                          <Input
+                            readOnly
+                            className={`px-4 py-2 w-full border rounded-md text-center read-only-styles ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                      {/* Email Address */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label
-                          htmlFor="lastName"
-                          className="block text-gray-700"
-                        >
-                          Email
-                        </label>
-                        <input
-                          id="businessEmail"
-                          type="email"
+                      {/* Business Email */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Business Email"
                           name="businessEmail"
-                          placeholder="email@something.com"
-                          readOnly={!editMode}
-                          value={formData.businessEmail}
-                          onChange={handleChange}
-                          required
-                          className={`px-4 py-2 w-full  border   rounded-md focus:outline-none focus:border-blue-500 text-center ${
-                            editMode
-                              ? "bg-slate-100 border-slate-200"
-                              : "bg-slate-200 border-grean font-bold"
-                          }`}
-                        />
-                      </div>
-                      {/* Website */}
-                      <div className="flex items-center flex-col basis-1/2 px-1">
-                        <label
-                          htmlFor="BusinessWebsite"
-                          className="block text-gray-700"
+                          rules={[
+                            { required: true, type: "email", message: "Please input your business email!" },
+                          ]}
                         >
-                          Business Website
-                        </label>
-                        <input
-                          id="businessWebsite"
-                          type="url"
+                          <Input
+                            
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Business Website */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Business Website"
                           name="businessWebsite"
-                          value={formData.businessWebsite}
-                          readOnly={!editMode}
-                          onChange={handleChange}
-                          className={`px-4 py-2 w-full  border   rounded-md focus:outline-none focus:border-blue-500 text-center ${
-                            editMode
-                              ? "bg-slate-100 border-slate-200"
-                              : "bg-slate-200 border-grean font-bold"
-                          }`}
-                        />
-                      </div>
-                      {/* Description */}
-                      <div className="flex items-center flex-col basis-full px-1">
-                        <label
-                          htmlFor="businessDescription"
-                          className="block text-gray-700"
+                          rules={[
+                            { type: "url", message: "Please input a valid URL!" },
+                          ]}
                         >
-                          Business Description
-                        </label>
-                        <textarea
-                          id="businessDescription"
+                          <Input
+                            
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Business Description */}
+                      <Col xs={24} md={24}>
+                        <Form.Item
+                          label="Business Description"
                           name="businessDescription"
-                          value={formData.businessDescription}
-                          readOnly={!editMode}
-                          onChange={handleChange}
-                          className={`px-4 py-2 w-full  border   rounded-md focus:outline-none focus:border-blue-500 text-center ${
-                            editMode
-                              ? "bg-slate-100 border-slate-200"
-                              : "bg-slate-200 border-grean font-bold"
-                          }`}
-                        ></textarea>
-                      </div>
-                    </div>
+                        >
+                          <Input.TextArea
+                            
+                            className={`px-4 py-2 w-full border rounded-md text-center ${
+                              editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                            }`}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
                   </div>
                 )}
 
                 {formData.userRole === "Driver" && (
-                  <div className="flex w-full">
-                    <div className="flex items-center flex-col w-full">
-                      <label
-                        htmlFor="businessName"
-                        className="block text-gray-700"
-                      >
-                        Drivers Name
-                      </label>
-                      <input
-                        id="driverName"
-                        type="text"
-                        name="driverName"
-                        value={formData.driverName}
-                        readOnly={!editMode}
-                        onChange={handleChange}
-                        required
-                        className={`px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500 text-center w-full 
-                ${
-                  editMode
-                    ? "bg-slate-100 border-slate-200"
-                    : "bg-slate-200 border-grean font-bold"
-                }`}
-                      />
-                    </div>
-                  </div>
+                  <Form.Item
+                    label="Driver's Name"
+                    name="driverName"
+                    className="flex items-center flex-col w-full"
+                    rules={[
+                      { required: true, message: "Please input the driver's name!" },
+                    ]}
+                  >
+                    <Input
+                      
+                      className={`px-4 py-2 border rounded-md text-center w-full ${
+                        editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                      }`}
+                    />
+                  </Form.Item>
                 )}
 
                 {formData.userRole === "Home" && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-lg">
+                  <Row gutter={16} className="w-full overflow-auto rounded-lg p-2" >
                     {/* Street */}
-                    <div className="flex items-center flex-col col-span-2">
-                      <label htmlFor="street" className="block text-gray-700">
-                        Street:
-                      </label>
-                      <input
-                        id="street"
-                        type="text"
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="Street"
                         name="street"
-                        value={formData.street}
-                        readOnly={!editMode}
-                        onChange={handleChange}
-                        required
-                        className={`text-center ${
-                          editMode ? "editable-styles" : "read-only-styles"
-                        }`}
-                      />
-                    </div>
+                        rules={[
+                          { required: true, message: "Please input your street address!" },
+                        ]}
+                      >
+                        <Input
+                          
+                          className={`text-center ${
+                            editMode ? "editable-styles" : "read-only-styles"
+                          }`}
+                        />
+                      </Form.Item>
+                    </Col>
 
                     {/* City */}
-                    <div className="flex items-center flex-col col-span-2">
-                      <label htmlFor="city" className="block text-gray-700">
-                        City:
-                      </label>
-                      <input
-                        id="city"
-                        type="text"
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="City"
                         name="city"
-                        value={formData.city}
-                        readOnly={!editMode}
-                        onChange={handleChange}
-                        required
-                        className={`text-center ${
-                          editMode ? "editable-styles" : "read-only-styles"
-                        }`}
-                      />
-                    </div>
+                        rules={[
+                          { required: true, message: "Please input your city!" },
+                        ]}
+                      >
+                        <Input
+                          
+                          className={`text-center ${
+                            editMode ? "editable-styles" : "read-only-styles"
+                          }`}
+                        />
+                      </Form.Item>
+                    </Col>
 
-                    {/* State - Preset to California and Read-only */}
-                    <div className="flex items-center flex-col col-span-2">
-                      <label htmlFor="state" className="block text-gray-700">
-                        State:
-                      </label>
-                      <input
-                        id="state"
-                        type="text"
+                    {/* State */}
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="State"
                         name="state"
-                        value="California"
-                        readOnly
-                        className="text-center read-only-styles"
-                      />
-                    </div>
+                        initialValue="California"
+                      >
+                        <Input
+                          readOnly
+                          className={`text-center read-only-styles ${
+                            editMode ? "editable-styles" : "read-only-styles"
+                          }`}
+                        />
+                      </Form.Item>
+                    </Col>
 
                     {/* Email Address */}
-                    <div className="flex items-center flex-col col-span-2">
-                      <label htmlFor="lastName" className="block text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        id="businessEmail"
-                        type="email"
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="Email"
                         name="businessEmail"
-                        placeholder="email@something.com"
-                        readOnly={!editMode}
-                        value={formData.businessEmail}
-                        onChange={handleChange}
-                        required
-                        className={`px-4 py-2  border   rounded-md focus:outline-none focus:border-blue-500 text-center ${
-                          editMode
-                            ? "bg-slate-100 border-slate-200"
-                            : "bg-slate-200 border-grean font-bold"
-                        }`}
-                      />
-                    </div>
-                  </div>
+                        rules={[
+                          { required: true, type: "email", message: "Please input your email!" },
+                        ]}
+                      >
+                        <Input
+                          
+                          className={`px-4 py-2 border rounded-md text-center ${
+                            editMode ? "bg-slate-100 border-slate-200" : "bg-slate-200 border-grean"
+                          }`}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
                 )}
               </div>
             </div>
@@ -501,25 +419,18 @@ const ProfileForm = () => {
         <div className="min-h-[20%] max-h-[20%] flex flex-col items-center justify-center w-full p-2 bg-slate-800">
           <section className="flex w-full items-center justify-center gap-2 p-2 h-[70%]">
             {roles.map((role) => (
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-center" key={role.name}>
                 <motion.div
-                  key={role.name}
                   className={`flex flex-col items-center justify-center border aspect-square w-20 h-20 text-center rounded-sm gap-2 cursor-pointer ${
                     formData.userRole === role.name
                       ? "bg-grean text-white font-bold border-white"
                       : "border-none text-white border-white"
                   }`}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, userRole: role.name }))
-                  }
+                  onClick={() => setFormData((prev) => ({ ...prev, userRole: role.name }))}
                 >
                   <ion-icon
-                    className={`text-white ${
-                      formData.userRole === role.name
-                        ? "text-white"
-                        : "text-slate-800"
-                    }`}
+                    className={`text-white ${formData.userRole === role.name ? "text-white" : "text-slate-800"}`}
                     size="small"
                     name={role.icon}
                   ></ion-icon>
@@ -529,9 +440,7 @@ const ProfileForm = () => {
             ))}
           </section>
 
-          <section className="flex w-full items-center justify-center h-[30%]"
-            id="profileFormBtns"
-          >
+          <section className="flex w-full items-center justify-center h-[30%]" id="profileFormBtns">
             <div className="flex items-center gap-4 w-full">
               <Link
                 to="/account"
@@ -541,28 +450,18 @@ const ProfileForm = () => {
               >
                 Back
               </Link>
-              {editMode ? (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="w-full h-full px-4 py-2 bg-grean text-white rounded-md focus:outline-none focus:bg-green-600"
-                >
-                  Save
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleEdit}
-                  className="w-full h-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none focus:bg-blue-600"
-                >
-                  Unlock
-                </button>
-              )}
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full h-full px-4 py-2 bg-grean text-white rounded-md focus:outline-none focus:bg-green-600"
+              >
+                Save
+              </Button>
             </div>
           </section>
         </div>
       </main>
-    </form>
+    </Form>
   );
 };
 

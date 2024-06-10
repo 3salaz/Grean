@@ -48,91 +48,85 @@ function SignIn() {
   }, [user, navigate]);
 
   return (
-    <div className="w-full bg-white rounded-md drop-shadow-lg">
-      <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
-        <div className="flex w-full justify-center items-center">
-          <div className="container h-full flex items-center justify-cente max-w-lg">
-            <div className="container max-w-3xl mx-auto rounded-md">
-              <div className="w-full rounded-md">
-                <div className="w-full flex items-end justify-end"></div>
-                <div className="mx-auto w-full">
-                  <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-[#75B657]">
-                    Sign In To Your Account
-                  </h2>
-                </div>
-                <div className="mt-8">
-                  <form className="space-y-4" onSubmit={handleSignIn}>
-                    <div className="flex flex-col">
-                      <label
-                        id="email"
-                        htmlFor="email"
-                        className="block text-sm font-medium leading-6 text-grean text-left"
-                      >
-                        Email address
-                      </label>
-                      <input
-                        onChange={(e) => setEmail(e.target.value)}
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        placeholder="Enter your email"
-                        required
-                        className="block w-full rounded-md border-1 px-2 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label
-                        id="password"
-                        htmlFor="password"
-                        className="block text-sm font-medium leading-6 text-grean"
-                      >
-                        Password
-                      </label>
-                      <input
-                          onChange={(e) => setPassword(e.target.value)}
-                          name="password"
-                          type="password"
-                          autoComplete="current-password"
-                          placeholder="Enter your password"
-                          required
-                          className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    <div className="text-sm">
-                      <a
-                        href="https://google.com"
-                        className="font-semibold text-blue-400 hover:text-slate-800"
-                      >
-                        Forgot password?
-                      </a>
-                    </div>
-                    <div className="w-full flex items-center justify-end">
-                      <button
-                        type="submit"
-                        className="bg-[#75B657] rounded-xl w-24 p-1 text-lg text-white"
-                      >
-                        Sign In
-                      </button>
-                    </div>
-
-                  </form>
-                  <p className="mt-4 text-center text-sm text-gray-500">
-                    Not a member?
-                    <Link
-                      to="/setup"
-                      className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
+    <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex w-full justify-center items-center">
+        <div className="container h-full flex items-center justify-cente max-w-lg">
+          <div className="container max-w-3xl mx-auto rounded-md">
+            <div className="w-full rounded-md">
+              <div className="w-full flex items-end justify-end"></div>
+              <div className="mx-auto w-full">
+                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-[#75B657]">
+                  Sign In To Your Account
+                </h2>
+              </div>
+              <div className="mt-8">
+                <form className="space-y-4" onSubmit={handleSignIn}>
+                  <div className="flex flex-col">
+                    <label
+                      id="email"
+                      htmlFor="email"
+                      className="block text-sm font-medium leading-6 text-grean text-left"
                     >
-                      Sign up
-                    </Link>
-                  </p>
-                </div>
-                <div className="w-full flex flex-col items-center justify-center py-8">
-                  <GoogleButton
-                    className="w-full"
-                    onClick={handleGoogleSignIn}
-                  />
-                </div>
+                      Email address
+                    </label>
+                    <input
+                      onChange={(e) => setEmail(e.target.value)}
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter your email"
+                      required
+                      className="block w-full rounded-md border-1 px-2 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label
+                      id="password"
+                      htmlFor="password"
+                      className="block text-sm font-medium leading-6 text-grean"
+                    >
+                      Password
+                    </label>
+                    <input
+                      onChange={(e) => setPassword(e.target.value)}
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      placeholder="Enter your password"
+                      required
+                      className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                  <div className="text-sm">
+                    <a
+                      href="https://google.com"
+                      className="font-semibold text-blue-400 hover:text-slate-800"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <div className="w-full flex items-center justify-end">
+                    <button
+                      type="submit"
+                      className="bg-[#75B657] rounded-xl w-24 p-1 text-lg text-white"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+                <p className="mt-4 text-center text-sm text-gray-500">
+                  Not a member?
+                  <Link
+                    to="/setup"
+                    className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+              <div className="w-10 bg-red-500 px-2 flex flex-col items-center justify-center">
+                <GoogleButton onClick={handleGoogleSignIn} />
               </div>
             </div>
           </div>

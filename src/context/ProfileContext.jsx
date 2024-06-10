@@ -27,11 +27,13 @@ export const ProfileProvider = ({ children }) => {
   }, [user?.uid]);
 
   // Update profile data
-  const updateProfile = async (profileData) => {
-    if (user?.uid) {
-      const docRef = doc(db, 'profiles', user.uid);
+  const updateProfile = async (uid, profileData) => {
+    if (uid) {
+      const docRef = doc(db, 'profiles', uid);
       await setDoc(docRef, profileData);
-      setProfile({ ...profileData });
+      if (uid === user?.uid) {
+        setProfile({ ...profileData });
+      }
     }
   };
 

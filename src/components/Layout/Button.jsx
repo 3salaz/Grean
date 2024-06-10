@@ -12,15 +12,15 @@ const Button = ({
 }) => {
   const variants = {
     primary: "bg-grean text-white hover:bg-grean hover:text-white",
-    secondary: "bg-gray-500 text-white hover:bg-gray-700",
+    secondary: "bg-blue-300 text-white hover:bg-gray-700",
+    white: "bg-white text-grean hover:border-1 hover:border-white",
     alert: "bg-red-500 text-white hover:bg-red-700",
   };
-  
 
   const sizes = {
-    small: "px-2 py-1 text-sm w-10",
-    medium: "px-4 py-2 text-base w-30",
-    large: "px-6 py-3 text-lg w-50",
+    small: "px-2 py-1 text-sm w-20",
+    medium: "px-4 py-2 text-base w-32",
+    large: "px-6 py-3 text-lg w-60",
   };
 
   const shapes = {
@@ -35,7 +35,7 @@ const Button = ({
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       type={type}
-      className={`transition duration-300 ${variants[variant]} ${sizes[size]} ${shapes[shape]} ${className}`}
+      className={`transition duration-300 ${variants[variant]} ${sizes[size]} ${shapes[shape]} ${className} flex items-center justify-center`}
       {...props}
     >
       {children}

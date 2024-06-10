@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import SignIn from "../../Common/SignIn"; // Import the actual sign-in form
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
-import Modal from "../Modal"; // Import the Modal component
+import Modal from "../Modals/Modal"; // Import the Modal component
 import Button from "../Button";
+import Login from "../../Common/Login";
 
 function Landing() {
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const closeModal = () => setSignInModalOpen(false);
-  const openModal = () => setSignInModalOpen(true);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const closeModal = () => setLoginModalOpen(false);
+  const openModal = () => setLoginModalOpen(true);
   const { user } = UserAuth();
 
   return (
@@ -42,8 +43,9 @@ function Landing() {
           )}
         </div>
       </div>
-      <Modal isOpen={signInModalOpen} handleClose={closeModal}>
-        <SignIn />
+      <Modal isOpen={loginModalOpen} handleClose={closeModal}>
+        {/* <SignIn /> */}
+        <Login/>
       </Modal>
     </section>
   );

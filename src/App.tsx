@@ -15,14 +15,11 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 // Components
 import Navbar from "./components/Layout/Navbar";
 import Tabbar from "./components/Layout/TabBar";
-
-import Admin from "./routes/Admin";
-import About from "./routes/About";
 import Settings from "./routes/Settings";
 import { ProfileProvider } from "./context/ProfileContext";
 import { LocationsProvider } from "./context/LocationContext";
 import { useState } from "react";
-import AccountSetup from "./routes/AccountSetup";
+import Setup from "./routes/Setup";
 
 function App() {
   const [activeTab, setActiveTab] = useState(1);
@@ -30,10 +27,9 @@ function App() {
 
   return (
     <AuthContextProvider>
-      <Navbar />
 
+      <Navbar />
       <main className="h-[82svh] w-full bg-white relative">
-        {" "}
         {/* Added relative */}
         <ToastContainer
           position="top-center"
@@ -58,16 +54,15 @@ function App() {
           <Route
             path="/setup"
             element={
-                <ProfileProvider>
-                  <LocationsProvider>
-                    <PickupsProvider>
-                      <AccountSetup />
-                    </PickupsProvider>
-                  </LocationsProvider>
-                </ProfileProvider>
+              <ProfileProvider>
+                <LocationsProvider>
+                  <PickupsProvider>
+                    <Setup/>
+                  </PickupsProvider>
+                </LocationsProvider>
+              </ProfileProvider>
             }
           ></Route>
-          <Route path="/about" element={<About />}></Route>
           <Route
             path="/settings"
             element={
@@ -82,10 +77,9 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          <Route path="/admin" element={<Admin />}></Route>
         </Routes>
       </main>
-      {location.pathname !== "/setup" && location.pathname !== "/" && (
+      {location.pathname !== "/setup" && location.pathname !== "/settings" && location.pathname !== "/" && (
         <Tabbar active={activeTab} setActive={setActiveTab} />
       )}
     </AuthContextProvider>

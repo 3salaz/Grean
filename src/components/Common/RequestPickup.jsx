@@ -1,150 +1,130 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePickups } from "../../context/PickupsContext";
 import { useProfile } from "../../context/ProfileContext";
-import Button from "../Layout/Button";
+import { Form, Input, Button, Select, DatePicker, TimePicker } from 'antd';
+import dayjs from 'dayjs';
+
+const { TextArea } = Input;
+const { Option } = Select;
 
 function RequestPickup({ handleClose }) {
-  const { createPickup } = usePickups();
+  const { requestPickup } = usePickups();
   const { profile } = useProfile();
 
-  const [formData, setFormData] = useState({
+  const initialFormData = useMemo(() => ({
     pickupDate: getCurrentDate(),
     pickupTime: "12:00",
     pickupNote: "",
-    businessAddress: "",
-  });
+    businessAddress: profile?.fullAddress || "",
+  }), [profile]);
+
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
-    // Check if profile data is available and has the address field
-    if (profile && profile.fullAddress) {
+    if (profile?.fullAddress) {
       setFormData((prevData) => ({
         ...prevData,
-        businessAddress: profile.fullAddress, // Set the address from the profile context
+        businessAddress: profile.fullAddress,
       }));
     }
   }, [profile]);
-  const handleChange = (e) => {
+
+  const handleChange = useCallback((name, value) => {
     setFormData((prevData) => ({
       ...prevData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
-  };
+  }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    createPickup(formData);
-    handleClose();
+  const handleSubmit = async () => {
+    await requestPickup(formData, handleClose);
   };
 
   function getCurrentDate() {
-    const now = new Date();
-    const year = now.getFullYear();
-    let month = now.getMonth() + 1;
-    if (month < 10) {
-      month = "0" + month;
-    }
-    let day = now.getDate();
-    if (day < 10) {
-      day = "0" + day;
-    }
-    return `${year}-${month}-${day}`;
+    return dayjs().format('YYYY-MM-DD');
   }
 
   return (
-    <div
-      id="pickup"
-      className="w-full h-full flex justify-center items-center overflow-auto py-2"
-    >
-      <form
-        className="flex flex-col gap-2 w-full h-full px-2"
-        onSubmit={handleSubmit}
-      >
-
+    <div id="pickup" className="w-full h-full flex justify-center items-center overflow-auto">
+      <Form className="flex flex-col gap-2 w-full h-full px-2" onFinish={handleSubmit}>
         <header className="flex flex-col gap-1">
-          <div className="text-center text-xl font-bold text-grean">
-            Request Pickup
-          </div>
+          <div className="text-center text-xl font-bold text-grean">Request Pickup</div>
           <div className="text-xs text-center text-white font-bold bg-grean container p-2 mx-auto">
             Schedule your next pickup!
           </div>
         </header>
 
-        <main className="">
+        <main>
           <section className="flex flex-col gap-2 overflow-auto">
-            <label className="flex flex-col font-bold gap-1 text-sm text-center">
-              Business Address:
-              <select
-                name="pickupAddress"
-                va6lue={formData.address}
-                onChange={handleChange}
+            <Form.Item
+              label="Business Address:"
+              name="businessAddress"
+              rules={[{ required: true, message: 'Please select a business address!' }]}
+            >
+              <Select
+                value={formData.businessAddress}
+                onChange={(value) => handleChange('businessAddress', value)}
                 className="rounded-lg p-2 font-normal text-xs"
               >
-                {/* Ensure there's a default option or handling for when businessAddress is not yet fetched */}
                 {formData.businessAddress && (
-                  <option className="text-center" value={formData.businessAddress}>
+                  <Option className="text-center" value={formData.businessAddress}>
                     {formData.businessAddress}
-                  </option>
+                  </Option>
                 )}
-              </select>
-            </label>
-            <div className="flex w-full">
-              <label className="flex flex-col text-sm font-bold basis-1/2 items-center justify-center ">
-                Date:
-                <input
-                  type="date"
-                  name="pickupDate"
-                  value={formData.pickupDate}
-                  min={getCurrentDate()}
-                  onChange={handleChange}
-                  className="text-sm font-normal p-2 rounded-md "
-                />
-              </label>
+              </Select>
+            </Form.Item>
 
-              <label className="flex flex-col text-sm font-bold basis-1/2 items-center justify-center">
-                Time:
-                <input
-                  type="time"
-                  name="pickupTime"
-                  value={formData.pickupTime}
-                  onChange={handleChange}
+            <div className="flex w-full">
+              <Form.Item
+                label="Date:"
+                name="pickupDate"
+                rules={[{ required: true, message: 'Please select a date!' }]}
+                className="basis-1/2"
+              >
+                <DatePicker
+                  value={formData.pickupDate ? dayjs(formData.pickupDate) : null}
+                  onChange={(date) => handleChange('pickupDate', date ? date.format('YYYY-MM-DD') : null)}
                   className="text-sm font-normal p-2 rounded-md"
+                  disabledDate={(current) => current && current < dayjs().startOf('day')}
                 />
-              </label>
+              </Form.Item>
+
+              <Form.Item
+                label="Time:"
+                name="pickupTime"
+                rules={[{ required: true, message: 'Please select a time!' }]}
+                className="basis-1/2"
+              >
+                <TimePicker
+                  value={formData.pickupTime ? dayjs(formData.pickupTime, 'HH:mm') : null}
+                  onChange={(time) => handleChange('pickupTime', time ? time.format('HH:mm') : null)}
+                  className="text-sm font-normal p-2 rounded-md"
+                  format="HH:mm"
+                />
+              </Form.Item>
             </div>
 
-            <label
-              htmlFor="pickupNote"
-              className="block text-lg font-bold leading-6 text-center"
-            >
-              Pickup Notes:
-            </label>
-
-            <textarea
-              id="pickupNote"
+            <Form.Item
+              label="Pickup Notes:"
               name="pickupNote"
-              rows={3}
-              className="block rounded-md p-2 text-black shadow-sm ring-1 ring-inset ring-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
-              defaultValue={""}
-              onChange={handleChange}
-            />
+              rules={[{ required: true, message: 'Please enter pickup notes!' }]}
+            >
+              <TextArea
+                rows={3}
+                value={formData.pickupNote}
+                onChange={(e) => handleChange('pickupNote', e.target.value)}
+                className="block rounded-md p-2 text-black shadow-sm ring-1 ring-inset ring-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
+              />
+            </Form.Item>
           </section>
         </main>
 
         <section className="flex h-[10%] items-end justify-center flex-row w-full">
-          <Button
-          variant="primary"
-          type="submit"
-          size="medium"
-          onClick={handleClose}
-        >
-          Request Pickup
-        </Button>
-          
+          <Button type="primary" htmlType="submit" size="medium">
+            Request
+          </Button>
         </section>
-        
-      </form>
+      </Form>
     </div>
   );
 }

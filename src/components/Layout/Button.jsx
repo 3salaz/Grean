@@ -15,6 +15,7 @@ const Button = ({
     secondary: "bg-blue-300 text-white hover:bg-gray-700",
     white: "bg-white text-grean hover:border-1 hover:border-white",
     alert: "bg-red-500 text-white hover:bg-red-700",
+    blue: "bg-[#4285F4] text-white"
   };
 
   const sizes = {
@@ -35,7 +36,7 @@ const Button = ({
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       type={type}
-      className={`transition duration-300 ${variants[variant]} ${sizes[size]} ${shapes[shape]} ${className} flex items-center justify-center`}
+      className={`transition duration-300 rounded-md ${variants[variant]} ${sizes[size]} ${shapes[shape]} ${className} flex items-center justify-center`}
       {...props}
     >
       {children}

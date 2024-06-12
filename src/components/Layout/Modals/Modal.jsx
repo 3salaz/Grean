@@ -14,14 +14,14 @@ const Modal = ({ isOpen, handleClose, width, height, bgColor, borderColor, child
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <motion.div className={`p-4 w-full flex flex-col gap-4 items-center bg-white drop-shadow-2xl rounded-md`}
+        <motion.div className={`p-4 w-full flex flex-col gap-2 items-center bg-white drop-shadow-2xl rounded-md`}
           onClick={(e) => e.stopPropagation()}
           initial={{ y: "200vh" }}
           animate={{ y: "0" }}
           exit={{ y: "100vh" }}
         >
           {children}
-          <Button onClick={handleClose} variant="alert" size="large" shape="rounded">
+          <Button onClick={handleClose} variant="alert" size="medium" shape="rounded">
             Close
           </Button>
         </motion.div>

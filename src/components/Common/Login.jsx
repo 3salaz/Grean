@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
-import { GoogleButton } from "react-google-button";
 import { toast } from "react-toastify";
+import Button from "../Layout/Button";
+import googleLogo from '../../assets/logos/Google__G__logo.png'
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -25,6 +26,7 @@ function Login() {
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError("");
+    console.log(error);
     try {
       await signIn(email, password);
       toast.success("Signed in successfully!");
@@ -59,7 +61,7 @@ function Login() {
                     Sign In To Your Account
                   </h2>
                 </div>
-                <div className="mt-8">
+                <div className="my-8">
                   <form className="space-y-4" onSubmit={handleSignIn}>
                     <div className="flex flex-col">
                       <label
@@ -127,8 +129,12 @@ function Login() {
                   </p>
                 </div>
                 <div className="w-full flex flex-col items-center justify-center">
-                  <GoogleButton style={{ width: '8rem'}} onClick={handleGoogleSignIn}
-                  />
+                  <Button onClick={handleGoogleSignIn} variant="blue" size="medium" shape="rounded" className="flex justify-between">
+                    <div className="bg-white">
+                      <img className="w-7 aspect-square p-1" src={googleLogo} alt="google logo" srcset="" />
+                    </div>
+                    <div>Sign In</div>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -8,11 +8,14 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  GeoPoint,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { UserAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext"; // Import Profile Context
+import { useLocations } from "./LocationsContext"; // Import Location Context
 
 const PickupContext = createContext();
 
@@ -26,6 +29,8 @@ export const PickupsProvider = ({ children }) => {
   const [completedPickups, setCompletedPickups] = useState([]);
   const [userCreatedPickups, setUserCreatedPickups] = useState([]);
   const { user } = UserAuth();
+  const { profile } = useProfile(); // Get the profile
+  const { addLocation, addParentLocation } = useLocations(); // Get the addLocation and addParentLocation functions
 
   useEffect(() => {
     if (user) {
@@ -76,6 +81,41 @@ export const PickupsProvider = ({ children }) => {
     } catch (error) {
       console.error("Error adding pickup:", error);
       toast.error("Error adding pickup. Please try again.");
+    }
+  };
+
+  const requestPickup = async (formData, handleClose) => {
+    console.log("Form Data on Submit:", formData); // Debugging log
+
+    if (!profile?.lat || !profile?.lng) {
+      toast.error("Latitude and Longitude are required.");
+      return;
+    }
+
+    const pickupData = {
+      ...formData,
+      lat: profile.lat,
+      lng: profile.lng,
+    };
+
+    try {
+      await createPickup(pickupData);
+      
+      // Create the location data
+      const locationData = {
+        location: new GeoPoint(pickupData.lat, pickupData.lng),
+        businessName: profile.businessName || '',
+        businessDescription: profile.businessDescription || '',
+      };
+      // Add location to the locations collection and subcollection
+      await addLocation(user.uid, locationData);
+      await addParentLocation(user.uid, locationData);
+
+      // Close the form or modal
+      handleClose();
+    } catch (error) {
+      console.error("Error creating pickup:", error);
+      toast.error("Failed to create pickup.");
     }
   };
 
@@ -215,6 +255,7 @@ export const PickupsProvider = ({ children }) => {
     <PickupContext.Provider
       value={{
         createPickup,
+        requestPickup, // Added the new requestPickup function
         pickups,
         visiblePickups,
         userAcceptedPickups,
@@ -224,7 +265,7 @@ export const PickupsProvider = ({ children }) => {
         acceptPickup,
         deletePickup,
         completePickup,
-        removePickup, // Add removePickup to the context value
+        removePickup,
       }}
     >
       {children}

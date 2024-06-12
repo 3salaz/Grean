@@ -24,11 +24,11 @@ function Navbar() {
   };
   
   return (
-    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-50 relative drop-shadow-lg">
+    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-40 relative drop-shadow-lg">
       <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
 
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
-        <div className="absolute z-30 md:hidden">
+        <div className="absolute z-40 md:hidden">
           <button
             type="button"
             className="flex md:hidden flex-col space-y-1 items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#75B657]"
@@ -119,7 +119,7 @@ function Navbar() {
                 aria-haspopup="true"
                 aria-controls="user-menu"
                 variant="primary"
-                shape="circle"
+                size="small"
                 onClick={() => toggleAccountNav()}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}

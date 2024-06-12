@@ -1,4 +1,5 @@
 import "./App.css";
+import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
 import { PickupsProvider } from "./context/PickupsContext";
@@ -17,8 +18,7 @@ import Navbar from "./components/Layout/Navbar";
 import Tabbar from "./components/Layout/TabBar";
 import Settings from "./routes/Settings";
 import { ProfileProvider } from "./context/ProfileContext";
-import { LocationsProvider } from "./context/LocationContext";
-import { useState } from "react";
+import { LocationsProvider } from "./context/LocationsContext";
 import Setup from "./routes/Setup";
 
 function App() {
@@ -27,7 +27,6 @@ function App() {
 
   return (
     <AuthContextProvider>
-
       <Navbar />
       <main className="h-[82svh] w-full bg-white relative">
         {/* Added relative */}

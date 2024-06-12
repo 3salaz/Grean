@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { UserAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import { useLocations } from "../../context/LocationContext";
+import { useLocations } from "../../context/LocationsContext";
 import { useProfile } from "../../context/ProfileContext";
 import { motion } from "framer-motion";
 import { Form, Input, Button, Row, Col } from "antd";

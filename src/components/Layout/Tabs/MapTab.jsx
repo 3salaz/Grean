@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { usePickups } from "../../../context/PickupsContext";
 import { useProfile } from "../../../context/ProfileContext";
-import Pickup from "../../Common/RequestPickup";
+import RequestPickup from "../../Common/RequestPickup";
 import Schedule from "../../Common/Schedule";
 import Alerts from "../../Common/Alerts";
 import Map from "../Map";
@@ -12,16 +12,12 @@ import Button from "../Button";
 function MapTab() {
   const { profile } = useProfile();
   const { visiblePickups, userAcceptedPickups, userCreatedPickups } = usePickups();
-
   const [pickupOpen, setRequestPickupOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
 
   const closePickup = () => setRequestPickupOpen(false);
-  const openPickup = () => {
-    console.log("Opening pickup modal");
-    setRequestPickupOpen(true);
-  };
+  const openPickup = () =>  setRequestPickupOpen(true);
   const closeSchedule = () => setScheduleOpen(false);
   const openSchedule = () => setScheduleOpen(true);
   const closeAlerts = () => setAlertsOpen(false);
@@ -31,7 +27,7 @@ function MapTab() {
     <main id="mapTab" className="relative w-full h-full">
       <Map />
       <SlideModal isOpen={pickupOpen} handleClose={closePickup}>
-        <Pickup handleClose={closePickup} />
+        <RequestPickup handleClose={closePickup} />
       </SlideModal>
 
       <SlideModal isOpen={alertsOpen} handleClose={closeAlerts}>

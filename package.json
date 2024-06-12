@@ -17,6 +17,7 @@
     "@types/react-dom": "^18.2.4",
     "antd": "^5.12.2",
     "appwrite": "^13.0.0",
+    "dayjs": "^1.11.11",
     "firebase": "^9.23.0",
     "framer-motion": "^10.12.16",
     "mapbox-gl": "^2.15.0",

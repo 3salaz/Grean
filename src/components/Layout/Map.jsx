@@ -7,7 +7,7 @@ import ReactMapGl, {
   FullscreenControl,
   GeolocateControl,
 } from "react-map-gl";
-import { useLocations } from "../../context/LocationContext";
+import { useLocations } from "../../context/LocationsContext";
 
 function Map() {
   const [viewPort, setViewPort] = useState({
@@ -30,7 +30,7 @@ function Map() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Adjust the timeout as needed
+    }, 500); // Adjust the timeout as needed
 
     return () => clearTimeout(timer);
   }, []);

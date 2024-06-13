@@ -47,6 +47,17 @@ body {
     color: white;
 }
 
+/* Date Picker */
+.custom-datepicker .ant-picker-ok button {
+  background-color: #75B657 !important; /* Your desired background color */
+  color: white !important; /* Text color */
+  border: none !important; /* Remove border */
+}
+
+.custom-datepicker .ant-picker-ok button:hover {
+  background-color: #5a9148 !important; /* Your desired hover background color */
+}
+
 /* Map Popup */
 /* styles.css */
 .custom-popup {

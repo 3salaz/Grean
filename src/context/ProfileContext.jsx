@@ -1,53 +1,49 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { UserAuth } from './AuthContext'; // Adjust the import path as needed
-import { db } from '../firebase';
+import { createContext, useContext, useState, useEffect } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { UserAuth } from "./AuthContext";
+import { toast } from "react-toastify";
 
 const ProfileContext = createContext();
 
 export const useProfile = () => useContext(ProfileContext);
 
 export const ProfileProvider = ({ children }) => {
-  const { user } = UserAuth();
   const [profile, setProfile] = useState(null);
+  const { user } = UserAuth();
 
-  // Fetch the profile data
   useEffect(() => {
     const fetchProfile = async () => {
-      if (user?.uid) {
-        const docRef = doc(db, 'profiles', user.uid);
+      if (user) {
+        const docRef = doc(db, "profiles", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile({ id: docSnap.id, ...docSnap.data() });
+          setProfile(docSnap.data());
+        } else {
+          toast.error("Profile does not exist!");
         }
       }
     };
 
     fetchProfile();
-  }, [user?.uid]);
+  }, [user]);
 
-  // Update profile data
-  const updateProfile = async (uid, profileData) => {
-    if (uid) {
-      const docRef = doc(db, 'profiles', uid);
-      await setDoc(docRef, profileData);
-      if (uid === user?.uid) {
-        setProfile({ ...profileData });
+  const updateProfile = async (data) => {
+    if (user) {
+      const docRef = doc(db, "profiles", user.uid);
+      try {
+        await setDoc(docRef, data, { merge: true });
+        setProfile((prevProfile) => ({ ...prevProfile, ...data }));
+        toast.success("Profile updated successfully!");
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        toast.error("Error updating profile. Please try again.");
       }
     }
   };
 
-  // Delete profile
-  const deleteProfile = async () => {
-    if (user?.uid) {
-      const docRef = doc(db, 'profiles', user.uid);
-      await deleteDoc(docRef);
-      setProfile(null);
-    }
-  };
-
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile, deleteProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile }}>
       {children}
     </ProfileContext.Provider>
   );

@@ -1,21 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  collection,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  GeoPoint,
-} from "firebase/firestore";
+import { collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc, deleteDoc, getDoc, GeoPoint } from "firebase/firestore";
 import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { UserAuth } from "./AuthContext";
-import { useProfile } from "./ProfileContext"; // Import Profile Context
-import { useLocations } from "./LocationsContext"; // Import Location Context
+import { useProfile } from "./ProfileContext";
+import { useLocations } from "./LocationsContext";
 
 const PickupContext = createContext();
 
@@ -29,8 +19,8 @@ export const PickupsProvider = ({ children }) => {
   const [completedPickups, setCompletedPickups] = useState([]);
   const [userCreatedPickups, setUserCreatedPickups] = useState([]);
   const { user } = UserAuth();
-  const { profile } = useProfile(); // Get the profile
-  const { addLocation, addParentLocation } = useLocations(); // Get the addLocation and addParentLocation functions
+  const { profile } = useProfile();
+  const { addLocation } = useLocations();
 
   useEffect(() => {
     if (user) {
@@ -85,7 +75,7 @@ export const PickupsProvider = ({ children }) => {
   };
 
   const requestPickup = async (formData, handleClose) => {
-    console.log("Form Data on Submit:", formData); // Debugging log
+    console.log("Form Data on Submit:", formData);
 
     if (!profile?.lat || !profile?.lng) {
       toast.error("Latitude and Longitude are required.");
@@ -101,17 +91,13 @@ export const PickupsProvider = ({ children }) => {
     try {
       await createPickup(pickupData);
       
-      // Create the location data
       const locationData = {
         location: new GeoPoint(pickupData.lat, pickupData.lng),
         businessName: profile.businessName || '',
         businessDescription: profile.businessDescription || '',
       };
-      // Add location to the locations collection and subcollection
-      await addLocation(user.uid, locationData);
-      await addParentLocation(user.uid, locationData);
+      await addLocation(locationData);
 
-      // Close the form or modal
       handleClose();
     } catch (error) {
       console.error("Error creating pickup:", error);
@@ -255,7 +241,7 @@ export const PickupsProvider = ({ children }) => {
     <PickupContext.Provider
       value={{
         createPickup,
-        requestPickup, // Added the new requestPickup function
+        requestPickup,
         pickups,
         visiblePickups,
         userAcceptedPickups,

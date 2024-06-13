@@ -63,8 +63,10 @@ function RequestPickup({ handleClose }) {
             >
               <Select
                 value={formData.businessAddress}
+                defaultValue={formData.businessAddress}
+                placeholder="Select your address"
                 onChange={(value) => handleChange('businessAddress', value)}
-                className="rounded-lg p-2 font-normal text-xs"
+                className="rounded-lg font-normal text-xs"
               >
                 {formData.businessAddress && (
                   <Option className="text-center" value={formData.businessAddress}>
@@ -83,12 +85,13 @@ function RequestPickup({ handleClose }) {
               >
                 <DatePicker
                   value={formData.pickupDate ? dayjs(formData.pickupDate) : null}
-                  onChange={(date) => handleChange('pickupDate', date ? date.format('YYYY-MM-DD') : null)}
+                  onChange={(date) => handleChange('pickupDate', date ? date.format('DD-MM-YYYY') : null)}
                   className="text-sm font-normal p-2 rounded-md"
                   disabledDate={(current) => current && current < dayjs().startOf('day')}
+                  format="DD MMMM, YYYY" // Custom date format
                 />
               </Form.Item>
-
+              
               <Form.Item
                 label="Time:"
                 name="pickupTime"
@@ -99,7 +102,9 @@ function RequestPickup({ handleClose }) {
                   value={formData.pickupTime ? dayjs(formData.pickupTime, 'HH:mm') : null}
                   onChange={(time) => handleChange('pickupTime', time ? time.format('HH:mm') : null)}
                   className="text-sm font-normal p-2 rounded-md"
-                  format="HH:mm"
+                  minuteStep={30} // Ensures only 30-minute intervals can be selected
+                  format="h:mm A"
+                  use12Hours
                 />
               </Form.Item>
             </div>
@@ -120,7 +125,7 @@ function RequestPickup({ handleClose }) {
         </main>
 
         <section className="flex h-[10%] items-end justify-center flex-row w-full">
-          <Button type="primary" htmlType="submit" size="medium">
+          <Button className="bg-grean" type="primary" htmlType="submit" size="medium">
             Request
           </Button>
         </section>

@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
-import Button from "../Layout/Button";
-import googleLogo from '../../assets/logos/Google__G__logo.png'
+import { Button, Form, Input, Typography } from "antd";
+import { GoogleOutlined } from "@ant-design/icons";
+import googleLogo from '../../assets/logos/Google__G__logo.png';
+
+const { Title, Text } = Typography;
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -23,12 +26,10 @@ function Login() {
     }
   };
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
+  const handleSignIn = async (values) => {
     setError("");
-    console.log(error);
     try {
-      await signIn(email, password);
+      await signIn(values.email, values.password);
       toast.success("Signed in successfully!");
       navigate("/account");
     } catch (error) {
@@ -50,97 +51,95 @@ function Login() {
   }, [user, navigate]);
 
   return (
-      <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
-        <div className="flex w-full justify-center items-center">
-          <div className="container h-full flex items-center justify-cente max-w-lg">
-            <div className="container max-w-3xl mx-auto rounded-md">
-              <div className="w-full rounded-md">
-                <div className="w-full flex items-end justify-end"></div>
-                <div className="mx-auto w-full">
-                  <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-[#75B657]">
-                    Sign In To Your Account
-                  </h2>
-                </div>
-                <div className="my-8">
-                  <form className="space-y-4" onSubmit={handleSignIn}>
-                    <div className="flex flex-col">
-                      <label
-                        id="email"
-                        htmlFor="email"
-                        className="block text-sm font-medium leading-6 text-grean text-left"
-                      >
-                        Email address
-                      </label>
-                      <input
-                        onChange={(e) => setEmail(e.target.value)}
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        placeholder="Enter your email"
-                        required
-                        className="block w-full rounded-md border-1 px-2 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label
-                        id="password"
-                        htmlFor="password"
-                        className="block text-sm font-medium leading-6 text-grean"
-                      >
-                        Password
-                      </label>
-                      <input
-                          onChange={(e) => setPassword(e.target.value)}
-                          name="password"
-                          type="password"
-                          autoComplete="current-password"
-                          placeholder="Enter your password"
-                          required
-                          className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    <div className="text-sm">
-                      <a
-                        href="https://google.com"
-                        className="font-semibold text-blue-400 hover:text-slate-800"
-                      >
-                        Forgot password?
-                      </a>
-                    </div>
-                    <div className="w-full flex items-center justify-end">
-                      <button
-                        type="submit"
-                        className="bg-[#75B657] rounded-xl w-24 p-1 text-lg text-white"
-                      >
-                        Sign In
-                      </button>
-                    </div>
-
-                  </form>
-                  <p className="mt-4 text-center text-sm text-gray-500">
-                    Not a member?
-                    <Link
-                      to="/setup"
-                      className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
+    <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex w-full justify-center items-center">
+        <div className="container h-full flex items-center justify-center max-w-lg">
+          <div className="container max-w-3xl mx-auto rounded-md">
+            <div className="w-full rounded-md">
+              <div className="mx-auto w-full">
+                <Title level={3} className="mt-10 text-center text-[#75B657]">
+                  Sign In To Your Account
+                </Title>
+              </div>
+              <div className="my-8">
+                <Form
+                  name="login"
+                  className="space-y-2"
+                  onFinish={handleSignIn}
+                >
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your Email!",
+                      },
+                      {
+                        type: "email",
+                        message: "The input is not valid E-mail!",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Enter your email"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    lable="Password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your Password!",
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      placeholder="Enter your password"
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </Form.Item>
+                  <Form.Item className="text-right">
+                    <a href="https://google.com" className="font-semibold text-blue-400 hover:text-slate-800">
+                      Forgot password?
+                    </a>
+                  </Form.Item>
+                  <Form.Item className="text-right">
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className="bg-[#75B657] rounded-xl w-24 text-lg text-white"
                     >
-                      Sign Up
-                    </Link>
-                  </p>
-                </div>
-                <div className="w-full flex flex-col items-center justify-center">
-                  <Button onClick={handleGoogleSignIn} variant="blue" size="medium" shape="rounded" className="flex justify-between">
-                    <div className="bg-white">
-                      <img className="w-7 aspect-square p-1" src={googleLogo} alt="google logo" srcset="" />
-                    </div>
-                    <div>Sign In</div>
-                  </Button>
-                </div>
+                      Sign In
+                    </Button>
+                  </Form.Item>
+                </Form>
+                <Text className="mt-4 text-center text-sm text-gray-500">
+                  Not a member?
+                  <Link
+                    to="/setup"
+                    className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
+                  >
+                    Sign Up
+                  </Link>
+                </Text>
+              </div>
+              <div className="w-full flex flex-col items-center justify-center">
+                <Button
+                  icon={<GoogleOutlined />}
+                  onClick={handleGoogleSignIn}
+                  className="flex items-center bg-blue-500 text-white"
+                >
+                  Sign In with Google
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
   );
 }
 

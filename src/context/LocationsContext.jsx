@@ -7,18 +7,13 @@ const LocationContext = createContext();
 export function LocationsProvider({ children }) {
   const [locations, setLocations] = useState([]);
 
-  const addLocation = async (uid, location) => {
-    const locationsCollectionRef = collection(db, "users", uid, "locations");
+  const addLocation = async (location) => {
+    const locationsCollectionRef = collection(db, "locations");
     await addDoc(locationsCollectionRef, location);
   };
 
-  const addParentLocation = async (uid, location) => {
-    const parentLocationsCollectionRef = collection(db, "locations");
-    await addDoc(parentLocationsCollectionRef, { ...location, uid });
-  };
-
   const fetchLocations = async (uid) => {
-    const locationsCollectionRef = collection(db, "users", uid, "locations");
+    const locationsCollectionRef = collection(db, "locations");
     const q = query(locationsCollectionRef, where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
     const locationsData = [];
@@ -31,7 +26,6 @@ export function LocationsProvider({ children }) {
   const value = {
     locations,
     addLocation,
-    addParentLocation,
     fetchLocations,
   };
 

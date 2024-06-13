@@ -3,17 +3,12 @@ import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
 import { PickupsProvider } from "./context/PickupsContext";
-
-// Toast Messages
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Routes
 import Home from "./routes/Home";
 import Account from "./routes/Account";
 import ProtectedRoute from "./routes/ProtectedRoute";
-
-// Components
 import Navbar from "./components/Layout/Navbar";
 import Tabbar from "./components/Layout/TabBar";
 import Settings from "./routes/Settings";
@@ -29,7 +24,6 @@ function App() {
     <AuthContextProvider>
       <Navbar />
       <main className="h-[82svh] w-full bg-white relative">
-        {/* Added relative */}
         <ToastContainer
           position="top-center"
           style={{ top: "8%", left: "50%", transform: "translateX(-50%)" }}
@@ -56,7 +50,7 @@ function App() {
               <ProfileProvider>
                 <LocationsProvider>
                   <PickupsProvider>
-                    <Setup/>
+                    <Setup />
                   </PickupsProvider>
                 </LocationsProvider>
               </ProfileProvider>
@@ -78,9 +72,11 @@ function App() {
           ></Route>
         </Routes>
       </main>
-      {location.pathname !== "/setup" && location.pathname !== "/settings" && location.pathname !== "/" && (
-        <Tabbar active={activeTab} setActive={setActiveTab} />
-      )}
+      {location.pathname !== "/setup" &&
+        location.pathname !== "/settings" &&
+        location.pathname !== "/" && (
+          <Tabbar active={activeTab} setActive={setActiveTab} />
+        )}
     </AuthContextProvider>
   );
 }

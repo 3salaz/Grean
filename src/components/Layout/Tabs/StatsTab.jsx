@@ -30,11 +30,33 @@ function StatsTab() {
   return (
     <main
       id="statsTab"
-      className="w-full h-full z-20 flex flex-col items-center relative"
+      className="w-full h-full bg-light-gray z-20 flex flex-col items-center relative p-6"
     >
-      <ProfileHeader />
+      {/* <ProfileHeader /> */}
+      <div className="w-full h-full flex flex-col justify-between gap-4">
+        <div className="bg-white w-full p-2 rounded-md flex flex-col gap-2">
+          <div className="w-20">
+            <img className="rounded-full" alt="user-profile-pic" src="https://placeholder.com/75"></img>
+          </div>
+          <div>
+            <div className="text-xl font-bold">Erik Salazar</div>
+          </div>
+        </div>
+        <div className="bg-white p-2 flex items-center justify-center h-[500px]">
+          <div className="">Location 1</div>
+        </div>
+        <div className="flex justify-between items-center gap-2 h-20">
+          <div className="aspect-square rounded-md bg-white flex items-center justify-center">
+            Add Address
+          </div>
+          <div className="aspect-square bg-white rounded-md">Hello</div>
+          <div className="rounded-md basis-3/6 aspect-[8/2] flex items-center justify-center bg-white">
+            <div className="text-lg">Location 1</div>
+          </div>
+        </div>
+      </div>
 
-      <section className="h-[80%] flex items-center justify-center px-2 bg-grean w-full rounded-t-md">
+      {/* <section className="h-[80%] flex items-center justify-center px-2 bg-grean w-full rounded-t-md">
         <div className="w-full h-full flex flex-col items-center justify-center p-4  rounded-md  drop-shadow-2xl">
           <section className="px-4 flex flex-col gap-3">
             <section className="px-4 flex flex-col gap-3">
@@ -125,7 +147,7 @@ function StatsTab() {
             Grean Global
           </a>
         </p>
-      </footer>
+      </footer> */}
     </main>
   );
 }

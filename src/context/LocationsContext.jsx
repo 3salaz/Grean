@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState } from "react";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
-const LocationContext = createContext();
+const LocationsContext = createContext();
 
 export function LocationsProvider({ children }) {
   const [locations, setLocations] = useState([]);
 
-  const addLocation = async (location) => {
+  const addLocation = async (uid, locationData) => {
     const locationsCollectionRef = collection(db, "locations");
-    await addDoc(locationsCollectionRef, location);
+    await addDoc(locationsCollectionRef, { uid, ...locationData });
   };
 
   const fetchLocations = async (uid) => {
@@ -30,12 +30,12 @@ export function LocationsProvider({ children }) {
   };
 
   return (
-    <LocationContext.Provider value={value}>
+    <LocationsContext.Provider value={value}>
       {children}
-    </LocationContext.Provider>
+    </LocationsContext.Provider>
   );
 }
 
 export function useLocations() {
-  return useContext(LocationContext);
+  return useContext(LocationsContext);
 }

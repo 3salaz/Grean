@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { UserAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Modal from "../Modals/Modal"; // Import the Modal component
 import Button from "../Button";
 import Login from "../../Common/Login";
+import { useAuthProfile } from "../../../context/AuthProfileContext";
 
 function Landing() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const closeModal = () => setLoginModalOpen(false);
   const openModal = () => setLoginModalOpen(true);
-  const { user } = UserAuth(); // Assuming UserAuth is a hook
+  const { user } = useAuthProfile();
   const navigate = useNavigate();
 
   const navigateTo = (route) => {

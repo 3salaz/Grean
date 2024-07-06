@@ -25,15 +25,7 @@ function Map() {
   const [popupInfo, setPopupInfo] = useState(null);
   const { locations } = useLocations(); // Use the context to get locations
 
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500); // Adjust the timeout as needed
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const pins = useMemo(
     () =>
@@ -70,27 +62,6 @@ function Map() {
 
   return (
     <div id="map" className="h-full w-full relative">
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            className="fixed inset-0 z-30 flex items-center justify-center bg-white h-[80%] mt-[8svh]"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="text-center text-white font-bold aspect-square bg-grean rounded-full flex items-center justify-center p-4"
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1 }}
-            >
-              Loading...
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {!isLoading && (
         <ReactMapGl
           {...viewPort}
           onMove={(evt) => setViewPort(evt.viewState)}
@@ -167,7 +138,6 @@ function Map() {
             )}
           </AnimatePresence>
         </ReactMapGl>
-      )}
     </div>
   );
 }

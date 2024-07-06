@@ -1,43 +1,41 @@
 import React, { useState } from "react";
-import { UserAuth } from "../context/AuthContext";
-import { useProfile } from "../context/ProfileContext";
-import { useLocations } from '../context/LocationsContext';
+import { useAuthProfile } from "../context/AuthProfileContext";
+import { useLocations } from "../context/LocationsContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Select, Steps } from "antd";
+import { Form, Input, Button, Select, Steps, Radio } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
+
+import homeIcon from '../assets/home-icon.png'
+import driverIcon from "../assets/driver-icon.png"
 
 function Setup() {
   const { Step } = Steps;
   const navigate = useNavigate();
-  const { createUser } = UserAuth();
-  const { createProfile } = useProfile();
-  const { addLocation, addParentLocation } = useLocations();
-  const [step, setStep] = useState(0);
+  const { user, createProfile, createUser } = useAuthProfile();
+  const { addLocation } = useLocations();
+  const [step, setStep] = useState(user ? 1 : 0);
   const [error, setError] = useState(null);
-  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     phoneNumber: "",
-    usersEmail: "",
+    usersEmail: user ? user.email : "",
     password: "",
     userRole: "",
     businessName: "",
     businessEmail: "",
     businessPhoneNumber: "",
-    businessAddress: "",
-    street: "",
-    city: "",
-    state: "California",
     businessWebsite: "",
     businessDescription: "",
     driverPaymentType: "",
     driverPaymentInput: "",
     driver1099Form: "",
     homeName: "",
-    addresses: [{ street: "", city: "", state: "California", lat: null, lng: null }]
+    addresses: [
+      { street: "", city: "", state: "California", lat: null, lng: null },
+    ],
   });
 
   const handleChange = (changedValues) => {
@@ -46,15 +44,14 @@ function Setup() {
       ...changedValues,
       addresses: prevState.addresses.map((address, index) => ({
         ...address,
-        ...changedValues.addresses?.[index]
+        ...changedValues.addresses?.[index],
       })),
     }));
     setError(null);
-    console.log(error);
   };
 
   const handleGeocodeAddress = async (address) => {
-    const fullAddress = `${address.street}, ${address.city}, California`;
+    const fullAddress = `${address.street}, ${address.city}, ${address.state}`;
     const apiUrl = `https://geocode.maps.co/search?q=${encodeURIComponent(
       fullAddress
     )}&api_key=660502575887c637237148utr0d3092`;
@@ -83,20 +80,25 @@ function Setup() {
 
   const handleSubmit = async () => {
     try {
-      // Create the user with Firebase Authentication
-      const userCredential = await createUser(
-        formData.usersEmail,
-        formData.password
-      );
-      const user = userCredential.user;
+      let userId = user?.uid;
 
-      // Use the user.uid to store the profile data in Firestore
-      await createProfile(user.uid, {
+      if (!userId) {
+        // Create the user with Firebase Authentication if not authenticated
+        const userCredential = await createUser(
+          formData.usersEmail,
+          formData.password
+        );
+        const user = userCredential.user;
+        userId = user.uid;
+      }
+
+      // Use the userId to store the profile data in Firestore
+      await createProfile(userId, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phoneNumber: formData.phoneNumber,
         userRole: formData.userRole,
-        usersEmail: formData.usersEmail
+        usersEmail: formData.usersEmail,
       });
 
       // Geocode and add locations
@@ -104,18 +106,17 @@ function Setup() {
         formData.addresses.map((address) => handleGeocodeAddress(address))
       );
 
-      const validAddresses = formData.addresses.map((address, index) => ({
-        ...address,
-        ...geocodedAddresses[index]
-      })).filter(address => address.lat && address.lng);
+      const validAddresses = formData.addresses
+        .map((address, index) => ({
+          ...address,
+          ...geocodedAddresses[index],
+        }))
+        .filter((address) => address.lat && address.lng);
 
-      // Adding multiple locations to sub-collection and optionally to parent collection
+      // Adding multiple locations to sub-collection
       await Promise.all(
         validAddresses.map(async (address) => {
-          await addLocation(user.uid, address);
-          if (formData.userRole === "Business") {
-            await addParentLocation(user.uid, address);
-          }
+          await addLocation(userId, address);
         })
       );
 
@@ -133,9 +134,7 @@ function Setup() {
 
   const validateStep = () => {
     switch (step) {
-      case 0:
-        return formData.firstName && formData.lastName && formData.phoneNumber;
-      case 1:
+      case 1: // Skip step 0 validation
         return formData.userRole;
       case 2:
         if (formData.userRole === "Business") {
@@ -143,10 +142,12 @@ function Setup() {
             formData.businessName &&
             formData.businessEmail &&
             formData.businessPhoneNumber &&
-            formData.street &&
-            formData.city &&
+            formData.addresses[0].street &&
+            formData.addresses[0].city &&
             formData.businessWebsite &&
-            formData.businessDescription
+            formData.businessDescription &&
+            formData.addresses.length > 0 &&
+            formData.addresses.length <= 2
           );
         }
         if (formData.userRole === "Driver") {
@@ -157,11 +158,16 @@ function Setup() {
           );
         }
         if (formData.userRole === "Home") {
-          return formData.street && formData.city;
+          return (
+            formData.addresses[0].street &&
+            formData.addresses[0].city &&
+            formData.addresses.length > 0 &&
+            formData.addresses.length <= 2
+          );
         }
         return true;
       case 3:
-        return formData.usersEmail && formData.password;
+        return formData.firstName && formData.lastName && formData.phoneNumber;
       default:
         return true;
     }
@@ -179,17 +185,19 @@ function Setup() {
 
   return (
     <AnimatePresence mode="wait">
-      <section className="w-full h-[92vh] items-center justify-center flex flex-col gap-2 max-w-lg mx-auto bg-grean">
-        <header className="w-full h-[10%] flex flex-row overflow-x whitespace-nowrap gap-2 bg-white">
+      <section className="w-full h-[92vh] items-center justify-center flex flex-col gap-2 bg-white absolute overflow-auto z-40">
+        <header className="w-full flex flex-row items-center justify-center gap-2 bg-white p-2 h-[10%]">
           <Steps
-            className="flex items-center jusitfy-center flex-row flex-wrap"
+            className="h-full w-full flex flex-row gap-4 drop-shadow-2xl"
             current={step}
             direction="horizontal"
+            type="inline"
+            status={step}
           >
+            {!user && <Step className="flex flex-col" title="Account" />}
             <Step title="Basic Info" />
             <Step title="Role" />
             <Step title="Role Info" />
-            <Step title="Account" />
           </Steps>
         </header>
 
@@ -199,7 +207,7 @@ function Setup() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
-          className="p-2 h-[80%] w-full"
+          className="p-2 h-[80%] overflow-auto w-full"
         >
           <Form
             form={form}
@@ -209,50 +217,39 @@ function Setup() {
             className="w-full h-full"
           >
             <section className="h-full w-full flex items-center justify-center">
-              {step === 0 && (
+              {step === 0 && !user && (
                 <section className="bg-white p-2 rounded-md container">
-                  <h2 className="text-xl mb-4">Basic Info</h2>
+                  <h2 className="text-xl mb-4">Sign Up!</h2>
                   <Form.Item
-                    label="First Name"
-                    name="firstName"
+                    label="Email"
+                    name="usersEmail"
                     rules={[
                       {
                         required: true,
-                        message: "Please input your first name!",
+                        message: "Please input your email!",
+                        type: "email",
                       },
                     ]}
                   >
                     <Input />
                   </Form.Item>
                   <Form.Item
-                    label="Last Name"
-                    name="lastName"
+                    label="Password"
+                    name="password"
                     rules={[
                       {
                         required: true,
-                        message: "Please input your last name!",
+                        message: "Please input your password!",
                       },
                     ]}
                   >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    label="Phone Number"
-                    name="phoneNumber"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your phone number!",
-                      },
-                    ]}
-                  >
-                    <Input />
+                    <Input.Password />
                   </Form.Item>
                 </section>
               )}
 
               {step === 1 && (
-                <section className="bg-white p-2 rounded-md container">
+                <section className="bg-white p-2 rounded-md container mx-auto">
                   <h2 className="text-xl mb-2 font-bold">Role</h2>
                   <p className="text-sm">
                     Select the role you plan to have with Grean.
@@ -263,24 +260,32 @@ function Setup() {
                   <Form.Item
                     label="Role"
                     name="userRole"
+                    className="w-full flex flex-col gap-2"
                     rules={[
                       { required: true, message: "Please select your role!" },
                     ]}
                   >
-                    <Select>
-                      <Select.Option value="Driver">Driver</Select.Option>
-                      <Select.Option value="Business">Business</Select.Option>
-                      <Select.Option value="Home">Home</Select.Option>
-                    </Select>
+                    <Radio.Group className="w-full flex justify-evenly gap-4 text-center">
+                      <Radio.Button className="basis-1/3" value="Business">
+                        
+                        Business
+                      </Radio.Button>
+                      <Radio.Button className="basis-1/3 h-auto p-2" value="Driver">
+                        <img src={driverIcon}></img>
+                        Driver</Radio.Button>
+                      <Radio.Button className="basis-1/3 h-auto p-2" value="Home">
+                      <img src={homeIcon}></img>
+                        Home</Radio.Button>
+                    </Radio.Group>
                   </Form.Item>
                 </section>
               )}
 
               {step === 2 && (
-                <section className="bg-white shadow-lg max-h-full overflow-auto p-2 rounded-md container">
+                <section className="h-full overflow-auto p-2 rounded-md container">
                   {formData.userRole === "Business" && (
                     <div className="overflow-auto">
-                      <h2 className="text-xl mb-4">Business Info</h2>
+                      <h2 className="text-xl">Business Info</h2>
                       <Form.Item
                         label="Business Name"
                         name="businessName"
@@ -343,31 +348,65 @@ function Setup() {
                       >
                         <Input.TextArea />
                       </Form.Item>
-                      <Form.Item
-                        label="Business Address (Street)"
-                        name="street"
-                        rules={[
-                          {
-                            required: true,
-                            message:
-                              "Please input your business street address!",
-                          },
-                        ]}
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        label="City"
-                        name="city"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please input your city!",
-                          },
-                        ]}
-                      >
-                        <Input />
-                      </Form.Item>
+                      <Form.List name="addresses">
+                        {(fields, { add, remove }) => (
+                          <>
+                            {fields.map(({ key, name, ...restField }) => (
+                              <div key={key} className="address-field">
+                                <Form.Item
+                                  {...restField}
+                                  label="Street"
+                                  name={[name, "street"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "Please input your street address!",
+                                    },
+                                  ]}
+                                >
+                                  <Input />
+                                </Form.Item>
+                                <Form.Item
+                                  {...restField}
+                                  label="City"
+                                  name={[name, "city"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please input your city!",
+                                    },
+                                  ]}
+                                >
+                                  <Input />
+                                </Form.Item>
+                                <Form.Item
+                                  {...restField}
+                                  label="State"
+                                  name={[name, "state"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please input your state!",
+                                    },
+                                  ]}
+                                >
+                                  <Input />
+                                </Form.Item>
+                                <Button
+                                  type="danger"
+                                  onClick={() => remove(name)}
+                                >
+                                  Remove Address
+                                </Button>
+                              </div>
+                            ))}
+                            <Button type="dashed" onClick={() => add()}>
+                              Add Address
+                            </Button>
+                          </>
+                        )}
+                      </Form.List>
                     </div>
                   )}
                   {formData.userRole === "Driver" && (
@@ -421,14 +460,19 @@ function Setup() {
                       <Form.List name="addresses">
                         {(fields, { add, remove }) => (
                           <>
-                            {fields.map(({ key, name, fieldKey, ...restField }) => (
+                            {fields.map(({ key, name, ...restField }) => (
                               <div key={key} className="address-field">
                                 <Form.Item
                                   {...restField}
                                   label="Street"
                                   name={[name, "street"]}
-                                  fieldKey={[fieldKey, "street"]}
-                                  rules={[{ required: true, message: "Please input your street address!" }]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "Please input your street address!",
+                                    },
+                                  ]}
                                 >
                                   <Input />
                                 </Form.Item>
@@ -436,8 +480,12 @@ function Setup() {
                                   {...restField}
                                   label="City"
                                   name={[name, "city"]}
-                                  fieldKey={[fieldKey, "city"]}
-                                  rules={[{ required: true, message: "Please input your city!" }]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please input your city!",
+                                    },
+                                  ]}
                                 >
                                   <Input />
                                 </Form.Item>
@@ -445,12 +493,19 @@ function Setup() {
                                   {...restField}
                                   label="State"
                                   name={[name, "state"]}
-                                  fieldKey={[fieldKey, "state"]}
-                                  rules={[{ required: true, message: "Please input your state!" }]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please input your state!",
+                                    },
+                                  ]}
                                 >
                                   <Input />
                                 </Form.Item>
-                                <Button type="danger" onClick={() => remove(name)}>
+                                <Button
+                                  type="danger"
+                                  onClick={() => remove(name)}
+                                >
                                   Remove Address
                                 </Button>
                               </div>
@@ -468,31 +523,42 @@ function Setup() {
 
               {step === 3 && (
                 <section className="bg-white p-2 rounded-md container">
-                  <h2 className="text-xl mb-4">Account Info</h2>
+                  <h2 className="text-xl mb-4">Basic Info</h2>
                   <Form.Item
-                    label="Email"
-                    name="usersEmail"
+                    label="First Name"
+                    name="firstName"
                     rules={[
                       {
                         required: true,
-                        message: "Please input your email!",
-                        type: "email",
+                        message: "Please input your first name!",
                       },
                     ]}
                   >
                     <Input />
                   </Form.Item>
                   <Form.Item
-                    label="Password"
-                    name="password"
+                    label="Last Name"
+                    name="lastName"
                     rules={[
                       {
                         required: true,
-                        message: "Please input your password!",
+                        message: "Please input your last name!",
                       },
                     ]}
                   >
-                    <Input.Password />
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label="Phone Number"
+                    name="phoneNumber"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your phone number!",
+                      },
+                    ]}
+                  >
+                    <Input />
                   </Form.Item>
                 </section>
               )}
@@ -500,29 +566,19 @@ function Setup() {
           </Form>
         </motion.main>
 
-        <nav className="flex justify-center gap-4 mt-4 h-[10%]">
-          {step > 0 && (
+        <nav className="flex justify-center gap-4 mt-4 h-[10%] bg-white w-full items-center">
+          {step > 1 && ( // Adjust step comparison for Back button
             <Button
-              className="bg-white text-black"
+              className="bg-red-500 text-white"
               type="primary"
               size="large"
               onClick={prevStep}
             >
-              Previous
-            </Button>
-          )}
-          {step === 3 && (
-            <Button
-              className="bg-white text-black"
-              type="primary"
-              size="large"
-              onClick={handleSubmit}
-            >
-              Submit
+              Back
             </Button>
           )}
 
-          {step < 1 && (
+          {step === 1 && !user && (
             <Button
               className="bg-red-500 text-white"
               type="primary"
@@ -535,12 +591,22 @@ function Setup() {
 
           {step < 3 && (
             <Button
-              className="bg-white text-black"
+              className="bg-grean text-white"
               type="primary"
               size="large"
               onClick={nextStep}
             >
               Next
+            </Button>
+          )}
+          {step === 3 && (
+            <Button
+              className="bg-grean text-white"
+              type="primary"
+              size="large"
+              onClick={handleSubmit}
+            >
+              Submit
             </Button>
           )}
         </nav>

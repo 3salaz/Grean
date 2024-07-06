@@ -2,12 +2,12 @@ import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg"
 import { motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { UserAuth } from "../../context/AuthContext";
 import SideNav from "./SideNav";
 import Button from "./Button";
+import { useAuthProfile } from "../../context/AuthProfileContext";
 
 function Navbar() {
-  const { user, logOut } = UserAuth();
+  const { user, logOut } = useAuthProfile();
   const navigate = useNavigate();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, toggleAccountNav] = useCycle(false, true);

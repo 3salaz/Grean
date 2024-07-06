@@ -1,9 +1,8 @@
-import { getAuth, inMemoryPersistence, setPersistence } from "firebase/auth";
+import { browserLocalPersistence, getAuth, setPersistence } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
-
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 let firebaseConfig = {
@@ -22,8 +21,10 @@ const app = initializeApp(firebaseConfig);
 
 // Auth
 export const auth = getAuth(app);
-
-setPersistence(auth, inMemoryPersistence);
+// Set persistence to browserLocalPersistence
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Error setting persistence:", error);
+});
 // Firestore
 export const db = getFirestore(app);
 // Storage

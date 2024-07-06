@@ -1,24 +1,29 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePickups } from "../../context/PickupsContext";
-import { useProfile } from "../../context/ProfileContext";
-import { Form, Input, Button, Select, DatePicker, TimePicker } from 'antd';
+import { useAuthProfile } from "../../context/AuthProfileContext";
+import { Form, Input, Select, DatePicker, TimePicker, Upload, message } from 'antd';
 import dayjs from 'dayjs';
+import { UploadOutlined } from '@ant-design/icons';
+import Button from "../Layout/Button";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 function RequestPickup({ handleClose }) {
   const { requestPickup } = usePickups();
-  const { profile } = useProfile();
+  const { profile } = useAuthProfile ();
 
   const initialFormData = useMemo(() => ({
     pickupDate: getCurrentDate(),
     pickupTime: "12:00",
     pickupNote: "",
     businessAddress: profile?.fullAddress || "",
+    appliance: null,
+    applianceImage: null,
   }), [profile]);
 
   const [formData, setFormData] = useState(initialFormData);
+  const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     if (profile?.fullAddress) {
@@ -36,8 +41,19 @@ function RequestPickup({ handleClose }) {
     }));
   }, []);
 
+  const handleUpload = ({ file }) => {
+    setFileList([file]);
+  };
+
   const handleSubmit = async () => {
-    await requestPickup(formData, handleClose);
+    const formDataWithFile = { ...formData };
+
+    if (fileList.length > 0) {
+      const file = fileList[0];
+      formDataWithFile.applianceImage = file;
+    }
+
+    await requestPickup(formDataWithFile, handleClose);
   };
 
   function getCurrentDate() {
@@ -47,23 +63,21 @@ function RequestPickup({ handleClose }) {
   return (
     <div id="pickup" className="w-full h-full flex justify-center items-center overflow-auto">
       <Form className="flex flex-col gap-2 w-full h-full px-2" onFinish={handleSubmit}>
-        <header className="flex flex-col gap-1">
+        <header className="flex flex-col gap-1 h-[10%]">
           <div className="text-center text-xl font-bold text-grean">Request Pickup</div>
           <div className="text-xs text-center text-white font-bold bg-grean container p-2 mx-auto">
             Schedule your next pickup!
           </div>
         </header>
 
-        <main>
-          <section className="flex flex-col gap-2 overflow-auto">
+        <main className="overflow-auto h-[90%] max-h-[90%]">
+          <section className="flex flex-col">
             <Form.Item
               label="Business Address:"
               name="businessAddress"
               rules={[{ required: true, message: 'Please select a business address!' }]}
             >
               <Select
-                value={formData.businessAddress}
-                defaultValue={formData.businessAddress}
                 placeholder="Select your address"
                 onChange={(value) => handleChange('businessAddress', value)}
                 className="rounded-lg font-normal text-xs"
@@ -76,7 +90,41 @@ function RequestPickup({ handleClose }) {
               </Select>
             </Form.Item>
 
-            <div className="flex w-full">
+            <Form.Item
+              label="Appliance:"
+              name="appliance"
+            >
+              <Select
+                placeholder="Select appliance"
+                onChange={(value) => handleChange('appliance', value)}
+                className="rounded-lg font-normal text-xs"
+              >
+                <Option value="washingMachine">Washing Machine</Option>
+                <Option value="refrigerator">Refrigerator</Option>
+                <Option value="oven">Oven</Option>
+                <Option value="other">Other</Option>
+              </Select>
+            </Form.Item>
+
+            {formData.appliance && (
+              <Form.Item
+                label="Upload Appliance Image:"
+                name="applianceImage"
+                rules={[{ required: true, message: 'Please upload an image of the appliance!' }]}
+              >
+                <Upload
+                  listType="picture"
+                  maxCount={1}
+                  beforeUpload={() => false} // Prevent automatic upload
+                  onChange={handleUpload}
+                  fileList={fileList}
+                >
+                  <Button icon={<UploadOutlined />}>Upload (Max: 1)</Button>
+                </Upload>
+              </Form.Item>
+            )}
+
+            <div className="flex w-full gap-4">
               <Form.Item
                 label="Date:"
                 name="pickupDate"
@@ -85,10 +133,10 @@ function RequestPickup({ handleClose }) {
               >
                 <DatePicker
                   value={formData.pickupDate ? dayjs(formData.pickupDate) : null}
-                  onChange={(date) => handleChange('pickupDate', date ? date.format('DD-MM-YYYY') : null)}
-                  className="text-sm font-normal p-2 rounded-md"
+                  onChange={(date) => handleChange('pickupDate', date ? date.format('YYYY-MM-DD') : null)}
+                  className="text-sm font-normal p-2 rounded-md w-full"
                   disabledDate={(current) => current && current < dayjs().startOf('day')}
-                  format="DD MMMM, YYYY" // Custom date format
+                  format="DD-MM-YYYY" // Custom date format
                 />
               </Form.Item>
               
@@ -101,7 +149,7 @@ function RequestPickup({ handleClose }) {
                 <TimePicker
                   value={formData.pickupTime ? dayjs(formData.pickupTime, 'HH:mm') : null}
                   onChange={(time) => handleChange('pickupTime', time ? time.format('HH:mm') : null)}
-                  className="text-sm font-normal p-2 rounded-md"
+                  className="text-sm font-normal p-2 rounded-md w-full"
                   minuteStep={30} // Ensures only 30-minute intervals can be selected
                   format="h:mm A"
                   use12Hours
@@ -124,8 +172,8 @@ function RequestPickup({ handleClose }) {
           </section>
         </main>
 
-        <section className="flex h-[10%] items-end justify-center flex-row w-full">
-          <Button className="bg-grean" type="primary" htmlType="submit" size="medium">
+        <section className="flex items-end justify-center flex-row w-full">
+          <Button className="bg-grean text-white" type="primary" size="large">
             Request
           </Button>
         </section>

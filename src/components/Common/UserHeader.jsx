@@ -1,10 +1,10 @@
-import { UserAuth } from "../../context/AuthContext";
+import { useAuthProfile } from "../../context/AuthProfileContext";
 import { motion } from "framer-motion";
 import avatar from "../../assets/avatar.svg";
 import { Link } from "react-router-dom";
 
 function UserHeader() {
-  const { user } = UserAuth();
+  const { user } = useAuthProfile();
   return (
     <header className="w-full container flex items-center justify-between bg-white px-2 h-[10%]">
       <div className="flex items-center gap-2 h-full">

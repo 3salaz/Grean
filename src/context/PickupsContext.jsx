@@ -3,11 +3,11 @@ import { collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc, delete
 import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import { UserAuth } from "./AuthContext";
-import { useProfile } from "./ProfileContext";
 import { useLocations } from "./LocationsContext";
+import { useAuthProfile } from "./AuthProfileContext";
 
 const PickupContext = createContext();
+
 
 export const usePickups = () => useContext(PickupContext);
 
@@ -18,8 +18,7 @@ export const PickupsProvider = ({ children }) => {
   const [visiblePickups, setVisiblePickups] = useState([]);
   const [completedPickups, setCompletedPickups] = useState([]);
   const [userCreatedPickups, setUserCreatedPickups] = useState([]);
-  const { user } = UserAuth();
-  const { profile } = useProfile();
+  const { user,profile } = useAuthProfile();
   const { addLocation } = useLocations();
 
   useEffect(() => {

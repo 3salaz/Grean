@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { usePickups } from "../../context/PickupsContext";
 import { useEffect, useState } from "react";
 
@@ -80,11 +79,11 @@ function Schedule({ handleClose }) {
   return (
     <div
       id="schedule"
-      className="w-full h-full flex justify-center items-center overflow-auto bg-white rounded-lg"
+      className="w-full h-[60svh] flex justify-center items-center overflow-auto rounded-lg"
     >
       <div className="max-w-[600px] h-full container rounded-lg text-slate-800">
         <section className="h-full w-full flex flex-col items-center justify-center gap-2">
-          <header className="w-full flex gap-2 justify-start items-center p-2 px-4">
+          <header className="w-full h-[15%] flex gap-2 justify-start items-center p-2 px-4">
             <section className="text-5xl font-bold">
               {userAcceptedPickups === null
                 ? "Loading..."
@@ -97,7 +96,7 @@ function Schedule({ handleClose }) {
             </section>
           </header>
 
-          <main className="w-full max-w-full px-2 h-[48rem] flex gap-2 overflow-x-scroll snap-proximity snap-x no-scroll">
+          <main className="w-full h-[85%] flex gap-2 overflow-x-scroll snap-proximity snap-x no-scroll">
             {userAcceptedPickups
               .filter((pickup) => !pickup.isCompleted)
               .map((pickup) => {
@@ -108,7 +107,7 @@ function Schedule({ handleClose }) {
                 return (
                   <section
                     key={pickup.id}
-                    className="bg-grean rounded-lg snap-center shadow-xl p-2 min-w-[90%] w-full h-full"
+                    className="bg-grean border-4 border-grean rounded-lg snap-center min-w-[90%] w-full h-full"
                   >
                     <div className="w-full min-h-[20%] flex items-center justify-between px-4 text-white">
                       <div className="flex flex-col text-left">
@@ -177,24 +176,66 @@ function Schedule({ handleClose }) {
                                   formInputs[pickup.id]?.plasticWeight || ""
                                 }
                               />
+                              
+                            </div>
+                            <div className="flex gap-1 flex-col basis-1/2 px-2 text-center">
+                              <label>Glass</label>
+                              <input
+                                name="glassWeight"
+                                className="w-full"
+                                type="number"
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    pickup.id,
+                                    "plasticWeight",
+                                    e.target.value
+                                  )
+                                }
+                                value={
+                                  formInputs[pickup.id]?.plasticWeight || ""
+                                }
+                              />
+                              
+                            </div>
+                            <div className="flex gap-1 flex-col basis-1/2 px-2 text-center">
+                              <label>Cardboard</label>
+                              <input
+                                name="cardboardWeight"
+                                className="w-full"
+                                type="number"
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    pickup.id,
+                                    "plasticWeight",
+                                    e.target.value
+                                  )
+                                }
+                                value={
+                                  formInputs[pickup.id]?.plasticWeight || ""
+                                }
+                              />
+                              
                             </div>
                           </div>
 
                           {error && (
                             <p className="text-red-500 text-lg">{error}</p>
                           )}
+                          <div className="flex items-center justify-center gap-2">
                           <a
                             href={`https://maps.google.com/?q=${pickup.businessAddress}`}
                             className="text-base bg-blue-400 text-white rounded-full px-3 py-1 text-center"
                           >
-                            Get Directions
+                            Directions
                           </a>
                           <button
                             type="submit"
-                            className="bg-grean py-1 px-3 rounded-full"
+                            className="bg-grean text-white py-1 px-3 rounded-full"
                           >
-                            Complete Pickup
+                            Complete
                           </button>
+                          </div>
+
                         </form>
                       </section>
                     </div>
@@ -202,17 +243,6 @@ function Schedule({ handleClose }) {
                 );
               })}
           </main>
-
-          <motion.button
-            className="flex justify-center items-center text-slate-800"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ion-icon
-              size="large"
-              name="arrow-forward-circle-outline"
-            ></ion-icon>
-          </motion.button>
         </section>
       </div>
     </div>

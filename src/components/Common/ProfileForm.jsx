@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
-import { UserAuth } from "../../context/AuthContext";
+import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocations } from "../../context/LocationsContext";
-import { useProfile } from "../../context/ProfileContext";
 import { motion } from "framer-motion";
 import { Form, Input, Button, Row, Col } from "antd";
 
 
 const ProfileForm = () => {
-  const { user } = UserAuth();
-  const { profile, updateProfile } = useProfile();
+  const { profile, updateProfile, user } = useAuthProfile();
   const { updateLocation } = useLocations();
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({

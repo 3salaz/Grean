@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { usePickups } from "../../../context/PickupsContext";
-import { useProfile } from "../../../context/ProfileContext";
+import { useAuthProfile } from "../../../context/AuthProfileContext";
 import RequestPickup from "../../Common/RequestPickup";
 import Schedule from "../../Common/Schedule";
 import Alerts from "../../Common/Alerts";
@@ -10,12 +10,11 @@ import SlideModal from "../Modals/SlideModal";
 import Button from "../Button";
 
 function MapTab() {
-  const { profile } = useProfile();
+  const { profile } = useAuthProfile();
   const { visiblePickups, userAcceptedPickups, userCreatedPickups } = usePickups();
   const [pickupOpen, setRequestPickupOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-
   const closePickup = () => setRequestPickupOpen(false);
   const openPickup = () =>  setRequestPickupOpen(true);
   const closeSchedule = () => setScheduleOpen(false);

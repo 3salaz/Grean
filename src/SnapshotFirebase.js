@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { QuerySnapshot, Timestamp, collection, onSnapshot, query, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { UserAuth } from "./context/AuthContext";
+import { useAuthProfile } from "./context/AuthProfileContext";
 
 const collectionRef = collection(db,'pickups')
-const {user} = UserAuth();
+const {user} = useAuthProfile();
 const currentUserId = user ? user.uid : null
 const [pickups, setPickups] = useState([])
 const [isOpen, setIsOpen] = useState(false);

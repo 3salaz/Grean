@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserAuth } from "../../context/AuthContext";
+import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
-import { Button, Form, Input, Typography } from "antd";
+import { Form, Input, Typography } from "antd";
+import Button from "../Layout/Button";
 import { GoogleOutlined } from "@ant-design/icons";
-import googleLogo from '../../assets/logos/Google__G__logo.png';
 
 const { Title, Text } = Typography;
 
@@ -12,12 +12,12 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { signIn, googleSignIn, user } = UserAuth();
+  const { signIn, googleSignIn, user } = useAuthProfile();
   const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
-      await googleSignIn();
+      const user = await googleSignIn();
       toast.success("Signed in successfully with Google!");
       navigate("/account");
     } catch (error) {
@@ -57,19 +57,20 @@ function Login() {
           <div className="container max-w-3xl mx-auto rounded-md">
             <div className="w-full rounded-md">
               <div className="mx-auto w-full">
-                <Title level={3} className="mt-10 text-center text-[#75B657]">
+                <Title level={3} className="py-6 text-center text-[#75B657]">
                   Sign In To Your Account
                 </Title>
               </div>
-              <div className="my-8">
-                <Form
-                  name="login"
-                  className="space-y-2"
-                  onFinish={handleSignIn}
-                >
+              <Form
+                name="login"
+                className="text-right flex flex-col w-full"
+                onFinish={handleSignIn}
+              >
+                <section className="w-full flex flex-col gap-2 items-center">
                   <Form.Item
                     name="email"
                     label="Email"
+                    className="mb-0 w-full"
                     rules={[
                       {
                         required: true,
@@ -88,7 +89,8 @@ function Login() {
                   </Form.Item>
                   <Form.Item
                     name="password"
-                    lable="Password"
+                    label="Password"
+                    className="w-full"
                     rules={[
                       {
                         required: true,
@@ -101,22 +103,26 @@ function Login() {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </Form.Item>
-                  <Form.Item className="text-right">
-                    <a href="https://google.com" className="font-semibold text-blue-400 hover:text-slate-800">
-                      Forgot password?
-                    </a>
-                  </Form.Item>
-                  <Form.Item className="text-right">
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      className="bg-[#75B657] rounded-xl w-24 text-lg text-white"
-                    >
-                      Sign In
-                    </Button>
-                  </Form.Item>
-                </Form>
-                <Text className="mt-4 text-center text-sm text-gray-500">
+                </section>
+                <Form.Item className="flex justify-end gap-2">
+                  <Button
+                    type="primary"
+                    size="medium"
+                    shape="round"
+                    className="bg-[#75B657] text-white"
+                    onClick={handleSignIn}
+                  >
+                    Sign In
+                  </Button>
+                  <a
+                    href="https://google.com"
+                    className="font-semibold text-blue-400 hover:text-slate-800"
+                  >
+                    Forgot password?
+                  </a>
+                </Form.Item>
+
+                <Text className="text-center text-sm text-gray-500">
                   Not a member?
                   <Link
                     to="/setup"
@@ -125,16 +131,19 @@ function Login() {
                     Sign Up
                   </Link>
                 </Text>
-              </div>
-              <div className="w-full flex flex-col items-center justify-center">
-                <Button
-                  icon={<GoogleOutlined />}
-                  onClick={handleGoogleSignIn}
-                  className="flex items-center bg-blue-500 text-white"
-                >
-                  Sign In with Google
-                </Button>
-              </div>
+                
+                <div className="w-full flex flex-col items-center justify-center">
+                  <Button
+                    onClick={handleGoogleSignIn}
+                    size="medium"
+                    className="flex text-sm items-center bg-blue-500 text-white"
+                  >
+                    <span className="flex flex-col items-center">
+                      <GoogleOutlined className="text-2xl" />
+                    </span>
+                  </Button>
+                </div>
+              </Form>
             </div>
           </div>
         </div>

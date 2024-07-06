@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { usePickups } from "../../context/PickupsContext";
-import { useProfile } from "../../context/ProfileContext";
 import noPickupIcon from "../../assets/no-pickups.svg";
+import { useAuthProfile } from "../../context/AuthProfileContext";
 
 function Alerts() {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();
-  const { profile } = useProfile(); // Access the user's profile, including the userRole
+  const { profile } = useAuthProfile(); // Access the user's profile, including the userRole
 
   const convertTo12HourFormat = (time) => {
     let [hours, minutes] = time.split(":");

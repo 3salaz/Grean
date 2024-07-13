@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc, deleteDoc, getDoc, GeoPoint } from "firebase/firestore";
 import { db } from "../firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useLocations } from "./LocationsContext";
@@ -18,21 +19,25 @@ export const PickupsProvider = ({ children }) => {
   const [visiblePickups, setVisiblePickups] = useState([]);
   const [completedPickups, setCompletedPickups] = useState([]);
   const [userCreatedPickups, setUserCreatedPickups] = useState([]);
-  const { user,profile } = useAuthProfile();
-  const { addLocation } = useLocations();
+  const { user } = useAuthProfile();
 
   useEffect(() => {
     if (user) {
       const unsubscribe = onSnapshot(collection(db, "pickups"), (querySnapshot) => {
+        const allPickups = [];
         const currentUserPickups = [];
         const currentUserAccepted = [];
+        const allAccepted = [];
+        const createdPickups = [];
         const currentCompleted = [];
 
         querySnapshot.forEach((doc) => {
           const pickup = { id: doc.id, ...doc.data() };
+          allPickups.push(pickup);
 
           if (pickup.createdBy === user.uid) {
             currentUserPickups.push(pickup);
+            createdPickups.push(pickup);
 
             if (pickup.isAccepted && !pickup.isComplete) {
               currentUserAccepted.push(pickup);
@@ -42,11 +47,23 @@ export const PickupsProvider = ({ children }) => {
               currentCompleted.push(pickup);
             }
           }
+
+          if (pickup.isAccepted) {
+            allAccepted.push(pickup);
+            if (pickup.acceptedBy === user.uid) {
+              currentUserAccepted.push(pickup);
+            }
+          }
         });
 
+        setPickups(allPickups);
         setUserCreatedPickups(currentUserPickups);
         setUserAcceptedPickups(currentUserAccepted);
+        setAllAcceptedPickups(allAccepted);
         setCompletedPickups(currentCompleted);
+
+        const filteredVisiblePickups = allPickups.filter((pickup) => !pickup.isAccepted);
+        setVisiblePickups(filteredVisiblePickups);
       });
 
       return () => unsubscribe();
@@ -63,8 +80,24 @@ export const PickupsProvider = ({ children }) => {
       isCompleted: false,
       createdBy: user.uid,
     };
-
+  
     try {
+      // Check if there is a file to upload
+      if (pickupData.applianceImage) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `pickups/${newPickupId}/applianceImage`);
+  
+        // Upload the file to Firebase Storage
+        const snapshot = await uploadBytes(storageRef, pickupData.applianceImage);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+  
+        // Update newPickup with the download URL
+        newPickup.applianceImage = downloadURL;
+      }
+  
+      // Remove the applianceImage file object from pickupData if it exists
+      delete newPickup.applianceImage;
+  
       await setDoc(doc(db, "pickups", newPickupId), newPickup);
       toast.success("Pickup added successfully!");
     } catch (error) {
@@ -75,75 +108,45 @@ export const PickupsProvider = ({ children }) => {
 
   const requestPickup = async (formData, handleClose) => {
     console.log("Form Data on Submit:", formData);
-
-    if (!profile?.lat || !profile?.lng) {
-      toast.error("Latitude and Longitude are required.");
+  
+    if (!user?.uid) {
+      toast.error("User is not authenticated.");
       return;
     }
-
-    const pickupData = {
-      ...formData,
-      lat: profile.lat,
-      lng: profile.lng,
-    };
-
+  
     try {
-      await createPickup(pickupData);
-      
-      const locationData = {
-        location: new GeoPoint(pickupData.lat, pickupData.lng),
-        businessName: profile.businessName || '',
-        businessDescription: profile.businessDescription || '',
+      const locationDocRef = doc(db, "locations", user.uid);
+      const locationSnapshot = await getDoc(locationDocRef);
+  
+      if (!locationSnapshot.exists()) {
+        toast.error("Location data not found for the user.");
+        return;
+      }
+  
+      const locationData = locationSnapshot.data();
+      if (!locationData.lat || !locationData.lng) {
+        toast.error("Latitude and Longitude are required in location data.");
+        return;
+      }
+  
+      const pickupData = {
+        ...formData,
+        lat: locationData.lat,
+        lng: locationData.lng,
+        createdBy: user.uid,
+        applianceImage: formData.applianceImage, // Ensure this field is passed if needed
       };
-      await addLocation(locationData);
-
+  
+      await createPickup(pickupData);
+  
       handleClose();
     } catch (error) {
       console.error("Error creating pickup:", error);
       toast.error("Failed to create pickup.");
     }
   };
+  
 
-  useEffect(() => {
-    if (user) {
-      const unsubscribe = onSnapshot(collection(db, "pickups"), (querySnapshot) => {
-        const allPickups = [];
-        const currentUserAccepted = [];
-        const allAccepted = [];
-        const createdPickups = [];
-
-        querySnapshot.forEach((doc) => {
-          const pickup = { id: doc.id, ...doc.data() };
-          allPickups.push(pickup);
-
-          if (pickup.isAccepted) {
-            allAccepted.push(pickup);
-            if (pickup.acceptedBy === user.uid) {
-              currentUserAccepted.push(pickup);
-            }
-          }
-
-          if (pickup.createdBy === user.uid) {
-            createdPickups.push(pickup);
-          }
-        });
-
-        setPickups(allPickups);
-        setUserAcceptedPickups(currentUserAccepted);
-        setAllAcceptedPickups(allAccepted);
-        setUserCreatedPickups(createdPickups);
-
-        const filteredVisiblePickups = allPickups.filter(
-          (pickup) => !pickup.isAccepted
-        );
-        const filterIsCompleted = allPickups.filter((pickup) => pickup.isCompleted);
-        setCompletedPickups(filterIsCompleted);
-        setVisiblePickups(filteredVisiblePickups);
-      });
-
-      return () => unsubscribe();
-    }
-  }, [user]);
 
   const acceptPickup = async (pickupId) => {
     if (!user) {

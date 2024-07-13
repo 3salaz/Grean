@@ -16,7 +16,7 @@ const SlideModal = ({ isOpen, handleClose, children }) => {
         {children}
         <Button
           variant="alert"
-          size="large"
+          size="medium"
           onClick={handleClose}
         >
           Close

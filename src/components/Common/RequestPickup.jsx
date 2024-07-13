@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePickups } from "../../context/PickupsContext";
+
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { Form, Input, Select, DatePicker, TimePicker, Upload, message } from 'antd';
 import dayjs from 'dayjs';
@@ -17,9 +18,10 @@ function RequestPickup({ handleClose }) {
     pickupDate: getCurrentDate(),
     pickupTime: "12:00",
     pickupNote: "",
-    businessAddress: profile?.fullAddress || "",
+    businessAddress: profile?.fullAddress || "Address goes here when you save to database",
     appliance: null,
     applianceImage: null,
+    
   }), [profile]);
 
   const [formData, setFormData] = useState(initialFormData);
@@ -47,7 +49,7 @@ function RequestPickup({ handleClose }) {
 
   const handleSubmit = async () => {
     const formDataWithFile = { ...formData };
-
+    
     if (fileList.length > 0) {
       const file = fileList[0];
       formDataWithFile.applianceImage = file;
@@ -70,12 +72,12 @@ function RequestPickup({ handleClose }) {
           </div>
         </header>
 
-        <main className="overflow-auto h-[90%] max-h-[90%]">
-          <section className="flex flex-col">
+        <main className="h-[90%] max-h-[90%]">
+          <section className="flex flex-col h-full overflow-auto">
             <Form.Item
               label="Business Address:"
               name="businessAddress"
-              rules={[{ required: true, message: 'Please select a business address!' }]}
+              rules={[{ required: false, message: 'Please select a business address!' }]}
             >
               <Select
                 placeholder="Select your address"
@@ -173,10 +175,10 @@ function RequestPickup({ handleClose }) {
         </main>
 
         <section className="flex items-end justify-center flex-row w-full">
-          <Button className="bg-grean text-white" type="primary" size="large">
+          <Button className="bg-grean text-white" type="primary" size="medium">
             Request
           </Button>
-        </section>
+        </section> 
       </Form>
     </div>
   );

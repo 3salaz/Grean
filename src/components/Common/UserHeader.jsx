@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 function UserHeader() {
   const { user } = useAuthProfile();
   return (
-    <header className="w-full container flex items-center justify-between bg-white px-2 h-[10%]">
+    <header className="w-full container flex items-center justify-between bg-white px-2 h-[10%] rounded-md">
       <div className="flex items-center gap-2 h-full">
         <img
           className="rounded-full h-14 aspect-square"
@@ -16,7 +16,7 @@ function UserHeader() {
         <div className="flex flex-col items-start justify-center h-full">
           <h2 className="text-sm font-bold text-black">{user.displayName}</h2>
           <p className="text-xs bg-grean text-white font-bold rounded-lg flex flex-wrap p-2">
-            ID:{user.email}
+            ID:{user.uid}
           </p>
         </div>
       </div>

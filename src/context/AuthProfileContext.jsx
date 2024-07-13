@@ -1,146 +1,129 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-  GoogleAuthProvider,
+import { 
+  onAuthStateChanged, 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signOut, 
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  signInWithPopup,
+  GoogleAuthProvider, 
+  signInWithPopup 
 } from "firebase/auth";
+import { auth } from "../firebase";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
-import { auth, db } from "../firebase";
-import { toast } from "react-toastify";
+import { db } from "../firebase";
 
-// Create the context
 const AuthProfileContext = createContext();
 
-// Custom hook to use the context
-export const useAuthProfile = () => useContext(AuthProfileContext);
-
-export const AuthProfileProvider = ({ children }) => {
+export function AuthProfileProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      if (currentUser) {
-        await checkAndFetchProfile(currentUser.uid);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        const profileRef = doc(db, "profiles", user.uid);
+        const profileSnap = await getDoc(profileRef);
+        if (profileSnap.exists()) {
+          setProfile(profileSnap.data());
+        }
+      } else {
+        setProfile(null);
       }
+      setLoading(false);
     });
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
-  const checkAndFetchProfile = async (uid) => {
-    const docRef = doc(db, "profiles", uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setProfile(docSnap.data());
-    } else {
-      // Profile does not exist, create one with default data
-      const defaultProfile = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: uid
-      };
-      await setDoc(docRef, defaultProfile);
-      setProfile(defaultProfile);
-      toast.success("Profile created successfully!");
-    }
+
+  const logOut = async () => {
+    await signOut(auth);
   };
 
-  const createProfile = async (uid, data) => {
-    const docRef = doc(db, "profiles", uid);
-    try {
-      await setDoc(docRef, data);
-      setProfile(data);
-      toast.success("Profile created successfully!");
-    } catch (error) {
-      console.error("Error creating profile:", error);
-      toast.error("Error creating profile. Please try again.");
-    }
+  const createUser = async (email, password) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    console.log(user.email);
+    // Create user profile
+    const profileData = {
+      email: user.email,
+      uid: user.uid,
+    };
+    await createProfile(user.uid, profileData);
+  
+    return user;
   };
 
-  const updateProfile = async (data) => {
-    if (user) {
-      const docRef = doc(db, "profiles", user.uid);
-      try {
-        await setDoc(docRef, data, { merge: true });
-        setProfile((prevProfile) => ({ ...prevProfile, ...data }));
-        toast.success("Profile updated successfully!");
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        toast.error("Error updating profile. Please try again.");
-      }
-    }
-  };
-
-  const deleteProfile = async () => {
-    if (user) {
-      const docRef = doc(db, "profiles", user.uid);
-      try {
-        await deleteDoc(docRef);
-        setProfile(null);
-        toast.success("Profile deleted successfully!");
-      } catch (error) {
-        console.error("Error deleting profile:", error);
-        toast.error("Error deleting profile. Please try again.");
-      }
-    }
-  };
-
-  const createUser = (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+  const signIn = async (email, password) => {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    return user;
   };
 
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    // Check if user profile already exists
+    const profileRef = doc(db, "profiles", user.uid);
+    const profileSnap = await getDoc(profileRef);
+  
+    if (!profileSnap.exists()) {
+      // Create user profile if it doesn't exist
       const profileData = {
         displayName: user.displayName,
+        profilePic: user.photoURL,
         email: user.email,
-        photoURL: user.photoURL,
         uid: user.uid,
       };
       await createProfile(user.uid, profileData);
-      return user;
-    } catch (error) {
-      console.error("Google sign-in error:", error);
-      throw error;
+    }
+  
+    return user;
+  };
+
+  const createProfile = async (uid, profileData) => {
+    const profileRef = doc(db, "profiles", uid);
+    await setDoc(profileRef, profileData);
+    setProfile(profileData);
+  };
+
+  const updateProfile = async (uid, profileData) => {
+    const profileRef = doc(db, "profiles", uid);
+    await setDoc(profileRef, profileData, { merge: true });
+    const profileSnap = await getDoc(profileRef);
+    if (profileSnap.exists()) {
+      setProfile(profileSnap.data());
     }
   };
 
-  const signIn = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const deleteProfile = async (uid) => {
+    const profileRef = doc(db, "profiles", uid);
+    await deleteDoc(profileRef);
+    setProfile(null);
   };
 
-  const logOut = () => {
-    return signOut(auth);
+  const value = {
+    user,
+    profile,
+    loading,
+    logOut,
+    createUser,
+    signIn,
+    googleSignIn,
+    createProfile,
+    updateProfile,
+    deleteProfile,
   };
 
   return (
-    <AuthProfileContext.Provider
-      value={{
-        user,
-        profile,
-        loading,
-        signIn,
-        logOut,
-        createUser,
-        googleSignIn,
-        createProfile,
-        updateProfile,
-        deleteProfile,
-      }}
-    >
-      {children}
+    <AuthProfileContext.Provider value={value}>
+      {!loading && children}
     </AuthProfileContext.Provider>
   );
-};
+}
+
+export function useAuthProfile() {
+  return useContext(AuthProfileContext);
+}

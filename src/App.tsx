@@ -31,10 +31,10 @@ function App() {
         <LocationsProvider>
           <PickupsProvider>
             <Navbar /> 
-            <main className="h-[82svh] w-full bg-white relative">
+            <main className="h-[82svh] w-full bg-white relative z-20">
               <ToastContainer
                 position="top-center"
-                style={{ top: "8%", left: "50%", transform: "translateX(-50%)" }}
+                style={{ width: "100%", top: "8%", left: "50%", transform: "translateX(-50%)" }}
               />
               <Routes>
                 <Route path="/" element={<Home />} />

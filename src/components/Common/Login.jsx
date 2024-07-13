@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { Form, Input, Typography } from "antd";
 import Button from "../Layout/Button";
 import { GoogleOutlined } from "@ant-design/icons";
+import { useLocations } from "../../context/LocationsContext";
 
 const { Title, Text } = Typography;
 
@@ -13,7 +14,9 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { signIn, googleSignIn, user } = useAuthProfile();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { createLocation } = useLocations();
 
   const handleGoogleSignIn = async () => {
     try {
@@ -30,6 +33,7 @@ function Login() {
     setError("");
     try {
       await signIn(values.email, values.password);
+      await createLocation(user.uid);
       toast.success("Signed in successfully!");
       navigate("/account");
     } catch (error) {

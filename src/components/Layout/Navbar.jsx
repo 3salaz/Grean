@@ -1,6 +1,7 @@
+import React, { useEffect, useRef } from "react";
 import logo from "../../assets/logo.png";
-import avatar from "../../assets/avatar.svg"
-import { motion, useCycle } from "framer-motion";
+import avatar from "../../assets/avatar.svg";
+import { AnimatePresence, motion, useCycle } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import SideNav from "./SideNav";
 import Button from "./Button";
@@ -10,19 +11,38 @@ function Navbar() {
   const { user, logOut } = useAuthProfile();
   const navigate = useNavigate();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
-  const [accountNav, toggleAccountNav] = useCycle(false, true);
+  const [accountNav, setAccountNav] = useCycle(false, true);
+  const accountNavRef = useRef(null);
 
   const handleLogout = async () => {
     try {
       await logOut();
       navigate("/");
-      console.log("you are logged out");
-      toggleAccountNav();
+      console.log("You are logged out");
+      setAccountNav(false);
     } catch (e) {
       console.log(e.message);
     }
   };
-  
+
+  const handleClickOutside = (event) => {
+    if (accountNavRef.current && !accountNavRef.current.contains(event.target)) {
+      setAccountNav(false);
+    }
+  };
+
+  useEffect(() => {
+    if (accountNav) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [accountNav]);
+
   return (
     <nav id="navbar" className="bg-grean top-0 h-[8svh] z-40 relative drop-shadow-lg">
       <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
@@ -33,7 +53,7 @@ function Navbar() {
             type="button"
             className="flex md:hidden flex-col space-y-1 items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#75B657]"
             aria-controls="mobile-menu"
-            aria-expanded="false"
+            aria-expanded={mobileNav}
             onClick={() => toggleMobileNav()}
           >
             <motion.span
@@ -41,6 +61,8 @@ function Navbar() {
                 closed: { rotate: 0, y: 0 },
                 open: { rotate: 45, y: 5 },
               }}
+              initial={mobileNav ? "open" : "closed"}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
             <motion.span
@@ -48,6 +70,8 @@ function Navbar() {
                 closed: { opacity: 1 },
                 open: { opacity: 0 },
               }}
+              initial={mobileNav ? "open" : "closed"}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
             <motion.span
@@ -55,6 +79,8 @@ function Navbar() {
                 closed: { rotate: 0, y: 0 },
                 open: { rotate: -45, y: -5 },
               }}
+              initial={mobileNav ? "open" : "closed"}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
           </button>
@@ -111,16 +137,16 @@ function Navbar() {
         <div className="absolute inset-y-0 right-2 flex gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
           {/* Profile dropdown */}
           {user ? (
-            <div className="relative z-30">
+            <div className="relative z-20">
               <Button
                 type="button"
                 id="user-menu-button"
-                aria-expanded="false"
+                aria-expanded={accountNav}
                 aria-haspopup="true"
                 aria-controls="user-menu"
                 variant="primary"
                 size="small"
-                onClick={() => toggleAccountNav()}
+                onClick={() => setAccountNav((prev) => !prev)}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
                 className="justify-end"
@@ -128,7 +154,7 @@ function Navbar() {
                 <span className="sr-only">Open Users Menu</span>
                 <img
                   className="h-10 w-10 rounded-full bg-white"
-                  src={user.photoURL || avatar} 
+                  src={user.photoURL || avatar}
                   alt="Users Pic"
                 ></img>
               </Button>
@@ -139,10 +165,8 @@ function Navbar() {
               whileTap={{ scale: 0.9 }}
               variant="white"
               size="small"
-              // className="bg-red-600 rounded-md p-2"
-              
             >
-              <Link to='/setup' className="w-16 p-1 flex items-center justify-center font-bold text-sm">
+              <Link to="/setup" className="w-16 p-1 flex items-center justify-center font-bold text-sm">
                 Sign Up
               </Link>
             </Button>
@@ -150,38 +174,44 @@ function Navbar() {
         </div>
       </div>
 
-      {accountNav && (
-        <motion.div
-          variants={{
-            open: {
-              opacity: 1,
-            },
-            closed: {
-              opacity: 0,
-            },
-          }}
-          initial="closed"
-          animate="open"
-          className="relative container mx-auto"
-        >
-          <div
-            className="absolute top-0 right-0 drop-shadow-lg z-30 w-36 rounded-bl-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-            role="menu"
+      <AnimatePresence>
+        {accountNav && (
+          <motion.div
+            ref={accountNavRef}
+            variants={{
+              open: {
+                opacity: 1,
+                y: 0,
+              },
+              closed: {
+                opacity: 0,
+                y: -20,
+              },
+            }}
+            initial="closed"
+            animate="open"
+            exit="closed"
+            className="relative container mx-auto z-50"
           >
-            <Button
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleLogout}
-              className="block p-2 text-sm text-gray-700 w-full text-center bg-red-500 rounded-md text-white"
-              role="menuitem"
-              tabIndex="-1"
-              id="user-menu-item-2"
+            <div
+              className="absolute top-0 right-0 drop-shadow-lg z-40 w-36 rounded-bl-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+              role="menu"
             >
-              Sign out
-            </Button>
-          </div>
-        </motion.div>
-      )}
+              <Button
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.8 }}
+                onClick={handleLogout}
+                className="block z-50 p-2 text-sm text-gray-700 w-full text-center bg-red-500 rounded-md text-white"
+                role="menuitem"
+                tabIndex="-1"
+                id="user-menu-item-2"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

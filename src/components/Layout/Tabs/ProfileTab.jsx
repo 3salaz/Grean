@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import ProfileHeader from "../../Common/UserHeader";
 import { useAuthProfile } from "../../../context/AuthProfileContext";
+import userIcon from "../../../assets/icons/user.png";
+import Button from "../Button";
 
 // Modal Component
 const Modal = ({ isOpen, onClose, pickup }) => {
@@ -173,15 +174,13 @@ const ProfileTab = () => {
 
   // Determine user role and set appropriate icon and text
   const getUserRoleInfo = () => {
-    switch (profile?.userRole) {
+    switch (profile?.accountType) {
       case "Driver":
         return { icon: "car-outline", text: "Driver" };
-      case "Home":
-        return { icon: "home-outline", text: "Home" };
-      case "Business":
-        return { icon: "business-outline", text: "Business" };
+      case "User":
+        return { icon: userIcon, text: "User" };
       default:
-        return { icon: "person-outline", text: "User" };
+        return { icon: "person-outline", text: "null" };
     }
   };
 
@@ -192,75 +191,79 @@ const ProfileTab = () => {
       id="profileTab"
       className="w-full h-full z-20 flex flex-col items-center relative"
     >
-      <ProfileHeader />
-
-      <div className="w-full h-[90%] overflow-auto snap-y snap-mandatory hide-scroll no-scroll overscroll-none bg-slate-800 rounded-t-md text-white">
-        <div className="w-full h-full mx-auto container section relative justify-start items-center snap-always snap-center rounded-t-md p-4 flex flex-col gap-4">
-          <div className="flex w-full justify-left items-center gap-2 text-center rounded-md drop-shadow-xl">
-            <div className="bg-grean p-1">
-              <ion-icon name={userRoleInfo.icon} size="large"></ion-icon>
-              <span>{userRoleInfo.text}</span>
+      <div className="w-full h-[full] overflow-auto snap-y snap-mandatory hide-scroll no-scroll overscroll-none  text-white">
+        <div className="w-full h-[99%] bg-slate-800 mx-auto container section relative justify-between items-center snap-always snap-center p-4 flex flex-col gap-2">
+          <div className="h-[45%] w-full">
+            <div className="flex w-full justify-left items-center gap-2 text-center rounded-md drop-shadow-xl">
+              <div className="bg-grean pr-2 flex items-center justify-center rounded-md">
+                <img className="w-10" src={userRoleInfo.icon}></img>
+                <span>{userRoleInfo.text}</span>
+              </div>
             </div>
 
-          </div>
-
-          <div className="flex flex-col gap-2 items-center justify-center text-white">
-            <svg
-              className="w-32 h-32 text-white"
-              viewBox="0 0 160 160"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                className="circle-bg"
-                cx="80"
-                cy="80"
-                r="70"
-                strokeWidth="10"
-                stroke="#e6e6e6"
-                fill="none"
-              />
-              <circle
-                className="circle-progress"
-                cx="80"
-                cy="80"
-                r="70"
-                strokeWidth="10"
-                stroke="#4caf50"
-                fill="none"
-                strokeDasharray="440"
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-              />
-              <text
-                className="circle-text"
-                x="50%"
-                y="50%"
-                dy=".3em"
-                textAnchor="middle"
-                fontSize="20"
-                fill="#fff"
+            <div className="flex flex-col gap-2 items-center justify-center text-white">
+              <svg
+                className="w-32 h-32 text-white"
+                viewBox="0 0 160 160"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                {pounds} lbs
-              </text>
-            </svg>
-            <div className="text-center">
-              <h2 className="text-2xl font-bold">Level {level}</h2>
+                <circle
+                  className="circle-bg"
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  strokeWidth="10"
+                  stroke="#e6e6e6"
+                  fill="none"
+                />
+                <circle
+                  className="circle-progress"
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  strokeWidth="10"
+                  stroke="#4caf50"
+                  fill="none"
+                  strokeDasharray="440"
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                />
+                <text
+                  className="circle-text"
+                  x="50%"
+                  y="50%"
+                  dy=".3em"
+                  textAnchor="middle"
+                  fontSize="20"
+                  fill="#fff"
+                >
+                  {pounds} lbs
+                </text>
+              </svg>
+              
+              <div className="text-center">
+                <h2 className="text-2xl font-bold">Level {level}</h2>
+              </div>
+              <section className="text-center">
+                Recycle 250 more pounds by December 31, 2024 to reach level 2
+              </section>
             </div>
-            <section className="text-center">
-              Recycle 250 more pounds by December 31, 2024 to reach level 2
-            </section>
+          </div>
+          <div className="h-[25%] w-full">
+            <div className="w-full h-full flex gap-2 items-center justify-between text-grean">
+              <div className="border border-white px-2 basis-1/3 h-full text-center rounded-sm">
+                <div className="text-sm">Aluminum %</div>
+              </div>
+              <div className="border border-white px-2 basis-1/3 h-full text-center rounded-sm">
+                Plastic %
+              </div>
+              <div className="border border-white px-2 basis-1/3 h-full text-center rounded-sm">
+                Glass %
+              </div>
+            </div>
           </div>
 
-          <div className="w-full flex gap-4 items-center justify-center text-grean">
-            <div className="border border-white px-2 basis-1/2 text-center">
-              Aluminum %
-            </div>
-            <div className="border border-white px-2 basis-1/2 text-center">
-              Plastic %
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col gap-4">
+          <div className="h-[30%] w-full flex flex-col gap-4">
             <ul className="flex items-center justify-center text-white text-center">
               {["Weekly", "Monthly", "Yearly"].map((tab, index) => (
                 <li
@@ -268,7 +271,7 @@ const ProfileTab = () => {
                   onClick={() => setActiveTab(index)}
                   className={`cursor-pointer border-solid border px-2 pt-1 basis-1/3 ${
                     activeTab === index
-                      ? "border-b-transparent border-l-white border-r-white border-t-white bg-grean"
+                      ? "border-b-transparent border-l-white border-r-white border-t-white rounded-t-md bg-grean"
                       : "border-b-white border-l-transparent border-r-transparent border-t-transparent"
                   }`}
                 >
@@ -290,7 +293,13 @@ const ProfileTab = () => {
                 <div>0lbs of Aluminum</div>
                 <div>0lbs of Plastic</div>
               </div>
+
             </div>
+            <div className="absolute bottom-2 left-2">
+                <Button className="bg-white font-bold text-grean rounded-full w-5 px-2">
+                  <ion-icon size="small" className="font-bold" name="reload-outline"></ion-icon>
+                </Button>
+              </div>
           </div>
         </div>
 
@@ -304,7 +313,7 @@ const ProfileTab = () => {
                 id="historySection"
                 className="md:rounded-md shadow-lg basis-2/3 bg-white overflow-auto"
               >
-                <div className="text-xl text-grean font-bold w-full text-center">
+                <div className="text-xl text-grean font-bold w-full text-center p-5">
                   History
                 </div>
                 <div className="border-b border-gray-300 px-4 flex justify-between font-bold">
@@ -328,15 +337,11 @@ const ProfileTab = () => {
                   ))}
                 </ul>
               </div>
-              <div
-                id="otherSection"
-                className="md:rounded-md basis-1/3"
-              >
+              <div id="otherSection" className="md:rounded-md basis-1/3">
                 <div className="h-full w-full rounded-lg flex md:flex-col items-center gap-2 p-2">
                   <div className="flex bg-white aspect-square basis-1/2 rounded-md shadow-lg"></div>
                   <div className="basis-1/2 flex items-center justify-center aspect-square shadow-lg">
-                    <div className="bg-white aspect-square w-full p-2 rounded-md">
-                    </div>
+                    <div className="bg-white aspect-square w-full p-2 rounded-md"></div>
                   </div>
                 </div>
               </div>

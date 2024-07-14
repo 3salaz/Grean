@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePickups } from "../../context/PickupsContext";
-
 import { useAuthProfile } from "../../context/AuthProfileContext";
-import { Form, Input, Select, DatePicker, TimePicker, Upload, message } from 'antd';
+import { useLocations } from "../../context/LocationsContext";
+import { Form, Input, Select, DatePicker, TimePicker, Upload } from 'antd';
 import dayjs from 'dayjs';
 import { UploadOutlined } from '@ant-design/icons';
 import Button from "../Layout/Button";
@@ -12,7 +12,8 @@ const { Option } = Select;
 
 function RequestPickup({ handleClose }) {
   const { requestPickup } = usePickups();
-  const { profile } = useAuthProfile ();
+  const { profile } = useAuthProfile();
+  const { getUserAddresses } = useLocations();
 
   const initialFormData = useMemo(() => ({
     pickupDate: getCurrentDate(),
@@ -21,7 +22,6 @@ function RequestPickup({ handleClose }) {
     businessAddress: profile?.fullAddress || "Address goes here when you save to database",
     appliance: null,
     applianceImage: null,
-    
   }), [profile]);
 
   const [formData, setFormData] = useState(initialFormData);
@@ -49,7 +49,7 @@ function RequestPickup({ handleClose }) {
 
   const handleSubmit = async () => {
     const formDataWithFile = { ...formData };
-    
+
     if (fileList.length > 0) {
       const file = fileList[0];
       formDataWithFile.applianceImage = file;
@@ -77,7 +77,7 @@ function RequestPickup({ handleClose }) {
             <Form.Item
               label="Business Address:"
               name="businessAddress"
-              rules={[{ required: false, message: 'Please select a business address!' }]}
+              rules={[{ required: true, message: 'Please select a business address!' }]}
             >
               <Select
                 placeholder="Select your address"
@@ -95,6 +95,7 @@ function RequestPickup({ handleClose }) {
             <Form.Item
               label="Appliance:"
               name="appliance"
+              rules={[{ required: true, message: 'Please select an appliance!' }]}
             >
               <Select
                 placeholder="Select appliance"
@@ -141,7 +142,7 @@ function RequestPickup({ handleClose }) {
                   format="DD-MM-YYYY" // Custom date format
                 />
               </Form.Item>
-              
+
               <Form.Item
                 label="Time:"
                 name="pickupTime"
@@ -175,10 +176,10 @@ function RequestPickup({ handleClose }) {
         </main>
 
         <section className="flex items-end justify-center flex-row w-full">
-          <Button className="bg-grean text-white" type="primary" size="medium">
+          <Button className="bg-grean text-white" type="primary" size="medium" htmlType="submit">
             Request
           </Button>
-        </section> 
+        </section>
       </Form>
     </div>
   );

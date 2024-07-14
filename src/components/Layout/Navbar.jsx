@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
 import { AnimatePresence, motion, useCycle } from "framer-motion";
@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import SideNav from "./SideNav";
 import Button from "./Button";
 import { useAuthProfile } from "../../context/AuthProfileContext";
+import SpringModal from "./Modals/SpringModal";
+import Signup from "../../components/Common/Signup";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
@@ -13,6 +15,7 @@ function Navbar() {
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, setAccountNav] = useCycle(false, true);
   const accountNavRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -42,6 +45,10 @@ function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [accountNav]);
+
+  const handleOpenModal = () => {setIsModalOpen(true);};
+
+  const handleCloseModal = () => setIsModalOpen(false);
 
   return (
     <nav id="navbar" className="bg-grean top-0 h-[8svh] z-40 relative drop-shadow-lg">
@@ -165,10 +172,9 @@ function Navbar() {
               whileTap={{ scale: 0.9 }}
               variant="white"
               size="small"
+              onClick={handleOpenModal}
             >
-              <Link to="/setup" className="w-16 p-1 flex items-center justify-center font-bold text-sm">
-                Sign Up
-              </Link>
+              Sign Up
             </Button>
           )}
         </div>
@@ -212,8 +218,13 @@ function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SpringModal isOpen={isModalOpen} handleClose={handleCloseModal}>
+        <Signup handleCloseModal={handleCloseModal} />
+      </SpringModal>
     </nav>
   );
 }
 
 export default Navbar;
+

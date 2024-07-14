@@ -24,20 +24,15 @@ function Map() {
   ];
 
   const [popupInfo, setPopupInfo] = useState(null);
-  const { businessLocations, fetchBusinessLocations } = useLocations();
+  const { businessLocations, getBusinessLocations } = useLocations();
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchBusinessLocations();
-    };
-    fetchData();
-  }, [fetchBusinessLocations]);
-
-
+    getBusinessLocations();
+  }, []);
 
   const pins = useMemo(
     () =>
-      businessLocations.map((location, index) => (
+      Array.isArray(businessLocations) && businessLocations.map((location, index) => (
         <Marker
           key={`marker-${index}`}
           longitude={location.lng}
@@ -147,10 +142,10 @@ function Map() {
                 <div className="w-full">
                   <div className="text-center">{popupInfo.description}</div>
                 </div>
-                </motion.div>
-              </Popup>
-            )}
-          </AnimatePresence>
+              </motion.div>
+            </Popup>
+          )}
+        </AnimatePresence>
       </ReactMapGl>
     </div>
   );

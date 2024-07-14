@@ -23,6 +23,7 @@ function MapTab() {
   const openSchedule = () => setScheduleOpen(true);
   const closeAlerts = () => setAlertsOpen(false);
   const openAlerts = () => setAlertsOpen(true);
+  const hasProfileAndLocation = profile && profile.addresses;
 
   return (
     <main id="mapTab" className="relative w-full h-full">
@@ -38,7 +39,7 @@ function MapTab() {
       <SlideModal isOpen={scheduleOpen} handleClose={closeSchedule}>
         <Schedule handleClose={closeSchedule} />
       </SlideModal>
-
+      {hasProfileAndLocation && (
       <div
         id="actionBtns"
         className="absolute w-full bottom-8 z-10 flex items-center justify-center"
@@ -121,6 +122,7 @@ function MapTab() {
           </div>
         </div>
       </div>
+      )}
     </main>
   );
 }

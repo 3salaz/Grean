@@ -47,13 +47,6 @@ function Login() {
       }
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      navigate("/account");
-    }
-  }, [user, navigate]);
-
   return (
     <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
       <div className="flex w-full justify-center items-center">

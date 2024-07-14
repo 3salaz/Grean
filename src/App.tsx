@@ -28,42 +28,46 @@ function App() {
 
   return (
     <AuthProfileProvider>
-        <LocationsProvider>
-          <PickupsProvider>
-            <Navbar /> 
-            <main className="h-[82svh] w-full bg-white relative z-20">
-              <ToastContainer
-                position="top-center"
-                style={{ width: "100%", top: "8%", left: "50%", transform: "translateX(-50%)" }}
+      <LocationsProvider>
+        <PickupsProvider>
+          <Navbar />
+          <main className="h-[82svh] w-full bg-white relative">
+            <ToastContainer
+              position="top-center"
+              style={{
+                width: "100%",
+                top: "8%",
+                left: "50%",
+                transform: "translateX(-50%)",
+              }}
+            />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute>
+                    <Account active={activeTab} />
+                  </ProtectedRoute>
+                }
               />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route
-                  path="/account"
-                  element={
-                    <ProtectedRoute>
-                      <Account active={activeTab} />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/setup" element={<Setup />} />
-                <Route
-                  path="/settings"
-                  element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </main>
-            {location.pathname !== "/setup" &&
-              location.pathname !== "/settings" &&
-              location.pathname !== "/" && (
-                <Tabbar active={activeTab} setActive={setActiveTab} />
-              )}
-          </PickupsProvider>
-        </LocationsProvider>
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </main>
+          {location.pathname !== "/setup" &&
+            location.pathname !== "/settings" &&
+            location.pathname !== "/" && (
+              <Tabbar active={activeTab} setActive={setActiveTab} />
+            )}
+        </PickupsProvider>
+      </LocationsProvider>
     </AuthProfileProvider>
   );
 }

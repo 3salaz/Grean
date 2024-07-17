@@ -46,9 +46,13 @@ function Navbar() {
     };
   }, [accountNav]);
 
-  const handleOpenModal = () => {setIsModalOpen(true);};
+  const handleOpen = () => {
+    setIsModalOpen(true);
+  };
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <nav id="navbar" className="bg-grean top-0 h-[8svh] z-40 relative drop-shadow-lg">
@@ -172,7 +176,7 @@ function Navbar() {
               whileTap={{ scale: 0.9 }}
               variant="white"
               size="small"
-              onClick={handleOpenModal}
+              onClick={handleOpen}
             >
               Sign Up
             </Button>
@@ -219,12 +223,11 @@ function Navbar() {
         )}
       </AnimatePresence>
 
-      <SpringModal isOpen={isModalOpen} handleClose={handleCloseModal}>
-        <Signup handleCloseModal={handleCloseModal} />
+      <SpringModal isOpen={isModalOpen} handleClose={handleClose}>
+        <Signup handleClose={handleClose} />
       </SpringModal>
     </nav>
   );
 }
 
 export default Navbar;
-

@@ -1,50 +1,22 @@
-//   const [formData, setFormData] = useState({
-//     firstName: "",
-//     lastName: "",
-//     phoneNumber: "",
-//     usersEmail: user ? user.email : "",
-//     password: "",
-//     accountType: "",
-//     businessName: "",
-//     businessEmail: "",
-//     businessPhoneNumber: "",
-//     businessWebsite: "",
-//     businessDescription: "",
-//     driverPaymentType: "",
-//     driverPaymentInput: "",
-//     driver1099Form: "",
-//     locationName: "",
-//     locationType: "",
-//     street: "",
-//     city: "",
-//     state: "California",
-//     lat: null,
-//     lng: null,
-//     uid: "",
-//   });
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { Form, Steps, Button, Radio } from "antd";
+import { Form, Input, Typography } from "antd";
+import Button from "../Layout/Button";
+import { GoogleOutlined } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
-import Step1SignUp from "../../components/Layout/Steps/Step1SignUp";
-import Step2AccountType from "../../components/Layout/Steps/Step2AccountType";
 
-function Signup({ handleCloseModal }) {
-  const { Step } = Steps;
+const { Title, Text } = Typography;
+
+function Signup({ handleClose }) {
   const navigate = useNavigate();
-  const { user, createUser, updateProfile } = useAuthProfile();
-  const [step, setStep] = useState(0);
+  const { user, signUp, googleSignIn } = useAuthProfile();
   const [form] = Form.useForm();
-
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    usersEmail: "",
+    displayName: "",
+    email: "",
     password: "",
-    accountType: "",
   });
 
   const handleInputChange = (changedValues) => {
@@ -54,26 +26,45 @@ function Signup({ handleCloseModal }) {
     }));
   };
 
-  const handleSignupStep = async () => {
-    if (!formData.usersEmail || !formData.password) {
-      toast.error("Please fill in all required fields.");
-      return;
+  useEffect(() => {
+    if (user) {
+      setFormData((prevData) => ({ ...prevData, email: user.email }));
     }
+  }, [user]);
 
+  const handleGoogleSignUp = async () => {
     try {
+      await googleSignIn();
+      toast.success("Signed up successfully with Google!");
+      handleClose(); // Close modal on successful sign-up
+    } catch (error) {
+      console.log(error);
+      toast.error("Error signing up with Google. Please try again.");
+    }
+  };
+
+  const handleSignUp = async () => {
+    try {
+      // Validate fields before submitting
+      const values = await form.validateFields();
       const profileData = {
-        displayName: `${formData.firstName} ${formData.lastName}`,
-        email: formData.usersEmail,
-        accountType: formData.accountType,
-        locations: { addresses: [] }
+        displayName: values.displayName,
+        email: values.email,
+        locations: { addresses: [] },
+        stats: {
+          overall: 0,
+          pickups : []
+        }
       };
 
-      const newUser = await createUser(formData.usersEmail, formData.password, profileData);
-
+      await signUp(values.email, values.password, profileData);
       toast.success("User created successfully!");
-      setStep(1);
+      handleClose(); // Close modal on successful sign-up
+      navigate("/account");
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
+      if (error.errorFields) {
+        toast.error("Please fill in all required fields.");
+      } else if (error.code === "auth/email-already-in-use") {
         toast.error("Error: Email already in use.");
       } else {
         toast.error("Error creating user: " + error.message);
@@ -81,56 +72,15 @@ function Signup({ handleCloseModal }) {
     }
   };
 
-  const handleAccountTypeStep = async () => {
-    if (!formData.accountType) {
-      toast.error("Please select the type of account");
-      return;
-    }
-
-    try {
-      await updateProfile(user.uid, { accountType: formData.accountType });
-      toast.success("Account type updated successfully!");
-      navigate("/account")
-
-    } catch (error) {
-      toast.error("Error updating profile: " + error.message);
-    }
-  };
-
-  const renderStep = () => {
-    switch (step) {
-      case 0:
-        return <Step1SignUp formData={formData} handleInputChange={handleInputChange} />;
-      case 1:
-        return <Step2AccountType formData={formData} handleInputChange={handleInputChange} />;
-      default:
-        return null;
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      setFormData((prevData) => ({ ...prevData, usersEmail: user.email }));
-    }
-  }, [user]);
-
   return (
     <AnimatePresence>
-      <section className="w-full items-center justify-center flex flex-col gap-2 bg-white absolute overflow-auto z-40">
-        <header className="w-full flex flex-row items-center justify-center gap-2 bg-white p-2 h-[10%] text-green">
-          <Steps current={step} className="h-full w-full flex flex-row gap-4 drop-shadow-2xl" direction="horizontal" type="inline">
-            <Step title="Sign Up" />
-            <Step title="Account Type" />
-          </Steps>
-        </header>
-
+      <section className="w-full h-full items-center justify-between flex flex-col gap-2 bg-white z-40">
         <motion.main
-          key={step}
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
-          className="h-[70%] overflow-auto w-full"
+          className="overflow-auto w-full"
         >
           <Form
             form={form}
@@ -139,34 +89,101 @@ function Signup({ handleCloseModal }) {
             onValuesChange={handleInputChange}
             className="w-full h-full"
           >
-            <section className="h-full w-full flex items-center justify-center mx-auto max-w-xl">
-              {renderStep()}
-            </section>
+            <div className="h-full w-full px-2" onClick={(e) => e.stopPropagation()}>
+              <div className="flex w-full justify-center items-center">
+                <div className="container h-full flex items-center justify-center max-w-lg">
+                  <div className="container max-w-3xl mx-auto rounded-md">
+                    <div className="w-full rounded-md">
+                      <div className="mx-auto w-full">
+                        <Title level={3} className="py-6 text-center text-[#75B657]">
+                          Sign Up for an Account
+                        </Title>
+                      </div>
+                      <section className="w-full flex flex-col gap-2 items-center">
+                        <Form.Item
+                          name="displayName"
+                          label="Display Name"
+                          className="mb-0 w-full"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input your Display Name!",
+                            },
+                          ]}
+                        >
+                          <Input placeholder="Enter your display name" />
+                        </Form.Item>
+                        <Form.Item
+                          name="email"
+                          label="Email"
+                          className="mb-0 w-full"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input your Email!",
+                            },
+                            {
+                              type: "email",
+                              message: "The input is not valid E-mail!",
+                            },
+                          ]}
+                        >
+                          <Input placeholder="Enter your email" />
+                        </Form.Item>
+                        <Form.Item
+                          name="password"
+                          label="Password"
+                          className="w-full"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input your Password!",
+                            },
+                          ]}
+                        >
+                          <Input.Password placeholder="Enter your password" />
+                        </Form.Item>
+                      </section>
+                      <Form.Item className="flex justify-end gap-2">
+                        <Button
+                          type="primary"
+                          size="medium"
+                          shape="round"
+                          className="bg-[#75B657] text-white"
+                          onClick={handleSignUp}
+                        >
+                          Sign Up
+                        </Button>
+                      </Form.Item>
+
+                      <Text className="text-center text-sm text-gray-500 w-full">
+                        Already a member?
+                        <Link
+                          to="/login"
+                          className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
+                        >
+                          Sign In
+                        </Link>
+                      </Text>
+
+                      <div className="w-full flex flex-col items-center justify-center">
+                        <Button
+                          onClick={handleGoogleSignUp}
+                          size="medium"
+                          className="flex text-sm items-center bg-blue-500 text-white"
+                        >
+                          <span className="flex flex-col items-center">
+                            <GoogleOutlined className="text-2xl" />
+                          </span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </Form>
         </motion.main>
-
-        <nav className="flex justify-center gap-4 mt-4 bg-white w-full items-start h-[20%]">
-          {step === 0 && (
-            <div className="flex gap-4">
-              <Button className="bg-red-500 text-white" type="primary" size="large" onClick={handleCloseModal}>
-                Close
-              </Button>
-              <Button className="text-white bg-green" type="primary" size="large" onClick={handleSignupStep}>
-                Sign Up
-              </Button>
-            </div>
-          )}
-          {step === 1 && (
-            <div className="flex gap-4">
-              <Button className="bg-red-500 text-white" type="primary" size="large" onClick={() => setStep(0)}>
-                Back
-              </Button>
-              <Button className="bg-green text-white" type="primary" size="large" onClick={handleAccountTypeStep}>
-                Save
-              </Button>
-            </div>
-          )}
-        </nav>
       </section>
     </AnimatePresence>
   );

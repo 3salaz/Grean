@@ -13,7 +13,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { signIn, googleSignIn, user } = useAuthProfile();
+  const { signIn, googleSignIn, user } = useAuthProfile()
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { createLocation } = useLocations();

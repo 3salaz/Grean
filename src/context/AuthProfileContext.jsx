@@ -38,7 +38,7 @@ export function AuthProfileProvider({ children }) {
     setProfile(null);
   };
 
-  const createUser = async (email, password, profileData) => {
+  const signUp = async (email, password, profileData) => {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -46,7 +46,6 @@ export function AuthProfileProvider({ children }) {
     const profileDocRef = doc(db, "profiles", user.uid);
     await setDoc(profileDocRef, { ...profileData, uid: user.uid });
     setProfile({ ...profileData, uid: user.uid });
-
     return user;
   };
 
@@ -72,7 +71,12 @@ export function AuthProfileProvider({ children }) {
         profilePic: user.photoURL,
         email: user.email,
         uid: user.uid,
-      };
+        locations: { addresses: [] },
+        stats: {
+          overall: 0,
+          pickups : []
+        }
+      }
       await setDoc(profileDocRef, profileData);
       setProfile(profileData);
     } else {
@@ -111,7 +115,7 @@ export function AuthProfileProvider({ children }) {
     profile,
     loading,
     logOut,
-    createUser,
+    signUp,
     signIn,
     googleSignIn,
     updateProfile,

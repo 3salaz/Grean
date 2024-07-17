@@ -10,7 +10,7 @@ import ReactMapGl, {
 } from "react-map-gl";
 import { useLocations } from "../../context/LocationsContext";
 
-function Map() {
+function MapBox() {
   const [viewPort, setViewPort] = useState({
     center: [-122.433247, 37.742646], // starting position
     latitude: 37.742646,
@@ -24,43 +24,43 @@ function Map() {
   ];
 
   const [popupInfo, setPopupInfo] = useState(null);
-  const { businessLocations, getBusinessLocations } = useLocations();
+  // const { businessLocations, getBusinessLocations } = useLocations();
 
-  useEffect(() => {
-    getBusinessLocations();
-  }, []);
+  // useEffect(() => {
+  //   getBusinessLocations();
+  // }, []);
 
-  const pins = useMemo(
-    () =>
-      Array.isArray(businessLocations) && businessLocations.map((location, index) => (
-        <Marker
-          key={`marker-${index}`}
-          longitude={location.lng}
-          latitude={location.lat}
-          anchor="bottom"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            setPopupInfo(location);
-            setViewPort((prev) => ({
-              ...prev,
-              latitude: location.lat,
-              longitude: location.lng,
-              zoom: 14,
-            }));
-          }}
-        >
-          <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
-            <img
-              className="object-fit"
-              src={businessIcon}
-              name="pin-sharp"
-              size="small"
-            />
-          </div>
-        </Marker>
-      )),
-    [businessLocations]
-  );
+  // const pins = useMemo(
+  //   () =>
+  //     Array.isArray(businessLocations) && businessLocations.map((location, index) => (
+  //       <Marker
+  //         key={`marker-${index}`}
+  //         longitude={location.lng}
+  //         latitude={location.lat}
+  //         anchor="bottom"
+  //         onClick={(e) => {
+  //           e.originalEvent.stopPropagation();
+  //           setPopupInfo(location);
+  //           setViewPort((prev) => ({
+  //             ...prev,
+  //             latitude: location.lat,
+  //             longitude: location.lng,
+  //             zoom: 14,
+  //           }));
+  //         }}
+  //       >
+  //         <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
+  //           <img
+  //             className="object-fit"
+  //             src={businessIcon}
+  //             name="pin-sharp"
+  //             size="small"
+  //           />
+  //         </div>
+  //       </Marker>
+  //     )),
+  //   [businessLocations]
+  // );
 
   return (
     <div id="map" className="h-full w-full relative">
@@ -76,7 +76,7 @@ function Map() {
         <GeolocateControl position="top-left" />
         <FullscreenControl position="top-left" />
         <NavigationControl position="top-left" />
-        {pins}
+        {/* {pins} */}
         <AnimatePresence>
           {popupInfo && (
             <Popup
@@ -151,4 +151,4 @@ function Map() {
   );
 }
 
-export default Map;
+export default MapBox;

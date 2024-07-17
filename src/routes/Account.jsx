@@ -1,27 +1,48 @@
-import ProfileTab from "../components/Layout/Tabs/ProfileTab";
-import StatsTab from "../components/Layout/Tabs/StatsTab";
-import MapTab from "../components/Layout/Tabs/MapTab";
+import React, { useEffect, useState } from "react";
+import Profile from "../components/Layout/Tabs/Profile";
+import Stats from "../components/Layout/Tabs/Stats";
+import Map from "../components/Layout/Tabs/Map";
+import CreateAccountType from "../components/Common/CreateAccountType";
+import SlideInModal from "../components/Layout/Modals/SlideInModal";
+import { useAuthProfile } from "../context/AuthProfileContext";
 
 function Account({ active }) {
+  const { profile } = useAuthProfile();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  let ActiveComponent;
+  useEffect(() => {
+    if (profile && !profile.accountType) {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
+    }
+  }, [profile]);
+
+  let ActiveTab;
   switch (active) {
     case 0:
-      ActiveComponent = ProfileTab;
+      ActiveTab = Profile;
       break;
     case 1:
-      ActiveComponent = MapTab;
+      ActiveTab = Map;
       break;
     case 2:
-      ActiveComponent = StatsTab;
+      ActiveTab = Stats;
       break;
     default:
-      ActiveComponent = null;
+      ActiveTab = null;
   }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <section id="account" className="w-full h-full">
-      {ActiveComponent ? <ActiveComponent /> : null}
+      <SlideInModal isOpen={isModalOpen} handleClose={handleCloseModal} showCloseButton={false}>
+        <CreateAccountType handleClose={handleCloseModal} />
+      </SlideInModal>
+      {profile && profile.accountType && ActiveTab && <ActiveTab />}
     </section>
   );
 }

@@ -27,7 +27,7 @@ const Button = ({
   const shapes = {
     rounded: "rounded-md",
     circle: "rounded-full",
-    square: "rounded-none",
+    square: "aspect-square w-10 h-10",
   };
 
   return (

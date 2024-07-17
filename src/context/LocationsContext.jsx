@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from "react";
-import { collection, query, where, getDocs, setDoc, doc, updateDoc, arrayUnion, getDoc, writeBatch, deleteDoc } from "firebase/firestore";
+import { createContext, useContext, useState, useEffect } from "react";
+import { collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 const LocationsContext = createContext();
@@ -7,107 +7,66 @@ const LocationsContext = createContext();
 export function LocationsProvider({ children }) {
   const [locations, setLocations] = useState([]);
   const [businessLocations, setBusinessLocations] = useState([]);
-  const [userLocations, setUserLocations] = useState([]);
+  const [usersLocation, setUsersLocation] = useState([]);
 
-  const createLocation = async (uid, accountType) => {
-    console.log(`Creating location for user with UID: ${uid}`);
-    const locationDocRef = doc(db, "locations", uid);
-    const initialLocationData = {
-      uid: uid,
-      addresses: [],
-      accountType: accountType
-    };
-    await setDoc(locationDocRef, initialLocationData);
+  const getLocationDocRef = (uid, collectionName) => {
+    return doc(db, collectionName, uid);
   };
 
-  const getUserLocation = async (uid) => {
+  const getUserLocation = async (uid, collectionName) => {
     try {
-      const locationsCollectionRef = collection(db, "locations");
-      const q = query(locationsCollectionRef, where("uid", "==", uid));
-      const querySnapshot = await getDocs(q);
-      const userAddresses = [];
+      const locationDocRef = getLocationDocRef(uid, collectionName);
+      const docSnap = await getDoc(locationDocRef);
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.addresses && Array.isArray(data.addresses)) {
-          userAddresses.push(...data.addresses);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.locations && Array.isArray(data.locations.addresses)) {
+          setUsersLocation(data.locations.addresses); // Update the state
+          return data.locations.addresses;
         }
-      });
+      }
 
-      return userAddresses;
+      setUsersLocation([]); // Update the state
+      return [];
     } catch (error) {
       console.error("Error fetching user addresses: ", error);
+      setUsersLocation([]); // Update the state
       return [];
     }
   };
 
-  const addLocation = async (uid, locationData) => {
-    console.log(`Adding location to user with UID: ${uid}`);
-    const locationDocRef = doc(db, "locations", uid);
+  const updateLocation = async (uid, locationData, collectionName) => {
+    console.log(`Adding location to user with UID: ${uid} in collection: ${collectionName}`);
+    const locationDocRef = getLocationDocRef(uid, collectionName);
     const docSnap = await getDoc(locationDocRef);
 
     if (docSnap.exists()) {
       await updateDoc(locationDocRef, {
-        addresses: arrayUnion(locationData),
+        "locations.addresses": arrayUnion(locationData),
       });
+      await getUserLocation(uid, collectionName); // Refresh the user's locations
     } else {
       await setDoc(locationDocRef, {
         uid: uid,
-        addresses: [locationData],
+        locations: { addresses: [locationData] },
+        stats: {
+          overall: 0,
+          pickups: []
+        },
+        accountType: "User",
+        email: "dominic@gmail.com", // Replace with actual email
+        displayName: "dominic" // Replace with actual display name
       });
-    }
-  };
-
-  const updateLocation = async (uid, locationData) => {
-    console.log(`Updating location for user with UID: ${uid}`);
-    const locationDocRef = doc(db, "locations", uid);
-    await updateDoc(locationDocRef, locationData);
-  };
-
-  const deleteLocation = async (uid) => {
-    console.log(`Deleting location for user with UID: ${uid}`);
-    const locationDocRef = doc(db, "locations", uid);
-    await deleteDoc(locationDocRef);
-  };
-
-  const batchUpdateLocations = async (locations) => {
-    const batch = writeBatch(db);
-    locations.forEach(location => {
-      const locationDocRef = doc(db, "locations", location.uid);
-      batch.set(locationDocRef, location);
-    });
-    await batch.commit();
-  };
-
-  const getBusinessLocations = async () => {
-    try {
-      const locationsCollectionRef = collection(db, "locations");
-      const q = query(locationsCollectionRef, where("locationType", "==", "Business"));
-      const querySnapshot = await getDocs(q);
-      const businessLocations = [];
-
-      querySnapshot.forEach((doc) => {
-        businessLocations.push(doc.data());
-      });
-
-      setBusinessLocations(businessLocations);
-      return businessLocations;
-    } catch (error) {
-      console.error("Error fetching business locations: ", error);
-      return [];
+      await getUserLocation(uid, collectionName); // Refresh the user's locations
     }
   };
 
   const value = {
     locations,
     businessLocations,
-    createLocation,
-    getUserLocation,
-    addLocation,
+    usersLocation,
     updateLocation,
-    deleteLocation,
-    batchUpdateLocations,
-    getBusinessLocations
+    getUserLocation,
   };
 
   return (

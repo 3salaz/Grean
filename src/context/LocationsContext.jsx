@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, arrayUnion, getDoc, getDocs, collection } from "firebase/firestore";
 import { db } from "../firebase";
 
 const LocationsContext = createContext();
@@ -35,7 +35,7 @@ export function LocationsProvider({ children }) {
     }
   };
 
-  const updateLocation = async (uid, locationData, collectionName) => {
+  const createLocation = async (uid, locationData, collectionName) => {
     console.log(`Adding location to user with UID: ${uid} in collection: ${collectionName}`);
     const locationDocRef = getLocationDocRef(uid, collectionName);
     const docSnap = await getDoc(locationDocRef);
@@ -53,11 +53,24 @@ export function LocationsProvider({ children }) {
           overall: 0,
           pickups: []
         },
-        accountType: "User",
-        email: "dominic@gmail.com", // Replace with actual email
-        displayName: "dominic" // Replace with actual display name
       });
       await getUserLocation(uid, collectionName); // Refresh the user's locations
+      await getAllLocations(); // Refresh all locations
+    }
+  };
+
+  const getAllLocations = async () => {
+    try {
+      const locationsCollectionRef = collection(db, "locations");
+      const querySnapshot = await getDocs(locationsCollectionRef);
+      const allLocations = querySnapshot.docs.map(doc => doc.data());
+
+      setLocations(allLocations); // Update the state with all locations
+      return allLocations;
+    } catch (error) {
+      console.error("Error fetching all locations: ", error);
+      setLocations([]); // Update the state
+      return [];
     }
   };
 
@@ -65,8 +78,9 @@ export function LocationsProvider({ children }) {
     locations,
     businessLocations,
     usersLocation,
-    updateLocation,
+    createLocation,
     getUserLocation,
+    getAllLocations,
   };
 
   return (

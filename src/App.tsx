@@ -17,7 +17,6 @@ import Tabbar from "./components/Layout/TabBar";
 
 // Routes
 import Home from "./routes/Home";
-import Setup from "./routes/Setup";
 import Account from "./routes/Account";
 import Settings from "./routes/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -61,8 +60,7 @@ function App() {
               />
             </Routes>
           </main>
-          {location.pathname !== "/setup" &&
-            location.pathname !== "/settings" &&
+          { location.pathname !== "/settings" &&
             location.pathname !== "/" && (
               <Tabbar active={activeTab} setActive={setActiveTab} />
             )}

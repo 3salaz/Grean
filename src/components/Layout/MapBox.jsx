@@ -8,7 +8,7 @@ import ReactMapGl, {
   FullscreenControl,
   GeolocateControl,
 } from "react-map-gl";
-import { useLocations } from "../../context/LocationsContext";
+import { useLocations } from "../../context/LocationsContext"; // Adjust the path as needed
 
 function MapBox() {
   const [viewPort, setViewPort] = useState({
@@ -24,43 +24,46 @@ function MapBox() {
   ];
 
   const [popupInfo, setPopupInfo] = useState(null);
-  // const { businessLocations, getBusinessLocations } = useLocations();
+  const { locations, getAllLocations } = useLocations();
 
-  // useEffect(() => {
-  //   getBusinessLocations();
-  // }, []);
+  useEffect(() => {
+    getAllLocations();
+  }, []);
 
-  // const pins = useMemo(
-  //   () =>
-  //     Array.isArray(businessLocations) && businessLocations.map((location, index) => (
-  //       <Marker
-  //         key={`marker-${index}`}
-  //         longitude={location.lng}
-  //         latitude={location.lat}
-  //         anchor="bottom"
-  //         onClick={(e) => {
-  //           e.originalEvent.stopPropagation();
-  //           setPopupInfo(location);
-  //           setViewPort((prev) => ({
-  //             ...prev,
-  //             latitude: location.lat,
-  //             longitude: location.lng,
-  //             zoom: 14,
-  //           }));
-  //         }}
-  //       >
-  //         <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
-  //           <img
-  //             className="object-fit"
-  //             src={businessIcon}
-  //             name="pin-sharp"
-  //             size="small"
-  //           />
-  //         </div>
-  //       </Marker>
-  //     )),
-  //   [businessLocations]
-  // );
+  const pins = useMemo(
+    () =>
+      Array.isArray(locations) &&
+      locations.flatMap(locationDoc =>
+        locationDoc.locations.addresses.map((location, index) => (
+          <Marker
+            key={`marker-${index}`}
+            longitude={location.longitude}
+            latitude={location.latitude}
+            anchor="bottom"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              setPopupInfo(location);
+              setViewPort((prev) => ({
+                ...prev,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                zoom: 14,
+              }));
+            }}
+          >
+            <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
+              <img
+                className="object-fit"
+                src={businessIcon}
+                name="pin-sharp"
+                size="small"
+              />
+            </div>
+          </Marker>
+        ))
+      ),
+    [locations]
+  );
 
   return (
     <div id="map" className="h-full w-full relative">
@@ -76,13 +79,13 @@ function MapBox() {
         <GeolocateControl position="top-left" />
         <FullscreenControl position="top-left" />
         <NavigationControl position="top-left" />
-        {/* {pins} */}
+        {pins}
         <AnimatePresence>
           {popupInfo && (
             <Popup
               anchor="top"
-              longitude={Number(popupInfo.lng)}
-              latitude={Number(popupInfo.lat)}
+              longitude={Number(popupInfo.longitude)}
+              latitude={Number(popupInfo.latitude)}
               closeButton={false}
               closeOnClick={false}
               onClose={() => setPopupInfo(null)}

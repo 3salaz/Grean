@@ -8,6 +8,7 @@ function ProfileLocations() {
   const { profile } = useAuthProfile();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const profileLocations = profile.locations.addresses;
+  console.log(profileLocations);
 
   const openAddLocationModal = () => {
     setIsModalVisible(true);
@@ -19,17 +20,18 @@ function ProfileLocations() {
 
   return (
     <main className="w-full h-full flex flex-col justify-between gap-2 container mx-auto">
+      <SpringModal
+        isOpen={isModalVisible}
+        handleClose={handleCloseModal}
+        showCloseButton={false}
+      >
+        <AddLocation handleClose={handleCloseModal} />
+      </SpringModal>
       <div
         id="locationDetails"
         className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll p-4 gap-4"
       >
-        <SpringModal
-          isOpen={isModalVisible}
-          handleClose={handleCloseModal}
-          showCloseButton={false}
-        >
-          <AddLocation handleClose={handleCloseModal} />
-        </SpringModal>
+
         {profileLocations.map((address, index) => (
           <div
             key={index}
@@ -42,7 +44,7 @@ function ProfileLocations() {
             </div>
           </div>
         ))}
-        {profileLocations > 0 && (
+        {profileLocations.length === 0 && (
           <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-white">
             <Button
               variant="primary"

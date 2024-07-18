@@ -91,7 +91,7 @@ const Stats = () => {
           id="stats"
           className="w-full h-full bg-slate-800 border-b-white border-b-2 mx-auto container section relative justify-center items-center snap-always snap-center p-4 flex flex-col gap-2"
         >
-          <div className="h-full max-w-lg flex flex-col gap-2">
+          <div className="h-full max-w-lg flex flex-col justify-between gap-2">
             <div className="w-full">
               <div className="flex justify-left items-center gap-2 text-center rounded-md drop-shadow-xl absolute">
                 <div className="bg-grean pr-2 flex items-center justify-center rounded-md">

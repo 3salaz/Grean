@@ -43,6 +43,7 @@ function Profile() {
 
       <div className="w-full h-full flex flex-col justify-between gap-2 container mx-auto bg-light-gray pb-6">
         <ProfileLocations />
+        
         {profile.locations.addresses.length > 0 && (
           <div className="flex justify-between items-center gap-2">
             <div className="flex justify-center gap-4 h-10 w-full">

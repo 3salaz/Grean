@@ -12,7 +12,7 @@ import businessIcon from "../../assets/icons/business.png";
 const AddLocation = ({ handleClose }) => {
   const { Step } = Steps;
   const { profile } = useAuthProfile();
-  const { updateLocation } = useLocations();
+  const { createLocation } = useLocations();
   const [step, setStep] = useState(0);
   const [form] = Form.useForm();
   const [uploading, setUploading] = useState(false);
@@ -63,6 +63,30 @@ const AddLocation = ({ handleClose }) => {
 
   const prevStep = () => setStep((prevStep) => prevStep - 1);
 
+  const handleGeocodeAddress = async (address) => {
+    const fullAddress = `${address.street}, ${address.city}, California`;
+    const apiUrl = `https://geocode.maps.co/search?q=${encodeURIComponent(
+      fullAddress
+    )}&api_key=660502575887c637237148utr0d3092`;
+
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        return { lat, lng: lon };
+      } else {
+        toast.error("No results found. Please try a different address.");
+        return null;
+      }
+    } catch (err) {
+      toast.error("An error occurred while geocoding. Please try again.");
+      console.error(err);
+      return null;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep()) {
       toast.error("Please fill in all required fields.");
@@ -88,9 +112,17 @@ const AddLocation = ({ handleClose }) => {
             : "",
       };
 
+      const geocodedLocation = await handleGeocodeAddress(newAddress);
+      if (!geocodedLocation) {
+        return;
+      }
+
+      newAddress.latitude = geocodedLocation.lat;
+      newAddress.longitude = geocodedLocation.lng;
+
       // Define the collection name based on your needs (e.g., 'profiles' or 'locations')
-      await updateLocation(profile.uid, newAddress, "profiles");
-      await updateLocation(profile.uid, newAddress, "locations");
+      await createLocation(profile.uid, newAddress, "profiles");
+      await createLocation(profile.uid, newAddress, "locations");
       handleClose();
       toast.success("Location added successfully!");
     } catch (error) {

@@ -9,16 +9,16 @@ import { useAuthProfile } from "../context/AuthProfileContext";
 function Account({ active }) {
   const { profile } = useAuthProfile();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  let ActiveTab;
 
   useEffect(() => {
-    if (profile && !profile.accountType) {
+    if (!profile.accountType) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
   }, [profile]);
-
-  let ActiveTab;
+  console.log(profile)
   switch (active) {
     case 0:
       ActiveTab = Profile;

@@ -1,21 +1,23 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { useLocations } from "../../context/LocationsContext";
 import { toast } from "react-toastify";
-import { Form, Steps, Button, Input, Radio, Select, Upload } from "antd";
+import { Form, Button, Input, Radio, Select, Upload } from "antd";
 import { motion } from "framer-motion";
 import { storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import Loader from "../Common/Loader"; // Adjust the import path as needed
 import homeIcon from "../../assets/icons/home.png";
 import businessIcon from "../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
-  const { Step } = Steps;
-  const { profile } = useAuthProfile();
-  const { createLocation } = useLocations();
+  const { profile, addAddressToProfile } = useAuthProfile();
+  const { addLocationToCollection } = useLocations();
   const [step, setStep] = useState(0);
   const [form] = Form.useForm();
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false); // Loader state
+
   const [formData, setFormData] = useState({
     locationType: "",
     homeName: "Home",
@@ -23,7 +25,7 @@ const AddLocation = ({ handleClose }) => {
     streetType: "Street",
     city: "",
     state: "California",
-    businessName: "",
+    businessName: "Business 1",
     businessLogo: "",
     businessWebsite: "",
     businessPhoneNumber: "",
@@ -87,11 +89,28 @@ const AddLocation = ({ handleClose }) => {
     }
   };
 
+  const handleAddLocation = async (newLocation) => {
+    if (profile) {
+
+      await addAddressToProfile(profile.uid, newLocation);
+      await addLocationToCollection(profile.uid, {
+        newLocation,
+        stats: {
+          overall: 0,
+          pickups: [],
+        },
+      });
+
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep()) {
       toast.error("Please fill in all required fields.");
       return;
     }
+
+    setLoading(true); // Start loading
 
     try {
       const newAddress = {
@@ -114,25 +133,27 @@ const AddLocation = ({ handleClose }) => {
 
       const geocodedLocation = await handleGeocodeAddress(newAddress);
       if (!geocodedLocation) {
+        setLoading(false); // Stop loading
         return;
       }
 
       newAddress.latitude = geocodedLocation.lat;
       newAddress.longitude = geocodedLocation.lng;
 
-      // Define the collection name based on your needs (e.g., 'profiles' or 'locations')
-      await createLocation(profile.uid, newAddress, "profiles");
-      await createLocation(profile.uid, newAddress, "locations");
-      handleClose();
+      await handleAddLocation(newAddress);
+
       toast.success("Location added successfully!");
+      handleClose();
     } catch (error) {
       toast.error("Error adding location: " + error.message);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
-  const handleLogoUpload = (file) => {
+  const handleLogoUpload = ({ file }) => {
     setUploading(true);
-    const storageRef = ref(storage, `logos/${file.uid}`);
+    const storageRef = ref(storage, `logos/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -158,68 +179,79 @@ const AddLocation = ({ handleClose }) => {
     switch (step) {
       case 0:
         return (
-          <Form.Item className="w-full text-center" required>
-            <Radio.Group
-              className="flex items-center justify-center gap-4 w-full"
-              value={formData.locationType}
-              onChange={(e) =>
-                handleInputChange({ locationType: e.target.value })
-              }
-            >
-              <Radio.Button
-                className="basis-1/4 h-auto p-4 flex flex-col"
-                value="Home"
+          <>
+            <Form.Item className="w-full text-center m-0" required>
+              <Radio.Group
+                className="flex items-center justify-center gap-4 w-full"
+                value={formData.locationType}
+                onChange={(e) =>
+                  handleInputChange({ locationType: e.target.value })
+                }
               >
-                <img src={homeIcon} alt="Home" />
-                <div className="text-sm text-dark-green">Home</div>
-              </Radio.Button>
-              <Radio.Button
-                className="basis-1/4 h-auto p-4 flex flex-col"
-                value="Business"
-              >
-                <img src={businessIcon} alt="Business" />
-                <div className="text-sm text-dark-green">Business</div>
-              </Radio.Button>
-            </Radio.Group>
-          </Form.Item>
+                <Radio.Button
+                  className="h-20 aspect-square p-4 flex flex-col"
+                  value="Home"
+                >
+                  <img
+                    className="h-full w-full object-fit"
+                    src={homeIcon}
+                    alt="Home"
+                  />
+                </Radio.Button>
+                <Radio.Button
+                  className="h-20 aspect-square p-4 flex flex-col"
+                  value="Business"
+                >
+                  <img
+                    className="h-full w-full object-fit"
+                    src={businessIcon}
+                    alt="Business"
+                  />
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </>
         );
       case 1:
         return (
-          <>
-            <Form.Item label="Street" name="street">
-              <Input
-                value={formData.street}
-                onChange={(e) => handleInputChange({ street: e.target.value })}
-                placeholder="Enter street address"
-              />
-            </Form.Item>
-            <Form.Item label="Street Type" name="streetType">
-              <Select
-                value={formData.streetType}
-                onChange={(value) => handleInputChange({ streetType: value })}
-              >
-                <Select.Option value="Street">Street</Select.Option>
-                <Select.Option value="Boulevard">Boulevard</Select.Option>
-                <Select.Option value="Avenue">Avenue</Select.Option>
-                <Select.Option value="Drive">Drive</Select.Option>
-                <Select.Option value="Lane">Lane</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="City" name="city">
-              <Input
-                value={formData.city}
-                onChange={(e) => handleInputChange({ city: e.target.value })}
-                placeholder="Enter city"
-              />
-            </Form.Item>
-            <Form.Item label="State" name="state">
-              <Input
-                value={formData.state}
-                onChange={(e) => handleInputChange({ state: e.target.value })}
-                placeholder="Enter state"
-              />
-            </Form.Item>
-          </>
+          <div className="flex flex-wrap">
+            <div className="flex gap-2 items-end justify-end">
+              <Form.Item label="Street" name="street">
+                <Input
+                  value={formData.street}
+                  onChange={(e) =>
+                    handleInputChange({ street: e.target.value })
+                  }
+                  placeholder="Enter street address"
+                />
+              </Form.Item>
+              <Form.Item label="Street Type" name="streetType">
+                <Select
+                  value={formData.streetType}
+                  onChange={(value) => handleInputChange({ streetType: value })}
+                >
+                  <Select.Option value="Street">Street</Select.Option>
+                  <Select.Option value="Boulevard">Boulevard</Select.Option>
+                  <Select.Option value="Avenue">Avenue</Select.Option>
+                  <Select.Option value="Drive">Drive</Select.Option>
+                  <Select.Option value="Lane">Lane</Select.Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="flex flex-row w-full gap-2">
+              <Form.Item className="w-full" label="City" name="city">
+                <Select
+                  value={formData.city}
+                  onChange={(value) => handleInputChange({ city: value })}
+                  placeholder="Enter City"
+                >
+                  <Select.Option value="San Francisco">San Francisco</Select.Option>
+                  <Select.Option value="Oakland">Oakland</Select.Option>
+                  <Select.Option value="Daly City">Daly City</Select.Option>
+                </Select>
+              </Form.Item>
+            </div>
+          </div>
         );
       case 2:
         return (
@@ -248,23 +280,21 @@ const AddLocation = ({ handleClose }) => {
                   />
                 </Form.Item>
                 <Form.Item label="Business Logo" name="businessLogo">
-                  <>
-                    <Upload
-                      name="logo"
-                      listType="picture"
-                      customRequest={({ file }) => handleLogoUpload(file)}
-                      showUploadList={false}
-                    >
-                      <Button loading={uploading}>Upload Logo</Button>
-                    </Upload>
-                    {formData.businessLogo && (
-                      <img
-                        src={formData.businessLogo}
-                        alt="Business Logo"
-                        style={{ width: "100px", marginTop: "10px" }}
-                      />
-                    )}
-                  </>
+                  <Upload
+                    name="logo"
+                    listType="picture"
+                    customRequest={handleLogoUpload}
+                    showUploadList={false}
+                  >
+                    <Button loading={uploading}>Upload Logo</Button>
+                  </Upload>
+                  {formData.businessLogo && (
+                    <img
+                      src={formData.businessLogo}
+                      alt="Business Logo"
+                      style={{ width: "100px", marginTop: "10px" }}
+                    />
+                  )}
                 </Form.Item>
               </>
             )}
@@ -276,13 +306,28 @@ const AddLocation = ({ handleClose }) => {
   };
 
   return (
-    <div className="w-full p-4 items-center justify-center flex flex-col gap-2 overflow-auto z-40">
-      <header className="w-full flex flex-row items-center justify-center gap-2 p-2 h-[10%] text-green">
-        <Steps current={step}>
-          <Step title="Location Type" />
-          <Step title="Address" />
-          <Step title="Location Details" />
-        </Steps>
+    <div className="w-full p-4 items-center justify-center flex flex-col gap-10 overflow-auto z-40">
+      <header className="w-full flex flex-row items-center justify-center gap-2 p-2 h-[10%] text-light-gray">
+        <div className="flex justify-center w-full">
+          {[
+            "Location Type",
+            `${formData.locationType} Address`,
+            "Location Details",
+          ].map((title, index) => (
+            <div
+              key={title}
+              className={`flex-1 p-2 text-center border-b-2 ${
+                step === index
+                  ? "border-grean text-grean"
+                  : index < step
+                  ? "border-green-500 text-grean"
+                  : "border-white text-light-gray"
+              }`}
+            >
+              {title}
+            </div>
+          ))}
+        </div>
       </header>
 
       <motion.main
@@ -364,6 +409,8 @@ const AddLocation = ({ handleClose }) => {
           </Button>
         )}
       </nav>
+
+      {loading && <Loader fullscreen />} {/* Show loader when loading */}
     </div>
   );
 };

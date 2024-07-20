@@ -33,20 +33,20 @@ function CreateAccountType({ handleClose }) {
   };
 
   return (
-    <section className="w-full h-full flex flex-col items-center justify-center gap-8">
-      <Title level={3}>Set Account Type</Title>
+    <section className="w-full h-full flex flex-col items-center justify-between gap-4">
+      <Title level={2}>Set Account Type</Title>
       <Form layout="vertical" className="w-full max-w-md text-center justify-between flex flex-col items-center p-0">
         <Form.Item className="w-full text-center" required>
-          <Radio.Group className="flex items-center justify-center gap-4 w-full" onChange={handleAccountTypeChange} value={accountType}>
+          <Radio.Group className="flex items-center justify-center gap-2 w-full" onChange={handleAccountTypeChange} value={accountType}>
             <Radio.Button
-              className="basis-1/4 h-auto p-4 flex flex-col"
+              className="basis-1/4 h-20 flex flex-col items-center justify-center aspect-square"
               value="Driver"
             >
               <img src={driverIcon} alt="Driver" />
               <div className="text-sm text-dark-green">Driver</div>
             </Radio.Button>
             <Radio.Button
-              className="basis-1/4 h-auto p-4 flex flex-col"
+              className="basis-1/4 h-20 flex flex-col items-center justify-center aspect-square"
               value="User"
             >
               <img src={userIcon} alt="User" />

@@ -1,9 +1,29 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+import { doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 const AuthProfileContext = createContext();
+
+const initialProfileData = {
+  displayName: "",
+  profilePic: "",
+  email: "",
+  uid: "",
+  addresses: [],
+  stats: {
+    overall: 0,
+    pickups: [],
+  },
+  accountType: null, // Add other necessary fields here
+};
 
 export function AuthProfileProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -15,18 +35,22 @@ export function AuthProfileProvider({ children }) {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const profileDocRef = doc(db, "profiles", user.uid);
-        const profileSnap = await getDoc(profileDocRef);
-        if (profileSnap.exists()) {
-          setProfile(profileSnap.data());
-        } else {
-          setProfile(null);
-        }
+        const unsubscribeProfile = onSnapshot(profileDocRef, async (doc) => {
+          if (doc.exists()) {
+            setProfile(doc.data());
+          } else {
+            await setDoc(profileDocRef, { ...initialProfileData, uid: user.uid });
+            setProfile({ ...initialProfileData, uid: user.uid });
+          }
+          setLoading(false);
+        });
         setUser(user);
+        return () => unsubscribeProfile();
       } else {
         setUser(null);
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -40,19 +64,12 @@ export function AuthProfileProvider({ children }) {
 
   const signUp = async (email, password, profileData) => {
     const auth = getAuth();
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
+    const userCreds = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCreds.user;
     const profileDocRef = doc(db, "profiles", user.uid);
+
     await setDoc(profileDocRef, { ...profileData, uid: user.uid });
     setProfile({ ...profileData, uid: user.uid });
-    return user;
-  };
-
-  const signIn = async (email, password) => {
-    const auth = getAuth();
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
     return user;
   };
 
@@ -71,18 +88,20 @@ export function AuthProfileProvider({ children }) {
         profilePic: user.photoURL,
         email: user.email,
         uid: user.uid,
-        locations: { addresses: [] },
-        stats: {
-          overall: 0,
-          pickups : []
-        }
-      }
+        ...initialProfileData, // Add other necessary fields here
+      };
       await setDoc(profileDocRef, profileData);
       setProfile(profileData);
     } else {
       setProfile(profileSnap.data());
     }
+    return user;
+  };
 
+  const signIn = async (email, password) => {
+    const auth = getAuth();
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
     return user;
   };
 
@@ -101,13 +120,26 @@ export function AuthProfileProvider({ children }) {
     setProfile(null);
   };
 
-  const batchUpdateProfiles = async (profiles) => {
-    const batch = writeBatch(db);
-    profiles.forEach(profile => {
-      const profileDocRef = doc(db, "profiles", profile.uid);
-      batch.set(profileDocRef, profile);
+  const addAddressToProfile = async (uid, address) => {
+    const profileDocRef = doc(db, "profiles", uid);
+    await updateDoc(profileDocRef, {
+      addresses: arrayUnion(address),
     });
-    await batch.commit();
+    const updatedProfile = await getDoc(profileDocRef);
+    if (updatedProfile.exists()) {
+      setProfile(updatedProfile.data());
+    }
+  };
+
+  const removeAddressFromProfile = async (uid, address) => {
+    const profileDocRef = doc(db, "profiles", uid);
+    await updateDoc(profileDocRef, {
+      addresses: arrayRemove(address),
+    });
+    const updatedProfile = await getDoc(profileDocRef);
+    if (updatedProfile.exists()) {
+      setProfile(updatedProfile.data());
+    }
   };
 
   const value = {
@@ -120,7 +152,8 @@ export function AuthProfileProvider({ children }) {
     googleSignIn,
     updateProfile,
     deleteProfile,
-    batchUpdateProfiles,
+    addAddressToProfile,
+    removeAddressFromProfile,
   };
 
   return (

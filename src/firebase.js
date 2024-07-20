@@ -4,32 +4,35 @@ import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-let firebaseConfig = {
-  apiKey: "AIzaSyAAp7X6MMLfJtAnsdZJTDgWD6n7z_zpjZY",
-  authDomain: "grean-de04f.firebaseapp.com",
-  databaseURL: "https://grean-de04f-default-rtdb.firebaseio.com",
-  projectId: "grean-de04f",
-  storageBucket: "grean-de04f.appspot.com",
-  messagingSenderId: "881625022209",
-  appId: "1:881625022209:web:fc7fed7164fbbf7925a500",
-  measurementId: "G-6N4REHK39G"
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA6aatRdHznCYbBE3jA3flqEAoM74ajaZg",
+  authDomain: "grean-dev.firebaseapp.com",
+  projectId: "grean-dev",
+  storageBucket: "grean-dev.appspot.com",
+  messagingSenderId: "575669203519",
+  appId: "1:575669203519:web:21633077219269ace1fe8a",
+  measurementId: "G-VWTKK02Z3V"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
 
 // Auth
 export const auth = getAuth(app);
+
 // Set persistence to browserLocalPersistence
 setPersistence(auth, browserLocalPersistence).catch((error) => {
   console.error("Error setting persistence:", error);
 });
+
 // Firestore
 export const db = getFirestore(app);
+
 // Storage
 export const storage = getStorage(app);
+
 // Analytics
 export const analytics = getAnalytics(app);
-// App
+
 export default app;

@@ -24,44 +24,40 @@ function MapBox() {
   ];
 
   const [popupInfo, setPopupInfo] = useState(null);
-  const { locations, getAllLocations } = useLocations();
+  const {locations, businessLocations } = useLocations();
 
-  useEffect(() => {
-    getAllLocations();
-  }, []);
-
+  
   const pins = useMemo(
     () =>
-      Array.isArray(locations) &&
-      locations.flatMap(locationDoc =>
-        locationDoc.locations.addresses.map((location, index) => (
-          <Marker
-            key={`marker-${index}`}
-            longitude={location.longitude}
-            latitude={location.latitude}
-            anchor="bottom"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              setPopupInfo(location);
-              setViewPort((prev) => ({
-                ...prev,
-                latitude: location.latitude,
-                longitude: location.longitude,
-                zoom: 14,
-              }));
-            }}
-          >
-            <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
-              <img
-                className="object-fit"
-                src={businessIcon}
-                name="pin-sharp"
-                size="small"
-              />
-            </div>
-          </Marker>
-        ))
-      ),
+      Array.isArray(businessLocations) &&
+      businessLocations.map((location, index) => (
+        <Marker
+          key={`marker-${index}`}
+          longitude={location.longitude}
+          latitude={location.latitude}
+          anchor="bottom"
+          onClick={(e) => {
+            e.originalEvent.stopPropagation();
+            setPopupInfo(location);
+            setViewPort((prev) => ({
+              ...prev,
+              latitude: location.latitude,
+              longitude: location.longitude,
+              zoom: 14,
+            }));
+          }}
+        >
+          <div className="w-8 flex flex-col items-center justify-center rounded-full p-1 border-green text-green border-2 hover:text-orange hover:border-orange slate-800 bg-white">
+            <img
+              className="object-fit"
+              src={businessIcon}
+              name="pin-sharp"
+              size="small"
+              alt="business-icon"
+            />
+          </div>
+        </Marker>
+      )),
     [locations]
   );
 
@@ -116,15 +112,15 @@ function MapBox() {
                     />
                   </div>
                   <div className="flex text-[16px] items-center justify-center">
-                    <div className="text-2xl">{popupInfo.locationName}</div>
+                    <div className="text-2xl">{popupInfo.businessName}</div>
                   </div>
                   <div className="flex items-center justify-center">
                     <a
-                      href={popupInfo.website}
+                      href={popupInfo.businessWebsite}
                       className="text-white font-bold basis-1/3 text-center"
                       target="_new"
                     >
-                      Website
+                      {popupInfo.street}
                     </a>
                   </div>
                 </header>

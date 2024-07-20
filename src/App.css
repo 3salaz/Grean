@@ -93,3 +93,29 @@ body {
     animation: bounce 2s infinite;
   }
 
+
+  /* AntD Customs */
+  .ant-steps-horizontal .ant-steps-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: green;
+    border-color: green;
+  }
+  
+  .ant-steps-item-finish .ant-steps-item-title {
+    color: green;
+  }
+  
+  .ant-steps-item-process .ant-steps-item-icon {
+    background-color: blue;
+    border-color: blue;
+  }
+  
+  .ant-steps-item-process .ant-steps-item-title {
+    color: blue;
+  }
+  
+

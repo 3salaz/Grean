@@ -12,8 +12,7 @@ import Button from "../Button";
 
 function Map() {
   const { profile } = useAuthProfile();
-  const { visiblePickups, userAcceptedPickups, userCreatedPickups } =
-    usePickups();
+  const { visiblePickups, userAcceptedPickups, userCreatedPickups } = usePickups();
   const [pickupOpen, setRequestPickupOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -23,7 +22,6 @@ function Map() {
   const openSchedule = () => setScheduleOpen(true);
   const closeAlerts = () => setAlertsOpen(false);
   const openAlerts = () => setAlertsOpen(true);
-  const hasProfileAndLocation = profile && profile.addresses;
 
   return (
     <main id="mapTab" className="relative w-full h-full">
@@ -39,14 +37,13 @@ function Map() {
       <SlideModal isOpen={scheduleOpen} handleClose={closeSchedule}>
         <Schedule handleClose={closeSchedule} />
       </SlideModal>
-      {hasProfileAndLocation && (
         <div
           id="actionBtns"
           className="absolute w-full bottom-8 z-10 flex items-center justify-center"
         >
           <div className="container mx-auto">
             <div className="max-w-[650px] flex justify-end m-auto rounded-md">
-              <div className="flex justify-center items-end w-full gap-8 px-5">
+              {/* <div className="flex justify-center items-end w-full gap-8 px-5">
                 {profile?.accountType === "User" && (
                   // this button should only be displayed if you are a
                   <div className="flex flex-row w-full basis-3/5 justify-between items-center gap-2">
@@ -59,26 +56,25 @@ function Map() {
                       Request Pickup
                     </Button>
 
-                    <div className="flex flex-row gap-8 items-center justify-center">
-                      <motion.button
-                        className="rounded-md bg-white order-2 md:order-1 bg-green-300 text-grean aspect-square border-2 flex items-center justify-center w-14 h-14 focus:ring-grean focus:ring-offset-2 focus:outline-none focus:ring-2 relative"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={alertsOpen ? closeAlerts : openAlerts}
-                      >
-                        <ion-icon size="large" name="leaf-outline"></ion-icon>
+                    <Button
+                      variant="primary"
+                      size="small"
+                      shape="square"
+                      onClick={alertsOpen ? closeAlerts : openAlerts}
+                      className="border-white font-bold rounded-md border-2 md:order-1 bg-green-300 text-grean aspect-square flex items-center justify-center w-14 h-14 focus:ring-grean focus:ring-offset-2 focus:outline-none focus:ring-2 relative"
+                    >
+                      <ion-icon className="text-grean" size="large" name="leaf-outline"></ion-icon>
                         <span className="sr-only">View Pickups</span>
 
-                        <span className="text-white bg-grean rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 left-10">
-                          {userCreatedPickups.length}
+                        <span className="text-grean bg-white rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 left-10">
                         </span>
-                      </motion.button>
-                    </div>
+                    </Button>
+
                   </div>
                 )}
                 {profile?.accountType === "Driver" && (
                   <div className="flex md:flex-row gap-4 items-center justify-center">
-                    {/* view schedule */}
+
                     <motion.button
                       className="rounded-md bg-white bg-green-300 text-blue-500 aspect-square border border-yellow-200 flex items-center justify-center drop-shadow-xl w-14 h-14 relative"
                       whileHover={{ scale: 1.1 }}
@@ -117,11 +113,11 @@ function Map() {
                     </motion.button>
                   </div>
                 )}
-              </div>
+              </div> */}
+              
             </div>
           </div>
         </div>
-      )}
     </main>
   );
 }

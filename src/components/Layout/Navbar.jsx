@@ -145,7 +145,7 @@ function Navbar() {
         </div>
 
         {/* Account Nav / Alerts */}
-        <div className="absolute inset-y-0 right-2 flex gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+        <div className="absolute inset-y-0 right-4 flex justify-center gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
           {/* Profile dropdown */}
           {user ? (
             <div className="relative z-20">

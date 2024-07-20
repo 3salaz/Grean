@@ -3,7 +3,6 @@ import Button from "../Layout/Button";
 import SpringModal from "../Layout/Modals/SpringModal";
 import AddLocation from "./AddLocation";
 
-import { useLocations } from "../../context/LocationsContext";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 
 function LocationDetails() {

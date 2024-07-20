@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthProfile } from "../../context/AuthProfileContext";
-import Button from "../Layout/Button";
 import AddLocation from "./AddLocation";
 import SpringModal from "../Layout/Modals/SpringModal";
 
 function ProfileLocations() {
   const { profile } = useAuthProfile();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const profileLocations = profile.locations.addresses;
-  console.log(profileLocations);
+  const [profileAddresses, setProfileAddresses] = useState([])
+
+  useEffect(() => {
+    setProfileAddresses(profile.addresses)
+  },[profile])
+
 
   const openAddLocationModal = () => {
     setIsModalVisible(true);
@@ -31,8 +34,7 @@ function ProfileLocations() {
         id="locationDetails"
         className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll p-4 gap-4"
       >
-
-        {profileLocations.map((address, index) => (
+        {profileAddresses.map((address, index) => (
           <div
             key={index}
             className="section flex-none w-full h-full flex justify-center items-center snap-center bg-white p-4 rounded-md"
@@ -44,17 +46,17 @@ function ProfileLocations() {
             </div>
           </div>
         ))}
-        {profileLocations.length === 0 && (
+        {profileAddresses.length === 0 && (
           <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-white">
-            <Button
+            <div
               variant="primary"
-              className="aspect-square flex flex-col gap-2"
+              className="aspect-square flex flex-col items-center justify-center gap-2"
               size="large"
               onClick={openAddLocationModal}
             >
               Add a Location!
-              <ion-icon name="add-circle-outline"></ion-icon>
-            </Button>
+              <ion-icon name="arrow-down-outline"></ion-icon>
+            </div>
           </div>
         )}
       </div>

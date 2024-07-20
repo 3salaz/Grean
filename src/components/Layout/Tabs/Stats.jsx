@@ -37,7 +37,6 @@ const Stats = () => {
       plasticWeight: 6,
       price: 18,
     },
-    // Additional data...
   ];
 
   // Example effect to update pounds and level (you can replace this with your actual logic)

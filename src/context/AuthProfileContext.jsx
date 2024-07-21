@@ -12,23 +12,23 @@ import { db } from "../firebase";
 
 const AuthProfileContext = createContext();
 
-const initialProfileData = {
-  displayName: "",
-  profilePic: "",
-  email: "",
-  uid: "",
-  addresses: [],
-  stats: {
-    overall: 0,
-    pickups: [],
-  },
-  accountType: null, // Add other necessary fields here
-};
-
 export function AuthProfileProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const initialProfileData = {
+    displayName: "",
+    profilePic: "",
+    email: "",
+    uid: "",
+    addresses: [],
+    stats: {
+      overall: 0,
+      pickups: [],
+    },
+    accountType: null, // Add other necessary fields here
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -39,8 +39,8 @@ export function AuthProfileProvider({ children }) {
           if (doc.exists()) {
             setProfile(doc.data());
           } else {
-            await setDoc(profileDocRef, { ...initialProfileData, uid: user.uid });
-            setProfile({ ...initialProfileData, uid: user.uid });
+            await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
+            setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
           }
           setLoading(false);
         });
@@ -54,6 +54,21 @@ export function AuthProfileProvider({ children }) {
     });
     return () => unsubscribe();
   }, []);
+
+  const ensureProfileExists = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const profileDocRef = doc(db, "profiles", user.uid);
+      const profileSnap = await getDoc(profileDocRef);
+
+      if (!profileSnap.exists()) {
+        await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
+        setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
+      }
+    }
+  };
 
   const logOut = async () => {
     const auth = getAuth();
@@ -146,6 +161,7 @@ export function AuthProfileProvider({ children }) {
     user,
     profile,
     loading,
+    ensureProfileExists,
     logOut,
     signUp,
     signIn,

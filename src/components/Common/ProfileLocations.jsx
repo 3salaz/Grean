@@ -9,9 +9,8 @@ function ProfileLocations() {
   const [profileAddresses, setProfileAddresses] = useState([])
 
   useEffect(() => {
-    setProfileAddresses(profile.addresses)
+    setProfileAddresses(profile.locations.addresses)
   },[profile])
-
 
   const openAddLocationModal = () => {
     setIsModalVisible(true);
@@ -34,18 +33,20 @@ function ProfileLocations() {
         id="locationDetails"
         className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll p-4 gap-4"
       >
-        {profileAddresses.map((address, index) => (
+        {profileAddresses && profileAddresses.map((address, index) => (
           <div
             key={index}
             className="section flex-none w-full h-full flex justify-center items-center snap-center bg-white p-4 rounded-md"
           >
             <div className="flex flex-col text-center w-full h-full p-4">
+              <span>{address.locationType}</span>
               <span>{address.street}</span>
               <span>{address.city}</span>
               <span>{address.state}</span>
             </div>
           </div>
         ))}
+
         {profileAddresses.length === 0 && (
           <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-white">
             <div

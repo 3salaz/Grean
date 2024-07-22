@@ -12,13 +12,13 @@ function Account({ active }) {
   let ActiveTab;
 
   useEffect(() => {
-    if (!profile.accountType) {
+    if (profile && !profile.accountType) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
   }, [profile]);
-  console.log(profile)
+
   switch (active) {
     case 0:
       ActiveTab = Profile;

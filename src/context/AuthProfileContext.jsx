@@ -1,3 +1,4 @@
+// src/context/AuthProfileContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import {
   getAuth,
@@ -9,6 +10,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { incrementReadCount, incrementWriteCount, incrementDeleteCount } from "../utils/requestCounter";
 
 const AuthProfileContext = createContext();
 
@@ -17,30 +19,31 @@ export function AuthProfileProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const initialProfileData = {
-    displayName: "",
-    profilePic: "",
-    email: "",
-    uid: "",
-    addresses: [],
-    stats: {
-      overall: 0,
-      pickups: [],
-    },
-    accountType: null, // Add other necessary fields here
-  };
-
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
+        const initialProfileData = {
+          displayName: "",
+          profilePic: "",
+          email: "",
+          uid: "",
+          addresses: [],
+          stats: {
+            overall: 0,
+            pickups: [],
+          },
+          accountType: null, // Add other necessary fields here
+        };
         const profileDocRef = doc(db, "profiles", user.uid);
         const unsubscribeProfile = onSnapshot(profileDocRef, async (doc) => {
           if (doc.exists()) {
             setProfile(doc.data());
+            incrementReadCount();
           } else {
             await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
             setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
+            incrementWriteCount();
           }
           setLoading(false);
         });
@@ -58,14 +61,28 @@ export function AuthProfileProvider({ children }) {
   const ensureProfileExists = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
+    const initialProfileData = {
+      displayName: "",
+      profilePic: "",
+      email: "",
+      uid: "",
+      addresses: [],
+      stats: {
+        overall: 0,
+        pickups: [],
+      },
+      accountType: null, // Add other necessary fields here
+    };
 
     if (user) {
       const profileDocRef = doc(db, "profiles", user.uid);
       const profileSnap = await getDoc(profileDocRef);
+      incrementReadCount();
 
       if (!profileSnap.exists()) {
         await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
         setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
+        incrementWriteCount();
       }
     }
   };
@@ -85,6 +102,7 @@ export function AuthProfileProvider({ children }) {
 
     await setDoc(profileDocRef, { ...profileData, uid: user.uid });
     setProfile({ ...profileData, uid: user.uid });
+    incrementWriteCount();
     return user;
   };
 
@@ -94,8 +112,21 @@ export function AuthProfileProvider({ children }) {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
+    const initialProfileData = {
+      displayName: "",
+      profilePic: "",
+      email: user.email,
+      uid: user.uid,
+      addresses: [],
+      stats: {
+        overall: 0,
+        pickups: [],
+      },
+      accountType: null, // Add other necessary fields here
+    };
     const profileDocRef = doc(db, "profiles", user.uid);
     const profileSnap = await getDoc(profileDocRef);
+    incrementReadCount();
 
     if (!profileSnap.exists()) {
       const profileData = {
@@ -107,6 +138,7 @@ export function AuthProfileProvider({ children }) {
       };
       await setDoc(profileDocRef, profileData);
       setProfile(profileData);
+      incrementWriteCount();
     } else {
       setProfile(profileSnap.data());
     }
@@ -123,7 +155,9 @@ export function AuthProfileProvider({ children }) {
   const updateProfile = async (uid, profileData) => {
     const profileDocRef = doc(db, "profiles", uid);
     await setDoc(profileDocRef, profileData, { merge: true });
+    incrementWriteCount();
     const profileSnap = await getDoc(profileDocRef);
+    incrementReadCount();
     if (profileSnap.exists()) {
       setProfile(profileSnap.data());
     }
@@ -133,6 +167,7 @@ export function AuthProfileProvider({ children }) {
     const profileDocRef = doc(db, "profiles", uid);
     await deleteDoc(profileDocRef);
     setProfile(null);
+    incrementDeleteCount();
   };
 
   const addAddressToProfile = async (uid, address) => {
@@ -140,7 +175,9 @@ export function AuthProfileProvider({ children }) {
     await updateDoc(profileDocRef, {
       addresses: arrayUnion(address),
     });
+    incrementWriteCount();
     const updatedProfile = await getDoc(profileDocRef);
+    incrementReadCount();
     if (updatedProfile.exists()) {
       setProfile(updatedProfile.data());
     }
@@ -151,7 +188,9 @@ export function AuthProfileProvider({ children }) {
     await updateDoc(profileDocRef, {
       addresses: arrayRemove(address),
     });
+    incrementWriteCount();
     const updatedProfile = await getDoc(profileDocRef);
+    incrementReadCount();
     if (updatedProfile.exists()) {
       setProfile(updatedProfile.data());
     }

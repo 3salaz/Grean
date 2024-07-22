@@ -11,9 +11,7 @@ const SpringModal = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      id="springModalBackground"
-      className="fixed h-screen w-full inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    <div id="springModalBackground" className="fixed h-screen w-full inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     >
       <motion.div
         id="springModalContainer"
@@ -26,7 +24,7 @@ const SpringModal = ({
       >
         <div
           id="springModal"
-          className="flex h-full flex-col items-center justify-start p-4 rounded-md bg-white shadow-lg"
+          className="flex w-full h-full flex-col gap-2 items-center justify-start p-4 rounded-md bg-white shadow-lg"
         >
           {children}
           {showCloseButton && (

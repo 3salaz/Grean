@@ -6,7 +6,7 @@ import { useAuthProfile } from "../../context/AuthProfileContext";
 function Alerts() {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();
   const { profile } = useAuthProfile(); // Access the user's profile, including the userRole
-  
+
   const convertTo12HourFormat = (time) => {
     let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
@@ -16,10 +16,10 @@ function Alerts() {
   };
 
   const sortedPickups = userCreatedPickups.sort((a, b) => {
-    if (!a.accepted && b.accepted) return -1;
-    if (a.accepted && !b.accepted) return 1;
-    if (a.accepted && !a.isCompleted && b.accepted && b.isCompleted) return -1;
-    if (a.accepted && a.isCompleted && b.accepted && !b.isCompleted) return 1;
+    if (!a.isAccepted && b.isAccepted) return -1;
+    if (a.isAccepted && !b.isAccepted) return 1;
+    if (a.isAccepted && !a.isCompleted && b.isAccepted && b.isCompleted) return -1;
+    if (a.isAccepted && a.isCompleted && b.isAccepted && !b.isCompleted) return 1;
     return 0;
   });
 
@@ -30,12 +30,12 @@ function Alerts() {
     >
       <div className="h-full w-full">
         {profile?.accountType === "User" ? (
-          <section className="h-full bg-grean flex flex-col justify-start border-white border-4 rounded-t-lg">
+          <section className="h-full bg-green flex flex-col justify-start border-white border-4 rounded-t-lg">
             <header className="h-[15%] flex flex-col gap-1 py-2">
               <div className="text-center text-xl font-bold text-white">
                 My Pickup Request
               </div>
-              <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
+              <div className="text-xs text-center text-green font-bold bg-white container p-2 mx-auto">
                 Your pickups will be displayed below
               </div>
             </header>
@@ -44,7 +44,7 @@ function Alerts() {
               <ul className="w-full gap-3 flex flex-col overflow-scroll p-2">
                 {sortedPickups.length > 0 ? (
                   sortedPickups.map((pickup) => {
-                    const addressParts = pickup.businessAddress.split(",");
+                    const addressParts = pickup.addressData.street.split(",");
                     const street = addressParts[0] || "";
                     const city = addressParts[1] || "";
 
@@ -56,7 +56,7 @@ function Alerts() {
                     return (
                       <li
                         key={pickup.id}
-                        className="border border-grean shadow-xl rounded-md max-h-24 p-1 flex flex-col bg-white text-slate-800 relative"
+                        className="border border-green shadow-xl rounded-md max-h-24 p-1 flex flex-col bg-white text-slate-800 relative"
                       >
                         <div className="text-sm">{`${street}, ${city}`}</div>
                         <p className="text-sm">{formattedDate}</p>
@@ -74,7 +74,7 @@ function Alerts() {
                           <div className="completion-status">
                             {pickup.isCompleted ? (
                               <div className="w-full absolute top-0 left-0 h-full rounded-md drop-shadow-xl">
-                                <div className="bg-grean p-2 w-8 h-8 aspect-square flex items-center justify-center text-white absolute top-1 right-1 rounded-md">
+                                <div className="bg-green p-2 w-8 h-8 aspect-square flex items-center justify-center text-white absolute top-1 right-1 rounded-md">
                                   <ion-icon
                                     size="large"
                                     name="checkmark-circle"
@@ -122,7 +122,7 @@ function Alerts() {
               <div className="text-center text-lg font-bold text-white">
                 Pickups Available
               </div>
-              <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
+              <div className="text-xs text-center text-green font-bold bg-white container p-2 mx-auto">
                 Approve, Decline or Be Reminded Later
               </div>
             </header>
@@ -143,7 +143,7 @@ function Alerts() {
                         ></img>
                         <div className="bg-white p-2 rounded-md basis-4/6">
                           <div className="font-bold text-xs">
-                            {pickup.businessAddress}
+                            {pickup.addressData.street}
                           </div>
                           <div className="text-sm text-gray">
                             {pickup.ownerEmail}
@@ -161,7 +161,7 @@ function Alerts() {
                         <motion.button
                           whileHover={{ scale: 1.2 }}
                           whileTap={{ scale: 0.8 }}
-                          className="p-1 px-4 bg-grean text-white rounded-xl drop-shadow-md"
+                          className="p-1 px-4 bg-green text-white rounded-xl drop-shadow-md"
                           onClick={() => acceptPickup(pickup.id)}
                         >
                           Accept

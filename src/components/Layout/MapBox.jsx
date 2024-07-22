@@ -22,11 +22,10 @@ function MapBox() {
     [-122.66336, 37.492987], // Southwest coordinates
     [-122.250481, 37.871651], // Northeast coordinates
   ];
-
-  const [popupInfo, setPopupInfo] = useState(null);
-  const {locations, businessLocations } = useLocations();
-
   
+  const [popupInfo, setPopupInfo] = useState(null);
+  const {businessLocations} = useLocations();
+
   const pins = useMemo(
     () =>
       Array.isArray(businessLocations) &&
@@ -58,7 +57,7 @@ function MapBox() {
           </div>
         </Marker>
       )),
-    [locations]
+    [businessLocations]
   );
 
   return (

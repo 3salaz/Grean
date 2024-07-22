@@ -6,13 +6,14 @@ import { initializeApp } from "firebase/app";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA6aatRdHznCYbBE3jA3flqEAoM74ajaZg",
-  authDomain: "grean-dev.firebaseapp.com",
-  projectId: "grean-dev",
-  storageBucket: "grean-dev.appspot.com",
-  messagingSenderId: "575669203519",
-  appId: "1:575669203519:web:21633077219269ace1fe8a",
-  measurementId: "G-VWTKK02Z3V"
+  apiKey: "AIzaSyAAp7X6MMLfJtAnsdZJTDgWD6n7z_zpjZY",
+  authDomain: "grean-de04f.firebaseapp.com",
+  databaseURL: "https://grean-de04f-default-rtdb.firebaseio.com",
+  projectId: "grean-de04f",
+  storageBucket: "grean-de04f.appspot.com",
+  messagingSenderId: "881625022209",
+  appId: "1:881625022209:web:fc7fed7164fbbf7925a500",
+  measurementId: "G-6N4REHK39G"
 };
 
 // Initialize Firebase

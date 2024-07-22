@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UserHeader from "../../Common/UserHeader";
 import Button from "../Button";
 import AddLocation from "../../Common/AddLocation";

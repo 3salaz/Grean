@@ -17,7 +17,6 @@ const AddLocation = ({ handleClose }) => {
   const [form] = Form.useForm();
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false); // Loader state
-
   const [formData, setFormData] = useState({
     locationType: "",
     homeName: "Home",
@@ -89,18 +88,11 @@ const AddLocation = ({ handleClose }) => {
     }
   };
 
-  const handleAddLocation = async (newLocation) => {
+  const handleAddLocation = async (address) => {
     if (profile) {
 
-      await addAddressToProfile(profile.uid, newLocation);
-      await addLocationToCollection(profile.uid, {
-        newLocation,
-        stats: {
-          overall: 0,
-          pickups: [],
-        },
-      });
-
+      await addAddressToProfile(profile.uid, address);
+      await addLocationToCollection(profile.uid, address);
     }
   };
 
@@ -113,7 +105,7 @@ const AddLocation = ({ handleClose }) => {
     setLoading(true); // Start loading
 
     try {
-      const newAddress = {
+      const address = {
         locationType: formData.locationType,
         homeName: formData.locationType === "Home" ? formData.homeName : "",
         street: `${formData.street} ${formData.streetType}`,
@@ -131,16 +123,16 @@ const AddLocation = ({ handleClose }) => {
             : "",
       };
 
-      const geocodedLocation = await handleGeocodeAddress(newAddress);
+      const geocodedLocation = await handleGeocodeAddress(address);
       if (!geocodedLocation) {
         setLoading(false); // Stop loading
         return;
       }
 
-      newAddress.latitude = geocodedLocation.lat;
-      newAddress.longitude = geocodedLocation.lng;
+      address.latitude = geocodedLocation.lat;
+      address.longitude = geocodedLocation.lng;
 
-      await handleAddLocation(newAddress);
+      await handleAddLocation(address);
 
       toast.success("Location added successfully!");
       handleClose();

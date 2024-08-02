@@ -90,7 +90,6 @@ const AddLocation = ({ handleClose }) => {
 
   const handleAddLocation = async (address) => {
     if (profile) {
-
       await addAddressToProfile(profile.uid, address);
       await addLocationToCollection(profile.uid, address);
     }
@@ -312,7 +311,7 @@ const AddLocation = ({ handleClose }) => {
                 step === index
                   ? "border-grean text-grean"
                   : index < step
-                  ? "border-green-500 text-grean"
+                  ? "border-grean text-grean"
                   : "border-white text-light-gray"
               }`}
             >
@@ -367,7 +366,7 @@ const AddLocation = ({ handleClose }) => {
             </Button>
 
             <Button
-              className="bg-green text-white"
+              className="bg-grean text-white"
               type="primary"
               size="large"
               onClick={nextStep}
@@ -380,7 +379,7 @@ const AddLocation = ({ handleClose }) => {
         {step === 1 && (
           <div className="flex gap-2">
             <Button
-              className="bg-green text-white"
+              className="bg-grean text-white"
               type="primary"
               size="large"
               onClick={nextStep}
@@ -392,7 +391,7 @@ const AddLocation = ({ handleClose }) => {
 
         {step === 2 && (
           <Button
-            className="bg-green text-white"
+            className="bg-grean text-white"
             type="primary"
             size="large"
             onClick={handleSubmit}

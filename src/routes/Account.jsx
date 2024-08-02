@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Profile from "../components/Layout/Tabs/Profile";
 import Stats from "../components/Layout/Tabs/Stats";
 import Map from "../components/Layout/Tabs/Map";
-import CreateAccountType from "../components/Common/CreateAccountType";
+import CreateProfile from "../components/Common/CreateProfile";
 import SlideInModal from "../components/Layout/Modals/SlideInModal";
 import { useAuthProfile } from "../context/AuthProfileContext";
 
@@ -12,7 +12,16 @@ function Account({ active }) {
   let ActiveTab;
 
   useEffect(() => {
-    if (profile && !profile.accountType) {
+    if (
+      profile && (
+        !profile.accountType || 
+        profile.accountType === "" ||
+        !profile.displayName || 
+        profile.displayName === "" ||
+        !profile.profilePic || 
+        profile.profilePic === ""
+      )
+    ) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
@@ -40,7 +49,7 @@ function Account({ active }) {
   return (
     <section id="account" className="w-full h-full">
       <SlideInModal isOpen={isModalOpen} handleClose={handleCloseModal} showCloseButton={false}>
-        <CreateAccountType handleClose={handleCloseModal} />
+        <CreateProfile handleClose={handleCloseModal} />
       </SlideInModal>
       {profile && profile.accountType && ActiveTab && <ActiveTab />}
     </section>

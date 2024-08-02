@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuthProfile } from "../../../context/AuthProfileContext";
 import userIcon from "../../../assets/icons/user.png";
+import driverIcon from "../../../assets/icons/driver.png"
 import Button from "../Button";
 import SpringModal from "../Modals/SpringModal"; // Import the SpringModal component
 
@@ -69,7 +70,7 @@ const Stats = () => {
   const getUserRoleInfo = () => {
     switch (profile?.accountType) {
       case "Driver":
-        return { icon: "car-outline", text: "Driver" };
+        return { icon: driverIcon, text: "Driver" };
       case "User":
         return { icon: userIcon, text: "User" };
       default:
@@ -220,7 +221,7 @@ const Stats = () => {
 
         <div
           id="history"
-          className="w-full section relative h-full justify-center items-center snap-always snap-center flex flex-col bg-orange text-slate-800 overflow-auto"
+          className="w-full section relative h-full justify-center items-center snap-always snap-center flex flex-col  text-slate-800 overflow-auto"
         >
           <div className="h-full container mx-auto pb-4">
             <section
@@ -229,7 +230,7 @@ const Stats = () => {
             >
               <div
                 id="historySection"
-                className="md:rounded-md shadow-lg basis-2/3 bg-white overflow-auto"
+                className="md:rounded-md basis-5/6 bg-white overflow-auto"
               >
                 <div className="text-xl text-grean font-bold w-full text-center p-5">
                   History
@@ -255,12 +256,14 @@ const Stats = () => {
                   ))}
                 </ul>
               </div>
-              <div id="otherSection" className="md:rounded-md basis-1/3">
-                <div className="h-full w-full rounded-lg flex md:flex-col items-center gap-2 p-2">
-                  <div className="flex bg-white aspect-square basis-1/2 rounded-md shadow-lg"></div>
-                  <div className="basis-1/2 flex items-center justify-center aspect-square shadow-lg">
-                    <div className="bg-white aspect-square w-full p-2 rounded-md"></div>
-                  </div>
+              <div id="otherSection" className="md:rounded-md basis-1/6">
+                <div className="h-full w-full rounded-lg flex md:flex-col justify-center items-center gap-2">
+                  <Button variant="primary" shape="rounded">
+                    dfjdfj
+                  </Button>
+                  <Button variant="primary" shape="rounded">
+                    dfjdfj
+                  </Button>
                 </div>
               </div>
             </section>

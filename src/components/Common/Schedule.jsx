@@ -1,21 +1,29 @@
+import React, { useEffect, useState } from "react";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { usePickups } from "../../context/PickupsContext";
-import { useEffect, useState } from "react";
+import { useAuthProfile } from "../../context/AuthProfileContext";
+import { db } from "../../firebase";
 
 function Schedule({ handleClose }) {
   const { userAcceptedPickups, completePickup } = usePickups();
+  const { user } = useAuthProfile();
   const [formInputs, setFormInputs] = useState({});
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const initialFormStates = {};
-    userAcceptedPickups.forEach((pickup) => {
-      initialFormStates[pickup.id] = {
-        aluminumWeight: "",
-        plasticWeight: "",
-        receipt: null,
-      };
-    });
-    setFormInputs(initialFormStates);
+    if (userAcceptedPickups) {
+      const initialFormStates = {};
+      userAcceptedPickups.forEach((pickup) => {
+        initialFormStates[pickup.id] = {
+          aluminumWeight: "",
+          plasticWeight: "",
+          glassWeight: "",
+          alcoholBottlesWeight: "",
+          receipt: null,
+        };
+      });
+      setFormInputs(initialFormStates);
+    }
   }, [userAcceptedPickups]);
 
   const handleInputChange = (pickupId, name, value) => {
@@ -58,24 +66,73 @@ function Schedule({ handleClose }) {
 
   const handleSubmit = async (pickupId, e) => {
     e.preventDefault();
-    const { aluminumWeight, plasticWeight } = formInputs[pickupId] || {};
 
-    if (!aluminumWeight && !plasticWeight) {
-      setError("Please enter weight for either aluminum or plastic.");
+    // Extract form data for the specific pickup
+    const { aluminumWeight, plasticWeight, glassWeight, alcoholBottlesWeight } =
+      formInputs[pickupId] || {};
+
+    // Validation: Ensure at least one weight is provided
+    if (
+      !aluminumWeight &&
+      !plasticWeight &&
+      !glassWeight &&
+      !alcoholBottlesWeight
+    ) {
+      setError("Please enter weight for at least one type of material.");
       return;
     }
 
     setError("");
-    await completePickup(pickupId, { aluminumWeight, plasticWeight });
 
-    setFormInputs((prev) => ({
-      ...prev,
-      [pickupId]: { aluminumWeight: "", plasticWeight: "" },
-    }));
+    try {
+      // Debug: Log the user ID and pickup ID
+      console.log("User ID:", user.uid);
+      console.log("Pickup ID:", pickupId);
 
-    handleClose();
+      // Reference to the specific pickup document in the pickups collection
+      const pickupDocRef = doc(db, `pickups`, pickupId);
+
+      // Debug: Log the document path
+      console.log("Document Path:", pickupDocRef.path);
+
+      // Fetch the document to check if it exists
+      const pickupDoc = await getDoc(pickupDocRef);
+
+      // Check if the document exists
+      if (!pickupDoc.exists()) {
+        setError("Pickup document does not exist.");
+        console.error("Pickup document does not exist.");
+        return;
+      }
+
+      // Update the document with new data
+      await updateDoc(pickupDocRef, {
+        aluminumWeight,
+        plasticWeight,
+        glassWeight,
+        alcoholBottlesWeight,
+        isCompleted: true,
+      });
+
+      // Reset the form inputs for the current pickup
+      setFormInputs((prev) => ({
+        ...prev,
+        [pickupId]: {
+          aluminumWeight: "",
+          plasticWeight: "",
+          glassWeight: "",
+          alcoholBottlesWeight: "",
+        },
+      }));
+
+      // Call handleClose to close the form or modal
+      handleClose();
+    } catch (error) {
+      // Log and set error message if the operation fails
+      console.error("Error completing pickup:", error);
+      setError("Failed to complete the pickup. Please try again.");
+    }
   };
-
   return (
     <div
       id="schedule"
@@ -134,7 +191,7 @@ function Schedule({ handleClose }) {
                         </div>
                       </section>
 
-                      <section className="flex-nonw bg-light-gray p-2 rounded-b-md">
+                      <section className="flex-none bg-light-gray p-2 rounded-b-md">
                         <form
                           className="flex flex-col w-full gap-4"
                           onSubmit={(e) => handleSubmit(pickup.id, e)}
@@ -176,7 +233,6 @@ function Schedule({ handleClose }) {
                                   formInputs[pickup.id]?.plasticWeight || ""
                                 }
                               />
-                              
                             </div>
                             <div className="flex gap-1 flex-col basis-1/2 px-2 text-center">
                               <label>Glass</label>
@@ -187,34 +243,31 @@ function Schedule({ handleClose }) {
                                 onChange={(e) =>
                                   handleInputChange(
                                     pickup.id,
-                                    "plasticWeight",
+                                    "glassWeight",
                                     e.target.value
                                   )
                                 }
-                                value={
-                                  formInputs[pickup.id]?.plasticWeight || ""
-                                }
+                                value={formInputs[pickup.id]?.glassWeight || ""}
                               />
-                              
                             </div>
                             <div className="flex gap-1 flex-col basis-1/2 px-2 text-center">
-                              <label>Cardboard</label>
+                              <label>Alcohol Bottles</label>
                               <input
-                                name="cardboardWeight"
+                                name="alcoholBottlesWeight"
                                 className="w-full"
                                 type="number"
                                 onChange={(e) =>
                                   handleInputChange(
                                     pickup.id,
-                                    "plasticWeight",
+                                    "alcoholBottlesWeight",
                                     e.target.value
                                   )
                                 }
                                 value={
-                                  formInputs[pickup.id]?.plasticWeight || ""
+                                  formInputs[pickup.id]?.alcoholBottlesWeight ||
+                                  ""
                                 }
                               />
-                              
                             </div>
                           </div>
 
@@ -222,20 +275,19 @@ function Schedule({ handleClose }) {
                             <p className="text-red-500 text-lg">{error}</p>
                           )}
                           <div className="flex items-center justify-center gap-2">
-                          <a
-                            href={`https://maps.google.com/?q=${pickup.businessAddress}`}
-                            className="text-base bg-blue-400 text-white rounded-full px-3 py-1 text-center"
-                          >
-                            Directions
-                          </a>
-                          <button
-                            type="submit"
-                            className="bg-grean text-white py-1 px-3 rounded-full"
-                          >
-                            Complete
-                          </button>
+                            <a
+                              href={`https://maps.google.com/?q=${pickup.businessAddress}`}
+                              className="text-base bg-blue-400 text-white rounded-full px-3 py-1 text-center"
+                            >
+                              Directions
+                            </a>
+                            <button
+                              type="submit"
+                              className="bg-grean text-white py-1 px-3 rounded-full"
+                            >
+                              Complete
+                            </button>
                           </div>
-
                         </form>
                       </section>
                     </div>

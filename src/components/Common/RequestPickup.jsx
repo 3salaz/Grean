@@ -28,32 +28,35 @@ function RequestPickup({ handleClose }) {
   const [pickupRequestData, setPickupRequestData] = useState(initialFormData);
 
   useEffect(() => {
-    if (profile?.locations?.addresses) {
-      setProfileLocations(profile.locations.addresses);
+    if (profile?.addresses) {
+      setProfileLocations(profile.addresses);
     }
   }, [profile]);
 
-  const handleChange = useCallback((name, value) => {
-    setPickupRequestData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  const handleChange = useCallback(
+    (name, value) => {
+      setPickupRequestData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
 
-    // Update selectedAddress when address changes
-    if (name === "address") {
-      const selectedAddress = profileLocations.find(
-        (address) => address.street === value
-      );
+      // Update selectedAddress when address changes
+      if (name === "address") {
+        const selectedAddress = profileLocations.find(
+          (address) => address.street === value
+        );
 
-      if (selectedAddress) {
-        console.log("Selected Address:", selectedAddress);
-        // Optionally, you can update additional state or perform actions with selectedAddress here
-      } else {
-        console.error("Selected address not found:", value);
-        // Optionally, handle this scenario gracefully (e.g., show an error message)
+        if (selectedAddress) {
+          console.log("Selected Address:", selectedAddress);
+          // Optionally, you can update additional state or perform actions with selectedAddress here
+        } else {
+          console.error("Selected address not found:", value);
+          // Optionally, handle this scenario gracefully (e.g., show an error message)
+        }
       }
-    }
-  }, [profileLocations]);
+    },
+    [profileLocations]
+  );
 
   const handleSubmit = async () => {
     const formDataWithFile = { ...pickupRequestData };
@@ -102,10 +105,10 @@ function RequestPickup({ handleClose }) {
         onFinish={handleSubmit}
       >
         <header className="flex flex-col gap-1 h-[10%]">
-          <div className="text-center text-xl font-bold text-green">
+          <div className="text-center text-xl font-bold text-grean">
             Request Pickup
           </div>
-          <div className="text-xs text-center text-white font-bold bg-green container p-2 mx-auto">
+          <div className="text-xs text-center text-white font-bold bg-grean container p-2 mx-auto">
             Schedule your next pickup!
           </div>
         </header>
@@ -177,9 +180,11 @@ function RequestPickup({ handleClose }) {
                     )
                   }
                   className="text-sm font-normal p-2 rounded-md w-full"
-                  disabledDate={(current) =>
-                    current && current < dayjs().startOf("day")
-                  }
+                  disabledDate={(current) => {
+                    const today = dayjs().startOf("day");
+                    const weekAhead = today.add(7, "day").endOf("day");
+                    return current && (current < today || current > weekAhead);
+                  }}
                   format="DD-MM-YYYY" // Custom date format
                 />
               </Form.Item>
@@ -221,14 +226,18 @@ function RequestPickup({ handleClose }) {
                 rows={3}
                 value={pickupRequestData.pickupNote}
                 onChange={(e) => handleChange("pickupNote", e.target.value)}
-                className="block rounded-md p-2 text-black shadow-sm ring-1 ring-inset ring-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green sm:text-sm sm:leading-6"
+                className="block rounded-md p-2 text-black shadow-sm ring-1 ring-inset ring-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grean sm:text-sm sm:leading-6"
               />
             </Form.Item>
           </section>
         </main>
 
         <section className="flex items-end justify-center flex-row w-full">
-          <Button className="bg-green text-white" type="primary" size="medium">
+          <Button
+            className="bg-blue-400 text-white"
+            type="primary"
+            size="medium"
+          >
             Request
           </Button>
         </section>

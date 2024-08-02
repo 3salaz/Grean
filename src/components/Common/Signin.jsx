@@ -15,7 +15,7 @@ function Signin() {
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn();
-      toast.success("Signed in successfully with Google!");
+      console.log("Signed in successfully with Google!");
       navigate("/account");
     } catch (error) {
       console.log(error);
@@ -26,7 +26,7 @@ function Signin() {
   const handleSignIn = async (values) => {
     try {
       await signIn(values.email, values.password);
-      toast.success("Signed in successfully!");
+      console.log("Signed in successfully!");
       navigate("/account");
     } catch (error) {
       if (error.code === "auth/user-not-found") {

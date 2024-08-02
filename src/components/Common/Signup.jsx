@@ -34,7 +34,7 @@ function Signup({ handleClose }) {
   const handleGoogleSignUp = async () => {
     try {
       await googleSignIn();
-      toast.success("Signed up successfully with Google!");
+      console.log("Signed up successfully with Google!");
       handleClose(); // Close modal on successful sign-up
       navigate("/account");
     } catch (error) {

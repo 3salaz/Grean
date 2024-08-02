@@ -4,14 +4,14 @@ import avatar from "../../assets/avatar.svg";
 import { Link } from "react-router-dom";
 
 function UserHeader() {
-  const { profile, user } = useAuthProfile();
+  const { profile } = useAuthProfile();
   return (
     <header className="w-full container flex items-center justify-between bg-slate-800 p-4">
       <div className="flex items-center gap-2 h-full">
         <img
           className="rounded-full h-14 aspect-square bg-white"
           alt="profilePic"
-          src={profile.photoURL || avatar}
+          src={profile.profilePic || avatar}
         ></img>
         <div className="flex gap-1 flex-col items-start justify-center h-full">
           <h2 className="text-sm font-bold text-white">{profile.displayName}</h2>

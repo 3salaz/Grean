@@ -28,7 +28,7 @@ function Tabbar({ active, setActive }) {
               <span className={`text-3xl cursor-pointer duration-500 ${i === active && "-mt-6"}`}>
                 <ion-icon size="large" name={menu.icon}></ion-icon>
               </span>
-              <span className={`${active === i ? "translate-y-2 duration-700 opacity-100" : "opacity-0 translate-y-10"}`}>
+              <span className={`${active === i ? "translate-y-2 duration-700 opacity-100 text-xs font-bold" : "opacity-0 translate-y-10"}`}>
                 {menu.name}
               </span>
             </motion.div>

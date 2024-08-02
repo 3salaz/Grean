@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { usePickups } from "../../context/PickupsContext";
-import noPickupIcon from "../../assets/no-pickups.svg";
-import { useAuthProfile } from "../../context/AuthProfileContext";
+import { usePickups } from "../../../../context/PickupsContext";
+import { useProfile } from "../../../../context/ProfileContext";
+import noPickupIcon from "../../../../assets/no-pickups.svg";
 
 function Alerts() {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();
-  const { profile } = useAuthProfile(); // Access the user's profile, including the userRole
+  const { profile } = useProfile(); // Access the user's profile, including the userRole
 
   const convertTo12HourFormat = (time) => {
     let [hours, minutes] = time.split(":");
@@ -16,21 +16,21 @@ function Alerts() {
   };
 
   const sortedPickups = userCreatedPickups.sort((a, b) => {
-    if (!a.isAccepted && b.isAccepted) return -1;
-    if (a.isAccepted && !b.isAccepted) return 1;
-    if (a.isAccepted && !a.isCompleted && b.isAccepted && b.isCompleted) return -1;
-    if (a.isAccepted && a.isCompleted && b.isAccepted && !b.isCompleted) return 1;
+    if (!a.accepted && b.accepted) return -1;
+    if (a.accepted && !b.accepted) return 1;
+    if (a.accepted && !a.isCompleted && b.accepted && b.isCompleted) return -1;
+    if (a.accepted && a.isCompleted && b.accepted && !b.isCompleted) return 1;
     return 0;
   });
 
   return (
     <div
       id="alerts"
-      className="w-full h-full flex justify-center items-center overflow-auto"
+      className="w-full h-[95%] bg-grean flex justify-center items-center overflow-auto"
     >
-      <div className="h-full w-full">
-        {profile?.accountType === "User" ? (
-          <section className="h-full bg-grean flex flex-col justify-start border-white border-4 rounded-t-lg">
+      <div className="max-h-full min-h-full h-full w-full">
+        {profile?.userRole === "Business" ? (
+          <section className="h-full bg-grean flex flex-col border-white border-4 rounded-t-lg">
             <header className="h-[15%] flex flex-col gap-1 py-2">
               <div className="text-center text-xl font-bold text-white">
                 My Pickup Request
@@ -44,7 +44,7 @@ function Alerts() {
               <ul className="w-full gap-3 flex flex-col overflow-scroll p-2">
                 {sortedPickups.length > 0 ? (
                   sortedPickups.map((pickup) => {
-                    const addressParts = pickup.addressData.street.split(",");
+                    const addressParts = pickup.businessAddress.split(",");
                     const street = addressParts[0] || "";
                     const city = addressParts[1] || "";
 
@@ -143,7 +143,7 @@ function Alerts() {
                         ></img>
                         <div className="bg-white p-2 rounded-md basis-4/6">
                           <div className="font-bold text-xs">
-                            {pickup.addressData.street}
+                            {pickup.businessAddress}
                           </div>
                           <div className="text-sm text-gray">
                             {pickup.ownerEmail}
@@ -156,7 +156,7 @@ function Alerts() {
                           {pickup.pickupNote || "No notes"}
                         </p>
                       </div>
-                      
+
                       <div className="flex justify-center items-center gap-2">
                         <motion.button
                           whileHover={{ scale: 1.2 }}

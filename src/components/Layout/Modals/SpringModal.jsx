@@ -18,13 +18,13 @@ const SpringModal = ({
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex flex-col justify-center items-center bg-green-600 rounded-lg p-4 max-w-lg w-full max-h-[650px]  min-h-[500px] overflow-auto
+        transition={{ type: "spring", stiffness: 150, damping: 20 }}
+        className="flex flex-col justify-center items-center bg-green-600 rounded-lg p-4 max-w-lg w-full max-h-[650px]  min-h-[500px]
         "
       >
         <div
           id="springModal"
-          className="flex w-full h-full flex-col gap-2 items-center justify-start p-4 rounded-md bg-white shadow-lg"
+          className="flex w-full h-full flex-col gap-2 items-center justify-start rounded-md bg-white shadow-lg p-4"
         >
           {children}
           {showCloseButton && (

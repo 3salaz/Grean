@@ -8,7 +8,6 @@ import MapBox from "../MapBox";
 import Button from "../Button";
 import SpringModal from "../Modals/SpringModal";
 import { motion } from "framer-motion";
-import UserPickups from "../../Common/UserPickups";
 
 function Map() {
   const { profile } = useAuthProfile();
@@ -25,6 +24,7 @@ function Map() {
 
   const closeAlerts = () => setAlertsOpen(false);
   const openAlerts = () => setAlertsOpen(true);
+  console.log(profile.addresses.length)
 
   return (
     <main id="mapTab" className="relative w-full h-full">
@@ -61,7 +61,7 @@ function Map() {
         <div className="container mx-auto">
           <div className="max-w-[650px] flex justify-end m-auto rounded-md">
             <div className="flex justify-center items-end w-full gap-8 px-5">
-              {profile?.accountType === "User" && (
+              {profile?.accountType === "User" && profile?.addresses.length > 0 && (
                 <div className="flex flex-row w-full basis-3/5 justify-between items-center gap-2">
                   <Button
                     variant="primary"

@@ -1,20 +1,22 @@
+// index.tsx
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { setupIonicReact } from '@ionic/react';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+setupIonicReact();
 
-root.render(
+ReactDOM.render(
   <React.StrictMode>
-    <Router>
+    <BrowserRouter>
       <App />
-    </Router>
-  </React.StrictMode>
+    </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById('root')
 );
 
 reportWebVitals(console.log);
+

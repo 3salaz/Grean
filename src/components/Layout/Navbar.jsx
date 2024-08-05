@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
 import { AnimatePresence, motion, useCycle } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import SideNav from "./SideNav";
 import Button from "./Button";
 import { useAuthProfile } from "../../context/AuthProfileContext";
@@ -11,7 +11,7 @@ import Signup from "../../components/Common/Signup";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
-  const navigate = useNavigate();
+  const navigate = useHistory();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, setAccountNav] = useCycle(false, true);
   const accountNavRef = useRef(null);

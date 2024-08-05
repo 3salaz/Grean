@@ -164,7 +164,7 @@ export const PickupsProvider = ({ children }) => {
     }
   };
 
-  const completePickup = async (pickupId, weights) => {
+  const completePickup = async (pickupId, weight) => {
     if (!user) {
       toast.error("You must be logged in to complete pickups.");
       return;
@@ -186,10 +186,10 @@ export const PickupsProvider = ({ children }) => {
       const updatedData = {
         isCompleted: true,
         pickupWeight: {
-          ...(weights.glassWeight && { glassWeight: weights.glassWeight }),
-          ...(weights.aluminumWeight && { aluminumWeight: weights.aluminumWeight }),
-          ...(weights.plasticWeight && { plasticWeight: weights.plasticWeight }),
-          ...(weights.alcoholBottlesWeight && { alcoholBottlesWeight: weights.alcoholBottlesWeight }),
+          ...(weight.glassWeight && { glassWeight: weight.glassWeight }),
+          ...(weight.aluminumWeight && { aluminumWeight: weight.aluminumWeight }),
+          ...(weight.plasticWeight && { plasticWeight: weight.plasticWeight }),
+          ...(weight.alcoholBottlesWeight && { alcoholBottlesWeight: weight.alcoholBottlesWeight }),
         }
       };
   

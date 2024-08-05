@@ -5,6 +5,7 @@ import { Form, Input, Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
 import Button from "../Layout/Button";
 import homeIcon from "../../assets/icons/home.png";
+import '../../custom-antd.css';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -40,7 +41,6 @@ function RequestPickup({ handleClose }) {
         [name]: value,
       }));
 
-      // Update selectedAddress when address changes
       if (name === "address") {
         const selectedAddress = profileLocations.find(
           (address) => address.street === value
@@ -48,10 +48,8 @@ function RequestPickup({ handleClose }) {
 
         if (selectedAddress) {
           console.log("Selected Address:", selectedAddress);
-          // Optionally, you can update additional state or perform actions with selectedAddress here
         } else {
           console.error("Selected address not found:", value);
-          // Optionally, handle this scenario gracefully (e.g., show an error message)
         }
       }
     },
@@ -61,19 +59,15 @@ function RequestPickup({ handleClose }) {
   const handleSubmit = async () => {
     const formDataWithFile = { ...pickupRequestData };
 
-    // Find the selected address in profileLocations
     const selectedAddress = profileLocations.find(
       (address) => address.street === pickupRequestData.address
     );
 
-    // Handle case where selectedAddress is undefined
     if (!selectedAddress) {
       console.error("Selected address not found:", pickupRequestData.address);
-      // Optionally, you can handle this scenario gracefully, e.g., show an error message.
       return;
     }
 
-    // Populate pickupData with necessary fields
     const pickupData = {
       ...formDataWithFile,
       addressData: selectedAddress,
@@ -82,12 +76,10 @@ function RequestPickup({ handleClose }) {
     };
 
     try {
-      // Call createPickup function from context to create a new pickup
       await createPickup(pickupData);
       handleClose();
     } catch (error) {
       console.error("Error creating pickup:", error);
-      // Optionally, handle the error (e.g., show a toast message)
     }
   };
 

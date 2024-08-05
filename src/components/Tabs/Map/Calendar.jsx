@@ -57,7 +57,6 @@ function Calendar({ handleClose }) {
   const handleSubmit = async (pickupId, e) => {
     e.preventDefault();
     const { weight } = formInputs[pickupId] || {}; // Ensure we don't destructure undefined
-
     // Assuming receipt handling is done elsewhere and we only need to pass weight
     await completePickup(pickupId, weight);
 

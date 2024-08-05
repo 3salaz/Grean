@@ -117,5 +117,9 @@ body {
   .ant-steps-item-process .ant-steps-item-title {
     color: blue;
   }
-  
-
+  /* custom-antd.css */
+.ant-picker-time-panel .ant-picker-ok {
+  background-color: #75B657; /* Use your custom grean color */
+  border-color: #75B657;
+  color: white; /* Optional: set text color */
+}

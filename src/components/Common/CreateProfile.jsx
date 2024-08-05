@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { Form, Radio, Typography, Input, Upload } from "antd";
 import { toast } from "react-toastify";
@@ -14,7 +14,7 @@ const { Title } = Typography;
 
 function CreateProfile({ handleClose }) {
   const { user, updateProfile } = useAuthProfile();
-  const navigate = useNavigate();
+  const navigate = useHistory();
   const [accountType, setAccountType] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [profilePic, setProfilePic] = useState("");

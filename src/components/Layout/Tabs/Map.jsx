@@ -8,10 +8,12 @@ import MapBox from "../MapBox";
 import Button from "../Button";
 import SpringModal from "../Modals/SpringModal";
 import { motion } from "framer-motion";
+import { IonIcon } from "@ionic/react";
+import { leafOutline, calendarNumberOutline, notificationsOutline } from "ionicons/icons";
 
 function Map() {
   const { profile } = useAuthProfile();
-  const {userAcceptedPickups, userCreatedPickups, visiblePickups} = usePickups();
+  const { userAcceptedPickups, userCreatedPickups, visiblePickups } = usePickups();
   const [requestPickupOpen, setRequestPickupOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -24,8 +26,7 @@ function Map() {
 
   const closeAlerts = () => setAlertsOpen(false);
   const openAlerts = () => setAlertsOpen(true);
-  console.log(profile.addresses.length)
-
+  
   return (
     <main id="mapTab" className="relative w-full h-full">
       <MapBox /> 
@@ -77,16 +78,16 @@ function Map() {
                     size="small"
                     shape="square"
                     onClick={alertsOpen ? closeAlerts : openAlerts}
-                    className="border-white font-bold rounded-md border-2 md:order-1 bg-green-300 text-grean aspect-square flex items-center justify-center w-14 h-14 focus:ring-grean focus:ring-offset-2 focus:outline-none focus:ring-2 relative"
+                    className="border-white font-bold rounded-md border-2 md:order-1 bg-green-300 text-grean aspect-square flex items-center justify-center w-14 h-14 relative"
                   >
-                    <ion-icon
-                      className="text-grean"
+                    <IonIcon
+                      className="text-white"
                       size="large"
-                      name="leaf-outline"
-                    ></ion-icon>
+                      icon={leafOutline}
+                    />
                     <span className="sr-only">View Pickups</span>
 
-                    <span className="text-grean bg-white rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 left-10">{userCreatedPickups.length}</span>
+                    <span className="text-grean bg-white rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 right-0">{userCreatedPickups.length}</span>
                   </Button>
                 </div>
               )}
@@ -98,10 +99,10 @@ function Map() {
                     whileTap={{ scale: 0.9 }}
                     onClick={scheduleOpen ? closeSchedule : openSchedule}
                   >
-                    <ion-icon
+                    <IonIcon
                       size="large"
-                      name="calendar-number-outline"
-                    ></ion-icon>
+                      icon={calendarNumberOutline}
+                    />
                     <span className="sr-only">View Schedule</span>
                     <span className="text-white bg-red-500 rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 left-10">
                       {
@@ -118,10 +119,10 @@ function Map() {
                     onClick={alertsOpen ? closeAlerts : openAlerts}
                     className="relative rounded-md p-1 w-14 h-14 bg-white text-red-500 focus:outline-none focus:ring-2 border border-yellow-200 focus:ring-blue-300 focus:ring-offset-2 flex items-center justify-center"
                   >
-                    <ion-icon
+                    <IonIcon
                       size="large"
-                      name="notifications-outline"
-                    ></ion-icon>
+                      icon={notificationsOutline}
+                    />
                     <span className="sr-only">View notifications</span>
 
                     <span className="text-white bg-red-500 rounded-full w-8 h-8 flex items-center justify-center absolute bottom-10 left-10">

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
 import { Form, Input, Typography } from "antd";
@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 function Signin() {
   const [form] = Form.useForm();
   const { signIn, googleSignIn } = useAuthProfile();
-  const navigate = useNavigate();
+  const navigate = useHistory();
   const { Title, Text } = Typography;
 
   const handleGoogleSignIn = async () => {

@@ -84,7 +84,7 @@ const Stats = () => {
   return (
     <main
       id="StatsTab"
-      className="w-full h-full z-20 flex flex-col items-center justify-center relative pb-4"
+      className="w-full h-full z-20 flex flex-col items-center justify-center relative"
     >
       <div className="w-full h-full overflow-auto snap-y snap-mandatory hide-scroll no-scroll overscroll-none text-white">
         <div

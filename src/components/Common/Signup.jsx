@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
 import { Form, Input, Typography } from "antd";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 const { Title, Text } = Typography;
 
 function Signup({ handleClose }) {
-  const navigate = useNavigate();
+  const navigate = useHistory();
   const { user, signUp, googleSignIn } = useAuthProfile();
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({

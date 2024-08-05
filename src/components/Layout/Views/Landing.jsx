@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
@@ -18,13 +18,13 @@ function Landing() {
   const [signInModalOpen, setSigninModalOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const { user } = useAuthProfile();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const closeSigninModal = () => setSigninModalOpen(false);
   const openSigninModal = () => setSigninModalOpen(true);
 
   const navigateTo = (route) => {
-    navigate(`/${route}`);
+    history.push(`/${route}`);
   };
 
   useEffect(() => {

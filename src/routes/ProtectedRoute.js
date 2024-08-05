@@ -1,9 +1,10 @@
-import { Navigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthProfile } from '../context/AuthProfileContext';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthProfile();
+  const navigate = useHistory();
 
   return (
     <AnimatePresence>
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }) {
         </motion.div>
       ) : (
         !user ? (
-          <Navigate to="/" replace />
+          navigate('/')
         ) : (
           children
         )

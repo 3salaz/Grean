@@ -1,14 +1,16 @@
 import { motion } from "framer-motion";
+import { IonIcon } from "@ionic/react";
+import { personCircleOutline, navigateCircleOutline, statsChartOutline } from "ionicons/icons";
 
-function Tabbar({ active, setActive }) {
+function TabBar({ active, setActive }) {
   const MenuItems = [
-    { name: "Profile", icon: "person-circle-outline", dis: "translate-x-[-4rem]" },
-    { name: "Map", icon: "navigate-circle-outline", dis: "translate-x-0" },
-    { name: "Stats", icon: "stats-chart-outline", dis: "translate-x-16" },
+    { name: "Profile", icon: personCircleOutline, dis: "translate-x-[-4rem]" },
+    { name: "Map", icon: navigateCircleOutline, dis: "translate-x-0" },
+    { name: "Stats", icon: statsChartOutline, dis: "translate-x-16" },
   ];
 
   return (
-    <footer className="bg-slate-800 w-full border-t-[2px] z-30 border-t-white h-[10svh]">
+    <footer className="bg-slate-800 w-full border-t-[2px] z-30 border-t-white h-[10svh] fixed bottom-0">
       <ul id="tabs" className="flex relative justify-center z-30 bg-slate-800 h-full">
         <span
           className={`bg-grean duration-500 ${MenuItems[active].dis} border-4 border-white h-16 w-16 absolute -top-5 rounded-full`}
@@ -26,7 +28,7 @@ function Tabbar({ active, setActive }) {
               onClick={() => setActive(i)}
             >
               <span className={`text-3xl cursor-pointer duration-500 ${i === active && "-mt-6"}`}>
-                <ion-icon size="large" name={menu.icon}></ion-icon>
+                <IonIcon icon={menu.icon} size="large" />
               </span>
               <span className={`${active === i ? "translate-y-2 duration-700 opacity-100 text-xs font-bold" : "opacity-0 translate-y-10"}`}>
                 {menu.name}
@@ -34,10 +36,9 @@ function Tabbar({ active, setActive }) {
             </motion.div>
           </li>
         ))}
-
       </ul>
     </footer>
   );
 }
 
-export default Tabbar;
+export default TabBar;

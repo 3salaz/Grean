@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useLocations } from "../../context/LocationsContext";
 import { motion } from "framer-motion";
 import { Form, Input, Button, Row, Col } from "antd";
@@ -38,7 +38,7 @@ const ProfileForm = () => {
   const [editMode, setEditMode] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const navigate = useHistory();
 
   useEffect(() => {
     setFormData(profile || {});

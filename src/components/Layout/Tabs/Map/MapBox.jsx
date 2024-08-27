@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import businessIcon from "../../assets/icons/business.png";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import businessIcon from "../../../../assets/icons/business.png";
 import ReactMapGl, {
   Marker,
   Popup,
@@ -8,23 +8,24 @@ import ReactMapGl, {
   FullscreenControl,
   GeolocateControl,
 } from "react-map-gl";
-import { useLocations } from "../../context/LocationsContext"; // Adjust the path as needed
+import { useLocations } from "../../../../context/LocationsContext";
 
 function MapBox() {
+  const mapRef = useRef(null); // Create a ref to store the map instance
+
   const [viewPort, setViewPort] = useState({
-    center: [-122.433247, 37.742646], // starting position
     latitude: 37.742646,
     longitude: -122.433247,
     zoom: 11,
   });
 
   const bounds = [
-    [-122.66336, 37.492987], // Southwest coordinates
-    [-122.250481, 37.871651], // Northeast coordinates
+    [-122.66336, 37.492987],
+    [-122.250481, 37.871651],
   ];
   
   const [popupInfo, setPopupInfo] = useState(null);
-  const {businessLocations} = useLocations();
+  const { businessLocations } = useLocations();
 
   const pins = useMemo(
     () =>
@@ -50,8 +51,6 @@ function MapBox() {
             <img
               className="object-fit"
               src={businessIcon}
-              name="pin-sharp"
-              size="small"
               alt="business-icon"
             />
           </div>
@@ -60,22 +59,29 @@ function MapBox() {
     [businessLocations]
   );
 
+  useEffect(() => {
+    // Trigger a resize on the map when the component mounts
+    if (mapRef.current) {
+      mapRef.current.resize();
+    }
+  }, [mapRef]);
+
   return (
-    <div id="map" className="h-full w-full relative">
+    <div id="map" className="w-full h-full relative">
       <ReactMapGl
         {...viewPort}
+        ref={mapRef} // Attach the ref to the map component
         onMove={(evt) => setViewPort(evt.viewState)}
+        className="w-full"
         maxBounds={bounds}
         mapboxAccessToken="pk.eyJ1IjoiM3NhbGF6IiwiYSI6ImNsZG1xNjZ2aDBidnozb21kNTIxNTQ1a2wifQ.0JC6qoYDFC96znCbHh4kpQ"
         transitionDuration="30"
-        className="h-full w-full overflow-hidden"
         mapStyle={"mapbox://styles/3salaz/cli6bc4e000m201rf0dfp3oyh"}
       >
         <GeolocateControl position="top-left" />
         <FullscreenControl position="top-left" />
         <NavigationControl position="top-left" />
         {pins}
-        <AnimatePresence>
           {popupInfo && (
             <Popup
               anchor="top"
@@ -84,11 +90,11 @@ function MapBox() {
               closeButton={false}
               closeOnClick={false}
               onClose={() => setPopupInfo(null)}
-              className="custom-popup max-w-md md:max-w-lg"
+              className="max-w-md md:max-w-lg"
               maxWidth="600px"
             >
               <motion.div
-                className="flex flex-col gap-2 rounded-md bg-green drop-shadow-lg"
+                className="flex flex-col gap-2 rounded-md bg-grean drop-shadow-lg w-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -117,33 +123,34 @@ function MapBox() {
                     <a
                       href={popupInfo.businessWebsite}
                       className="text-white font-bold basis-1/3 text-center"
-                      target="_new"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {popupInfo.street}
                     </a>
                   </div>
                 </header>
-                <div id="stats" className="flex gap-1 text-white text-center px-2">
-                  <div className="basis-1/3 bg-white text-green rounded-sm flex flex-col p-2">
+                <div id="stats" className="flex gap-1 text-center px-2">
+                  <div className="basis-1/3 bg-white rounded-sm flex flex-col p-2">
                     <div className="font-bold">Plastic</div>
                     <div>12lbs</div>
                   </div>
-                  <div className="basis-1/3 bg-white text-green rounded-sm flex flex-col p-2">
+                  <div className="basis-1/3 bg-white rounded-sm flex flex-col p-2">
                     <div className="font-bold">Aluminum</div>
                     <div>12lbs</div>
                   </div>
-                  <div className="basis-1/3 bg-white text-green rounded-sm flex flex-col p-2">
+                  <div className="basis-1/3 bg-white rounded-sm flex flex-col p-2">
                     <div className="font-bold">Total</div>
                     <div>24lbs</div>
                   </div>
                 </div>
+
                 <div className="w-full">
                   <div className="text-center">{popupInfo.description}</div>
                 </div>
               </motion.div>
             </Popup>
           )}
-        </AnimatePresence>
       </ReactMapGl>
     </div>
   );

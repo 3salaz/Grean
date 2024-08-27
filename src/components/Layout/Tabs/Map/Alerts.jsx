@@ -1,11 +1,29 @@
 import { motion } from "framer-motion";
 import { usePickups } from "../../../../context/PickupsContext";
-import { useProfile } from "../../../../context/ProfileContext";
 import noPickupIcon from "../../../../assets/no-pickups.svg";
+import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import {
+  IonPage,
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButton,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonFooter,
+} from "@ionic/react";
+import { checkmarkCircle, closeOutline } from "ionicons/icons";
 
-function Alerts() {
+function Alerts({ handleClose }) {
   const { visiblePickups, acceptPickup, userCreatedPickups, removePickup } = usePickups();
-  const { profile } = useProfile(); // Access the user's profile, including the userRole
+  const { profile } = useAuthProfile(); // Access the user's profile, including the userRole
 
   const convertTo12HourFormat = (time) => {
     let [hours, minutes] = time.split(":");
@@ -16,178 +34,155 @@ function Alerts() {
   };
 
   const sortedPickups = userCreatedPickups.sort((a, b) => {
-    if (!a.accepted && b.accepted) return -1;
-    if (a.accepted && !b.accepted) return 1;
-    if (a.accepted && !a.isCompleted && b.accepted && b.isCompleted) return -1;
-    if (a.accepted && a.isCompleted && b.accepted && !b.isCompleted) return 1;
+    if (!a.isAccepted && b.isAccepted) return -1;
+    if (a.isAccepted && !b.isAccepted) return 1;
+    if (a.isAccepted && !a.isCompleted && b.isAccepted && b.isCompleted) return -1;
+    if (a.isAccepted && a.isCompleted && b.isAccepted && !b.isCompleted) return 1;
     return 0;
   });
 
   return (
-    <div
-      id="alerts"
-      className="w-full h-[95%] bg-grean flex justify-center items-center overflow-auto"
-    >
-      <div className="max-h-full min-h-full h-full w-full">
-        {profile?.userRole === "Business" ? (
-          <section className="h-full bg-grean flex flex-col border-white border-4 rounded-t-lg">
-            <header className="h-[15%] flex flex-col gap-1 py-2">
-              <div className="text-center text-xl font-bold text-white">
-                My Pickup Request
+    <IonPage>
+      <IonHeader>
+        <IonToolbar color="primary">
+          <IonTitle>{profile?.accountType === "User" ? "Alerts For Users" : "Pickups Available"}</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonContent className="ion-padding">
+        {profile?.accountType === "User" ? (
+          <IonList>
+            {sortedPickups.length > 0 ? (
+              sortedPickups.map((pickup) => {
+                const addressParts = pickup.addressData.street.split(",");
+                const street = addressParts[0] || "";
+                const city = addressParts[1] || "";
+
+                const dateParts = pickup.pickupDate.split("-");
+                const formattedDate = `${dateParts[1]}/${dateParts[2]}`;
+
+                const formattedTime = convertTo12HourFormat(pickup.pickupTime);
+
+                return (
+                  <IonItem key={pickup.id} className="ion-padding-vertical">
+                    <IonLabel>
+                      <IonText>
+                        <h2>{`${street}, ${city}`}</h2>
+                      </IonText>
+                      <IonText>
+                        <p>{formattedDate}</p>
+                        <p>{formattedTime}</p>
+                      </IonText>
+                      {pickup.isAccepted && (
+                        <IonText color="success">
+                          <p>Accepted by: {pickup.acceptedBy.substring(0, 8)}</p>
+                        </IonText>
+                      )}
+                      {!pickup.isAccepted && (
+                        <IonText color="danger">
+                          <p>Not Accepted</p>
+                        </IonText>
+                      )}
+                      {pickup.isCompleted && (
+                        <IonGrid>
+                          <IonRow>
+                            <IonCol size="auto">
+                              <IonIcon icon={checkmarkCircle} size="large" color="success" />
+                            </IonCol>
+                            <IonCol>
+                              <IonButton
+                                color="tertiary"
+                                onClick={() => removePickup(pickup.id)}
+                              >
+                                Remove
+                              </IonButton>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      )}
+                    </IonLabel>
+                  </IonItem>
+                );
+              })
+            ) : (
+              <div className="ion-text-center">
+                <img src={noPickupIcon} alt="No pickups to display" className="ion-margin" />
+                <IonText>No pickups to display</IonText>
               </div>
-              <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
-                Your pickups will be displayed below
-              </div>
-            </header>
-
-            <main className="h-[85%] flex flex-col items-center justify-start">
-              <ul className="w-full gap-3 flex flex-col overflow-scroll p-2">
-                {sortedPickups.length > 0 ? (
-                  sortedPickups.map((pickup) => {
-                    const addressParts = pickup.businessAddress.split(",");
-                    const street = addressParts[0] || "";
-                    const city = addressParts[1] || "";
-
-                    const dateParts = pickup.pickupDate.split("-");
-                    const formattedDate = `${dateParts[1]}/${dateParts[2]}`;
-
-                    const formattedTime = convertTo12HourFormat(pickup.pickupTime);
-
-                    return (
-                      <li
-                        key={pickup.id}
-                        className="border border-grean shadow-xl rounded-md max-h-24 p-1 flex flex-col bg-white text-slate-800 relative"
-                      >
-                        <div className="text-sm">{`${street}, ${city}`}</div>
-                        <p className="text-sm">{formattedDate}</p>
-                        <p className="text-sm">{formattedTime}</p>
-                        <div className="flex flex-col text-xs">
-                          <div className="accepted-status">
-                            {pickup.isAccepted ? (
-                              <span className="accepted">
-                                Accepted by: {pickup.acceptedBy.substring(0, 8)}
-                              </span>
-                            ) : (
-                              <span className="not-accepted">Not Accepted</span>
-                            )}
-                          </div>
-                          <div className="completion-status">
-                            {pickup.isCompleted ? (
-                              <div className="w-full absolute top-0 left-0 h-full rounded-md drop-shadow-xl">
-                                <div className="bg-grean p-2 w-8 h-8 aspect-square flex items-center justify-center text-white absolute top-1 right-1 rounded-md">
-                                  <ion-icon
-                                    size="large"
-                                    name="checkmark-circle"
-                                  ></ion-icon>
-                                </div>
-                                <motion.button
-                                  className="bg-orange text-white px-1 py-2 absolute bottom-1 right-1 rounded-md"
-                                  whileHover={{ scale: 1.2 }}
-                                  whileTap={{ scale: 0.8 }}
-                                  onClick={() => removePickup(pickup.id)}
-                                >
-                                  Remove
-                                </motion.button>
-                              </div>
-                            ) : (
-                              <span className="not-completed"></span>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })
-                ) : (
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="bg-white px-2 rounded-full w-20 aspect-square flex items-center justify-center bounce">
-                      <img
-                        src={noPickupIcon}
-                        alt="recycling can with a stop sign, icon "
-                      />
-                    </div>
-                    <div className="text-center bg-slate-800 text-white font-bold p-2 rounded-md">
-                      No pickups to display
-                    </div>
-                  </div>
-                )}
-              </ul>
-            </main>
-          </section>
+            )}
+          </IonList>
         ) : (
-          <div
-            id="pickupsAvailable"
-            className="h-full bg-red-500 flex flex-col border-white border-4 rounded-t-lg"
-          >
-            <header className="h-[15%] flex flex-col items-center justify-center gap-1">
-              <div className="text-center text-lg font-bold text-white">
-                Pickups Available
+          <IonList>
+            {visiblePickups.length > 0 ? (
+              visiblePickups.map((pickup) => (
+                <IonItem key={pickup.id} className="ion-padding-vertical">
+                  <IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        <IonCol size="auto">
+                          <img src={pickup.ownerImg} alt="Owner" className="rounded-full" />
+                        </IonCol>
+                        <IonCol>
+                          <IonText>
+                            <h2>{pickup.addressData.street}</h2>
+                          </IonText>
+                          <IonText>
+                            <p>{pickup.ownerEmail}</p>
+                          </IonText>
+                        </IonCol>
+                      </IonRow>
+                      <IonRow>
+                        <IonCol>
+                          <IonText>{pickup.pickupNote || "No notes"}</IonText>
+                        </IonCol>
+                      </IonRow>
+                      <IonRow>
+                        <IonCol>
+                          <IonButton
+                            expand="block"
+                            color="success"
+                            onClick={() => acceptPickup(pickup.id)}
+                          >
+                            Accept
+                          </IonButton>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                  </IonLabel>
+                </IonItem>
+              ))
+            ) : (
+              <div className="ion-text-center">
+                <img src={noPickupIcon} alt="No pickups to display" className="ion-margin" />
+                <IonText>No pickups to display</IonText>
               </div>
-              <div className="text-xs text-center text-grean font-bold bg-white container p-2 mx-auto">
-                Approve, Decline or Be Reminded Later
-              </div>
-            </header>
-
-            <main className="h-[85%] flex flex-col items-center justify-start">
-              <ul className="w-full gap-3 flex flex-col overflow-scroll p-2">
-                {visiblePickups.length > 0 ? (
-                  visiblePickups.map((pickup) => (
-                    <li
-                      key={pickup.id}
-                      className="flex gap-4 flex-col bg-light py-2"
-                    >
-                      <div className="flex justify-center items-center gap-3">
-                        <img
-                          className="rounded-full basis-1/6"
-                          src={pickup.ownerImg}
-                          alt="Owner"
-                        ></img>
-                        <div className="bg-white p-2 rounded-md basis-4/6">
-                          <div className="font-bold text-xs">
-                            {pickup.businessAddress}
-                          </div>
-                          <div className="text-sm text-gray">
-                            {pickup.ownerEmail}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="container mx-auto px-2 rounded-full">
-                        <p className="text-center bg-white py-2">
-                          {pickup.pickupNote || "No notes"}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-center items-center gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.8 }}
-                          className="p-1 px-4 bg-grean text-white rounded-xl drop-shadow-md"
-                          onClick={() => acceptPickup(pickup.id)}
-                        >
-                          Accept
-                        </motion.button>
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="bg-white px-2 rounded-full w-20 aspect-square flex items-center justify-center bounce">
-                      <img
-                        src={noPickupIcon}
-                        alt="recycling can with a stop sign, icon "
-                      />
-                    </div>
-                    <div className="text-center bg-slate-800 text-white font-bold p-2 rounded-md">
-                      No pickups to display
-                    </div>
-                  </div>
-                )}
-              </ul>
-            </main>
-          </div>
+            )}
+          </IonList>
         )}
-      </div>
-    </div>
+      </IonContent>
+
+      <IonFooter>
+        <IonButton
+          color="danger"
+          shape="round"
+          fill="solid"
+          onClick={handleClose}
+          className="ion-margin-bottom"
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            zIndex: 1000,
+          }}
+        >
+          <IonIcon icon={closeOutline} size="large" />
+        </IonButton>
+      </IonFooter>
+    </IonPage>
   );
 }
 

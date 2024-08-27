@@ -32,7 +32,7 @@ function MainStats() {
 
         <section className="px-4 flex flex-col gap-3">
           <div className="w-full flex flex-col gap-4 text-white">
-            <section className="w-full bg-orange py-2 rounded-md">
+            <section className="w-full py-2 rounded-md">
               <div className="grid grid-rows-1 grid-col-3 grid-flow-col w-full items-center">
                 <div className="flex items-center justify-center">
                   <ion-icon size="large" name="home-outline"></ion-icon>

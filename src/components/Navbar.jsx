@@ -1,23 +1,25 @@
+import React, { useState } from 'react';
 import logo from "../assets/logo.png";
 import { motion, useCycle } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom"; // Import useHistory instead of useNavigate
 import { UserAuth } from "../context/AuthContext";
-import { useState } from "react";
 import SignUpModal from "./SignUp";
 
-function Navbar() {
+function Navbar({ componentHeight }) {
   const { user, logOut } = UserAuth();
-  const navigate = useNavigate();
+  const history = useHistory(); // Use useHistory instead of useNavigate
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, toggleAccountNav] = useCycle(false, true);
   const [signUpOpen, setSignUpOpen] = useState(false);
+
   const closeSignUp = () => setSignUpOpen(false);
   const openSignUp = () => setSignUpOpen(true);
+
   const handleLogout = async () => {
     try {
       await logOut();
-      navigate("/");
-      console.log("your are logged out");
+      history.push("/"); // Use history.push instead of navigate
+      console.log("You are logged out");
       toggleAccountNav();
     } catch (e) {
       console.log(e.message);
@@ -25,18 +27,15 @@ function Navbar() {
   };
 
   return (
-    <nav id="navbar" className="bg-grean top-0 inset-x-0 h-[8svh] z-50 relative">
-      {/* signUp modal */}
+    <nav id="navbar" className={`${componentHeight} bg-grean top-0 inset-x-0 h-[8svh] z-50 relative`}>
+      {/* SignUp modal */}
       {signUpOpen && (
-        <SignUpModal
-          modalOpen={signUpOpen}
-          handleClose={closeSignUp}
-        />
+        <SignUpModal modalOpen={signUpOpen} handleClose={closeSignUp} />
       )}
 
       {/* Nav container */}
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
-        {/* <!-- Mobile menu button--> */}
+        {/* Mobile menu button */}
         <div className="absolute z-30 md:hidden">
           <button
             type="button"
@@ -50,6 +49,7 @@ function Navbar() {
                 closed: { rotate: 0, y: 0 },
                 open: { rotate: 45, y: 5 },
               }}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
             <motion.span
@@ -57,6 +57,7 @@ function Navbar() {
                 closed: { opacity: 1 },
                 open: { opacity: 0 },
               }}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
             <motion.span
@@ -64,10 +65,12 @@ function Navbar() {
                 closed: { rotate: 0, y: 0 },
                 open: { rotate: -45, y: -5 },
               }}
+              animate={mobileNav ? "open" : "closed"}
               className="w-5 h-px bg-white block"
             ></motion.span>
           </button>
         </div>
+
         {/* Navbar */}
         <div className="relative flex flex-1 items-center justify-center sm:items-stretch sm:justify-start sm:hidden md:flex">
           <div className="flex flex-shrink-0 items-center">
@@ -76,12 +79,12 @@ function Navbar() {
                 className="sm:block h-10 w-10 lg:hidden rounded-full"
                 src={logo}
                 alt="Company logo"
-              ></img>
+              />
               <img
                 className="hidden h-10 w-auto lg:block rounded-full"
                 src={logo}
                 alt="Company logo"
-              ></img>
+              />
             </Link>
           </div>
           <div className="hidden sm:ml-6 sm:block">
@@ -117,8 +120,7 @@ function Navbar() {
 
         {/* Account Nav / Alerts */}
         <div className="absolute inset-y-0 right-2 flex gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-
-          {/* <!-- Profile dropdown --> */}
+          {/* Profile dropdown */}
           {user ? (
             <div className="relative z-30">
               <motion.button
@@ -137,7 +139,7 @@ function Navbar() {
                   className="h-10 w-10 rounded-full bg-white"
                   src={user.photoURL}
                   alt="Users Pic"
-                ></img>
+                />
               </motion.button>
             </div>
           ) : (
@@ -155,6 +157,7 @@ function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Navigation */}
       {mobileNav && (
         <motion.div
           variants={{
@@ -167,40 +170,39 @@ function Navbar() {
           }}
           initial="closed"
           animate="open"
+          exit="closed"
           className="fixed inset-0 space-y-10 p-6 bg-[#75B657] mx-auto flex flex-col justify-center"
         >
           <div className="container mx-auto">
             <div className="text-center flex items-center">
               <Link to="/">
-                <img className="w-32 rounded-full" src={logo} alt="logo"></img>
+                <img className="w-32 rounded-full" src={logo} alt="logo" />
               </Link>
             </div>
             <div className="space-y-5 pt-16">
               <Link 
-                onClick={mobileNav} 
+                onClick={toggleMobileNav} 
                 to="/"
-                href="#landing"
                 className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium"
                 aria-current="page">
                     Home
               </Link>
               <Link
-                onClick={mobileNav}
+                onClick={toggleMobileNav}
                 to="/services"
                 className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
               >
                 Services
               </Link>
               <Link
-                onClick={mobileNav}
+                onClick={toggleMobileNav}
                 to="/about"
                 className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
               >
                 About
               </Link>
-
               <Link
-                onClick={mobileNav}
+                onClick={toggleMobileNav}
                 to="/contact"
                 className="text-white hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
               >
@@ -249,6 +251,7 @@ function Navbar() {
         </motion.div>
       )}
 
+      {/* Account Navigation */}
       {accountNav && (
         <motion.div
           variants={{
@@ -261,13 +264,13 @@ function Navbar() {
           }}
           initial="closed"
           animate="open"
+          exit="closed"
           className="relative container mx-auto"
         >
           <div
             className="absolute top-2 right-0 drop-shadow-lg z-30 w-36 rounded-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
           >
-            {/* <!-- Active: "bg-gray-100", Not Active: "" --> */}
             <Link
               to="/settings"
               className="block p-2 text-sm text-gray-700 w-full text-center"

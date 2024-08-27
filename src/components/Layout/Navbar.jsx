@@ -11,7 +11,7 @@ import Signup from "../../components/Common/Signup";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
-  const navigate = useHistory();
+  const history = useHistory();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, setAccountNav] = useCycle(false, true);
   const accountNavRef = useRef(null);
@@ -20,7 +20,7 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       await logOut();
-      navigate("/");
+      history.push("/"); // Use history.push to navigate to the home page
       console.log("You are logged out");
       setAccountNav(false);
     } catch (e) {

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { useAuthProfile } from "../../context/AuthProfileContext";
-import { useLocations } from "../../context/LocationsContext";
+import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { useLocations } from "../../../../context/LocationsContext";
 import { toast } from "react-toastify";
 import { Form, Button, Input, Radio, Select, Upload } from "antd";
 import { motion } from "framer-motion";
-import { storage } from "../../firebase";
+import { storage } from "../../../../firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import Loader from "../Common/Loader"; // Adjust the import path as needed
-import homeIcon from "../../assets/icons/home.png";
-import businessIcon from "../../assets/icons/business.png";
+import Loader from "../../../Common/Loader"; // Adjust the import path as needed
+import homeIcon from "../../../../assets/icons/home.png";
+import businessIcon from "../../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
   const { profile, addAddressToProfile } = useAuthProfile();

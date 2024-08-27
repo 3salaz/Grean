@@ -1,5 +1,4 @@
 import "./App.css";
-import "react-toastify/dist/ReactToastify.css";
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
@@ -13,9 +12,8 @@ import "@ionic/react/css/display.css";
 
 // React
 import { useState } from "react";
-import { Switch, Route, useLocation, Redirect } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import { IonApp, IonContent, IonRouterOutlet } from "@ionic/react";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { IonApp, IonContent, IonRouterOutlet, IonToast } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 // Context
@@ -33,7 +31,13 @@ import Settings from "./routes/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
-  const location = useLocation();
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  // const triggerToast = (m) => {
+  //   setToastMessage(m);
+  //   setShowToast(true);
+  // };
 
   return (
     <IonApp>
@@ -41,40 +45,32 @@ function App() {
         <LocationsProvider>
           <PickupsProvider>
             <IonReactRouter>
-              <Navbar />
-              <IonContent className="h-82vh">
-                <ToastContainer
-                  position="top-center"
-                  style={{
-                    width: "100%",
-                    top: "8%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                  }}
-                />
-                <IonRouterOutlet>
-                  <Switch>
-                    <Route path="/home" exact component={Home} />
-                    <Route
-                      path="/account"
-                      render={() => (
-                        <ProtectedRoute>
-                          <Account />
-                        </ProtectedRoute>
-                      )}
-                    />
-                    <Route
-                      path="/settings"
-                      render={() => (
-                        <ProtectedRoute>
-                          <Settings />
-                        </ProtectedRoute>
-                      )}
-                    />
-                    <Redirect exact from="/" to="/home" />
-                  </Switch>
-                </IonRouterOutlet>
-              </IonContent>
+              <div id="app-wrapper" className="flex flex-col h-screen">
+                <Navbar />
+                <IonContent id="content" className="h-[92svh]">
+                  <IonRouterOutlet>
+                    <Switch>
+                      <Route path="/home" exact component={Home} />
+
+                      <Route path="/account"
+                        render={() => (
+                          <ProtectedRoute>
+                            <Account />
+                          </ProtectedRoute>
+                        )}
+                      />
+                      <Route path="/settings"
+                        render={() => (
+                          <ProtectedRoute>
+                            <Settings />
+                          </ProtectedRoute>
+                        )}
+                      />
+                      <Redirect exact from="/" to="/home" />
+                    </Switch>
+                  </IonRouterOutlet>
+                </IonContent>
+              </div>
             </IonReactRouter>
           </PickupsProvider>
         </LocationsProvider>

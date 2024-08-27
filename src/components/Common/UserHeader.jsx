@@ -1,36 +1,47 @@
 import { useAuthProfile } from "../../context/AuthProfileContext";
-import { motion } from "framer-motion";
+import { IonHeader } from "@ionic/react";
 import avatar from "../../assets/avatar.svg";
+import userIcon from "../../assets/icons/user.png";
+import driverIcon from "../../assets/icons/driver.png";
 import { Link } from "react-router-dom";
+import { settingsOutline } from "ionicons/icons";
 
 function UserHeader() {
   const { profile } = useAuthProfile();
+  const getUserRoleInfo = () => {
+    switch (profile?.accountType) {
+      case "Driver":
+        return { icon: driverIcon, text: "Driver" };
+      case "User":
+        return { icon: userIcon, text: "User" };
+      default:
+        return { icon: "person-outline", text: "null" };
+    }
+  };
+  const userRoleInfo = getUserRoleInfo();
+
   return (
-    <header className="w-full container flex items-center justify-between bg-slate-800 p-4">
-      <div className="flex items-center gap-2 h-full">
+    <IonHeader className="w-full h-[12%] flex items-center justify-between bg-slate-800 p-4">
+      <div className="flex items-center justify-center gap-2 h-full">
         <img
           className="rounded-full h-14 aspect-square bg-white"
           alt="profilePic"
           src={profile.profilePic || avatar}
-        ></img>
-        <div className="flex gap-1 flex-col items-start justify-center h-full">
-          <h2 className="text-sm font-bold text-white">{profile.displayName}</h2>
-          <p className="text-xs bg-grean text-white font-bold rounded-lg flex flex-wrap p-2">
-            ID:{profile.email}
+        />
+        <div className="flex flex-col items-start justify-center h-full">
+          <div className="text-large font-bold text-white">
+            {profile.displayName}
+          </div>
+          <p className="text-xs bg-grean text-white font-bold rounded-lg p-2">
+            ID: {profile.email}
           </p>
         </div>
       </div>
-
-      <Link to="/settings" className="flex items-end justify-end h-full p-2">
-        <motion.button
-          className="bg-red-500 text-white rounded-full flex items-center justify-center p-1 flex-end"
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ion-icon size="small" name="settings-outline"></ion-icon>
-        </motion.button>
-      </Link>
-    </header>
+      <div className="bg-white aspect-square w-14 h-14 flex flex-col items-center justify-center rounded-md p-3 drop-shadow-lg">
+        <img className="w-10" src={userRoleInfo.icon} alt="User Icon"></img>
+        <span className="text-sm">{userRoleInfo.text}</span>
+      </div>
+    </IonHeader>
   );
 }
 

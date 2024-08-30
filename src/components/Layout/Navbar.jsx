@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
 import { AnimatePresence, motion, useCycle } from "framer-motion";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SideNav from "./SideNav";
 import Button from "./Button";
 import { useAuthProfile } from "../../context/AuthProfileContext";
@@ -11,7 +11,6 @@ import Signup from "../../components/Common/Signup";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
-  const history = useHistory();
   const [mobileNav, toggleMobileNav] = useCycle(false, true);
   const [accountNav, setAccountNav] = useCycle(false, true);
   const accountNavRef = useRef(null);
@@ -20,7 +19,6 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       await logOut();
-      history.push("/"); // Use history.push to navigate to the home page
       console.log("You are logged out");
       setAccountNav(false);
     } catch (e) {
@@ -28,11 +26,12 @@ function Navbar() {
     }
   };
 
-  const handleClickOutside = (event) => {
+  // Memoize the handleClickOutside function
+  const handleClickOutside = useCallback((event) => {
     if (accountNavRef.current && !accountNavRef.current.contains(event.target)) {
       setAccountNav(false);
     }
-  };
+  }, [setAccountNav]);
 
   useEffect(() => {
     if (accountNav) {
@@ -44,7 +43,7 @@ function Navbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [accountNav]);
+  }, [accountNav,handleClickOutside]);
 
   const handleOpen = () => {
     setIsModalOpen(true);

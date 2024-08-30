@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState} from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import {
@@ -11,26 +11,16 @@ import {
   IonSpinner,
 } from "@ionic/react";
 import { toast } from "react-toastify";
-import { closeOutline, logoGoogle } from "ionicons/icons";
+import { logoGoogle } from "ionicons/icons";
 
 // Debounce function
-const debounce = (func, delay) => {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), delay);
-  };
-};
 
-function Signin({ onClose }) {
+function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, googleSignIn } = useAuthProfile();
   const history = useHistory();
-
-  // Create a debounced version of the onClose function
-  const debouncedCloseModal = useCallback(debounce(onClose, 300), [onClose]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -38,7 +28,6 @@ function Signin({ onClose }) {
       await googleSignIn();
       console.log("Signed in successfully with Google!");
       history.push("/account");
-      debouncedCloseModal(); // Close the modal after successful sign-in with debounce
     } catch (error) {
       console.log(error);
       toast.error("Error signing in with Google. Please try again.");
@@ -53,7 +42,6 @@ function Signin({ onClose }) {
       await signIn(email, password);
       console.log("Signed in successfully!");
       history.push("/account");
-      debouncedCloseModal(); // Close the modal after successful sign-in with debounce
     } catch (error) {
       if (error.code === "auth/user-not-found") {
         toast.error("User not found. Please check your email and try again.");

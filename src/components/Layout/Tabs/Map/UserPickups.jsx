@@ -17,7 +17,7 @@ function UserPickups({ handleClose }) {
   return (
     <div
       id="userPickups"
-      className="w-full relative h-full bg-black bg-opacity-40 bg-blur-10 px-2 z-20 flex justify-center items-center">
+      className="w-full relative h-full bg-orange bg-opacity-40 bg-blur-10 px-2 z-20 flex justify-center items-center">
       <div className="max-w-[600px] h-[90%] flex flex-col container drop-shadow-2xl rounded-lg text-slate bg-white border-grean border-4">
         <header className="basis-1/6 flex flex-col gap-1 py-2">
           <div className="text-center text-xl font-bold text-white">

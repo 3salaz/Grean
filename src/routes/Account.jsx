@@ -2,15 +2,32 @@ import { useEffect, useState } from "react";
 import Profile from "../components/Layout/Tabs/Profile/Profile";
 import Stats from "../components/Layout/Tabs/Stats/Stats";
 import Map from "../components/Layout/Tabs/Map/Map";
-import CreateProfile from "../components/Common/CreateProfile";
+import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
 import { useAuthProfile } from "../context/AuthProfileContext";
-import TabBar from "../components/Layout/TabBar";
-import { IonPage, IonContent, IonModal, IonSpinner } from "@ionic/react";
+// import TabBar from "../components/Layout/TabBar";
+import {
+  IonPage,
+  IonContent,
+  IonModal,
+  IonSpinner,
+  IonFooter,
+  IonToolbar,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonIcon,
+} from "@ionic/react";
+import {
+  navigateCircleOutline,
+  personCircleOutline,
+  statsChartOutline,
+} from "ionicons/icons";
 
 function Account() {
   const { profile } = useAuthProfile();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState();
+
   const [loading, setLoading] = useState(true); // Loading state
 
   let ActiveTab;
@@ -45,13 +62,13 @@ function Account() {
   }, [activeTab]);
 
   switch (activeTab) {
-    case 0:
+    case "profile":
       ActiveTab = Profile;
       break;
-    case 1:
+    case "map":
       ActiveTab = Map;
       break;
-    case 2:
+    case "stats":
       ActiveTab = Stats;
       break;
     default:
@@ -63,13 +80,13 @@ function Account() {
   };
 
   return (
-    <IonPage className="container mx-auto">
+    <IonPage className="mx-auto">
       <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
         <CreateProfile handleClose={handleCloseModal} />
       </IonModal>
       <IonContent>
         {profile && profile.accountType && (
-          <div className="h-[82svh] w-full relative">
+          <div className="h-[84svh] w-full">
             {loading ? (
               <div className="flex justify-center items-center h-full">
                 <IonSpinner name="crescent" />
@@ -80,7 +97,25 @@ function Account() {
           </div>
         )}
       </IonContent>
-      <TabBar active={activeTab} setActive={setActiveTab} />
+      <IonFooter>
+        <IonToolbar color="primary" className="h-[8svh] mx-auto flex items-center justify-center rounded-t-lg px-2">
+          <IonSegment className="max-w-2xl mx-auto" value={activeTab} onIonChange={(e) => setActiveTab(e.detail.value)}>
+            <IonSegmentButton value="profile">
+              <IonLabel>Profile</IonLabel>
+              <IonIcon icon={personCircleOutline}></IonIcon>
+            </IonSegmentButton>
+            <IonSegmentButton value="map">
+              <IonLabel>Map</IonLabel>
+              <IonIcon icon={navigateCircleOutline}></IonIcon>
+            </IonSegmentButton>
+            <IonSegmentButton value="stats">
+              <IonLabel>Stats</IonLabel>
+              <IonIcon icon={statsChartOutline}></IonIcon>
+            </IonSegmentButton>
+          </IonSegment>
+        </IonToolbar>
+      </IonFooter>
+      {/* <TabBar active={activeTab} setActive={setActiveTab} /> */}
     </IonPage>
   );
 }

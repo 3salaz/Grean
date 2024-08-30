@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { usePickups } from "../../../../context/PickupsContext";
 import noPickupIcon from "../../../../assets/no-pickups.svg";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
@@ -45,13 +44,13 @@ function Alerts({ handleClose }) {
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle>{profile?.accountType === "User" ? "Alerts For Users" : "Pickups Available"}</IonTitle>
+          <IonTitle>{profile?.accountType === "User" ? "Alerts" : "Pickups Available"}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding">
+      <IonContent className="ion-padding shadow-none">
         {profile?.accountType === "User" ? (
-          <IonList>
+          <IonList class="h-full">
             {sortedPickups.length > 0 ? (
               sortedPickups.map((pickup) => {
                 const addressParts = pickup.addressData.street.split(",");
@@ -105,7 +104,7 @@ function Alerts({ handleClose }) {
                 );
               })
             ) : (
-              <div className="ion-text-center">
+              <div className="ion-text-center h-full flex flex-col items-center justify-center">
                 <img src={noPickupIcon} alt="No pickups to display" className="ion-margin" />
                 <IonText>No pickups to display</IonText>
               </div>
@@ -165,21 +164,12 @@ function Alerts({ handleClose }) {
         <IonButton
           color="danger"
           shape="round"
+          size="large"
           fill="solid"
           onClick={handleClose}
-          className="ion-margin-bottom"
-          style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            zIndex: 1000,
-          }}
+          className="ion-margin-bottom flex items-center"
         >
-          <IonIcon icon={closeOutline} size="large" />
+          <IonIcon slot="icon-only" icon={closeOutline} size="large" />
         </IonButton>
       </IonFooter>
     </IonPage>

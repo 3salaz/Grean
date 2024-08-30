@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { usePickups } from "../../../../context/PickupsContext";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { db } from "../../../../firebase";
 import {
   IonPage,
@@ -26,7 +25,6 @@ import { closeOutline } from "ionicons/icons";
 
 function Schedule({ handleClose }) {
   const { userAcceptedPickups } = usePickups();
-  const { user } = useAuthProfile();
   const [formInputs, setFormInputs] = useState({});
   const [error, setError] = useState("");
 

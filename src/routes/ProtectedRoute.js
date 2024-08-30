@@ -4,7 +4,7 @@ import { useAuthProfile } from '../context/AuthProfileContext';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthProfile();
-  const navigate = useHistory();
+  const history = useHistory();
 
   return (
     <AnimatePresence>
@@ -26,7 +26,7 @@ function ProtectedRoute({ children }) {
         </motion.div>
       ) : (
         !user ? (
-          navigate('/')
+          history.push("/")
         ) : (
           children
         )

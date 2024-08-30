@@ -5,16 +5,18 @@ import {
   IonSelect,
   IonSelectOption,
   IonDatetime,
-  IonInput,
   IonTextarea,
   IonButton,
   IonItem,
   IonLabel,
+  IonIcon,
+  IonFooter,
 } from "@ionic/react";
 import { usePickups } from "../../../../context/PickupsContext";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import dayjs from "dayjs";
 import homeIcon from "../../../../assets/icons/home.png";
+import { closeOutline } from "ionicons/icons";
 
 function RequestPickup({ handleClose }) {
   const { createPickup } = usePickups();
@@ -109,94 +111,91 @@ function RequestPickup({ handleClose }) {
               Schedule your next pickup!
             </p>
           </header>
+          <main className="h-[85%] min-w-sm flex flex-col gap-2 overflow-auto">
+            <IonItem className="w-full">
+              <IonLabel position="stacked">Address</IonLabel>
+              <IonSelect
+                placeholder="Select your address"
+                onIonChange={(e) => handleChange("address", e.detail.value)}
+                value={pickupRequestData.address}
+              >
+                {profileLocations.map((address, index) => (
+                  <IonSelectOption key={index} value={address.street}>
+                    <div className="flex items-center gap-4">
+                      <img className="w-6" src={homeIcon} alt="Home Icon" />
+                      {address.street}
+                    </div>
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
 
-          <IonItem className="w-full">
-            <IonLabel position="stacked">Address</IonLabel>
-            <IonSelect
-              placeholder="Select your address"
-              onIonChange={(e) => handleChange("address", e.detail.value)}
-              value={pickupRequestData.address}
-            >
-              {profileLocations.map((address, index) => (
-                <IonSelectOption key={index} value={address.street}>
-                  <div className="flex items-center gap-4">
-                    <img className="w-6" src={homeIcon} alt="Home Icon" />
-                    {address.street}
-                  </div>
+            {/* <IonItem className="w-full">
+              <IonLabel position="stacked">Appliance</IonLabel>
+              <IonSelect
+                placeholder="Select appliance"
+                onIonChange={(e) => handleChange("appliance", e.detail.value)}
+                value={pickupRequestData.appliance}
+              >
+                <IonSelectOption value="washingMachine">
+                  Washing Machine
                 </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
+                <IonSelectOption value="refrigerator">
+                  Refrigerator
+                </IonSelectOption>
+                <IonSelectOption value="oven">Oven</IonSelectOption>
+                <IonSelectOption value="other">Other</IonSelectOption>
+              </IonSelect>
+            </IonItem> */}
 
-          <IonItem className="w-full">
-            <IonLabel position="stacked">Appliance</IonLabel>
-            <IonSelect
-              placeholder="Select appliance"
-              onIonChange={(e) => handleChange("appliance", e.detail.value)}
-              value={pickupRequestData.appliance}
-            >
-              <IonSelectOption value="washingMachine">
-                Washing Machine
-              </IonSelectOption>
-              <IonSelectOption value="refrigerator">
-                Refrigerator
-              </IonSelectOption>
-              <IonSelectOption value="oven">Oven</IonSelectOption>
-              <IonSelectOption value="other">Other</IonSelectOption>
-            </IonSelect>
-          </IonItem>
-
-          <IonItem className="mx-auto">
-            <IonDatetime
-              displayFormat="DD-MM-YYYY"
-              min={dayjs().startOf("day").toISOString()}
-              max={dayjs().add(7, "day").endOf("day").toISOString()}
-              value={
-                pickupRequestData.pickupDate
-                  ? `${pickupRequestData.pickupDate}T12:00:00Z`
-                  : getCurrentDate()
-              }
-              onIonChange={(e) =>
-                handleChange(
-                  "pickupDate",
-                  dayjs(e.detail.value).isValid()
-                    ? dayjs(e.detail.value).format("YYYY-MM-DD")
+            <IonItem className="mx-auto">
+              <IonDatetime
+                displayFormat="DD-MM-YYYY"
+                min={dayjs().startOf("day").toISOString()}
+                max={dayjs().add(7, "day").endOf("day").toISOString()}
+                value={
+                  pickupRequestData.pickupDate
+                    ? `${pickupRequestData.pickupDate}T12:00:00Z`
                     : getCurrentDate()
-                )
-              }
-            />
-          </IonItem>
+                }
+                onIonChange={(e) =>
+                  handleChange(
+                    "pickupDate",
+                    dayjs(e.detail.value).isValid()
+                      ? dayjs(e.detail.value).format("YYYY-MM-DD")
+                      : getCurrentDate()
+                  )
+                }
+              />
+            </IonItem>
 
-          <IonItem className="w-full">
-            <IonLabel position="stacked">Pickup Notes</IonLabel>
-            <IonTextarea
-              rows={5}
-              value={pickupRequestData.pickupNote}
-              className="bg-slate-100 mt-2 pl-2 rounded-sm"
-              onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
-            />
-          </IonItem>
-          <div className="flex items-center justify-center flex-col">
-          <IonButton
-            expand="block"
-            type="submit"
-            color="tertiary"
-            className="w-full"
-          >
-            Request Pickup
-          </IonButton>
-          <IonButton
-            color="danger"
-            expand="block"
-            type="button"
-            onClick={handleClose}
-            className="w-full"
-          >
-            Close
-          </IonButton>
-          </div>
-
-
+            <IonItem className="w-full">
+              <IonLabel position="stacked">Pickup Notes</IonLabel>
+              <IonTextarea
+                rows={5}
+                value={pickupRequestData.pickupNote}
+                className="bg-slate-100 mt-2 pl-2 rounded-sm"
+                onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
+              />
+            </IonItem>
+            <div className="flex justify-center items-center w-full">
+              <IonButton expand="block" type="submit" color="primary" size="medium">
+                Accept
+              </IonButton>
+            </div>
+          </main>
+          <IonFooter className="shadow-none">
+              <IonButton
+                color="danger"
+                shape="round"
+                size="large"
+                fill="solid"
+                onClick={handleClose}
+                className="ion-margin-bottom flex items-center"
+              >
+                <IonIcon slot="icon-only" icon={closeOutline} size="large" />
+              </IonButton>
+          </IonFooter>
         </form>
       </IonContent>
     </IonPage>

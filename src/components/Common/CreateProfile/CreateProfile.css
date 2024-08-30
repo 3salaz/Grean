@@ -1,0 +1,24 @@
+.custom-card {
+    background-color: white; /* Remove the orange background */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* A subtle shadow for better visual */
+  }
+  
+  .account-type.selected {
+    background-color: #75b657;
+    color: white;
+  }
+  
+  .account-type {
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .account-type:hover {
+    background-color: #e0f3e6;
+  }
+  
+  .custom-card-content {
+    padding: 16px;
+  }
+  

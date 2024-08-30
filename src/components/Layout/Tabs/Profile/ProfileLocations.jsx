@@ -2,8 +2,20 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { useLocations } from "../../../../context/LocationsContext";
 import AddLocation from "./AddLocation";
-import { IonButton, IonInput, IonItem, IonLabel, IonModal, IonIcon, IonContent } from "@ionic/react";
-import { createOutline, addCircleOutline, arrowDownOutline } from "ionicons/icons";
+import {
+  IonButton,
+  IonModal,
+  IonIcon,
+  IonContent,
+  IonCard,
+} from "@ionic/react";
+import {
+  createOutline,
+  addCircleOutline,
+  arrowDownOutline,
+  settingsOutline,
+} from "ionicons/icons";
+import EditLocation from "./EditLocation";
 
 function ProfileLocations() {
   const { profile } = useAuthProfile();
@@ -22,13 +34,14 @@ function ProfileLocations() {
   }, [profile]);
 
   useEffect(() => {
+    const currentRefs = addressRefs.current; // Capture the current refs
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = addressRefs.current.indexOf(entry.target);
+            let index = currentRefs.indexOf(entry.target);
             setCurrentAddressIndex(index);
-            // console.log("Current Address Index:", index); // Debugging: log the current index
           }
         });
       },
@@ -37,12 +50,12 @@ function ProfileLocations() {
       }
     );
 
-    addressRefs.current.forEach((ref) => {
+    currentRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      addressRefs.current.forEach((ref) => {
+      currentRefs.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };
@@ -63,86 +76,66 @@ function ProfileLocations() {
     console.log("Editing address:", address);
   };
 
-  const handleSaveEdit = async (values) => {
+const handleSaveEdit = async (values) => {
+  console.log("Values passed to save:", values);
+  try {
     const updatedAddresses = profileAddresses.map((addr, index) =>
       index === currentAddressIndex ? { ...addr, ...values } : addr
     );
+    
+    console.log("Updated Addresses:", updatedAddresses);
 
-    await updateProfileLocation(profile.id, { ...addressToEdit, ...values });
+    await updateProfileLocation(profile.id, { addresses: updatedAddresses });
     setProfileAddresses(updatedAddresses);
     setIsEditModalVisible(false);
-  };
+  } catch (error) {
+    console.error("Failed to update location:", error);
+  }
+};
+
 
   const handleCloseEditModal = () => {
     setIsEditModalVisible(false);
   };
 
+  const handleDeleteLocation = async (addressToDelete) => {
+    const updatedAddresses = profileAddresses.filter(
+      (addr) => addr !== addressToDelete
+    );
+  
+    await updateProfileLocation(profile.id, updatedAddresses);
+    setProfileAddresses(updatedAddresses);
+  };
+
   return (
-    <IonContent className="w-full h-full flex flex-col justify-between gap-2 container mx-auto">
+    <IonContent className="w-full h-[82svh] flex flex-col justify-between gap-2 container mx-auto">
       <IonModal isOpen={isAddModalVisible} onDidDismiss={handleCloseAddModal}>
         <AddLocation handleClose={handleCloseAddModal} />
       </IonModal>
 
       <IonModal isOpen={isEditModalVisible} onDidDismiss={handleCloseEditModal}>
         {addressToEdit && (
-          <form
+          <EditLocation
+            addressToEdit={addressToEdit}
             onSubmit={handleSaveEdit}
-            className="ion-padding"
-          >
-            <IonItem>
-              <IonLabel position="stacked">Location Type</IonLabel>
-              <IonInput
-                value={addressToEdit.locationType}
-                onIonChange={(e) => setAddressToEdit({ ...addressToEdit, locationType: e.detail.value })}
-                required
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Street</IonLabel>
-              <IonInput
-                value={addressToEdit.street}
-                onIonChange={(e) => setAddressToEdit({ ...addressToEdit, street: e.detail.value })}
-                required
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">City</IonLabel>
-              <IonInput
-                value={addressToEdit.city}
-                onIonChange={(e) => setAddressToEdit({ ...addressToEdit, city: e.detail.value })}
-                required
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">State</IonLabel>
-              <IonInput
-                value={addressToEdit.state}
-                onIonChange={(e) => setAddressToEdit({ ...addressToEdit, state: e.detail.value })}
-                required
-              />
-            </IonItem>
-            <IonButton expand="block" type="submit">
-              Save
-            </IonButton>
-            <IonButton expand="block" color="medium" onClick={handleCloseEditModal}>
-              Cancel
-            </IonButton>
-          </form>
+            onClose={handleCloseEditModal}
+            onDelete={handleDeleteLocation}
+          />
         )}
       </IonModal>
 
       <div
         id="locationDetails"
-        className="w-full h-[90%] flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll p-4 gap-4"
+        className="w-full h-[90%] flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll p-4 m-0 gap-4"
       >
         {profileAddresses.length > 0 ? (
           profileAddresses.map((address, index) => (
-            <div
+            <IonCard
               key={index}
               ref={(el) => (addressRefs.current[index] = el)}
-              className="section flex-none w-full h-full flex justify-center items-center snap-center bg-light-grean p-4 rounded-md"
+              className="section flex-none w-full max-w-3xl h-full flex justify-center items-center snap-center bg-light-grean p-4 rounded-md m-0"
             >
-              <div className="flex flex-col text-center items-center justify-center w-full h-full p-4">
+              <div className="flex flex-col text-center items-center justify-center w-full h-full">
                 {address.businessLogo && (
                   <img
                     className="w-20"
@@ -155,35 +148,77 @@ function ProfileLocations() {
                 <span>{address.city}</span>
                 <span>{address.state}</span>
               </div>
-            </div>
+            </IonCard>
           ))
         ) : (
-          <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-white">
+          <IonCard className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-blue-300 m-0">
             <IonButton fill="outline" onClick={openAddLocationModal}>
               Add a Location!
               <IonIcon slot="start" icon={arrowDownOutline}></IonIcon>
             </IonButton>
-          </div>
+          </IonCard>
         )}
       </div>
+      {profile?.addresses.length === 0 && (
+        <div className="flex h-[10%] justify-between items-center px-4">
+          <div className="flex justify-between gap-4 h-10 w-full rounded-full">
+            <div>
+              <IonButton
+                color="danger"
+                className="w-full h-full aspect-square"
+                onClick=""
+              >
+                <IonIcon
+                  className="text-white"
+                  icon={settingsOutline}
+                  size="large"
+                />
+              </IonButton>
+            </div>
+
+            <div className="flex gap-2">
+              <IonButton
+                fill="outline"
+                shape="round"
+                onClick={openAddLocationModal}
+              >
+                <IonIcon slot="icon-only" icon={addCircleOutline} />
+              </IonButton>
+            </div>
+          </div>
+        </div>
+      )}
+
       {profileAddresses.length > 0 && (
         <div className="flex h-[10%] justify-between items-center px-4">
-          <div className="flex justify-end gap-4 h-10 w-full rounded-full">
-            <IonButton
-              fill="outline"
-              shape="round"
-              onClick={openAddLocationModal}
-            >
-              <IonIcon slot="icon-only" icon={addCircleOutline} />
-            </IonButton>
+          <div className="flex justify-between gap-4 h-10 w-full rounded-full">
+            <div>
+              <IonButton
+                color="danger"
+                className="w-full h-full aspect-square"
+                onClick=""
+              >
+                <IonIcon
+                  className="text-white"
+                  icon={settingsOutline}
+                  size="large"
+                />
+              </IonButton>
+            </div>
 
-            <IonButton
-              fill="outline"
-              shape="round"
-              onClick={handleEdit}
-            >
-              <IonIcon slot="icon-only" icon={createOutline} />
-            </IonButton>
+            <div className="flex gap-2">
+              <IonButton
+                fill="outline"
+                shape="round"
+                onClick={openAddLocationModal}
+              >
+                <IonIcon slot="icon-only" icon={addCircleOutline} />
+              </IonButton>
+
+              <IonButton fill="outline" shape="round" onClick={handleEdit}>
+                <IonIcon slot="icon-only" icon={createOutline} />
+              </IonButton>
+            </div>
           </div>
         </div>
       )}

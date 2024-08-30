@@ -11,9 +11,8 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
 // React
-import { useState } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { IonApp, IonContent, IonRouterOutlet, IonToast } from "@ionic/react";
+import { IonApp, IonContent, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 // Context
@@ -31,13 +30,6 @@ import Settings from "./routes/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
-
-  // const triggerToast = (m) => {
-  //   setToastMessage(m);
-  //   setShowToast(true);
-  // };
 
   return (
     <IonApp>

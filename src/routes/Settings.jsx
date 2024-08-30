@@ -1,5 +1,4 @@
-import UserHeader from '../components/Common/UserHeader';
-import ProfileForm from '../components/Common/ProfileForm'
+
 
 function Settings() {
   return (
@@ -8,8 +7,6 @@ function Settings() {
     className="w-full h-[92svh] pb-6 z-10 absolute flex flex-col items-center justify-center bg-slate-800"
   >
     {/* Card */}
-          <UserHeader/>
-          <ProfileForm/>
   </main>
   )
 }

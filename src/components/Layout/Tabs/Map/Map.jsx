@@ -20,6 +20,7 @@ import {
   calendarNumberOutline,
   notificationsOutline,
 } from "ionicons/icons";
+import AddLocation from "../Profile/AddLocation";
 
 function Map() {
   const { profile } = useAuthProfile();
@@ -27,6 +28,7 @@ function Map() {
   const [requestPickupOpen, setRequestPickupOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [addLocationOpen, setAddLocationOpen] = useState(false);
 
   const closeRequestPickup = () => setRequestPickupOpen(false);
   const openRequestPickup = () => setRequestPickupOpen(true);
@@ -36,6 +38,9 @@ function Map() {
 
   const closeAlerts = () => setAlertsOpen(false);
   const openAlerts = () => setAlertsOpen(true);
+
+  const closeAddLocation = () => setAddLocationOpen(false);
+  const openAddLocation = () => setAddLocationOpen(true);
   
   return (
     <IonContent id="mapTab" className="relative w-full h-full">
@@ -51,6 +56,10 @@ function Map() {
 
       <IonModal isOpen={scheduleOpen} onDidDismiss={closeSchedule}>
         <Schedule handleClose={closeSchedule} />
+      </IonModal>
+
+      <IonModal isOpen={addLocationOpen} onDidDismiss={closeAddLocation}>
+        <AddLocation handleClose={closeAddLocation} />
       </IonModal>
       
       <div id="actionBtns" className="absolute w-full bottom-0 z-10 flex items-center justify-center pb-4">
@@ -83,6 +92,21 @@ function Map() {
                 </IonButton>
               </IonCol>
             )}
+
+            {profile?.accountType === "User" && profile?.addresses.length === 0 && (
+              <IonCol size="auto" className="flex items-center justify-center">
+                  <IonButton
+                  expand="block"
+                  color="primary"
+                  size="large"
+                  onClick={addLocationOpen ? closeAddLocation : openAddLocation}
+                  className="rounded-lg text-white font-bold drop-shadow-xl"
+                >
+                  Add Location
+                </IonButton>
+              </IonCol>
+            )}
+
             {profile?.accountType === "Driver" && (
               <IonCol size="auto" className="flex gap-4 items-center justify-center">
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>

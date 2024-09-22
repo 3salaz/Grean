@@ -17,7 +17,8 @@ function UserPickups({ handleClose }) {
   return (
     <div
       id="userPickups"
-      className="w-full relative h-full bg-orange bg-opacity-40 bg-blur-10 px-2 z-20 flex justify-center items-center">
+      className="w-full relative h-full bg-black bg-opacity-40 bg-blur-10 px-2 z-20 flex justify-center items-center"
+    >
       <div className="max-w-[600px] h-[90%] flex flex-col container drop-shadow-2xl rounded-lg text-slate bg-white border-grean border-4">
         <header className="basis-1/6 flex flex-col gap-1 py-2">
           <div className="text-center text-xl font-bold text-white">
@@ -72,9 +73,14 @@ function UserPickups({ handleClose }) {
                 </li>
               ))
             ) : (
-              <div className="text-center text-gray-500">
-                No pickups to display
-              </div>
+              <IonRow className="ion-text-center bg-slate-200 h-full">
+                <IonCol
+                  size="6"
+                  className="h-full mx-auto flex items-center justify-center"
+                >
+                  <IonText>No pickups to display</IonText>
+                </IonCol>
+              </IonRow>
             )}
           </ul>
           <section className="h-full w-full basis-1/6 flex flex-col items-center bg-grean shadow-xl justify-center z-[100]">

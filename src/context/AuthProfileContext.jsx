@@ -1,4 +1,3 @@
-// src/context/AuthProfileContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import {
   getAuth,
@@ -29,10 +28,6 @@ export function AuthProfileProvider({ children }) {
           email: "",
           uid: "",
           addresses: [],
-          stats: {
-            overall: 0,
-            pickups: [],
-          },
           accountType: null, // Add other necessary fields here
         };
         const profileDocRef = doc(db, "profiles", user.uid);
@@ -67,10 +62,6 @@ export function AuthProfileProvider({ children }) {
       email: "",
       uid: "",
       addresses: [],
-      stats: {
-        overall: 0,
-        pickups: [],
-      },
       accountType: null, // Add other necessary fields here
     };
 
@@ -118,10 +109,6 @@ export function AuthProfileProvider({ children }) {
       email: user.email,
       uid: user.uid,
       addresses: [],
-      stats: {
-        overall: 0,
-        pickups: [],
-      },
       accountType: null, // Add other necessary fields here
     };
     const profileDocRef = doc(db, "profiles", user.uid);
@@ -152,9 +139,9 @@ export function AuthProfileProvider({ children }) {
     return user;
   };
 
-  const updateProfile = async (uid, profileData) => {
+  const updateProfileData = async (uid, updateData) => {
     const profileDocRef = doc(db, "profiles", uid);
-    await setDoc(profileDocRef, profileData, { merge: true });
+    await updateDoc(profileDocRef, updateData);
     incrementWriteCount();
     const profileSnap = await getDoc(profileDocRef);
     incrementReadCount();
@@ -205,7 +192,7 @@ export function AuthProfileProvider({ children }) {
     signUp,
     signIn,
     googleSignIn,
-    updateProfile,
+    updateProfileData, // Replace updateProfile, updateProfileLocation, and updateProfilePickups with this
     deleteProfile,
     addAddressToProfile,
     removeAddressFromProfile,

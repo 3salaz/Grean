@@ -1,27 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom"; // Use useHistory instead of useNavigate
+import { Link, useHistory } from "react-router-dom";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import { toast } from "react-toastify";
-import { Form, Input, Typography } from "antd";
-import Button from "../Layout/Button";
-import { GoogleOutlined } from "@ant-design/icons";
+import {
+  IonContent,
+  IonPage,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonText,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonCardTitle,
+  IonFabButton,
+} from "@ionic/react";
 import { motion } from "framer-motion";
-
-const { Title, Text } = Typography;
+import { closeOutline, logoGoogle } from "ionicons/icons";
 
 function Signup({ handleClose }) {
-  const history = useHistory(); // Use useHistory instead of useNavigate
+  const history = useHistory();
   const { user, signUp, googleSignIn } = useAuthProfile();
-  const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const handleInputChange = (changedValues) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      ...changedValues,
+      [name]: value,
     }));
   };
 
@@ -35,8 +49,8 @@ function Signup({ handleClose }) {
     try {
       await googleSignIn();
       console.log("Signed up successfully with Google!");
-      handleClose(); // Close modal on successful sign-up
-      history.push("/account"); // Use history.push instead of navigate
+      handleClose();
+      history.push("/account");
     } catch (error) {
       console.log(error);
       toast.error("Error signing up with Google. Please try again.");
@@ -44,27 +58,26 @@ function Signup({ handleClose }) {
   };
 
   const handleSignUp = async () => {
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
     try {
-      // Validate fields before submitting
-      const values = await form.validateFields();
       const profileData = {
         displayName: "",
-        email: values.email,
+        email: formData.email,
         addresses: [],
         stats: {
           overall: 0,
           pickups: [],
         },
       };
-      await signUp(values.email, values.password, profileData);
+      await signUp(formData.email, formData.password, profileData);
       console.log("User created successfully!");
-      
-      handleClose(); // Close modal on successful sign-up
-      history.push("/account"); // Use history.push instead of navigate
+      handleClose();
+      history.push("/account");
     } catch (error) {
-      if (error.errorFields) {
-        toast.error("Please fill in all required fields.");
-      } else if (error.code === "auth/email-already-in-use") {
+      if (error.code === "auth/email-already-in-use") {
         toast.error("Error: Email already in use.");
       } else {
         toast.error("Error creating user: " + error.message);
@@ -73,109 +86,109 @@ function Signup({ handleClose }) {
   };
 
   return (
-    <section className="w-full h-full items-center justify-between flex flex-col gap-2 bg-white z-40">
-      <motion.main
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 50 }}
-        transition={{ duration: 0.3 }}
-        className="overflow-auto w-full"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={formData}
-          onValuesChange={handleInputChange}
-          className="w-full h-full"
-        >
-          <div
-            className="h-full w-full px-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex w-full justify-center items-center">
-              <div className="container h-full flex items-center justify-center max-w-lg">
-                <div className="container max-w-3xl mx-auto rounded-md">
-                  <div className="w-full rounded-md p-2">
-                    <div className="mx-auto w-full">
-                      <Title
-                        level={3}
-                        className="py-6 text-center text-[#75B657]"
-                      >
-                        Sign Up for an Account
-                      </Title>
-                    </div>
-                    <section className="w-full flex flex-col gap-2 items-center">
-                      <Form.Item
-                        name="email"
-                        label="Email"
-                        className="mb-0 w-full"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please input your Email!",
-                          },
-                          {
-                            type: "email",
-                            message: "The input is not valid E-mail!",
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Enter your email" />
-                      </Form.Item>
-                      <Form.Item
-                        name="password"
-                        label="Password"
-                        className="w-full"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please input your Password!",
-                          },
-                        ]}
-                      >
-                        <Input.Password placeholder="Enter your password" />
-                      </Form.Item>
-                      <div className="w-full flex items-center justify-center pb-2">
-                        <Text className="text-center text-sm text-gray-500 w-full">
-                          Already a member?
+    <IonContent className="flex items-center justify-center">
+      <IonGrid className="h-[92svh] max-w-xl">
+        <IonRow className="h-full">
+          <IonCol size="12" className="ion-align-self-center">
+            <IonCard className="shadow-none">
+              <IonCardHeader>
+                <IonCardTitle>
+                  <IonText color="primary">
+                    <h3 className="text-center text-[#75B657] mb-4">
+                      Sign Up for an Account
+                    </h3>
+                  </IonText>
+                </IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonGrid>
+                  <IonRow>
+                    <IonCol size="12">
+                      <IonItem>
+                        <IonLabel position="stacked">Email</IonLabel>
+                        <IonInput
+                          name="email"
+                          value={formData.email}
+                          onIonChange={handleInputChange}
+                          type="email"
+                          placeholder="Enter your email"
+                          required
+                        />
+                      </IonItem>
+                    </IonCol>
+                    <IonCol size="12">
+                      <IonItem>
+                        <IonLabel position="stacked">Password</IonLabel>
+                        <IonInput
+                          name="password"
+                          value={formData.password}
+                          onIonChange={handleInputChange}
+                          type="password"
+                          placeholder="Enter your password"
+                          required
+                        />
+                      </IonItem>
+                    </IonCol>
+                  </IonRow>
+                  <IonRow>
+                    <IonCol size="12" className="text-center ion-padding">
+                        <IonText className="text-center text-sm text-gray-500">
+                          Already a member?{" "}
                           <Link
                             to="/"
                             className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
                           >
                             Sign In
                           </Link>
-                        </Text>
-                      </div>
-                    </section>
-
-                    <div className="flex items-center justify-center gap-2">
-                      <Button
+                        </IonText>
+                    </IonCol>
+                  </IonRow>
+                  <IonRow>
+                    <IonCol size="6">
+                      <IonButton
+                        expand="block"
+                        color="light"
+                        size="medium"
                         onClick={handleGoogleSignUp}
-                        size="medium"
-                        className="flex text-sm items-center bg-blue-500 text-white"
+                        className="flex items-center"
                       >
-                        <span className="flex flex-col items-center">
-                          <GoogleOutlined className="text-2xl" />
-                        </span>
-                      </Button>
-                      <Button
-                        type="primary"
-                        size="medium"
-                        shape="round"
-                        className="bg-[#75B657] text-white"
+                        Sign Up W/
+                        <IonIcon slot="end" icon={logoGoogle} />
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="6">
+                      <IonButton
+                        expand="block"
+                        color="success"
                         onClick={handleSignUp}
+                        className="text-white"
                       >
                         Sign Up
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-          </Form>
-        </motion.main>
-      </section>
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>                
+                  <IonRow>
+                    <IonCol
+                      size="12"
+                      className="flex items-center justify-center pt-10"
+                    >
+                      <IonFabButton
+                        expand="block"
+                        color="danger"
+                        onClick={handleClose}
+                        className="text-white"
+                      >
+                        <IonIcon icon={closeOutline} />
+                      </IonFabButton>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonCardContent>
+            </IonCard>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+    </IonContent>
   );
 }
 

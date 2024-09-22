@@ -4,7 +4,6 @@ import Stats from "../components/Layout/Tabs/Stats/Stats";
 import Map from "../components/Layout/Tabs/Map/Map";
 import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
 import { useAuthProfile } from "../context/AuthProfileContext";
-// import TabBar from "../components/Layout/TabBar";
 import {
   IonPage,
   IonContent,
@@ -16,6 +15,9 @@ import {
   IonSegmentButton,
   IonLabel,
   IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from "@ionic/react";
 import {
   navigateCircleOutline,
@@ -26,80 +28,81 @@ import {
 function Account() {
   const { profile } = useAuthProfile();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState();
-
+  const [activeTab, setActiveTab] = useState("map"); // Default to Map tab
   const [loading, setLoading] = useState(true); // Loading state
-
-  let ActiveTab;
 
   useEffect(() => {
     if (
       profile &&
-      (!profile.accountType ||
-        profile.accountType === "" ||
-        !profile.displayName ||
-        profile.displayName === "" ||
-        !profile.profilePic ||
-        profile.profilePic === "")
+      (!profile.accountType || !profile.displayName || !profile.profilePic)
     ) {
-      setIsModalOpen(true);
+      setIsModalOpen(true); // Open modal if profile is incomplete
     } else {
       setIsModalOpen(false);
     }
   }, [profile]);
 
   useEffect(() => {
-    setLoading(true); // Start loading when tab changes
-
-    // Simulate data fetching or initialization
+    setLoading(true);
     const loadTab = async () => {
-      // Simulate a delay for data loading or WebGL initialization
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false); // End loading
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate loading
+      setLoading(false);
     };
-
     loadTab();
   }, [activeTab]);
 
-  switch (activeTab) {
-    case "profile":
-      ActiveTab = Profile;
-      break;
-    case "map":
-      ActiveTab = Map;
-      break;
-    case "stats":
-      ActiveTab = Stats;
-      break;
-    default:
-      ActiveTab = Map;
-  }
-
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setIsModalOpen(false); // Close the modal after profile is updated
+  };
+
+  // Component Mapping
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "profile":
+        return <Profile />;
+      case "map":
+        return <Map />;
+      case "stats":
+        return <Stats />;
+      default:
+        return <Map />;
+    }
   };
 
   return (
-    <IonPage className="mx-auto">
+    <IonPage>
       <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
-        <CreateProfile handleClose={handleCloseModal} />
+        <CreateProfile handleClose={handleCloseModal} />{" "}
+        {/* Pass handleClose */}
       </IonModal>
-      <IonContent>
+
+      <IonContent color="light" className="flex flex-col h-full" scroll-y="false">
         {profile && profile.accountType && (
-          <div className="h-[84svh] w-full">
+          <>
             {loading ? (
-              <div className="flex justify-center items-center h-full">
-                <IonSpinner name="crescent" />
-              </div>
+              <IonGrid className="h-full ion-no-padding">
+                <IonRow className="h-full">
+                  <IonCol className="flex items-center justify-center w-full h-full bg-white">
+                    <IonSpinner color="primary" name="crescent" />
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
             ) : (
-              <ActiveTab />
+              renderActiveTab() // Render the active tab component
             )}
-          </div>
+          </>
         )}
       </IonContent>
       <IonFooter>
-        <IonToolbar color="primary" className="h-[8svh] mx-auto flex items-center justify-center rounded-t-lg px-2">
-          <IonSegment className="max-w-2xl mx-auto" value={activeTab} onIonChange={(e) => setActiveTab(e.detail.value)}>
+        <IonToolbar
+          color="secondary"
+          className="flex items-center justify-center"
+        >
+          <IonSegment
+            className="max-w-2xl mx-auto"
+            value={activeTab}
+            onIonChange={(e) => setActiveTab(e.detail.value)}
+          >
             <IonSegmentButton value="profile">
               <IonLabel>Profile</IonLabel>
               <IonIcon icon={personCircleOutline}></IonIcon>
@@ -115,7 +118,6 @@ function Account() {
           </IonSegment>
         </IonToolbar>
       </IonFooter>
-      {/* <TabBar active={activeTab} setActive={setActiveTab} /> */}
     </IonPage>
   );
 }

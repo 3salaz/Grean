@@ -18,7 +18,7 @@ import {
   IonCol,
   IonText,
 } from "@ionic/react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { cloudUploadOutline, closeOutline } from "ionicons/icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../../../firebase";
@@ -27,7 +27,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import "./CreateProfile.css";
 
 function CreateProfile({ handleClose }) {
-  const { user, updateProfile } = useAuthProfile();
+  const { user, updateProfileData } = useAuthProfile();
   const [accountType] = useState("User");
   const [displayName, setDisplayName] = useState("");
   const [profilePic, setProfilePic] = useState(user.photoURL || "");
@@ -79,13 +79,16 @@ function CreateProfile({ handleClose }) {
     if (!imageFile) return null; // If no image file is selected, skip upload
     setUploading(true);
     try {
+      console.log("Uploading image..."); // Add log to track if upload starts
       const storageRef = ref(storage, `profilePics/${imageFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, imageFile);
       await uploadTask;
       const downloadURL = await getDownloadURL(storageRef);
+      console.log("Image uploaded:", downloadURL); // Log the uploaded URL
       setUploading(false);
       return downloadURL;
     } catch (error) {
+      console.error("Error uploading profile picture:", error); // Log errors
       setUploading(false);
       toast.error("Error uploading profile picture: " + error.message);
       return null;
@@ -93,19 +96,28 @@ function CreateProfile({ handleClose }) {
   };
 
   const handleSubmit = async () => {
+    console.log("Submit clicked"); // Log to confirm submit button was clicked
     if (!displayName) {
       toast.error("Please provide a display name.");
       return;
     }
 
     try {
+      console.log("Uploading image..."); // Log before image upload starts
       const downloadURL = await uploadImageAndGetUrl();
       const updatedProfilePic = downloadURL || profilePic;
 
-      await updateProfile(user.uid, { accountType, displayName, profilePic: updatedProfilePic });
+      console.log("Updating profile..."); // Log before updating profile
+      await updateProfileData(user.uid, {
+        accountType,
+        displayName,
+        profilePic: updatedProfilePic,
+      });
+      console.log("Profile updated successfully!"); // Log on success
       toast.success("Profile updated successfully!");
-      if (handleClose) handleClose(); // Close the modal after successful update
+      handleClose(); // Close the modal after successful update
     } catch (error) {
+      console.error("Error updating profile:", error); // Log errors
       toast.error("Error updating profile: " + error.message);
     }
   };
@@ -117,7 +129,7 @@ function CreateProfile({ handleClose }) {
   };
 
   return (
-    <IonPage>
+    <>
       <IonHeader>
         <IonToolbar color="primary">
           <IonTitle>Create Profile</IonTitle>
@@ -125,8 +137,13 @@ function CreateProfile({ handleClose }) {
       </IonHeader>
       <IonContent>
         <IonGrid className="ion-padding h-full">
+          
           <IonRow className="ion-justify-content-center ion-padding h-full">
-            <IonCol sizeMd="8" sizeSm="12" className="h-full w-full flex flex-col items-center justify-center">
+            <IonCol
+              sizeMd="8"
+              sizeSm="12"
+              className="h-full w-full flex flex-col items-center justify-center"
+            >
               <IonText className="ion-text-start">
                 <h2>Basic Details</h2>
               </IonText>
@@ -134,8 +151,17 @@ function CreateProfile({ handleClose }) {
               <div className="min-h-40 ion-text-center flex flex-col items-center justify-center">
                 {profilePic ? (
                   <div className="ion-text-center flex flex-col items-center justify-center relative">
-                    <IonButton color="danger" size="small" className="absolute top-[-20px] right-[-10px]" onClick={handleClearProfilePic}>
-                      <IonIcon className="text-white" slot="icon-only" icon={closeOutline} />
+                    <IonButton
+                      color="danger"
+                      size="small"
+                      className="absolute top-[-20px] right-[-10px]"
+                      onClick={handleClearProfilePic}
+                    >
+                      <IonIcon
+                        className="text-white"
+                        slot="icon-only"
+                        icon={closeOutline}
+                      />
                     </IonButton>
                     <img
                       src={profilePic}
@@ -179,7 +205,7 @@ function CreateProfile({ handleClose }) {
 
               <IonButton
                 expand="block"
-                onClick={handleSubmit}
+                onClick={handleSubmit} // Ensure handleSubmit is correctly called
                 className="ion-margin-top"
               >
                 Submit
@@ -197,7 +223,7 @@ function CreateProfile({ handleClose }) {
           />
         </IonModal>
       </IonContent>
-    </IonPage>
+    </>
   );
 }
 

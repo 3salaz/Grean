@@ -81,29 +81,6 @@ export function LocationsProvider({ children }) {
       }
     }
   };
-
-  const updateProfileLocation = async (profileId, updatedLocationData) => {
-    try {
-      const locationDocRef = doc(db, "locations", profileId);
-      const locationDoc = await getDoc(locationDocRef);
-      incrementReadCount();
-  
-      if (locationDoc.exists()) {
-        // Assuming locations are stored as an array in "addresses" field
-        const updatedAddresses = locationDoc.data().addresses.map((location) =>
-          location.id === updatedLocationData.id ? updatedLocationData : location
-        );
-  
-        await updateDoc(locationDocRef, { addresses: updatedAddresses });
-        incrementWriteCount();
-      } else {
-        console.error("Profile location does not exist.");
-      }
-    } catch (error) {
-      console.error("Error updating location: ", error);
-      throw error; // Propagate the error for handling
-    }
-  };
   
 
   useEffect(() => {
@@ -142,7 +119,6 @@ export function LocationsProvider({ children }) {
 
   const value = {
     addLocationToCollection,
-    updateProfileLocation,
     businessLocations,
     locations,
   };

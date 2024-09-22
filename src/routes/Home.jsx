@@ -21,12 +21,6 @@ function Home() {
         <div className="section relative h-full w-full flex justify-center items-center snap-always snap-center">
           <Landing />
         </div>
-        {/* <div className="section relative h-full w-full flex justify-center items-center snap-always snap-center">
-          <Services />
-        </div>
-        <div className="section relative h-full w-full flex justify-center items-center snap-always snap-center">
-          <Contact />
-        </div> */}
       </IonContent>
     </IonPage>
   );

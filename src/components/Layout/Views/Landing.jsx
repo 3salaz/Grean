@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { IonButton, IonContent, IonImg } from "@ionic/react";
+import { IonButton, IonContent, IonImg, IonModal } from "@ionic/react";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Signin from "../../Common/Signin";
 import { useAuthProfile } from "../../../context/AuthProfileContext";
-import SlideModal from "../Modals/SlideModal";
 
 function Landing() {
   const [signInModalOpen, setSigninModalOpen] = useState(false);
@@ -48,16 +47,18 @@ function Landing() {
                 Sign In
               </IonButton>
             )}
-            <IonButton expand="block" color="white" className="bg-white text-grean rounded-md">
+            {/* <IonButton expand="block" color="white" className="bg-white text-grean rounded-md">
               Browse
-            </IonButton>
+            </IonButton> */}
           </div>
         </section>
       </main>
 
-      <SlideModal isOpen={signInModalOpen} handleClose={closeSigninModal}>
-        <Signin onClose={closeSigninModal} />
-      </SlideModal>
+
+      <IonModal isOpen={signInModalOpen} onDidDismiss={closeSigninModal}>
+        <Signin handleClose={closeSigninModal} />
+      </IonModal>
+
     </IonContent>
   );
 }

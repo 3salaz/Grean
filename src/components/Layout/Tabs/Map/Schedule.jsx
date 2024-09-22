@@ -20,18 +20,28 @@ import {
   IonText,
   IonIcon,
   IonFooter,
+  IonAccordionGroup,
+  IonAccordion,
+  IonButtons,
+  IonCard,
 } from "@ionic/react";
 import { closeOutline } from "ionicons/icons";
+import { useAuthProfile } from "../../../../context/AuthProfileContext";
 
 function Schedule({ handleClose }) {
-  const { userAcceptedPickups } = usePickups();
+  const { userAcceptedPickups } = usePickups(); // Get accepted pickups
   const [formInputs, setFormInputs] = useState({});
   const [error, setError] = useState("");
+  const { user, updateProfileData } = useAuthProfile();
+  const { profile } = useAuthProfile();
+
+  // Filter only accepted but not yet completed pickups
+  const filteredPickups = userAcceptedPickups?.filter((pickup) => !pickup.isCompleted) || [];
 
   useEffect(() => {
-    if (userAcceptedPickups) {
+    if (filteredPickups) {
       const initialFormStates = {};
-      userAcceptedPickups.forEach((pickup) => {
+      filteredPickups.forEach((pickup) => {
         initialFormStates[pickup.id] = {
           aluminumWeight: "",
           plasticWeight: "",
@@ -41,24 +51,27 @@ function Schedule({ handleClose }) {
       });
       setFormInputs(initialFormStates);
     }
-  }, [userAcceptedPickups]);
+  }, [filteredPickups]);
 
   const handleInputChange = (pickupId, name, value) => {
+    const parsedValue = value === "" ? "" : parseFloat(value);
     setFormInputs((prev) => ({
       ...prev,
       [pickupId]: {
         ...prev[pickupId],
-        [name]: value,
+        [name]: parsedValue,
       },
     }));
   };
 
   function formatDateInfo(dateString) {
     if (!dateString) return { dayOfWeek: "", monthName: "", day: "", year: "" };
+    
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return { dayOfWeek: "Invalid Date", monthName: "", day: "", year: "" };
     }
+
     const formatter = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
       month: "long",
@@ -83,17 +96,13 @@ function Schedule({ handleClose }) {
 
   const handleSubmit = async (pickupId, e) => {
     e.preventDefault();
+    const aluminumWeight = parseFloat(formInputs[pickupId]?.aluminumWeight) || 0;
+    const plasticWeight = parseFloat(formInputs[pickupId]?.plasticWeight) || 0;
+    const glassWeight = parseFloat(formInputs[pickupId]?.glassWeight) || 0;
+    const alcoholBottlesWeight = parseFloat(formInputs[pickupId]?.alcoholBottlesWeight) || 0;
 
-    const { aluminumWeight, plasticWeight, glassWeight, alcoholBottlesWeight } =
-      formInputs[pickupId] || {};
-
-    if (
-      !aluminumWeight &&
-      !plasticWeight &&
-      !glassWeight &&
-      !alcoholBottlesWeight
-    ) {
-      setError("Please enter weight for at least one type of material.");
+    if (aluminumWeight <= 0 && plasticWeight <= 0 && glassWeight <= 0 && alcoholBottlesWeight <= 0) {
+      setError("Please enter a valid weight for at least one type of material.");
       return;
     }
 
@@ -101,20 +110,27 @@ function Schedule({ handleClose }) {
 
     try {
       const pickupDocRef = doc(db, `pickups`, pickupId);
-      const pickupDoc = await getDoc(pickupDocRef);
-
-      if (!pickupDoc.exists()) {
-        setError("Pickup document does not exist.");
-        console.error("Pickup document does not exist.");
-        return;
-      }
-
       await updateDoc(pickupDocRef, {
         aluminumWeight,
         plasticWeight,
         glassWeight,
         alcoholBottlesWeight,
         isCompleted: true,
+      });
+
+      const currentWeights = profile?.stats?.weight || {};
+      const updatedWeight = {
+        aluminum: parseFloat(currentWeights.aluminum || 0) + aluminumWeight,
+        plastic: parseFloat(currentWeights.plastic || 0) + plasticWeight,
+        glass: parseFloat(currentWeights.glass || 0) + glassWeight,
+        alcoholBottles: parseFloat(currentWeights.alcoholBottles || 0) + alcoholBottlesWeight,
+      };
+
+      await updateProfileData(user.uid, {
+        stats: {
+          ...profile?.stats,
+          weight: updatedWeight,
+        },
       });
 
       setFormInputs((prev) => ({
@@ -135,195 +151,158 @@ function Schedule({ handleClose }) {
   };
 
   return (
-    <IonPage>
-      <IonHeader>
+    <IonPage color="primary">
+      <IonHeader translucent={true}>
         <IonToolbar>
-          <IonTitle>My Scheduled Pickups</IonTitle>
+          <IonTitle>Schedule</IonTitle>
+          <IonButtons collapse={true} slot="end">
+            <IonButton>History</IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonGrid>
-          <IonRow>
-            <IonCol size="12">
-              <IonList style={{ maxHeight: "70vh", overflowY: "auto" }}>
-                <IonListHeader>
-                  <IonText>
-                    <h2>
-                      {userAcceptedPickups === null
-                        ? "Loading..."
-                        : `Accepted Pickups (${userAcceptedPickups.filter(
-                            (pickup) => !pickup.isCompleted
-                          ).length})`}
-                    </h2>
-                  </IonText>
-                </IonListHeader>
-                {userAcceptedPickups
-                  .filter((pickup) => !pickup.isCompleted)
-                  .map((pickup) => {
-                    const { dayOfWeek, monthName, day, year } = formatDateInfo(
-                      pickup.pickupDate
-                    );
 
-                    return (
-                      <IonItem key={pickup.id} lines="full">
+      <IonContent color="light" className="ion-no-padding ion-no-margin">
+        <IonCard className="h-full p-0 m-0">
+          <IonList className="ion-no-margin flex flex-col h-full overflow-auto">
+            <IonListHeader className="ion-no-padding bg-white">
+              <IonRow className="w-full">
+                <IonCol size="12" className="mx-auto border-b border-b-light">
+                  <h1 className="px-2">
+                    {filteredPickups.length === 0
+                      ? "No Pickups"
+                      : `Pickups (${filteredPickups?.length || 0})`}
+                  </h1>
+                </IonCol>
+              </IonRow>
+            </IonListHeader>
+
+            <IonAccordionGroup className="p-2 flex-grow">
+              {filteredPickups.length > 0 ? (
+                filteredPickups.map((pickup) => {
+                  const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupDate);
+
+                  return (
+                    <IonAccordion className="p-2" key={pickup.id} value={pickup.id}>
+                      <IonItem slot="header">
+                        <IonLabel>
+                          <IonText>
+                            <h2>{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</h2>
+                          </IonText>
+                          <IonText>{pickup.addressData.street || "Unknown Address"}</IonText>
+                          <IonText>{pickup.pickupNote || "No Notes"}</IonText>
+                        </IonLabel>
+                      </IonItem>
+                      <div className="ion-padding" slot="content">
                         <IonGrid>
                           <IonRow>
-                            <IonCol size="8">
-                              <IonText color="primary">
-                                <h3>{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</h3>
-                              </IonText>
-                              <IonText>{pickup.businessAddress}</IonText>
-                              <IonText>{pickup.pickupNote}</IonText>
+                            <IonCol size="6">
+                              <IonItem>
+                                <IonLabel position="stacked">Aluminum (lbs)</IonLabel>
+                                <IonInput
+                                  type="number"
+                                  step="any"
+                                  value={formInputs[pickup.id]?.aluminumWeight || ""}
+                                  onIonChange={(e) =>
+                                    handleInputChange(pickup.id, "aluminumWeight", e.detail.value)
+                                  }
+                                />
+                              </IonItem>
                             </IonCol>
-                            <IonCol size="4" className="ion-text-right">
-                              <IonText color="secondary">
-                                <h2>{pickup.pickupTime}</h2>
-                              </IonText>
+                            <IonCol size="6">
+                              <IonItem>
+                                <IonLabel position="stacked">Plastic (lbs)</IonLabel>
+                                <IonInput
+                                  type="number"
+                                  step="any"
+                                  value={formInputs[pickup.id]?.plasticWeight || ""}
+                                  onIonChange={(e) =>
+                                    handleInputChange(pickup.id, "plasticWeight", e.detail.value)
+                                  }
+                                />
+                              </IonItem>
+                            </IonCol>
+                            <IonCol size="6">
+                              <IonItem>
+                                <IonLabel position="stacked">Glass (lbs)</IonLabel>
+                                <IonInput
+                                  type="number"
+                                  step="any"
+                                  value={formInputs[pickup.id]?.glassWeight || ""}
+                                  onIonChange={(e) =>
+                                    handleInputChange(pickup.id, "glassWeight", e.detail.value)
+                                  }
+                                />
+                              </IonItem>
+                            </IonCol>
+                            <IonCol size="6">
+                              <IonItem>
+                                <IonLabel position="stacked">Alcohol Bottles (lbs)</IonLabel>
+                                <IonInput
+                                  type="number"
+                                  step="any"
+                                  value={formInputs[pickup.id]?.alcoholBottlesWeight || ""}
+                                  onIonChange={(e) =>
+                                    handleInputChange(pickup.id, "alcoholBottlesWeight", e.detail.value)
+                                  }
+                                />
+                              </IonItem>
                             </IonCol>
                           </IonRow>
+
+                          {error && (
+                            <IonRow>
+                              <IonCol>
+                                <IonText color="danger">
+                                  <p>{error}</p>
+                                </IonText>
+                              </IonCol>
+                            </IonRow>
+                          )}
+
                           <IonRow>
-                            <IonCol size="12">
-                              <form
-                                onSubmit={(e) => handleSubmit(pickup.id, e)}
+                            <IonCol>
+                              <IonButton
+                                expand="block"
+                                type="submit"
+                                color="primary"
+                                onClick={(e) => handleSubmit(pickup.id, e)}
                               >
-                                <IonGrid>
-                                  <IonRow>
-                                    <IonCol size="6">
-                                      <IonItem>
-                                        <IonLabel position="stacked">
-                                          Aluminum (lbs)
-                                        </IonLabel>
-                                        <IonInput
-                                          type="number"
-                                          value={
-                                            formInputs[pickup.id]
-                                              ?.aluminumWeight || ""
-                                          }
-                                          onIonChange={(e) =>
-                                            handleInputChange(
-                                              pickup.id,
-                                              "aluminumWeight",
-                                              e.detail.value
-                                            )
-                                          }
-                                        />
-                                      </IonItem>
-                                    </IonCol>
-                                    <IonCol size="6">
-                                      <IonItem>
-                                        <IonLabel position="stacked">
-                                          Plastic (lbs)
-                                        </IonLabel>
-                                        <IonInput
-                                          type="number"
-                                          value={
-                                            formInputs[pickup.id]
-                                              ?.plasticWeight || ""
-                                          }
-                                          onIonChange={(e) =>
-                                            handleInputChange(
-                                              pickup.id,
-                                              "plasticWeight",
-                                              e.detail.value
-                                            )
-                                          }
-                                        />
-                                      </IonItem>
-                                    </IonCol>
-                                  </IonRow>
-                                  <IonRow>
-                                    <IonCol size="6">
-                                      <IonItem>
-                                        <IonLabel position="stacked">
-                                          Glass (lbs)
-                                        </IonLabel>
-                                        <IonInput
-                                          type="number"
-                                          value={
-                                            formInputs[pickup.id]
-                                              ?.glassWeight || ""
-                                          }
-                                          onIonChange={(e) =>
-                                            handleInputChange(
-                                              pickup.id,
-                                              "glassWeight",
-                                              e.detail.value
-                                            )
-                                          }
-                                        />
-                                      </IonItem>
-                                    </IonCol>
-                                    <IonCol size="6">
-                                      <IonItem>
-                                        <IonLabel position="stacked">
-                                          Alcohol Bottles (lbs)
-                                        </IonLabel>
-                                        <IonInput
-                                          type="number"
-                                          value={
-                                            formInputs[pickup.id]
-                                              ?.alcoholBottlesWeight || ""
-                                          }
-                                          onIonChange={(e) =>
-                                            handleInputChange(
-                                              pickup.id,
-                                              "alcoholBottlesWeight",
-                                              e.detail.value
-                                            )
-                                          }
-                                        />
-                                      </IonItem>
-                                    </IonCol>
-                                  </IonRow>
-                                </IonGrid>
-                                {error && (
-                                  <IonText color="danger">
-                                    <p>{error}</p>
-                                  </IonText>
-                                )}
-                                <IonButton
-                                  expand="block"
-                                  type="submit"
-                                  color="primary"
-                                  className="ion-margin-top"
-                                >
-                                  Complete Pickup
-                                </IonButton>
-                              </form>
+                                Complete Pickup
+                              </IonButton>
                             </IonCol>
                           </IonRow>
                         </IonGrid>
-                      </IonItem>
-                    );
-                  })}
-              </IonList>
+                      </div>
+                    </IonAccordion>
+                  );
+                })
+              ) : (
+                <IonItem>
+                  <IonRow className="ion-text-center h-full">
+                    <IonCol size="6" className="ion-align-self-center mx-auto">
+                      <IonText>No pickups to display</IonText>
+                    </IonCol>
+                  </IonRow>
+                </IonItem>
+              )}
+            </IonAccordionGroup>
+          </IonList>
+        </IonCard>
+      </IonContent>
+
+      <IonFooter>
+        <IonToolbar color="primary">
+          <IonRow className="ion-justify-content-center p-0 m-0">
+            <IonCol size="auto" className="p-0 m-0">
+              <IonButton color="danger" shape="round" size="large" fill="solid" onClick={handleClose}>
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
             </IonCol>
           </IonRow>
-        </IonGrid>
-      </IonContent>
-      <IonFooter>
-        <IonButton
-          color="danger"
-          shape="round"
-          fill="solid"
-          onClick={handleClose}
-          style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            zIndex: 1000,
-          }}
-        >
-          <IonIcon icon={closeOutline} size="large" />
-        </IonButton>
+        </IonToolbar>
       </IonFooter>
     </IonPage>
   );
 }
 
 export default Schedule;
-

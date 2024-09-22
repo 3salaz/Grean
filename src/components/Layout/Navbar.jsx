@@ -1,231 +1,207 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
-import { AnimatePresence, motion, useCycle } from "framer-motion";
 import { Link } from "react-router-dom";
-import SideNav from "./SideNav";
-import Button from "./Button";
+import SideMenu from "./SideMenu";
 import { useAuthProfile } from "../../context/AuthProfileContext";
-import SpringModal from "./Modals/SpringModal";
 import Signup from "../../components/Common/Signup";
+import {
+  IonModal,
+  IonPopover,
+  IonButton,
+  IonIcon,
+  IonToolbar,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonText,
+  IonCol,
+  IonRow,
+  IonHeader,
+} from "@ionic/react";
+import {
+  logOutOutline,
+  menuOutline,
+} from "ionicons/icons";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
-  const [mobileNav, toggleMobileNav] = useCycle(false, true);
-  const [accountNav, setAccountNav] = useCycle(false, true);
-  const accountNavRef = useRef(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [popoverEvent, setPopoverEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRoutesPopoverOpen, setIsRoutesPopoverOpen] = useState(false);
+  const [routesPopoverEvent, setRoutesPopoverEvent] = useState(null);
 
   const handleLogout = async () => {
     try {
       await logOut();
       console.log("You are logged out");
-      setAccountNav(false);
+      setIsPopoverOpen(false);
     } catch (e) {
       console.log(e.message);
     }
   };
 
-  // Memoize the handleClickOutside function
-  const handleClickOutside = useCallback((event) => {
-    if (accountNavRef.current && !accountNavRef.current.contains(event.target)) {
-      setAccountNav(false);
-    }
-  }, [setAccountNav]);
+  const handleOpenPopover = (event) => {
+    event.persist();
+    setPopoverEvent(event);
+    setIsPopoverOpen(true);
+  };
 
-  useEffect(() => {
-    if (accountNav) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+  const handleClosePopover = () => {
+    setIsPopoverOpen(false);
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [accountNav,handleClickOutside]);
-
-  const handleOpen = () => {
+  const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
-  const handleClose = () => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
+  const handleOpenRoutesPopover = (event) => {
+    event.persist();
+    setRoutesPopoverEvent(event);
+    setIsRoutesPopoverOpen(true);
+  };
+
+  const handleCloseRoutesPopover = () => {
+    setIsRoutesPopoverOpen(false);
+  };
+
   return (
-    <nav id="navbar" className="bg-grean top-0 h-[8svh] z-40 relative drop-shadow-lg">
-      <SideNav isOpen={mobileNav} toggleMobileNav={toggleMobileNav} />
+    <IonHeader className="ion-no-border ion-no-padding">
+      <IonToolbar color="primary" className="h-full" id="navbar">
 
-      <div className="container mx-auto h-full px-4 flex items-center justify-between">
-        <div className="absolute z-40 md:hidden">
-          <button
-            type="button"
-            className="flex md:hidden flex-col space-y-1 items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#75B657]"
-            aria-controls="mobile-menu"
-            aria-expanded={mobileNav}
-            onClick={() => toggleMobileNav()}
-          >
-            <motion.span
-              variants={{
-                closed: { rotate: 0, y: 0 },
-                open: { rotate: 45, y: 5 },
-              }}
-              initial={mobileNav ? "open" : "closed"}
-              animate={mobileNav ? "open" : "closed"}
-              className="w-5 h-px bg-white block"
-            ></motion.span>
-            <motion.span
-              variants={{
-                closed: { opacity: 1 },
-                open: { opacity: 0 },
-              }}
-              initial={mobileNav ? "open" : "closed"}
-              animate={mobileNav ? "open" : "closed"}
-              className="w-5 h-px bg-white block"
-            ></motion.span>
-            <motion.span
-              variants={{
-                closed: { rotate: 0, y: 0 },
-                open: { rotate: -45, y: -5 },
-              }}
-              initial={mobileNav ? "open" : "closed"}
-              animate={mobileNav ? "open" : "closed"}
-              className="w-5 h-px bg-white block"
-            ></motion.span>
-          </button>
-        </div>
+        <IonRow className="ion-justify-content-between ion-no-padding m-0 p-0">
+          {/* Menu */}
+          <IonCol color="light" className="ion-align-self-center mx-auto">
+            <IonButton fill="clear" onClick={handleOpenRoutesPopover}>
+              <IonIcon color="light" size="large" icon={menuOutline}></IonIcon>
+            </IonButton>
+          </IonCol>
+          
+          {/* Logo Section */}
+          <IonCol className="ion-align-self-center flex items-center justify-center">
 
-        {/* Navbar */}
-        <div className="relative flex flex-1 items-center justify-center sm:items-stretch sm:justify-start sm:hidden md:flex">
-          <div className="flex flex-shrink-0 items-center">
-            <Link to="/">
-              <img
-                className="sm:block h-10 w-10 lg:hidden rounded-full"
-                src={logo}
-                alt="Grean Logo"
-              ></img>
-              <img
-                className="hidden h-10 w-auto lg:block rounded-full"
-                src={logo}
-                alt="Grean Logo"
-              ></img>
-            </Link>
-          </div>
-          <div className="hidden sm:ml-6 sm:block">
+              <Link to="/">
+                <img
+                  className="h-10 w-10 rounded-full"
+                  src={logo}
+                  alt="Grean Logo"
+                />
+              </Link>
+          </IonCol>
+
+          {/* Navigation Links
+          <IonCol size="auto" className="hidden">
             <div className="flex space-x-4">
-              <Link
-                to="/"
-                className="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium"
-                aria-current="page"
-              >
+              <Link to="/" className="text-white px-3 py-2 text-sm font-medium">
                 Home
               </Link>
               <Link
                 to="/about"
-                className="text-white hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                className="text-white px-3 py-2 text-sm font-medium"
               >
                 About
               </Link>
               <Link
                 to="/services"
-                className="text-white hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                className="text-white px-3 py-2 text-sm font-medium"
               >
                 Services
               </Link>
               <Link
                 to="/contact"
-                className="text-white hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                className="text-white px-3 py-2 text-sm font-medium"
               >
                 Contact
               </Link>
             </div>
-          </div>
-        </div>
+          </IonCol> */}
 
-        {/* Account Nav / Alerts */}
-        <div className="absolute inset-y-0 right-4 flex justify-center gap-2 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-          {/* Profile dropdown */}
-          {user ? (
-            <div className="relative z-20">
-              <Button
-                type="button"
-                id="user-menu-button"
-                aria-expanded={accountNav}
-                aria-haspopup="true"
-                aria-controls="user-menu"
-                variant="primary"
-                size="small"
-                onClick={() => setAccountNav((prev) => !prev)}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                className="justify-end"
+          {/* Account and Profile Section */}
+          <IonCol className="ion-align-self-center flex items-center justify-end">
+            {user ? (
+              <>
+                <IonButton fill="clear" onClick={handleOpenPopover}>
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={user.photoURL || avatar}
+                    alt="User Avatar"
+                  />
+                </IonButton>
+                <IonPopover
+                  isOpen={isPopoverOpen}
+                  event={popoverEvent}
+                  onDidDismiss={handleClosePopover}
+                >
+                  <IonContent>
+                    <IonList>
+                      <IonListHeader>
+                        <IonText>
+                          <h6 className="text-xs">{user.email}</h6>
+                        </IonText>
+                      </IonListHeader>
+                      <IonItem button onClick={handleLogout}>
+                        <IonIcon slot="start" icon={logOutOutline} />
+                        <IonText>Sign Out</IonText>
+                      </IonItem>
+                    </IonList>
+                  </IonContent>
+                </IonPopover>
+              </>
+            ) : (
+              <IonButton
+                size="medium"
+                color="light"
+                fill="clear"
+                onClick={handleOpenModal}
               >
-                <span className="sr-only">Open Users Menu</span>
-                <img
-                  className="h-10 w-10 rounded-full bg-white"
-                  src={user.photoURL || avatar}
-                  alt="Users Pic"
-                ></img>
-              </Button>
-            </div>
-          ) : (
-            <Button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              variant="white"
-              size="small"
-              onClick={handleOpen}
-            >
-              Sign Up
-            </Button>
-          )}
-        </div>
-      </div>
+                Sign Up
+              </IonButton>
+            )}
+          </IonCol>
+        </IonRow>
 
-      <AnimatePresence>
-        {accountNav && (
-          <motion.div
-            ref={accountNavRef}
-            variants={{
-              open: {
-                opacity: 1,
-                y: 0,
-              },
-              closed: {
-                opacity: 0,
-                y: -20,
-              },
-            }}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="relative container mx-auto z-50"
-          >
-            <div
-              className="absolute top-0 right-0 drop-shadow-lg z-40 w-36 rounded-bl-md bg-white py-1 px-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-              role="menu"
-            >
-              <Button
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.8 }}
-                onClick={handleLogout}
-                className="block z-50 p-2 text-sm text-gray-700 w-full text-center bg-red-500 rounded-md text-white"
-                role="menuitem"
-                tabIndex="-1"
-                id="user-menu-item-2"
-              >
-                Sign Out
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Routes Popover */}
+        <IonPopover
+          isOpen={isRoutesPopoverOpen}
+          event={routesPopoverEvent}
+          onDidDismiss={handleCloseRoutesPopover}
+        >
+          <IonContent>
+            <IonList>
+              <IonListHeader>
+                <IonText>
+                  <h5>Home</h5>
+                </IonText>
+              </IonListHeader>
+              {/* <IonItem button routerLink="/route1">
+              <IonText>Route 1</IonText>
+            </IonItem>
+            <IonItem button routerLink="/route2">
+              <IonText>Route 2</IonText>
+            </IonItem>
+            <IonItem button routerLink="/route3">
+              <IonText>Route 3</IonText>
+            </IonItem>
+            <IonItem button routerLink="/route4">
+              <IonText>Route 4</IonText>
+            </IonItem> */}
+            </IonList>
+          </IonContent>
+        </IonPopover>
+        
+        {/* Signup Modal */}
+        <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
+          <Signup handleClose={handleCloseModal} />
+        </IonModal>
 
-      <SpringModal isOpen={isModalOpen} handleClose={handleClose}>
-        <Signup handleClose={handleClose} />
-      </SpringModal>
-    </nav>
+      </IonToolbar>
+    </IonHeader>
   );
 }
 

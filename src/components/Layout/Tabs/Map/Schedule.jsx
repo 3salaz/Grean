@@ -36,10 +36,10 @@ function Schedule({ handleClose }) {
   const { profile } = useAuthProfile();
 
   // Filter only accepted but not yet completed pickups
-    // Memoize the filtered pickups to prevent unnecessary recalculations
-    const filteredPickups = useMemo(() => {
-      return userAcceptedPickups?.filter((pickup) => !pickup.isCompleted) || [];
-    }, [userAcceptedPickups]);
+  // Memoize the filtered pickups to prevent unnecessary recalculations
+  const filteredPickups = useMemo(() => {
+    return userAcceptedPickups?.filter((pickup) => !pickup.isCompleted) || [];
+  }, [userAcceptedPickups]);
 
   useEffect(() => {
     if (filteredPickups.length > 0) {
@@ -69,7 +69,7 @@ function Schedule({ handleClose }) {
 
   function formatDateInfo(dateString) {
     if (!dateString) return { dayOfWeek: "", monthName: "", day: "", year: "" };
-    
+
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return { dayOfWeek: "Invalid Date", monthName: "", day: "", year: "" };
@@ -99,13 +99,22 @@ function Schedule({ handleClose }) {
 
   const handleSubmit = async (pickupId, e) => {
     e.preventDefault();
-    const aluminumWeight = parseFloat(formInputs[pickupId]?.aluminumWeight) || 0;
+    const aluminumWeight =
+      parseFloat(formInputs[pickupId]?.aluminumWeight) || 0;
     const plasticWeight = parseFloat(formInputs[pickupId]?.plasticWeight) || 0;
     const glassWeight = parseFloat(formInputs[pickupId]?.glassWeight) || 0;
-    const alcoholBottlesWeight = parseFloat(formInputs[pickupId]?.alcoholBottlesWeight) || 0;
+    const alcoholBottlesWeight =
+      parseFloat(formInputs[pickupId]?.alcoholBottlesWeight) || 0;
 
-    if (aluminumWeight <= 0 && plasticWeight <= 0 && glassWeight <= 0 && alcoholBottlesWeight <= 0) {
-      setError("Please enter a valid weight for at least one type of material.");
+    if (
+      aluminumWeight <= 0 &&
+      plasticWeight <= 0 &&
+      glassWeight <= 0 &&
+      alcoholBottlesWeight <= 0
+    ) {
+      setError(
+        "Please enter a valid weight for at least one type of material."
+      );
       return;
     }
 
@@ -126,7 +135,8 @@ function Schedule({ handleClose }) {
         aluminum: parseFloat(currentWeights.aluminum || 0) + aluminumWeight,
         plastic: parseFloat(currentWeights.plastic || 0) + plasticWeight,
         glass: parseFloat(currentWeights.glass || 0) + glassWeight,
-        alcoholBottles: parseFloat(currentWeights.alcoholBottles || 0) + alcoholBottlesWeight,
+        alcoholBottles:
+          parseFloat(currentWeights.alcoholBottles || 0) + alcoholBottlesWeight,
       };
 
       await updateProfileData(user.uid, {
@@ -156,7 +166,7 @@ function Schedule({ handleClose }) {
   return (
     <IonPage color="primary">
       <IonHeader translucent={true}>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonTitle>Schedule</IonTitle>
           <IonButtons collapse={true} slot="end">
             <IonButton>History</IonButton>
@@ -182,70 +192,117 @@ function Schedule({ handleClose }) {
             <IonAccordionGroup className="p-2 flex-grow">
               {filteredPickups.length > 0 ? (
                 filteredPickups.map((pickup) => {
-                  const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupDate);
+                  const { dayOfWeek, monthName, day, year } = formatDateInfo(
+                    pickup.pickupDate
+                  );
 
                   return (
-                    <IonAccordion className="p-2" key={pickup.id} value={pickup.id}>
+                    <IonAccordion
+                      className="p-2"
+                      key={pickup.id}
+                      value={pickup.id}
+                    >
                       <IonItem slot="header">
                         <IonLabel>
                           <IonText>
                             <h2>{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</h2>
                           </IonText>
-                          <IonText>{pickup.addressData.street || "Unknown Address"}</IonText>
-                          <IonText>{pickup.pickupNote || "No Notes"}</IonText>
+                          <IonText>
+                            {pickup.addressData.street || "Unknown Address"}
+                          </IonText>
                         </IonLabel>
                       </IonItem>
                       <div className="ion-padding" slot="content">
                         <IonGrid>
                           <IonRow>
+                            <IonCol size="4" className="">
+                              <IonText>
+                                Pickup Notes: {pickup.pickupNote || "No Notes"}
+                              </IonText>
+                            </IonCol>
+                          </IonRow>
+                          <IonRow>
                             <IonCol size="6">
                               <IonItem>
-                                <IonLabel position="stacked">Aluminum (lbs)</IonLabel>
+                                <IonLabel position="stacked">
+                                  Aluminum (lbs)
+                                </IonLabel>
                                 <IonInput
                                   type="number"
                                   step="any"
-                                  value={formInputs[pickup.id]?.aluminumWeight || ""}
+                                  value={
+                                    formInputs[pickup.id]?.aluminumWeight || ""
+                                  }
                                   onIonChange={(e) =>
-                                    handleInputChange(pickup.id, "aluminumWeight", e.detail.value)
+                                    handleInputChange(
+                                      pickup.id,
+                                      "aluminumWeight",
+                                      e.detail.value
+                                    )
                                   }
                                 />
                               </IonItem>
                             </IonCol>
                             <IonCol size="6">
                               <IonItem>
-                                <IonLabel position="stacked">Plastic (lbs)</IonLabel>
+                                <IonLabel position="stacked">
+                                  Plastic (lbs)
+                                </IonLabel>
                                 <IonInput
                                   type="number"
                                   step="any"
-                                  value={formInputs[pickup.id]?.plasticWeight || ""}
+                                  value={
+                                    formInputs[pickup.id]?.plasticWeight || ""
+                                  }
                                   onIonChange={(e) =>
-                                    handleInputChange(pickup.id, "plasticWeight", e.detail.value)
+                                    handleInputChange(
+                                      pickup.id,
+                                      "plasticWeight",
+                                      e.detail.value
+                                    )
                                   }
                                 />
                               </IonItem>
                             </IonCol>
                             <IonCol size="6">
                               <IonItem>
-                                <IonLabel position="stacked">Glass (lbs)</IonLabel>
+                                <IonLabel position="stacked">
+                                  Glass (lbs)
+                                </IonLabel>
                                 <IonInput
                                   type="number"
                                   step="any"
-                                  value={formInputs[pickup.id]?.glassWeight || ""}
+                                  value={
+                                    formInputs[pickup.id]?.glassWeight || ""
+                                  }
                                   onIonChange={(e) =>
-                                    handleInputChange(pickup.id, "glassWeight", e.detail.value)
+                                    handleInputChange(
+                                      pickup.id,
+                                      "glassWeight",
+                                      e.detail.value
+                                    )
                                   }
                                 />
                               </IonItem>
                             </IonCol>
                             <IonCol size="6">
                               <IonItem>
-                                <IonLabel position="stacked">Alcohol Bottles (lbs)</IonLabel>
+                                <IonLabel position="stacked">
+                                  Alcohol Bottles (lbs)
+                                </IonLabel>
                                 <IonInput
                                   type="number"
                                   step="any"
-                                  value={formInputs[pickup.id]?.alcoholBottlesWeight || ""}
+                                  value={
+                                    formInputs[pickup.id]
+                                      ?.alcoholBottlesWeight || ""
+                                  }
                                   onIonChange={(e) =>
-                                    handleInputChange(pickup.id, "alcoholBottlesWeight", e.detail.value)
+                                    handleInputChange(
+                                      pickup.id,
+                                      "alcoholBottlesWeight",
+                                      e.detail.value
+                                    )
                                   }
                                 />
                               </IonItem>
@@ -297,7 +354,13 @@ function Schedule({ handleClose }) {
         <IonToolbar color="primary">
           <IonRow className="ion-justify-content-center p-0 m-0">
             <IonCol size="auto" className="p-0 m-0">
-              <IonButton color="danger" shape="round" size="large" fill="solid" onClick={handleClose}>
+              <IonButton
+                color="danger"
+                shape="round"
+                size="large"
+                fill="solid"
+                onClick={handleClose}
+              >
                 <IonIcon slot="icon-only" icon={closeOutline} />
               </IonButton>
             </IonCol>

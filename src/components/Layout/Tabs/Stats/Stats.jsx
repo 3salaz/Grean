@@ -216,7 +216,7 @@ const Stats = () => {
         <IonCol size="4" sizeMd="4" className="text-center">
           <IonCard
             lines="none"
-            className="border-2 ion-no-margin bg-white bg-green-500 px-2 w-full h-full flex items-center justify-center flex-col rounded-lg shadow-md"
+            className="border-2 ion-no-margin bg-white bg-green-500 p-2 w-full h-full flex items-center justify-center flex-col rounded-lg shadow-md"
           >
             <IonLabel className="text-sm block m-0 p-0">
               <h4 className="text-center">

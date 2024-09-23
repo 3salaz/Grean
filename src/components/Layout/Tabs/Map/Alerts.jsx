@@ -22,7 +22,11 @@ import {
   IonButtons,
   IonCard,
 } from "@ionic/react";
-import { checkmarkCircle, closeOutline } from "ionicons/icons";
+import {
+  checkmarkCircle,
+  checkmarkCircleOutline,
+  closeOutline,
+} from "ionicons/icons";
 
 function Alerts({ handleClose }) {
   const { userCreatedPickups, removePickup } = usePickups(); // Specifically using userCreatedPickups
@@ -37,93 +41,138 @@ function Alerts({ handleClose }) {
   };
 
   // Sort userCreatedPickups for display
-  const sortedPickups = userCreatedPickups?.sort((a, b) => {
-    if (!a.isAccepted && b.isAccepted) return -1;
-    if (a.isAccepted && !b.isAccepted) return 1;
-    if (a.isAccepted && !a.isCompleted && b.isAccepted && b.isCompleted) return -1;
-    if (a.isAccepted && a.isCompleted && b.isAccepted && !b.isCompleted) return 1;
-    return 0;
-  }) || [];
+  const sortedPickups =
+    userCreatedPickups?.sort((a, b) => {
+      if (!a.isAccepted && b.isAccepted) return -1;
+      if (a.isAccepted && !b.isAccepted) return 1;
+      if (a.isAccepted && !a.isCompleted && b.isAccepted && b.isCompleted)
+        return -1;
+      if (a.isAccepted && a.isCompleted && b.isAccepted && !b.isCompleted)
+        return 1;
+      return 0;
+    }) || [];
 
   return (
-    <IonPage color="primary">
+    <IonPage color="light">
       <IonHeader translucent={true}>
-        <IonToolbar>
-          <IonTitle>My Created Pickups</IonTitle>
+        <IonToolbar color="primary">
+          <IonTitle>Created Pickups</IonTitle>
           <IonButtons collapse={true} slot="end">
             <IonButton>History</IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent color="light" className="ion-no-padding ion-no-margin">
+      <IonContent className="ion-no-padding ion-no-margin">
         <IonCard className="h-full p-0 m-0">
           <IonList className="ion-no-margin flex flex-col h-full">
-            <IonListHeader className="ion-no-padding bg-white">
+            <IonListHeader className="ion-no-padding">
               <IonRow className="w-full">
                 <IonCol size="12" className="mx-auto border-b-4 border-b-light">
-                  <h1 className="px-2">
+                  <h1 className="px-2 text-slate-800">
                     {sortedPickups.length === 0
                       ? "Loading..."
-                      : `My Pending Pickups (${sortedPickups.length})`}
+                      : `Pending Pickups (${sortedPickups.length})`}
                   </h1>
                 </IonCol>
               </IonRow>
             </IonListHeader>
 
-            <IonAccordionGroup className="p-2 flex-grow">
+            <IonAccordionGroup className="flex-grow">
               {sortedPickups.length > 0 ? (
                 sortedPickups.map((pickup) => {
-                  const addressParts = pickup.addressData?.street?.split(",") || [];
-                  const street = addressParts[0] || "Unknown street";
-                  const city = addressParts[1] || "Unknown city";
-                  const dateParts = pickup.pickupDate?.split("-") || [];
-                  const formattedDate = dateParts.length > 2 ? `${dateParts[1]}/${dateParts[2]}` : "Unknown date";
-                  const formattedTime = pickup.pickupTime ? convertTo12HourFormat(pickup.pickupTime) : "Unknown time";
+                  const addressParts =
+                    pickup.addressData?.street?.split(",") || [];
+                  const street = pickup.addressData?.street || "Unknown Street";
+                  // const city = pickup.addressData?.city || "Unknown City";
+                  const date = pickup?.pickupDate || [];
+                  const time = pickup.pickupTime
+                    ? convertTo12HourFormat(pickup.pickupTime)
+                    : "Unknown time";
 
                   return (
-                    <IonAccordion className="p-2" key={pickup.id} value={pickup.id}>
-                      <IonItem slot="header">
+                    <IonAccordion
+                      className="p-2"
+                      key={pickup.id}
+                      value={pickup.id}
+                    >
+                      <IonItem
+                        color="primary"
+                        slot="header"
+                        className="rounded-t-md"
+                      >
                         <IonLabel>
                           <IonText>
-                            <h2>{`${street}, ${city}`}</h2>
+                            <h2>{street}</h2>
                           </IonText>
-                          <IonText>
-                            <p>{formattedDate}</p>
-                            <p>{formattedTime}</p>
-                          </IonText>
-                          {pickup.isAccepted ? (
-                            <IonText color="success">
-                              <p>Accepted by: {pickup.acceptedBy?.driverName || "Unknown"}</p>
-                            </IonText>
-                          ) : (
-                            <IonText color="danger">
-                              <p>Not Accepted</p>
-                            </IonText>
-                          )}
                         </IonLabel>
                       </IonItem>
-
-                      <div slot="content" className="ion-padding">
+                      <IonGrid
+                        slot="content"
+                        className="bg-slate-100 rounded-b-lg"
+                      >
+                        <IonRow className="w-full">
+                          <IonCol size="12" className="mx-auto">
+                            <p>
+                              {date}
+                              {time}
+                            </p>
+                            <p></p>
+                            {pickup.isAccepted ? (
+                              <IonText color="success">
+                                <p>
+                                  Accepted by:{" "}
+                                  {pickup.acceptedBy?.driverName || "Unknown"}
+                                </p>
+                              </IonText>
+                            ) : (
+                              <IonText color="danger">
+                                <p>Not Accepted</p>
+                              </IonText>
+                            )}
+                          </IonCol>
+                        </IonRow>
                         {pickup.isCompleted ? (
-                          <IonGrid>
-                            <IonRow>
-                              <IonCol size="auto">
-                                <IonIcon icon={checkmarkCircle} size="large" color="success" />
-                              </IonCol>
-                              <IonCol>
-                                <IonButton color="tertiary" onClick={() => removePickup(pickup.id)}>
-                                  Remove
-                                </IonButton>
-                              </IonCol>
-                            </IonRow>
-                          </IonGrid>
+                          <IonRow className="">
+                            <IonCol size="auto">
+                              <IonButton shape="round" color="primary">
+                                <IonIcon
+                                  icon={checkmarkCircleOutline}
+                                  color="light"
+                                  slot="icon-only"
+                                  size="large"
+                                />
+                              </IonButton>
+                            </IonCol>
+                            <IonCol
+                              size="auto"
+                              className="ion-align-self-center"
+                            >
+                              <IonText>Completed</IonText>
+                            </IonCol>
+                            {/* <IonCol
+                              size="12"
+                              className="ion-align-self-center"
+                            >
+                              <IonButton
+                                color="tertiary"
+                                size="small"
+                                onClick={() => removePickup(pickup.id)}
+                              >
+                                Clear
+                              </IonButton>
+                            </IonCol> */}
+                          </IonRow>
                         ) : (
-                          <IonText>
-                            <p>Pickup is still pending</p>
-                          </IonText>
+                          <IonRow>
+                            <IonCol>
+                              <IonText>
+                                <p>Pickup is still pending</p>
+                              </IonText>
+                            </IonCol>
+                          </IonRow>
                         )}
-                      </div>
+                      </IonGrid>
                     </IonAccordion>
                   );
                 })
@@ -145,7 +194,13 @@ function Alerts({ handleClose }) {
         <IonToolbar color="primary">
           <IonRow className="ion-justify-content-center p-0 m-0">
             <IonCol size="auto" className="p-0 m-0">
-              <IonButton color="danger" shape="round" size="large" fill="solid" onClick={handleClose}>
+              <IonButton
+                color="danger"
+                shape="round"
+                size="large"
+                fill="solid"
+                onClick={handleClose}
+              >
                 <IonIcon slot="icon-only" icon={closeOutline} />
               </IonButton>
             </IonCol>

@@ -37,8 +37,8 @@ function PickupQueue({ handleClose }) {
 
   return (
     <IonPage>
-      <IonHeader color="primary" translucent={true}>
-        <IonToolbar>
+      <IonHeader translucent={true}>
+        <IonToolbar color="primary">
           <IonTitle>Pickup Queue</IonTitle>
           <IonButtons collapse={true} slot="end">
             <IonButton>History</IonButton>
@@ -47,9 +47,9 @@ function PickupQueue({ handleClose }) {
       </IonHeader>
 
       <IonContent color="light" className="ion-no-padding ion-no-margin">
-        <IonCard className="bg-slate-300 h-full">
-          <IonList className="bg-blue-300 ion-no-margin ion-no-padding">
-            <IonListHeader className="ion-no-padding bg-white">
+        <IonCard className="h-full p-0 m-0">
+          <IonList className="ion-no-margin ion-no-padding">
+            <IonListHeader className="ion-no-padding">
               <IonRow className="w-full">
                 <IonCol size="12" className="mx-auto border-b border-b-light">
                   <h1 className="px-2">
@@ -64,20 +64,20 @@ function PickupQueue({ handleClose }) {
             <IonAccordionGroup className="flex-grow p-2">
               {Array.isArray(visiblePickups) && visiblePickups.length > 0 ? (
                 visiblePickups.map((pickup) => (
-                  <IonAccordion key={pickup.id} value={`pickup-${pickup.id}`}>
-                    <IonItem slot="header">
+                  <IonAccordion className="p-2" key={pickup.id} value={`pickup-${pickup.id}`}>
+                    <IonItem color="primary" slot="header" className="rounded-t-md">
                       <IonLabel>
                         Pickup from {pickup?.addressData?.street || "Unknown address"}
                       </IonLabel>
                     </IonItem>
-                    <div className="ion-padding" slot="content">
-                      <IonGrid className="rounded-lg bg-blue-200">
-                        <IonRow>
-                          <IonCol size="2">
+                    <div className="ion-no-padding" slot="content">
+                      <IonGrid className="rounded-b-lg bg-slate-100 flex flex-col w-full gap-2">
+                        <IonRow className="bg-white rounded-lg p-0 m-0">
+                          <IonCol size="2" className="text-center ion-align-self-center">
                             <img
                               src={pickup?.createdBy?.photoURL || noPickupIcon}
                               alt="Owner"
-                              className="rounded-full"
+                              className="rounded-full object-cover bg-white"
                             />
                           </IonCol>
                           <IonCol size="10">
@@ -89,15 +89,15 @@ function PickupQueue({ handleClose }) {
                           </IonCol>
                         </IonRow>
                         <IonRow>
-                          <IonCol size="12" className="bg-slate-200 text-center">
-                            <IonText>{pickup?.pickupNote || "No notes"}</IonText>
+                          <IonCol size="12" className="bg-white p-8 text-center">
+                            <IonText>{pickup?.pickupNote || "No Notes"}</IonText>
                           </IonCol>
                         </IonRow>
-                        <IonRow>
+                        <IonRow className="flex mx-auto">
                           <IonCol size="auto">
-                            <IonButton color="danger" onClick={() => removePickup(pickup.id)}>
+                            {/* <IonButton color="danger" onClick={() => removePickup(pickup.id)}>
                               Dismiss
-                            </IonButton>
+                            </IonButton> */}
                             <IonButton color="success" onClick={() => acceptPickup(pickup.id)}>
                               <IonText className="text-white">Accept</IonText>
                             </IonButton>

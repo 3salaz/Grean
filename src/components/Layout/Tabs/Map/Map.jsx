@@ -24,10 +24,7 @@ import {
   IonModal,
   IonFabButton,
   IonBadge,
-  IonToolbar,
-  IonContent,
   IonGrid,
-  IonFooter,
   IonCard,
   IonCardHeader,
   IonCardContent, // Add IonContent for proper layout

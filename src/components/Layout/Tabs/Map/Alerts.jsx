@@ -61,7 +61,7 @@ function Alerts({ handleClose }) {
           <IonList className="ion-no-margin flex flex-col h-full">
             <IonListHeader className="ion-no-padding bg-white">
               <IonRow className="w-full">
-                <IonCol size="12" className="mx-auto border-b border-b-light">
+                <IonCol size="12" className="mx-auto border-b-4 border-b-light">
                   <h1 className="px-2">
                     {sortedPickups.length === 0
                       ? "Loading..."

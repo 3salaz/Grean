@@ -47,8 +47,8 @@ function PickupQueue({ handleClose }) {
       </IonHeader>
 
       <IonContent color="light" className="ion-no-padding ion-no-margin">
-        <IonCard className="bg-slate-800 p-2">
-          <IonList className="bg-blue-300 ion-no-padding ion-no-margin">
+        <IonCard className="bg-slate-300 h-full">
+          <IonList className="bg-blue-300 ion-no-margin ion-no-padding">
             <IonListHeader className="ion-no-padding bg-white">
               <IonRow className="w-full">
                 <IonCol size="12" className="mx-auto border-b border-b-light">
@@ -61,7 +61,7 @@ function PickupQueue({ handleClose }) {
               </IonRow>
             </IonListHeader>
 
-            <IonAccordionGroup className="bg-slate-300">
+            <IonAccordionGroup className="flex-grow p-2">
               {Array.isArray(visiblePickups) && visiblePickups.length > 0 ? (
                 visiblePickups.map((pickup) => (
                   <IonAccordion key={pickup.id} value={`pickup-${pickup.id}`}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { usePickups } from "../../../../context/PickupsContext";
 import { db } from "../../../../firebase";
@@ -36,10 +36,13 @@ function Schedule({ handleClose }) {
   const { profile } = useAuthProfile();
 
   // Filter only accepted but not yet completed pickups
-  const filteredPickups = userAcceptedPickups?.filter((pickup) => !pickup.isCompleted) || [];
+    // Memoize the filtered pickups to prevent unnecessary recalculations
+    const filteredPickups = useMemo(() => {
+      return userAcceptedPickups?.filter((pickup) => !pickup.isCompleted) || [];
+    }, [userAcceptedPickups]);
 
   useEffect(() => {
-    if (filteredPickups) {
+    if (filteredPickups.length > 0) {
       const initialFormStates = {};
       filteredPickups.forEach((pickup) => {
         initialFormStates[pickup.id] = {

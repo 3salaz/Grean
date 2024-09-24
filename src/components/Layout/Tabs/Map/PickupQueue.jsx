@@ -61,7 +61,7 @@ function PickupQueue({ handleClose }) {
               </IonRow>
             </IonListHeader>
 
-            <IonAccordionGroup className="flex-grow p-2">
+            <IonAccordionGroup className="flex-grow max-h-[78svh] px-2 overflow-y-auto">
               {Array.isArray(visiblePickups) && visiblePickups.length > 0 ? (
                 visiblePickups.map((pickup) => (
                   <IonAccordion className="p-2" key={pickup.id} value={`pickup-${pickup.id}`}>

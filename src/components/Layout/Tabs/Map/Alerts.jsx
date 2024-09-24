@@ -65,7 +65,7 @@ function Alerts({ handleClose }) {
 
       <IonContent className="ion-no-padding ion-no-margin">
         <IonCard className="h-full p-0 m-0">
-          <IonList className="ion-no-margin flex flex-col h-full">
+          <IonList className="ion-no-margin ion-no-padding">
             <IonListHeader className="ion-no-padding">
               <IonRow className="w-full">
                 <IonCol size="12" className="mx-auto border-b-4 border-b-light">
@@ -78,7 +78,7 @@ function Alerts({ handleClose }) {
               </IonRow>
             </IonListHeader>
 
-            <IonAccordionGroup className="flex-grow">
+            <IonAccordionGroup className="flex-grow max-h-[78svh] px-2 overflow-y-auto">
               {sortedPickups.length > 0 ? (
                 sortedPickups.map((pickup) => {
                   const addressParts =
@@ -194,13 +194,7 @@ function Alerts({ handleClose }) {
         <IonToolbar color="primary">
           <IonRow className="ion-justify-content-center p-0 m-0">
             <IonCol size="auto" className="p-0 m-0">
-              <IonButton
-                color="danger"
-                shape="round"
-                size="large"
-                fill="solid"
-                onClick={handleClose}
-              >
+              <IonButton color="danger" shape="round" size="large" fill="solid" onClick={handleClose}>
                 <IonIcon slot="icon-only" icon={closeOutline} />
               </IonButton>
             </IonCol>

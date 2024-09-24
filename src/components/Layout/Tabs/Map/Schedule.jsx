@@ -337,9 +337,9 @@ function Schedule({ handleClose }) {
                   );
                 })
               ) : (
-                <IonItem>
-                  <IonRow className="ion-text-center h-full">
-                    <IonCol size="6" className="ion-align-self-center mx-auto">
+                <IonItem lines="none" className="h-full flex items-center justify-center">
+                  <IonRow className="ion-text-center w-full">
+                    <IonCol size="auto" className="ion-align-self-center mx-auto font-bold">
                       <IonText>No pickups to display</IonText>
                     </IonCol>
                   </IonRow>

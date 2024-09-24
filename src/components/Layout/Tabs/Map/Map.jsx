@@ -176,8 +176,8 @@ function Map() {
                 closeButton={false}
                 closeOnClick={false}
                 onClose={() => setPopupInfo(null)}
-                className="w-full"
-                maxWidth="600px z-50"
+                className="w-full z-50"
+                maxWidth="600px"
               >
                 <motion.div
                   className="flex flex-col rounded-md  drop-shadow-lg w-full"
@@ -260,17 +260,17 @@ function Map() {
         </IonCol>
       </IonRow>
 
-      <IonRow className="absolute bottom-2 mx-auto gap-2 w-full left-0 ion-justify-content-center z-50">
+      <IonRow className="absolute container bottom-2 gap-2 left-0 ion-align-self-center ion-justify-content-center mx-auto z-50">
 
         {/* User */}
         {profile?.accountType === "User" && profile?.addresses.length > 0 && (
           <>
-            <IonCol size="auto" className="ion-align-self-center">
+            <IonCol size="8" className="ion-align-self-center">
               <IonButton
                 expand="block"
                 color="primary"
                 onClick={() => openModal("requestPickupOpen")}
-                className="rounded-md"
+                className="drop-shadow-lg"
               >
                 Request Pickup
               </IonButton>
@@ -278,11 +278,12 @@ function Map() {
             <IonCol size="auto" className="relative">
               <IonFabButton
                 onClick={() => openModal("alertsOpen")}
-                color="primary"
+                color="light"
+                className="drop-shadow-lg"
               >
-                <IonIcon icon={leafOutline} />
+                <IonIcon color="primary" icon={leafOutline} />
               </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5">
+              <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5 p-1 flex items-center justify-center">
                 {userCreatedPickups.length}
               </IonBadge>
             </IonCol>

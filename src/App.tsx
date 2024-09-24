@@ -9,8 +9,13 @@ import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
-import "./theme/ionStyle.css";
 
+// Toastify
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// User Themes
+import "./theme/ionStyle.css";
 
 // React
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -30,6 +35,8 @@ import Home from "./routes/Home";
 import Account from "./routes/Account";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import SideMenu from "./components/Layout/SideMenu";
+
+// Initialize toast notifications
 
 function App() {
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { useLocations } from "../../../../context/LocationsContext";
 import AddLocation from "./AddLocation";
@@ -9,13 +9,9 @@ import {
   IonLabel,
   IonModal,
   IonIcon,
-  IonContent,
-  IonCard,
   IonCol,
 } from "@ionic/react";
 import {
-  createOutline,
-  addCircleOutline,
   arrowDownOutline,
 } from "ionicons/icons";
 
@@ -98,10 +94,7 @@ function ProfileLocations() {
   };
 
   return (
-    <IonCol
-      size="12" sizeMd="8"
-      className="h-full flex flex-col justify-between gap-2 container mx-auto"
-    >
+    <IonCol size="12" className=" mx-auto ion-padding">
       <IonModal isOpen={isAddModalVisible} onDidDismiss={handleCloseAddModal}>
         <AddLocation handleClose={handleCloseAddModal} />
       </IonModal>
@@ -165,14 +158,14 @@ function ProfileLocations() {
           </form>
         )}
       </IonModal>
-      
-      <IonCard className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll gap-4 rounded-none bg-light-grean p-0 m-0">
+
+      <div className="container max-w-xl ion-no-margin ion-no-padding gap-2 bg-none flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll rounded-none">
         {profileAddresses.length > 0 ? (
           profileAddresses.map((address, index) => (
             <div
               key={index}
               ref={(el) => (addressRefs.current[index] = el)}
-              className="section flex-none w-full h-full flex justify-center items-center snap-center p-4 rounded-md"
+              className="flex-none w-full h-full bg-lime-200 flex justify-center items-center snap-center rounded-md"
             >
               <div className="flex flex-col text-center items-center justify-center w-full h-full p-4">
                 {address.businessLogo && (
@@ -182,33 +175,23 @@ function ProfileLocations() {
                     alt="Business Logo"
                   />
                 )}
-                <span>{address.locationType}</span>
+
+                {address.locationType && <span></span>}
                 <span>{address.street}</span>
-                <span>{address.city}</span>
-                <span>{address.state}</span>
+                <span>
+                  {address.city},{address.state}
+                </span>
               </div>
             </div>
           ))
         ) : (
-          <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center bg-white">
+          <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center">
             <IonButton fill="outline" onClick={openAddLocationModal}>
               Add a Location!
               <IonIcon slot="start" icon={arrowDownOutline}></IonIcon>
             </IonButton>
           </div>
         )}
-      </IonCard>
-      {/* Pagination Bubbles */}
-      <div className="flex w-full mx-auto justify-center mt-4 absolute bottom-2">
-        {profileAddresses.map((_, index) => (
-          <div
-            key={index}
-            onClick={() => handleSlideChange(index)}
-            className={`w-3 h-3 mx-1 rounded-full cursor-pointer ${
-              index === currentAddressIndex ? "bg-blue-500" : "bg-blue-100"
-            }`}
-          ></div>
-        ))}
       </div>
     </IonCol>
   );

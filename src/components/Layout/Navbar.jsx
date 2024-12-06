@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
 import { Link } from "react-router-dom";
-import SideMenu from "./SideMenu";
 import { useAuthProfile } from "../../context/AuthProfileContext";
 import Signup from "../../components/Common/Signup";
 import {
@@ -20,10 +19,7 @@ import {
   IonRow,
   IonHeader,
 } from "@ionic/react";
-import {
-  logOutOutline,
-  menuOutline,
-} from "ionicons/icons";
+import { logOutOutline, menuOutline } from "ionicons/icons";
 
 function Navbar() {
   const { user, logOut } = useAuthProfile();
@@ -37,7 +33,7 @@ function Navbar() {
     try {
       await logOut();
       console.log("You are logged out");
-      setIsPopoverOpen(false);
+      setIsPopoverOpen(false); // Close the dropdown after logout
     } catch (e) {
       console.log(e.message);
     }
@@ -58,7 +54,7 @@ function Navbar() {
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setTimeout(() => setIsModalOpen(false), 100); // Allow layout stabilization
   };
 
   const handleOpenRoutesPopover = (event) => {
@@ -74,7 +70,6 @@ function Navbar() {
   return (
     <IonHeader className="ion-no-border ion-no-padding">
       <IonToolbar color="primary" className="h-full" id="navbar">
-
         <IonRow className="ion-justify-content-between ion-no-padding m-0 p-0">
           {/* Menu */}
           <IonCol color="light" className="ion-align-self-center mx-auto">
@@ -82,45 +77,17 @@ function Navbar() {
               <IonIcon color="light" size="large" icon={menuOutline}></IonIcon>
             </IonButton>
           </IonCol>
-          
+
           {/* Logo Section */}
           <IonCol className="ion-align-self-center flex items-center justify-center">
-
-              <Link to="/">
-                <img
-                  className="h-10 w-10 rounded-full"
-                  src={logo}
-                  alt="Grean Logo"
-                />
-              </Link>
+            <Link to="/">
+              <img
+                className="h-10 w-10 rounded-full"
+                src={logo}
+                alt="Grean Logo"
+              />
+            </Link>
           </IonCol>
-
-          {/* Navigation Links
-          <IonCol size="auto" className="hidden">
-            <div className="flex space-x-4">
-              <Link to="/" className="text-white px-3 py-2 text-sm font-medium">
-                Home
-              </Link>
-              <Link
-                to="/about"
-                className="text-white px-3 py-2 text-sm font-medium"
-              >
-                About
-              </Link>
-              <Link
-                to="/services"
-                className="text-white px-3 py-2 text-sm font-medium"
-              >
-                Services
-              </Link>
-              <Link
-                to="/contact"
-                className="text-white px-3 py-2 text-sm font-medium"
-              >
-                Contact
-              </Link>
-            </div>
-          </IonCol> */}
 
           {/* Account and Profile Section */}
           <IonCol className="ion-align-self-center flex items-center justify-end">
@@ -179,27 +146,19 @@ function Navbar() {
                   <h5>Home</h5>
                 </IonText>
               </IonListHeader>
-              {/* <IonItem button routerLink="/route1">
-              <IonText>Route 1</IonText>
-            </IonItem>
-            <IonItem button routerLink="/route2">
-              <IonText>Route 2</IonText>
-            </IonItem>
-            <IonItem button routerLink="/route3">
-              <IonText>Route 3</IonText>
-            </IonItem>
-            <IonItem button routerLink="/route4">
-              <IonText>Route 4</IonText>
-            </IonItem> */}
+              {/* Add route links here if needed */}
             </IonList>
           </IonContent>
         </IonPopover>
-        
-        {/* Signup Modal */}
-        <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
-          <Signup handleClose={handleCloseModal} />
-        </IonModal>
 
+        {/* Signup Modal */}
+        <IonModal
+          isOpen={isModalOpen}
+          onDidDismiss={handleCloseModal}
+          backdropDismiss={true}
+        >
+          {isModalOpen && <Signup handleClose={handleCloseModal} />}
+        </IonModal>
       </IonToolbar>
     </IonHeader>
   );

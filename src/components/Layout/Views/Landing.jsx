@@ -1,23 +1,29 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
 import { IonButton, IonContent, IonImg, IonModal } from "@ionic/react";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Signin from "../../Common/Signin";
+import Signup from "../../Common/Signup";
 import { useAuthProfile } from "../../../context/AuthProfileContext";
+import { useHistory } from "react-router-dom";
 
 function Landing() {
-  const [signInModalOpen, setSigninModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignin, setIsSignin] = useState(true); // Toggle between Signin and Signup
   const { user } = useAuthProfile();
   const history = useHistory();
 
-  const closeSigninModal = () => setSigninModalOpen(false);
-  const openSigninModal = () => setSigninModalOpen(true);
 
-  const navigateTo = (route) => {
-    history.push(`/${route}`);
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+  const openSigninModal = () => {
+    setIsSignin(true);
+    setIsAuthModalOpen(true);
   };
-  
+  const openSignupModal = () => {
+    setIsSignin(false);
+    setIsAuthModalOpen(true);
+  };
+
   return (
     <IonContent className="relative flex justify-center items-center h-full w-full">
       <main className="w-full h-full">
@@ -33,7 +39,7 @@ function Landing() {
               <IonButton
                 expand="block"
                 color="light"
-                onClick={() => navigateTo('account')}
+                onClick={() => history.push("/account")}
               >
                 Account
               </IonButton>
@@ -47,18 +53,27 @@ function Landing() {
                 Sign In
               </IonButton>
             )}
-            {/* <IonButton expand="block" color="white" className="bg-white text-grean rounded-md">
-              Browse
-            </IonButton> */}
           </div>
         </section>
       </main>
 
-
-      <IonModal isOpen={signInModalOpen} onDidDismiss={closeSigninModal}>
-        <Signin handleClose={closeSigninModal} />
+      <IonModal
+        isOpen={isAuthModalOpen}
+        onDidDismiss={closeAuthModal}
+        backdropDismiss={true}
+      >
+        {isSignin ? (
+          <Signin
+            handleClose={closeAuthModal}
+            toggleToSignup={openSignupModal}
+          />
+        ) : (
+          <Signup
+            handleClose={closeAuthModal}
+            toggleToSignin={openSigninModal}
+          />
+        )}
       </IonModal>
-
     </IonContent>
   );
 }

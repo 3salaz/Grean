@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
-import { useLocations } from "../../../../context/LocationsContext";
 import { motion } from "framer-motion";
 import {
   IonContent,
@@ -26,8 +25,10 @@ import homeIcon from "../../../../assets/icons/home.png";
 import businessIcon from "../../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
-  const { profile, addAddressToProfile } = useAuthProfile();
-  const { addLocationToCollection } = useLocations();
+  // Context hooks
+  const { profile, updateProfileField } = useAuthProfile();
+
+  // State hooks
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState(false);
@@ -39,16 +40,9 @@ const AddLocation = ({ handleClose }) => {
     state: "California",
     businessName: "",
     businessPhoneNumber: "",
-    businessLogo: "",
   });
 
-  const handleAddLocation = async (address) => {
-    if (profile) {
-      await addAddressToProfile(profile.uid, address);
-      await addLocationToCollection(profile.uid, address);
-    }
-  };
-
+  // Helper functions
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -63,11 +57,9 @@ const AddLocation = ({ handleClose }) => {
       case 1:
         return formData.street && formData.city && formData.state;
       case 2:
-        if (formData.locationType === "Business") {
-          return formData.businessName && formData.businessPhoneNumber;
-        } else {
-          return formData.homeName;
-        }
+        return formData.locationType === "Business"
+          ? formData.businessName && formData.businessPhoneNumber
+          : formData.homeName;
       default:
         return false;
     }
@@ -77,17 +69,15 @@ const AddLocation = ({ handleClose }) => {
     const response = await fetch(
       `https://geocode.maps.co/search?q=${encodeURIComponent(address)}`
     );
-
     const data = await response.json();
-
     if (data.length > 0) {
       const { lat, lon } = data[0];
       return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
-    } else {
-      throw new Error("Unable to retrieve coordinates for the address.");
     }
+    throw new Error("Unable to retrieve coordinates for the address.");
   };
 
+  // Navigation handlers
   const nextStep = async () => {
     if (!validateStep()) {
       console.log("Please fill in all required fields before proceeding.");
@@ -95,22 +85,16 @@ const AddLocation = ({ handleClose }) => {
     }
 
     if (step === 1) {
-      setLoadingCoordinates(true); // Start loading
+      setLoadingCoordinates(true);
       const fullAddress = `${formData.street}, ${formData.city}, ${formData.state}`;
       try {
         const { latitude, longitude } = await getCoordinates(fullAddress);
-        setFormData((prevData) => ({
-          ...prevData,
-          latitude,
-          longitude,
-        }));
+        setFormData((prevData) => ({ ...prevData, latitude, longitude }));
       } catch (error) {
-        console.log("Error fetching coordinates:", error.message);
-        console.log(loadingCoordinates);
+        console.error("Error fetching coordinates:", error.message);
+      } finally {
         setLoadingCoordinates(false);
-        return;
       }
-      setLoadingCoordinates(false); // Stop loading after the coordinates are fetched
     }
 
     setStep((prevStep) => prevStep + 1);
@@ -124,253 +108,160 @@ const AddLocation = ({ handleClose }) => {
       return;
     }
 
-    setLoading(true); // Start loading
-
+    setLoading(true);
     try {
-      // Construct the address object with all required and optional fields
-      const address = {
-        locationType: formData.locationType || "Unknown", // Default to "Unknown" if locationType is not selected
-        street: formData.street || "", // Default to empty string if street is not filled
-        city: formData.city || "", // Default to empty string if city is not filled
-        state: formData.state || "California", // Default to "California" if state is not filled
-        latitude: formData.latitude || null, // Default to null if latitude is not available
-        longitude: formData.longitude || null, // Default to null if longitude is not available
-        ...(formData.locationType === "Home" && {
-          homeName: formData.homeName || "Home", // Default to "Home" if homeName is not filled
-        }),
+      const newLocation = {
+        locationType: formData.locationType || "Unknown",
+        street: formData.street || "",
+        city: formData.city || "",
+        state: formData.state || "California",
+        latitude: formData.latitude || null,
+        longitude: formData.longitude || null,
+        ...(formData.locationType === "Home" && { homeName: formData.homeName || "Home" }),
         ...(formData.locationType === "Business" && {
-          businessName: formData.businessName || "", // Default to empty string if businessName is not filled
-          businessPhoneNumber: formData.businessPhoneNumber || "", // Default to empty string if businessPhoneNumber is not filled
+          businessName: formData.businessName || "",
+          businessPhoneNumber: formData.businessPhoneNumber || "",
         }),
       };
 
-      // Check for undefined values in the address object before adding it to Firestore
-      for (const key in address) {
-        if (address[key] === undefined) {
-          throw new Error(
-            `Field ${key} is undefined. Please ensure all required fields are filled.`
-          );
-        }
-      }
+      // Add the new location to the `locations` array in the profile
+      await updateProfileField(profile.uid, "locations", newLocation, "addToArray");
 
-      await handleAddLocation(address);
       console.log("Location added successfully!");
       handleClose();
     } catch (error) {
-      console.log("Error adding location: " + error.message);
+      console.error("Error adding location:", error.message);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
-  const renderStep = () => {
-    return (
-      <IonGrid className="h-full flex-col flex justify-center items-center">
-        <IonRow className="ion-justify-content-center w-full ">
-          <IonCol size="12" size-md="12" className="flex flex-col items-center">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 50 }}
-              transition={{ duration: 0.3 }}
-              className="w-full"
-            >
-              {step === 0 && (
-                <IonRadioGroup
-                  value={formData.locationType}
-                  className="w-full flex justify-center gap-4"
-                  onIonChange={(e) =>
-                    handleInputChange("locationType", e.detail.value)
-                  }
-                >
-                  <IonRadio value="Business" labelPlacement="stacked">
-                    <IonImg
-                      className="h-40 w-40 aspect-square object-cover"
-                      src={businessIcon}
-                      alt="business"
-                    ></IonImg>
-                    <IonText color="primary" className="ion-text-center">
-                      <h4>Business</h4>
-                    </IonText>
-                  </IonRadio>
-                  <IonRadio
-                    value="Home"
-                    labelPlacement="stacked"
-                    alignment="center"
-                  >
-                    <IonImg
-                      className="h-40 w-40 aspect-square object-cover"
-                      src={homeIcon}
-                      alt="Home"
-                    ></IonImg>
-                    <IonText color="primary" className="ion-text-center">
-                      <h4>Home</h4>
-                    </IonText>
-                  </IonRadio>
-                </IonRadioGroup>
-              )}
-              {step === 1 && (
-                <IonGrid>
-                  <IonRow>
-                    <IonCol size="12">
-                      <IonItem>
-                        <IonLabel position="stacked">Street</IonLabel>
-                        <IonInput
-                          value={formData.street}
-                          onIonChange={(e) =>
-                            handleInputChange("street", e.detail.value)
-                          }
-                        />
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel position="stacked">City</IonLabel>
-                        <IonInput
-                          value={formData.city}
-                          onIonChange={(e) =>
-                            handleInputChange("city", e.detail.value)
-                          }
-                        />
-                      </IonItem>
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
-              )}
-              {step === 2 && (
-                <IonGrid>
-                  <IonRow>
-                    <IonCol size="12">
-                      {formData.locationType === "Home" ? (
-                        <IonItem>
-                          <IonLabel position="stacked">Home Name</IonLabel>
-                          <IonInput
-                            value={formData.homeName}
-                            onIonChange={(e) =>
-                              handleInputChange(
-                                "homeName",
-                                e.detail.value || "Home"
-                              )
-                            }
-                            placeholder="Enter home name"
-                          />
-                        </IonItem>
-                      ) : (
-                        <>
-                          <IonItem>
-                            <IonLabel position="stacked">
-                              Business Name
-                            </IonLabel>
-                            <IonInput
-                              value={formData.businessName}
-                              onIonChange={(e) =>
-                                handleInputChange(
-                                  "businessName",
-                                  e.detail.value
-                                )
-                              }
-                              placeholder="Enter business name"
-                            />
-                          </IonItem>
-
-                          <IonItem>
-                            <IonLabel position="stacked">
-                              Business Phone Number
-                            </IonLabel>
-                            <IonInput
-                              value={formData.businessPhoneNumber}
-                              onIonChange={(e) =>
-                                handleInputChange(
-                                  "businessPhoneNumber",
-                                  e.detail.value
-                                )
-                              }
-                              placeholder="Enter Business Number"
-                            />
-                          </IonItem>
-                        </>
-                      )}
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
-              )}
-            </motion.div>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    );
+  // Render helper functions
+  const renderStepContent = () => {
+    switch (step) {
+      case 0:
+        return (
+          <IonRadioGroup
+            value={formData.locationType}
+            className="w-full flex justify-center gap-4"
+            onIonChange={(e) => handleInputChange("locationType", e.detail.value)}
+          >
+            <IonRadio value="Business" labelPlacement="stacked">
+              <IonImg className="h-40 w-40" src={businessIcon} alt="Business" />
+              <IonText color="primary">
+                <h4>Business</h4>
+              </IonText>
+            </IonRadio>
+            <IonRadio value="Home" labelPlacement="stacked">
+              <IonImg className="h-40 w-40" src={homeIcon} alt="Home" />
+              <IonText color="primary">
+                <h4>Home</h4>
+              </IonText>
+            </IonRadio>
+          </IonRadioGroup>
+        );
+      case 1:
+        return (
+          <>
+            <IonItem>
+              <IonLabel position="stacked">Street</IonLabel>
+              <IonInput
+                value={formData.street}
+                onIonChange={(e) => handleInputChange("street", e.detail.value)}
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">City</IonLabel>
+              <IonInput
+                value={formData.city}
+                onIonChange={(e) => handleInputChange("city", e.detail.value)}
+              />
+            </IonItem>
+          </>
+        );
+      case 2:
+        return formData.locationType === "Home" ? (
+          <IonItem>
+            <IonLabel position="stacked">Home Name</IonLabel>
+            <IonInput
+              value={formData.homeName}
+              onIonChange={(e) => handleInputChange("homeName", e.detail.value)}
+              placeholder="Enter home name"
+            />
+          </IonItem>
+        ) : (
+          <>
+            <IonItem>
+              <IonLabel position="stacked">Business Name</IonLabel>
+              <IonInput
+                value={formData.businessName}
+                onIonChange={(e) => handleInputChange("businessName", e.detail.value)}
+                placeholder="Enter business name"
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Business Phone Number</IonLabel>
+              <IonInput
+                value={formData.businessPhoneNumber}
+                onIonChange={(e) => handleInputChange("businessPhoneNumber", e.detail.value)}
+                placeholder="Enter business phone number"
+              />
+            </IonItem>
+          </>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <IonContent className="flex items-center justify-center">
-      <IonGrid className="h-[92svh] max-w-xl">
-        <IonRow className="h-full">
-          <IonCol size="12" className="ion-align-self-center">
-            <IonCard className="">
+    <IonContent className="flex h-full items-center justify-center">
+      <IonGrid className="max-w-4xl h-full flex items-center justify-center">
+        <IonRow className="w-full">
+          <IonCol size="12">
+            <IonCard className="w-full m-0">
               <IonCardHeader>
                 <IonCardTitle>Add Location</IonCardTitle>
-                {/* <IonCardSubtitle>Basic</IonCardSubtitle> */}
               </IonCardHeader>
               <IonCardContent>
-                {renderStep()}
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {renderStepContent()}
+                  {loadingCoordinates && <Loader />}
+                </motion.div>
                 {loading && <Loader />}
               </IonCardContent>
             </IonCard>
-            <IonGrid>
-              <IonRow>
-                <IonCol>
-                  <IonToolbar>
-                    <IonGrid>
-                      <IonRow className="ion-margin-top ion-justify-content-center">
-                        {step > 0 && (
-                          <IonCol size="6">
-                            <IonButton expand="block" onClick={prevStep}>
-                              Back
-                            </IonButton>
-                          </IonCol>
-                        )}
-
-                        {step === 0 && (
-                          <>
-                            <IonCol
-                              size="6"
-                            >
-                              <IonButton
-                                expand="block"
-                                color="danger"
-                                onClick={handleClose}
-                              >
-                                Close
-                              </IonButton>
-                            </IonCol>
-                            <IonCol size="6">
-                              <IonButton expand="block" onClick={nextStep}>
-                                Next
-                              </IonButton>
-                            </IonCol>
-                          </>
-                        )}
-
-                        {step === 1 && (
-                          <IonCol size="6">
-                            <IonButton expand="block" onClick={nextStep}>
-                              Next
-                            </IonButton>
-                          </IonCol>
-                        )}
-
-                        {step === 2 && (
-                          <IonCol size="6">
-                            <IonButton expand="block" onClick={handleSubmit}>
-                              Submit
-                            </IonButton>
-                          </IonCol>
-                        )}
-                      </IonRow>
-                    </IonGrid>
-                  </IonToolbar>
-                </IonCol>
+            <IonToolbar>
+              <IonRow className="ion-margin-top ion-justify-content-center">
+                {step > 0 && (
+                  <IonCol size="6">
+                    <IonButton expand="block" onClick={prevStep}>
+                      Back
+                    </IonButton>
+                  </IonCol>
+                )}
+                {step < 2 && (
+                  <IonCol size="6">
+                    <IonButton expand="block" onClick={nextStep}>
+                      Next
+                    </IonButton>
+                  </IonCol>
+                )}
+                {step === 2 && (
+                  <IonCol size="6">
+                    <IonButton expand="block" onClick={handleSubmit}>
+                      Submit
+                    </IonButton>
+                  </IonCol>
+                )}
               </IonRow>
-            </IonGrid>
+            </IonToolbar>
           </IonCol>
         </IonRow>
       </IonGrid>

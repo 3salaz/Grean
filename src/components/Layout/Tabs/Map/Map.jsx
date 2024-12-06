@@ -9,13 +9,7 @@ import AddLocation from "../Profile/AddLocation";
 import PickupQueue from "./PickupQueue";
 import businessIcon from "../../../../assets/icons/business.png";
 import "mapbox-gl/dist/mapbox-gl";
-import ReactMapGl, {
-  Marker,
-  Popup,
-  NavigationControl,
-  FullscreenControl,
-  GeolocateControl,
-} from "react-map-gl";
+import ReactMapGl, { Marker, Popup } from "react-map-gl"; // Removed unnecessary imports for the controls
 import {
   IonIcon,
   IonButton,
@@ -27,15 +21,13 @@ import {
   IonGrid,
   IonCard,
   IonCardHeader,
-  IonCardContent, // Add IonContent for proper layout
+  IonCardContent,
+  IonInput,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
 } from "@ionic/react";
-import {
-  leafOutline,
-  calendarNumberOutline,
-  notificationsOutline,
-  caretUpSharp,
-  closeCircle,
-} from "ionicons/icons";
+import { caretUpSharp, closeCircle } from "ionicons/icons";
 import { useLocations } from "../../../../context/LocationsContext";
 
 function Map() {
@@ -49,6 +41,18 @@ function Map() {
     alertsOpen: false,
     pickupQueueOpen: false,
   });
+
+  const [searchQuery, setSearchQuery] = useState(""); // State for search input
+  const [filteredLocations, setFilteredLocations] = useState([]); // Filtered business locations
+  const categories = [
+    "All",
+    "Restaurants",
+    "Bars",
+    "Hotels",
+    "Grocery Stores",
+    "Offices",
+    "Event Venues",
+  ];
 
   const closeModal = (modalName) => {
     setModalState((prevState) => ({ ...prevState, [modalName]: false }));
@@ -69,7 +73,7 @@ function Map() {
     if (mapRef.current) {
       mapRef.current.resize();
     }
-  }, [mapRef, viewPort]); // Move this after mapRef has been declared
+  }, [mapRef, viewPort]);
 
   const bounds = [
     [-122.66336, 37.492987],
@@ -79,7 +83,22 @@ function Map() {
   const [popupInfo, setPopupInfo] = useState(null);
   const { businessLocations } = useLocations();
 
-  const pins = businessLocations?.map((location, index) => (
+  useEffect(() => {
+    // Filter the business locations based on the search query
+    if (searchQuery === "") {
+      setFilteredLocations(businessLocations);
+    } else {
+      setFilteredLocations(
+        businessLocations.filter((location) =>
+          location.businessName
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery, businessLocations]);
+
+  const pins = filteredLocations?.map((location, index) => (
     <Marker
       key={`marker-${index}`}
       longitude={location.longitude}
@@ -104,6 +123,38 @@ function Map() {
 
   return (
     <IonGrid className="h-full ion-no-padding flex flex-col">
+      {/* Search Bar Overlay */}
+      <main className="absolute top-0 left-0 right-0 z-50 p-2">
+        <IonRow className="w-full container mx-auto max-w-4xl">
+          {/* Filter */}
+
+          {/* Search */}
+          <IonCol size="10" className="mx-auto">
+            <IonInput
+              value={searchQuery}
+              placeholder="Search for businesses"
+              onIonChange={(e) => setSearchQuery(e.detail.value)}
+              className="search-bar bg-white p-2 text-center rounded-lg drop-shadow-lg"
+            />
+          </IonCol>
+          <IonCol size="10" className="mx-auto pt-2 rounded-md h-8">
+            <IonSegment
+              scrollable="true"
+              value="default"
+              className="bg-slate-200 bg-opacity-80 rounded-full no-scroll"
+            >
+              {categories.map((category, index) => (
+                <IonSegmentButton className="p-0 m-0" key={index} value={category.toLowerCase()}>
+                  <IonLabel className="bg-grean rounded-lg px-2 p-1 box-border text-white text-xs">
+                    {category}
+                  </IonLabel>
+                </IonSegmentButton>
+              ))}
+            </IonSegment>
+          </IonCol>
+        </IonRow>
+      </main>
+
       {/* Driver Navigations */}
       <IonModal
         isOpen={modalState.scheduleOpen}
@@ -119,7 +170,6 @@ function Map() {
         <Alerts handleClose={() => closeModal("alertsOpen")} />
       </IonModal>
 
-
       {/* User Navigation */}
       <IonModal
         isOpen={modalState.pickupQueueOpen}
@@ -134,17 +184,6 @@ function Map() {
       >
         <RequestPickup handleClose={() => closeModal("requestPickupOpen")} />
       </IonModal>
-
-
-
-      {/* <IonModal
-        isOpen={modalState.addLocationOpen}
-        onDidDismiss={() => closeModal("addLocationOpen")}
-      >
-        <AddLocation handleClose={() => closeModal("addLocationOpen")} />
-      </IonModal> */}
-
-      {/* Toolbar at the top or bottom */}
 
       {/* Map component */}
       <IonRow className="h-full flex-grow">
@@ -164,9 +203,6 @@ function Map() {
             }} // Ensure the map takes full height and width
             maxBounds={bounds}
           >
-            <GeolocateControl position="top-left" />
-            <FullscreenControl position="top-left" />
-            <NavigationControl position="top-left" />
             {pins}
             {popupInfo && (
               <Popup
@@ -200,7 +236,7 @@ function Map() {
                   </IonRow>
 
                   <IonCard className="relative pt-0 mt-0">
-                    <div className="absolute top-0 right-0">
+                    <div className="absolute top-0 right-0 z-40">
                       <IonButton
                         color="danger"
                         size="small"
@@ -258,70 +294,6 @@ function Map() {
             )}
           </ReactMapGl>
         </IonCol>
-      </IonRow>
-
-      <IonRow className="absolute container bottom-2 gap-2 left-0 ion-align-self-center ion-justify-content-center mx-auto z-50">
-
-        {/* User */}
-        {profile?.accountType === "User" && profile?.addresses.length > 0 && (
-          <>
-            <IonCol size="8" className="ion-align-self-center">
-              <IonButton
-                expand="block"
-                color="primary"
-                onClick={() => openModal("requestPickupOpen")}
-                className="drop-shadow-lg"
-              >
-                Request Pickup
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto" className="relative">
-              <IonFabButton
-                onClick={() => openModal("alertsOpen")}
-                color="light"
-                className="drop-shadow-lg"
-              >
-                <IonIcon color="primary" icon={leafOutline} />
-              </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5 p-1 flex items-center justify-center">
-                {userCreatedPickups.length}
-              </IonBadge>
-            </IonCol>
-          </>
-        )}
-
-        {/* Driver */}
-        {profile?.accountType === "Driver" && (
-          <>
-            <IonCol size="auto" className="relative">
-              <IonFabButton
-                onClick={() => openModal("scheduleOpen")}
-                color="tertiary"
-              >
-                <IonIcon icon={calendarNumberOutline} />
-              </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-white text-grean rounded-full aspect-square w-5">
-                {
-                  userAcceptedPickups.filter((pickup) => !pickup.isCompleted)
-                    .length
-                }
-              </IonBadge>
-            </IonCol>
-            <IonCol size="auto" className="relative">
-              <IonFabButton
-                onClick={() => openModal("pickupQueueOpen")}
-                color="danger"
-                className="relative"
-              >
-                <IonIcon icon={notificationsOutline} />
-              </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-white text-grean rounded-full aspect-square w-5">
-                {visiblePickups.length}
-              </IonBadge>
-            </IonCol>
-          </>
-        )}
-
       </IonRow>
     </IonGrid>
   );

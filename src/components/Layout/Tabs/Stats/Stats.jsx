@@ -17,12 +17,18 @@ import {
   IonCard,
   IonFab,
   IonFabButton,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
 } from "@ionic/react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
-import { fileTrayFullOutline, personOutline } from "ionicons/icons";
+import { carOutline, fileTrayFullOutline, flashOutline, personOutline, scaleOutline } from "ionicons/icons";
 import userIcon from "../../../../assets/icons/user.png";
 import driverIcon from "../../../../assets/icons/driver.png";
 import History from "./History";
+import ProfileHeader from "../Profile/ProfileHeader";
+import RecyclingStats from "./RecyclingStats";
+import Metrics from "./Metrics";
 
 const Stats = () => {
   const [pounds, setPounds] = useState(0); // Current pounds recycled
@@ -103,7 +109,7 @@ const Stats = () => {
   return (
     <IonGrid
       color="light"
-      className="h-full relative flex flex-col items-center justify-between ion-no-padding"
+      className="h-full relative flex flex-col items-center justify-between ion-no-padding bg-gradient-to-t from-grean to-blue-300"
     >
       <IonModal
         isOpen={modalState.history}
@@ -112,123 +118,14 @@ const Stats = () => {
         <History handleClose={() => closeModal("history")} />
       </IonModal>
 
-      <IonRow className="w-full flex flex-grow justify-center items-center ion-padding">
-        <IonCol size="auto" className="absolute left-2 top-2">
-          <IonButton size="small" className="z-20 top-2 shadow-xl">
-            <img className="w-8" src={userRoleInfo.icon} alt="User Icon" />
-            <span className="text-sm">{userRoleInfo.text}</span>
-          </IonButton>
-        </IonCol>
+      <main className="container mx-auto max-w-4xl overflow-auto">
+        <ProfileHeader />
+        <RecyclingStats/>
+        <Metrics/>
+        <History/>
+      </main>
 
-
-        <IonCol
-          size="12"
-          className="text-center mx-auto w-full flex items-center justify-center"
-        >
-          <svg
-            className="w-32 h-32"
-            viewBox="0 0 160 160"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle
-              className="circle-bg"
-              cx="80"
-              cy="80"
-              r="70"
-              strokeWidth="10"
-              stroke="#e6e6e6"
-              fill="none"
-            />
-            <circle
-              className="circle-progress"
-              cx="80"
-              cy="80"
-              r="70"
-              strokeWidth="10"
-              stroke="#4caf50"
-              fill="none"
-              strokeDasharray="440"
-              // Calculate strokeDashoffset based on progress percentage
-              strokeDashoffset={440 - (440 * progress) / 100}
-              strokeLinecap="round"
-            />
-            <text
-              className="circle-text"
-              x="50%"
-              y="50%"
-              dy=".3em"
-              textAnchor="middle"
-              fontSize="25"
-              fill="#75b657"
-            >
-              {totalPoints} pts
-            </text>
-          </svg>
-        </IonCol>
-
-        <IonCol
-          size="12"
-          className="flex flex-grow flex-col justify-center items-center ion-padding bg-white"
-        >
-          <IonText className="text-2xl font-bold">Level: {level}</IonText>
-          <IonText className="text-xl font-bold">{profile.displayName}</IonText>
-          <IonText className="text-center">
-            Earn {100 - (totalPoints % 100)} more points to reach level{" "}
-            {level + 1}
-          </IonText>
-        </IonCol>
-
-        {/* Energy Savings */}
-        <IonCol size="4" className="text-center">
-          <IonCard className=" bg-orange ion-no-margin text-white p-2 w-full h-full flex items-center justify-center gap-2 flex-col">
-            <IonLabel className="text-sm block m-0 p-0">
-              <h4 className="text-center">
-                {energySaved.toFixed(2)} {/* Display energy saved */}
-                <span className="font-bold text-sm p-0 m-0">kWh</span>
-              </h4>
-              <h6 className="text-center">Energy</h6>
-            </IonLabel>
-          </IonCard>
-        </IonCol>
-
-        {/* Total Weight */}
-        <IonCol size="4" sizeMd="4" className="text-center">
-          <IonCard
-            lines="none"
-            className="border-2 bg-white bg-green-500 ion-no-margin w-full h-full flex items-center justify-center gap-4 flex-col p-2 rounded-lg shadow-md"
-          >
-            <IonLabel className="text-sm block m-0 p-0">
-              <h4 className="text-center">
-                {(
-                  totalWeight.aluminum +
-                  totalWeight.glass +
-                  totalWeight.plastic
-                ).toFixed(2)}{" "}
-                {/* Display total weight */}
-                <span className="font-bold text-sm p-0 m-0">lbs</span>
-              </h4>
-              <h6 className="text-center">Weight</h6>
-            </IonLabel>
-          </IonCard>
-        </IonCol>
-
-        {/* Total Pickups */}
-        <IonCol size="4" sizeMd="4" className="text-center">
-          <IonCard
-            lines="none"
-            className="border-2 ion-no-margin bg-white bg-green-500 p-2 w-full h-full flex items-center justify-center flex-col rounded-lg shadow-md"
-          >
-            <IonLabel className="text-sm block m-0 p-0">
-              <h4 className="text-center">
-                {totalPickups} {/* Display total pickups */}
-              </h4>
-              <h6 className="text-center">Pickups</h6>
-            </IonLabel>
-          </IonCard>
-        </IonCol>
-      </IonRow>
-
-      <IonRow className="w-full ion-justify-content-center ion-margin-top bg-slate-200 relative">
+      {/* <IonRow className="w-full ion-justify-content-center ion-margin-top bg-slate-200 relative">
         <IonCol size="auto" className="mx-auto text-center">
           <IonText className="text-xl">Total</IonText>
           <IonText className="font-bold text-white text-2xl">0</IonText>
@@ -247,7 +144,7 @@ const Stats = () => {
             <IonIcon icon={fileTrayFullOutline}></IonIcon>
           </IonButton>
         </IonCol>
-      </IonRow>
+      </IonRow> */}
     </IonGrid>
   );
 };

@@ -19,6 +19,7 @@ if (window.ResizeObserver) {
   });
 }
 
+
 // Get the root element
 const rootElement = document.getElementById('root');
 

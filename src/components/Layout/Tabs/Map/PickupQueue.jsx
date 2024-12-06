@@ -23,6 +23,7 @@ import {
   IonCard,
 } from "@ionic/react";
 import { checkmarkCircle, closeOutline } from "ionicons/icons";
+import { ToastContainer } from "react-toastify";
 
 function PickupQueue({ handleClose }) {
   const { visiblePickups, acceptPickup, removePickup } = usePickups();
@@ -37,6 +38,7 @@ function PickupQueue({ handleClose }) {
 
   return (
     <IonPage>
+      
       <IonHeader translucent={true}>
         <IonToolbar color="primary">
           <IonTitle>Pickup Queue</IonTitle>
@@ -45,9 +47,11 @@ function PickupQueue({ handleClose }) {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
+      <ToastContainer />
 
       <IonContent color="light" className="ion-no-padding ion-no-margin">
         <IonCard className="h-full p-0 m-0">
+        <ToastContainer />
           <IonList className="ion-no-margin ion-no-padding">
             <IonListHeader className="ion-no-padding">
               <IonRow className="w-full">

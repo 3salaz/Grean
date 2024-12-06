@@ -1,13 +1,9 @@
-import { useEffect, useState } from "react";
-import Profile from "../components/Layout/Tabs/Profile/Profile";
-import Stats from "../components/Layout/Tabs/Stats/Stats";
-import Map from "../components/Layout/Tabs/Map/Map";
+import { useEffect, useState, Suspense, lazy } from "react";
 import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
 import { useAuthProfile } from "../context/AuthProfileContext";
 import {
   IonPage,
   IonContent,
-  IonModal,
   IonSpinner,
   IonFooter,
   IonToolbar,
@@ -20,99 +16,109 @@ import {
   IonCol,
 } from "@ionic/react";
 import {
+  leafOutline,
   navigateCircleOutline,
   personCircleOutline,
   statsChartOutline,
 } from "ionicons/icons";
 
+// Lazy load components
+const Profile = lazy(() => import("../components/Layout/Tabs/Profile/Profile"));
+const Stats = lazy(() => import("../components/Layout/Tabs/Stats/Stats"));
+const Map = lazy(() => import("../components/Layout/Tabs/Map/Map"));
+const Pickups = lazy(() => import("../components/Layout/Tabs/Pickups/Pickups"));
+
 function Account() {
-  const { profile } = useAuthProfile();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("map"); // Default to Map tab
+  const { profile } = useAuthProfile(); // Get profile from context
+  const [activeTab, setActiveTab] = useState("profile"); // Default tab
   const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
-    if (
-      profile &&
-      (!profile.accountType || !profile.displayName || !profile.profilePic)
-    ) {
-      setIsModalOpen(true); // Open modal if profile is incomplete
-    } else {
-      setIsModalOpen(false);
-    }
-  }, [profile]);
+    if (!profile) return; // Skip loading if profile doesn't exist
 
-  useEffect(() => {
-    setLoading(true);
+    // Simulate loading delay
     const loadTab = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate loading
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoading(false);
     };
     loadTab();
-  }, [activeTab]);
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false); // Close the modal after profile is updated
-  };
+  }, [activeTab, profile]);
 
   // Component Mapping
   const renderActiveTab = () => {
+    if (!profile) return <CreateProfile />; // Render CreateProfile if profile is missing
+
     switch (activeTab) {
       case "profile":
-        return <Profile />;
+        return (
+          <Suspense fallback={<IonSpinner />}>
+            <Profile />
+          </Suspense>
+        );
+      case "pickups":
+        return (
+          <Suspense fallback={<IonSpinner />}>
+            <Pickups />
+          </Suspense>
+        );
       case "map":
-        return <Map />;
+        return (
+          <Suspense fallback={<IonSpinner />}>
+            <Map />
+          </Suspense>
+        );
       case "stats":
-        return <Stats />;
+        return (
+          <Suspense fallback={<IonSpinner />}>
+            <Stats />
+          </Suspense>
+        );
       default:
-        return <Map />;
+        return <div>Invalid tab selected.</div>; // Fallback for invalid tabs
     }
   };
 
   return (
     <IonPage>
-      <IonModal isOpen={isModalOpen} onDidDismiss={handleCloseModal}>
-        <CreateProfile handleClose={handleCloseModal} />{" "}
-        {/* Pass handleClose */}
-      </IonModal>
-
-      <IonContent color="light" className="flex flex-col h-full" scroll-y="false">
-        {profile && profile.accountType && (
-          <>
-            {loading ? (
-              <IonGrid className="h-full ion-no-padding">
-                <IonRow className="h-full">
-                  <IonCol className="flex items-center justify-center w-full h-full bg-white">
-                    <IonSpinner color="primary" name="crescent" />
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            ) : (
-              renderActiveTab() // Render the active tab component
-            )}
-          </>
+      <IonContent className="flex flex-col h-full" scroll-y="false">
+        {loading ? (
+          <IonGrid className="h-full ion-no-padding">
+            <IonRow className="h-full">
+              <IonCol className="flex items-center justify-center w-full h-full bg-white">
+                <IonSpinner color="primary" name="crescent" />
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        ) : (
+          renderActiveTab() // Render the active tab component
         )}
       </IonContent>
-      <IonFooter>
+
+      <IonFooter className="h-[8svh] flex items-center justify-center border-t-grean border-t-2">
         <IonToolbar
           color="secondary"
-          className="flex items-center justify-center"
+          className="flex items-center justify-center h-full"
         >
           <IonSegment
             className="max-w-2xl mx-auto"
             value={activeTab}
             onIonChange={(e) => setActiveTab(e.detail.value)}
           >
-            <IonSegmentButton value="profile">
-              <IonLabel>Profile</IonLabel>
+            <IonSegmentButton value="profile" aria-label="Profile Tab">
+              <IonLabel className="text-xs">Profile</IonLabel>
               <IonIcon icon={personCircleOutline}></IonIcon>
             </IonSegmentButton>
-            <IonSegmentButton value="map">
-              <IonLabel>Map</IonLabel>
+            <IonSegmentButton value="pickups" aria-label="Pickups Tab">
+              <IonLabel className="text-xs">Pickups</IonLabel>
+              <IonIcon icon={leafOutline}></IonIcon>
+            </IonSegmentButton>
+            <IonSegmentButton value="map" aria-label="Map Tab">
+              <IonLabel className="text-xs">Map</IonLabel>
               <IonIcon icon={navigateCircleOutline}></IonIcon>
             </IonSegmentButton>
-            <IonSegmentButton value="stats">
-              <IonLabel>Stats</IonLabel>
+            <IonSegmentButton value="stats" aria-label="Stats Tab">
+              <IonLabel className="text-xs">Stats</IonLabel>
               <IonIcon icon={statsChartOutline}></IonIcon>
             </IonSegmentButton>
           </IonSegment>
@@ -123,3 +129,4 @@ function Account() {
 }
 
 export default Account;
+

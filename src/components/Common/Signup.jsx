@@ -1,35 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { useAuthProfile } from "../../context/AuthProfileContext";
-import { toast } from "react-toastify";
+import React, { useState } from "react";
 import {
-  IonContent,
-  IonPage,
   IonInput,
   IonItem,
   IonLabel,
   IonButton,
-  IonText,
   IonGrid,
   IonRow,
   IonCol,
-  IonIcon,
+  IonText,
+  IonSpinner,
   IonCard,
   IonCardHeader,
-  IonCardContent,
   IonCardTitle,
+  IonCardContent,
   IonFabButton,
+  IonIcon,
+  IonContent,
 } from "@ionic/react";
-import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import { useAuthProfile } from "../../context/AuthProfileContext";
+import "react-toastify/dist/ReactToastify.css";
 import { closeOutline, logoGoogle } from "ionicons/icons";
 
-function Signup({ handleClose }) {
-  const history = useHistory();
-  const { user, signUp, googleSignIn } = useAuthProfile();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+function Signup({ handleClose, toggleToSignin }) {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signUp, googleSignIn } = useAuthProfile();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,21 +35,16 @@ function Signup({ handleClose }) {
     }));
   };
 
-  useEffect(() => {
-    if (user) {
-      setFormData((prevData) => ({ ...prevData, email: user.email }));
-    }
-  }, [user]);
-
   const handleGoogleSignUp = async () => {
     try {
+      setIsSubmitting(true);
       await googleSignIn();
-      console.log("Signed up successfully with Google!");
+      toast.success("Signed up successfully with Google!");
       handleClose();
-      history.push("/account");
     } catch (error) {
-      console.log(error);
       toast.error("Error signing up with Google. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -62,49 +53,50 @@ function Signup({ handleClose }) {
       toast.error("Please fill in all required fields.");
       return;
     }
+  
     try {
+      setIsSubmitting(true);
+  
+      // Prepare profile data
       const profileData = {
-        displayName: "",
         email: formData.email,
-        addresses: [],
-        stats: {
-          overall: 0,
-          pickups: [],
-        },
+        uid: "", // UID will be assigned in the `signUp` function
+        createdAt: new Date().toISOString(), // Optional metadata
       };
+  
       await signUp(formData.email, formData.password, profileData);
-      console.log("User created successfully!");
+  
+      toast.success("Account created successfully!");
       handleClose();
-      history.push("/account");
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        toast.error("Error: Email already in use.");
-      } else {
-        toast.error("Error creating user: " + error.message);
-      }
+      toast.error("Error creating account: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+  
 
   return (
-    <IonContent className="flex items-center justify-center">
-      <IonGrid className="h-[92svh] max-w-xl">
-        <IonRow className="h-full">
-          <IonCol size="12" className="ion-align-self-center">
-            <IonCard className="shadow-none">
-              <IonCardHeader>
-                <IonCardTitle>
-                  <IonText color="primary">
-                    <h3 className="text-center text-[#75B657] mb-4">
-                      Sign Up for an Account
-                    </h3>
-                  </IonText>
-                </IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonGrid>
+    <>
+      {/* <ToastContainer /> */}
+      <IonContent className="flex items-cener justify-center">
+        <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
+          <IonRow className="h-full">
+            <IonCol size="12" className="ion-align-self-center">
+              <IonCard className="">
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <IonText color="primary">
+                      <h3 className="text-center text-[#75B657] mb-4">
+                        Create Your Account
+                      </h3>
+                    </IonText>
+                  </IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
                   <IonRow>
                     <IonCol size="12">
-                      <IonItem>
+                      <IonItem className="w-full">
                         <IonLabel position="stacked">Email</IonLabel>
                         <IonInput
                           name="email"
@@ -130,29 +122,28 @@ function Signup({ handleClose }) {
                       </IonItem>
                     </IonCol>
                   </IonRow>
-                  <IonRow>
-                    <IonCol size="12" className="text-center ion-padding">
-                        <IonText className="text-center text-sm text-gray-500">
-                          Already a member?{" "}
-                          <Link
-                            to="/"
-                            className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
-                          >
-                            Sign In
-                          </Link>
-                        </IonText>
+                  <IonRow className="ion-padding">
+                    <IonCol size="12" className="text-center">
+                      <IonText className="text-center text-gray-500">
+                        Already have an account?{" "}
+                        <span
+                          className="text-[#75B657] cursor-pointer"
+                          onClick={toggleToSignin}
+                        >
+                          Sign In
+                        </span>
+                      </IonText>
                     </IonCol>
                   </IonRow>
-                  <IonRow>
+                  <IonRow className="ion-justify-content-center max-w-sm mx-auto">
                     <IonCol size="6">
                       <IonButton
                         expand="block"
                         color="light"
-                        size="medium"
                         onClick={handleGoogleSignUp}
-                        className="flex items-center"
+                        disabled={isSubmitting}
                       >
-                        Sign Up W/
+                        {isSubmitting ? <IonSpinner /> : "Sign in W/"}
                         <IonIcon slot="end" icon={logoGoogle} />
                       </IonButton>
                     </IonCol>
@@ -161,13 +152,14 @@ function Signup({ handleClose }) {
                         expand="block"
                         color="success"
                         onClick={handleSignUp}
+                        disabled={isSubmitting}
                         className="text-white"
                       >
-                        Sign Up
+                        {isSubmitting ? <IonSpinner /> : "Sign Up"}
                       </IonButton>
                     </IonCol>
-                  </IonRow>                
-                  <IonRow>
+                  </IonRow>
+                  <IonRow className="">
                     <IonCol
                       size="12"
                       className="flex items-center justify-center pt-10"
@@ -176,19 +168,18 @@ function Signup({ handleClose }) {
                         expand="block"
                         color="danger"
                         onClick={handleClose}
-                        className="text-white"
                       >
                         <IonIcon icon={closeOutline} />
                       </IonFabButton>
                     </IonCol>
                   </IonRow>
-                </IonGrid>
-              </IonCardContent>
-            </IonCard>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    </IonContent>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </>
   );
 }
 

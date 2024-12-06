@@ -10,6 +10,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* Increase the z-index of Toastify notifications */
+.Toastify__toast-container {
+  z-index: 9999; /* Ensure it's above the modal's z-index */
+}
+
 /* Mapbox */
 .mapboxgl-map {
   -webkit-tap-highlight-color: rgb(0 0 0/0);

@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { useAuthProfile } from "../../context/AuthProfileContext";
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import {
   IonInput,
   IonButton,
@@ -18,12 +17,12 @@ import {
   IonCardHeader,
   IonFabButton,
 } from "@ionic/react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { closeOutline, logoGoogle } from "ionicons/icons";
+import { useAuthProfile } from "../../context/AuthProfileContext";
+import "react-toastify/dist/ReactToastify.css";
 
-// Debounce function
-
-function Signin({ handleClose }) {
+function Signin({ handleClose, toggleToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,10 +33,11 @@ function Signin({ handleClose }) {
     try {
       setLoading(true);
       await googleSignIn();
-      console.log("Signed in successfully with Google!");
+      toast.success("Signed in successfully with Google!");
+      handleClose();
       history.push("/account");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Error signing in with Google. Please try again.");
     } finally {
       setLoading(false);
@@ -48,38 +48,32 @@ function Signin({ handleClose }) {
     try {
       setLoading(true);
       await signIn(email, password);
-      console.log("Signed in successfully!");
+      toast.success("Signed in successfully!");
+      handleClose();
       history.push("/account");
     } catch (error) {
-      if (error.code === "auth/user-not-found") {
-        toast.error("User not found. Please check your email and try again.");
-      } else if (error.code === "auth/wrong-password") {
-        toast.error("Incorrect password. Please try again.");
-      } else {
-        toast.error(
-          "Error signing in. Please check your credentials and try again."
-        );
-      }
+      toast.error("Error signing in. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <IonContent className="flex items-center justify-center">
-      <IonGrid className="h-[92svh] max-w-xl">
-        <IonRow className="h-full">
-          <IonCol size="12" className="ion-align-self-center">
-            <IonCard className="shadow-none">
-              <IonCardHeader>
-                <IonText color="primary">
-                  <h3 className="text-center text-[#75B657] mb-4">
-                    Sign In To Your Account
-                  </h3>
-                </IonText>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonGrid>
+    <>
+      <ToastContainer />
+      <IonContent className="flex items-center justify-center">
+        <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
+          <IonRow className="h-full">
+            <IonCol size="12" className="ion-align-self-center">
+              <IonCard className="shadow-none">
+                <IonCardHeader>
+                  <IonText color="primary">
+                    <h3 className="text-center text-[#75B657] mb-4">
+                      Sign In To Your Account
+                    </h3>
+                  </IonText>
+                </IonCardHeader>
+                <IonCardContent>
                   <IonRow>
                     <IonCol size="12">
                       <IonItem className="w-full">
@@ -88,48 +82,53 @@ function Signin({ handleClose }) {
                           value={email}
                           onIonChange={(e) => setEmail(e.detail.value)}
                           type="email"
-                          className="w-full"
                           placeholder="Enter your email"
                           required
                         />
                       </IonItem>
 
-                      <IonItem className="w-full">
-                        <IonLabel position="stacked">Password</IonLabel>
-                        <IonInput
-                          value={password}
-                          onIonChange={(e) => setPassword(e.detail.value)}
-                          type="password"
-                          placeholder="Enter your password"
-                          required
-                        />
-                      </IonItem>
-                    </IonCol>
-                    <IonRow>
-                      <IonCol size="12" className="text-center">
-                        <IonText className="text-center text-sm text-gray-500 w-full">
-                          Not a member?
-                          <Link
-                            to="/setup"
-                            className="pl-1 font-semibold leading-6 text-[#75B657] hover:text-green-700"
-                          >
-                            Sign Up
-                          </Link>
-                        </IonText>
                       </IonCol>
-                    </IonRow>
+                      <IonCol size="12">
+                        <IonItem className="w-full">
+                          <IonLabel position="stacked">Password</IonLabel>
+                          <IonInput
+                            value={password}
+                            onIonChange={(e) => setPassword(e.detail.value)}
+                            type="password"
+                            placeholder="Enter your password"
+                            required
+                          />
+                        </IonItem>
+                      </IonCol>
                   </IonRow>
-                  <IonRow className="ion-justify-content-center">
+
+                  <IonRow className="ion-padding">
+                    <IonCol size="12" className="text-center">
+                      <IonText className="text-center text-gray-500">
+                        Not a member?{" "}
+                        <span
+                          className="text-[#75B657] cursor-pointer"
+                          onClick={toggleToSignup}
+                        >
+                          Sign Up
+                        </span>
+                      </IonText>
+                    </IonCol>
+                  </IonRow>
+                  <IonRow className="ion-justify-content-center max-w-sm mx-auto">
                     <IonCol size="6">
                       <IonButton
                         expand="block"
                         color="light"
                         onClick={handleGoogleSignIn}
-                        className="flex items-center"
                         disabled={loading}
                       >
-                                                Sign in W/
-                                                <IonIcon slot="end" icon={logoGoogle} />
+                        {loading ? (
+                          <IonSpinner name="crescent" />
+                        ) : (
+                          "Sign in W/"
+                        )}
+                        <IonIcon slot="end" icon={logoGoogle} />
                       </IonButton>
                     </IonCol>
                     <IonCol size="6">
@@ -138,13 +137,12 @@ function Signin({ handleClose }) {
                         color="success"
                         onClick={handleSignIn}
                         disabled={loading}
-                        className="text-white"
                       >
                         {loading ? <IonSpinner name="crescent" /> : "Sign In"}
                       </IonButton>
                     </IonCol>
                   </IonRow>
-                  <IonRow>
+                  <IonRow className="">
                     <IonCol
                       size="12"
                       className="flex items-center justify-center pt-10"
@@ -153,30 +151,18 @@ function Signin({ handleClose }) {
                         expand="block"
                         color="danger"
                         onClick={handleClose}
-                        className="text-white"
                       >
                         <IonIcon icon={closeOutline} />
                       </IonFabButton>
                     </IonCol>
                   </IonRow>
-                </IonGrid>
-              </IonCardContent>
-            </IonCard>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    </IonContent>
-    // <div className="flex items-center justify-center h-[90%] max-w-[650px] bg-white">
-    //   <main className="w-full rounded-lg p-2">
-    //     <div className="flex flex-col items-center">
-    //       <section className="w-full flex flex-col gap-4 items-center">
-
-    //       </section>
-    //       <div className="flex items-center justify-center gap-4 mt-4"
-    //       </div>
-    //     </div>
-    //   </main>
-    // </div>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </>
   );
 }
 

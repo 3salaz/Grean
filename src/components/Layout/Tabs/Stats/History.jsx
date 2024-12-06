@@ -1,120 +1,193 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
-  IonButton,
   IonCard,
+  IonCardHeader,
   IonCardTitle,
   IonCol,
-  IonContent,
-  IonFooter,
   IonGrid,
-  IonHeader,
-  IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonListHeader,
-  IonPage,
   IonRow,
   IonSegment,
   IonSegmentButton,
-  IonTitle,
-  IonToolbar,
 } from "@ionic/react";
-import { closeOutline } from "ionicons/icons";
+import { motion, useInView } from "framer-motion";
 
 function History({ handleClose }) {
-  // Define the state for the active tab
-  const [activeTab, setActiveTab] = useState("weekly");
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Placeholder for the pickupHistory array (you should replace this with your actual data)
+  // Single array of pickupHistory data
   const pickupHistory = [
     { date: "2024-09-01", aluminumWeight: 10, plasticWeight: 5 },
     { date: "2024-09-02", aluminumWeight: 8, plasticWeight: 3 },
     { date: "2024-09-03", aluminumWeight: 12, plasticWeight: 6 },
+    { date: "2024-09-04", aluminumWeight: 9, plasticWeight: 4 },
+    { date: "2024-08-25", aluminumWeight: 50, plasticWeight: 20 },
+    { date: "2024-08-18", aluminumWeight: 45, plasticWeight: 18 },
+    { date: "2024-08-11", aluminumWeight: 55, plasticWeight: 22 },
+    { date: "2024-01-01", aluminumWeight: 500, plasticWeight: 250 },
+    { date: "2024-02-01", aluminumWeight: 480, plasticWeight: 240 },
+    { date: "2024-03-01", aluminumWeight: 510, plasticWeight: 260 },
+    { date: "2024-04-01", aluminumWeight: 520, plasticWeight: 270 },
   ];
 
-  // Handler for when a pickup is clicked (replace with your actual logic)
+  // Helper: Normalize dates (convert string to start-of-day Date)
+  const normalizeDate = (date) => {
+    const d = new Date(date);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+
+  // Filter data dynamically based on the active tab
+  const filterData = () => {
+    const currentDate = normalizeDate(new Date());
+    switch (activeTab) {
+      case "weekly":
+        // Filter data for the last 7 days
+        const oneWeekAgo = new Date(currentDate);
+        oneWeekAgo.setDate(currentDate.getDate() - 7);
+        return pickupHistory.filter(
+          (item) => normalizeDate(item.date) >= oneWeekAgo
+        );
+      case "monthly":
+        // Filter data for the current month
+        return pickupHistory.filter((item) => {
+          const itemDate = normalizeDate(item.date);
+          return (
+            itemDate.getMonth() === currentDate.getMonth() &&
+            itemDate.getFullYear() === currentDate.getFullYear()
+          );
+        });
+      case "all":
+      default:
+        // Show all data
+        return pickupHistory;
+    }
+  };
+
+  // Get the filtered history
+  const activeHistory = filterData();
+
+  // Ref and useInView for triggering animations
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  // Handle pickup item click
   const handlePickupClick = (pickup) => {
     console.log("Pickup clicked:", pickup);
   };
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="secondary">
-          <IonCardTitle className="text-white text-center">
-            <h1>History</h1>
-          </IonCardTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        <IonGrid className="h-full m-0 p-0 flex flex-col">
-          <IonRow className="ion-justify-content-between flex-grow">
-            <IonCol size="12" className="drop-shadow-xl m-0 p-2">
-              <IonItem className="md:rounded-md bg-white overflow-auto h-full">
-                <IonList className="w-full h-full">
-                  <IonListHeader className="text-xl text-grean font-bold text-center">
-                    History | Current Week
-                  </IonListHeader>
-                  <IonItem className="border-gray-300 flex justify-between font-bold w-full">
-                    <IonLabel>Driver</IonLabel>
-                    <IonLabel>Weight</IonLabel>
-                    <IonLabel>Date</IonLabel>
-                  </IonItem>
-                  {pickupHistory.map((pickup, index) => (
-                    <IonItem
-                      key={index}
-                      className="border-slate-800 flex justify-between cursor-pointer w-full"
-                      onClick={() => handlePickupClick(pickup)}
-                    >
-                      <IonLabel>{pickup.date}</IonLabel>
-                      <IonLabel>{pickup.aluminumWeight} lbs</IonLabel>
-                      <IonLabel>{pickup.plasticWeight} lbs</IonLabel>
-                    </IonItem>
-                  ))}
-                </IonList>
+    <IonGrid className="m-0 p-0 flex flex-col" ref={ref}>
+      {/* Header */}
+      <IonRow className="ion-justify-content-between">
+        <IonCol size="12" className="pb-0">
+          <IonCard className="bg-transparent shadow-none">
+            <IonCardHeader className="pb-0">
+              <IonCardTitle className="text-3xl">History</IonCardTitle>
+            </IonCardHeader>
+          </IonCard>
+        </IonCol>
+      </IonRow>
+
+      {/* Tabs */}
+      <IonRow>
+        <IonCol size="12" className="ion-padding">
+          <IonSegment
+            value={activeTab}
+            className="bg-grean rounded-md"
+            onIonChange={(e) => setActiveTab(e.detail.value)}
+          >
+            <IonSegmentButton
+              value="all"
+              className={activeTab === "all" ? "bg-white" : "text-white"}
+            >
+              <IonLabel>All</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton
+              value="weekly"
+              className={activeTab === "weekly" ? "bg-white" : "text-white"}
+            >
+              <IonLabel>Weekly</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton
+              value="monthly"
+              className={activeTab === "monthly" ? "bg-white" : "text-white"}
+            >
+              <IonLabel>Monthly</IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
+        </IonCol>
+      </IonRow>
+
+      {/* History List */}
+      <IonRow className="bg-white">
+        <IonCol size="12" className="ion-padding">
+          <IonList className="w-full bg-transparent">
+            {/* Header with animation */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}} // Trigger animation when in view
+              transition={{ duration: 0.5 }}
+            >
+              <IonListHeader className="text-xl font-bold text-center">
+                History |{" "}
+                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </IonListHeader>
+            </motion.div>
+
+            {/* Table Headers */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}} // Trigger animation when in view
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <IonItem className="flex justify-between font-bold bg-transparent">
+                <IonLabel>Date</IonLabel>
+                <IonLabel>Aluminum</IonLabel>
+                <IonLabel>Plastic</IonLabel>
               </IonItem>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-          <IonCol size="12">
-              <IonSegment
-                value={activeTab}
-                className="bg-grean text-slate-800"
-                onIonChange={(e) => setActiveTab(e.detail.value)}
+            </motion.div>
+
+            {/* Animated List Items */}
+            {activeHistory.map((pickup, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}} // Trigger animation when in view
+                transition={{ duration: 0.3, delay: index * 0.1 }} // Stagger animation
               >
-                <IonSegmentButton value="weekly">
-                  <IonLabel>Weekly</IonLabel>
-                </IonSegmentButton>
-                <IonSegmentButton value="monthly">
-                  <IonLabel>Monthly</IonLabel>
-                </IonSegmentButton>
-                <IonSegmentButton value="yearly">
-                  <IonLabel>Yearly</IonLabel>
-                </IonSegmentButton>
-              </IonSegment>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonContent>
-      <IonFooter>
-        <IonToolbar color="light">
-          <IonRow className="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton
-                color="danger"
-                shape="round"
-                size="large"
-                fill="solid"
-                onClick={handleClose}
-              >
-                <IonIcon slot="icon-only" icon={closeOutline} />
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonToolbar>
-      </IonFooter>
-    </IonPage>
+                <IonItem
+                  className="flex justify-between cursor-pointer"
+                  onClick={() => handlePickupClick(pickup)}
+                >
+                  <IonLabel>{pickup.date}</IonLabel>
+                  <IonLabel>
+                    <motion.span
+                      initial={{ scale: 0.8 }}
+                      animate={isInView ? { scale: 1 } : {}} // Trigger scale animation
+                      transition={{ duration: 0.3 }}
+                    >
+                      {pickup.aluminumWeight} lbs
+                    </motion.span>
+                  </IonLabel>
+                  <IonLabel>
+                    <motion.span
+                      initial={{ scale: 0.8 }}
+                      animate={isInView ? { scale: 1 } : {}} // Trigger scale animation
+                      transition={{ duration: 0.3 }}
+                    >
+                      {pickup.plasticWeight} lbs
+                    </motion.span>
+                  </IonLabel>
+                </IonItem>
+              </motion.div>
+            ))}
+          </IonList>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
   );
 }
 

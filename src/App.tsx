@@ -9,9 +9,10 @@ import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Toastify
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // User Themes
@@ -36,9 +37,12 @@ import Account from "./routes/Account";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import SideMenu from "./components/Layout/SideMenu";
 
+
+
 // Initialize toast notifications
 
 function App() {
+  
   return (
     <IonApp>
       <AuthProfileProvider>

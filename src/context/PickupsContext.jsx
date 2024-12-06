@@ -81,6 +81,15 @@ export const PickupsProvider = ({ children }) => {
 
   // Create a new pickup
   const createPickup = async (pickupData) => {
+    // Check how many active pickups the user has (i.e., pickups that are not completed)
+    const activePickups = userCreatedPickups.filter((pickup) => !pickup.isCompleted);
+  
+    if (activePickups.length >= 2) {
+      toast.error("You can only have 2 active pickups at a time.");
+      return; // Exit the function if they have reached the limit
+    }
+  
+    // Proceed to create a new pickup if under the limit
     const newPickupId = uuidv4(); // Generate a unique ID for the new pickup
     const newPickup = {
       ...pickupData,
@@ -90,23 +99,24 @@ export const PickupsProvider = ({ children }) => {
       isCompleted: false,
       createdBy: user.uid, // Ensure the current user is marked as the creator
     };
-
+  
     try {
       const pickupDocRef = doc(db, "pickups", newPickupId);
       await setDoc(pickupDocRef, newPickup);
-
+  
       // Update the user's profile with the new pickup ID
       const userProfileDocRef = doc(db, "profiles", user.uid);
       await updateDoc(userProfileDocRef, {
         pickups: arrayUnion(newPickupId), // Add the new pickup ID to the array
       });
-
+  
       toast.success("Pickup added successfully!");
     } catch (error) {
       console.error("Error adding pickup:", error);
       toast.error("Error adding pickup. Please try again.");
     }
   };
+  
 
   // Accept a pickup
   const acceptPickup = async (pickupId) => {

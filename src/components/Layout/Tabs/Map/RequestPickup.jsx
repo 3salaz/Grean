@@ -18,12 +18,20 @@ import {
   IonList,
   IonDatetime,
   IonCheckbox,
+  IonBadge,
+  IonFabButton,
+  IonText,
 } from "@ionic/react";
 import { usePickups } from "../../../../context/PickupsContext";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import dayjs from "dayjs";
 import homeIcon from "../../../../assets/icons/home.png";
-import { closeOutline } from "ionicons/icons";
+import {
+  calendarNumberOutline,
+  closeOutline,
+  leafOutline,
+  notificationsOutline,
+} from "ionicons/icons";
 import {
   collection,
   query,
@@ -39,6 +47,8 @@ function RequestPickup({ handleClose }) {
   const { createPickup } = usePickups();
   const { profile, updateProfileData } = useAuthProfile();
   const [profileLocations, setProfileLocations] = useState([]);
+  const { userAcceptedPickups, userCreatedPickups, visiblePickups } =
+    usePickups();
 
   const initialFormData = useMemo(
     () => ({
@@ -48,11 +58,23 @@ function RequestPickup({ handleClose }) {
     [profile]
   );
 
+  const [modalState, setModalState] = useState({
+    requestPickupOpen: false,
+  });
+
+  const openModal = (modalName) => {
+    setModalState((prevState) => ({ ...prevState, [modalName]: true }));
+  };
+
+  const closeModal = (modalName) => {
+    setModalState((prevState) => ({ ...prevState, [modalName]: false }));
+  };
+
   const [pickupRequestData, setPickupRequestData] = useState(initialFormData);
 
   useEffect(() => {
-    if (profile?.addresses) {
-      setProfileLocations(profile.addresses);
+    if (profile?.locations) {
+      setProfileLocations(profile.locations);
     }
   }, [profile]);
 
@@ -165,161 +187,155 @@ function RequestPickup({ handleClose }) {
   return (
 
 
-      <IonContent className="ion-no-padding" color="light">
+    <main className="flex items-center h-full justify-center container mx-auto max-w-md">
         <ToastContainer
-          position="top-right"
-          className="top-50"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+      position="top-right"
+      className="top-50"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
+        <IonRow>
 
-        <IonGrid className="h-full">
-          <IonList className="h-full justify-between items-center w-full">
-            <IonRow className="flex-grow max-h-[85svh] overflow-y-auto w-full">
-              <IonCol size="12" className="text-center mx-auto rounded-xl">
-                <IonItem
-                  color="light"
-                  lines="none"
-                  className="w-full px-2 rounded-xl"
-                >
-                  {/* <IonLabel color="secondary" position="stacked" className="w-full">
+          <IonCol size="12" className="text-center mx-auto rounded-xl">
+            <IonItem color="light" lines="none" className="w-full rounded-full">
+              {/* <IonLabel color="secondary" position="stacked" className="w-full">
                     Address
                   </IonLabel> */}
-                  <IonSelect
-                    className="ion-align-self-center w-full"
-                    placeholder="Select your address"
-                    onIonChange={(e) => handleChange("address", e.detail.value)}
-                    value={pickupRequestData.address}
-                  >
-                    {profileLocations.map((address, index) => (
-                      <IonSelectOption key={index} value={address.street}>
-                        <div className="flex items-center gap-4">
-                          <img
-                            className="w-10"
-                            src={homeIcon}
-                            alt="Home Icon"
-                          />
-                          {address.street}
-                        </div>
-                      </IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-              </IonCol>
-
-              <IonCol size="12">
-                {/* Single IonDatetime for both Date and Time */}
-                <IonItem lines="none" className="w-full">
-                  <IonLabel className="mx-auto w-full" position="stacked">
-                    Pickup Date & Time
-                  </IonLabel>
-                  <IonDatetime
-                    presentation="date-time"
-                    value={pickupRequestData.pickupDateTime}
-                    className="mx-auto rounded-lg"
-                    onIonChange={(e) =>
-                      handleChange("pickupDateTime", e.detail.value)
-                    }
-                    placeholder="Select Date and Time"
-                    min={dayjs().toISOString()} // Restrict to future date and time
-                    minuteValues="0,15,30,45" // Only allow 30-minute intervals
-                  />
-                </IonItem>
-              </IonCol>
-
-              <IonCol size="12" className="">
-                <IonItem lines="none" className="w-full p-0 m-0">
-                  <IonLabel
-                    className=" w-full rounded-lg text-center p-1"
-                    position="stacked"
-                  >
-                    Type of material
-                  </IonLabel>
-                  <IonList className="flex flex-wrap w-full max-w-lg p-2">
-                    {Object.keys(materials).map((material, index) => (
-                      <IonItem
-                        lines="none"
-                        className="w-full basis-1/2"
-                        key={index}
-                      >
-                        <IonLabel className="w-full">
-                          {material.charAt(0).toUpperCase() + material.slice(1)}
-                        </IonLabel>
-                        <IonCheckbox
-                          alignment="center"
-                          justify="end"
-                          checked={materials[material]}
-                          onIonChange={() => handleMaterialChange(material)}
-                        />
-                      </IonItem>
-                    ))}
-                  </IonList>
-                </IonItem>
-              </IonCol>
-
-              <IonCol size="12">
-                <IonItem lines="none" className="w-full">
-                  <IonLabel
-                    className=" w-full rounded-lg text-center"
-                    position="stacked"
-                  >
-                    Pickup Notes
-                  </IonLabel>
-                  <IonTextarea
-                    rows={3}
-                    value={pickupRequestData.pickupNote}
-                    className="bg-slate-50 rounded-md p-1"
-                    onIonChange={(e) =>
-                      handleChange("pickupNote", e.detail.value)
-                    }
-                  />
-                </IonItem>
-              </IonCol>
-
-              <IonCol
-                size="12"
-                className="flex justify-center items-center w-full gap-2"
+              <IonSelect
+                className="ion-align-self-center w-full"
+                placeholder="Select your address"
+                onIonChange={(e) => handleChange("address", e.detail.value)}
+                value={pickupRequestData.address}
               >
-                {/* Trigger handleSubmit on button click */}
+                {profileLocations.map((address, index) => (
+                  <IonSelectOption key={index} value={address.street}>
+                    <div className="flex items-center gap-4">
+                      <img className="w-10" src={homeIcon} alt="Home Icon" />
+                      {address.street}
+                    </div>
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
+          </IonCol>
+          <IonCol size="12">
+            <IonSelect
+              className="bg-grean rounded-full px-4 w-full"
+              label="What are you recycling?"
+              placeholder="Material"
+              multiple={true}
+            >
+              <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
+              <IonSelectOption value="plastic">Plastic</IonSelectOption>
+              <IonSelectOption value="glass">Glass</IonSelectOption>
+              <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
+              <IonSelectOption value="palets">Palets</IonSelectOption>
+              <IonSelectOption value="appliances">Appliances</IonSelectOption>
+            </IonSelect>
+          </IonCol>
+
+          <IonCol size="12">
+            <IonItem lines="none" className="w-full">
+              <IonLabel className="mx-auto w-full" position="stacked">
+                Pickup Date & Time
+              </IonLabel>
+              <IonDatetime
+                presentation="date-time"
+                value={pickupRequestData.pickupDateTime}
+                className="mx-auto rounded-lg"
+                onIonChange={(e) =>
+                  handleChange("pickupDateTime", e.detail.value)
+                }
+                placeholder="Select Date and Time"
+                min={dayjs().toISOString()} // Restrict to future date and time
+                minuteValues="0,15,30,45" // Only allow 30-minute intervals
+              />
+            </IonItem>
+          </IonCol>
+
+
+          <IonCol size="12">
+            <IonItem lines="none" className="w-full">
+              <IonLabel
+                className=" w-full rounded-lg text-center"
+                position="float"
+              >
+                Pickup Notes
+              </IonLabel>
+              <IonTextarea
+                rows={3}
+                value={pickupRequestData.pickupNote}
+                className="bg-slate-50 rounded-md p-1"
+                onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
+              />
+            </IonItem>
+          </IonCol>
+          {profile?.accountType === "User" && profile?.locations.length > 0 && (
+            <>
+              <IonCol size="8" className="ion-align-self-center">
                 <IonButton
-                  color="primary"
                   expand="block"
-                  className="w-full max-w-sm"
+                  color="primary"
                   onClick={handleSubmit}
+                  className="drop-shadow-lg"
                 >
                   Submit
                 </IonButton>
               </IonCol>
-            </IonRow>
-          </IonList>
-        </IonGrid>
-        <IonFooter>
-        <IonToolbar color="primary">
-          <IonRow className="ion-justify-content-center p-0 m-0">
-            <IonCol size="auto" className="p-0 m-0">
-              <IonButton
-                color="danger"
-                shape="round"
-                size="large"
-                fill="solid"
-                onClick={handleClose}
-              >
-                <IonIcon slot="icon-only" icon={closeOutline} />
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonToolbar>
-      </IonFooter>
-      </IonContent>
+              <IonCol size="auto" className="relative">
+                <IonFabButton
+                  onClick={() => handleClose()}
+                  color="light"
+                  className="drop-shadow-lg"
+                >
+                  <IonIcon color="danger" icon={closeOutline} />
+                </IonFabButton>
+                {/* <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5 p-1 flex items-center justify-center">
+                  {profile.pickups.length}
+                </IonBadge> */}
+              </IonCol>
+            </>
+          )}
 
-
+          {profile?.accountType === "Driver" && (
+            <>
+              <IonCol size="auto" className="relative">
+                <IonFabButton
+                  onClick={() => openModal("scheduleOpen")}
+                  color="tertiary"
+                >
+                  <IonIcon icon={calendarNumberOutline} />
+                </IonFabButton>
+                <IonBadge className="absolute top-0 right-0 bg-white text-green rounded-full aspect-square w-5">
+                  {
+                    userAcceptedPickups.filter((pickup) => !pickup.isCompleted)
+                      .length
+                  }
+                </IonBadge>
+              </IonCol>
+              <IonCol size="auto" className="relative">
+                <IonFabButton
+                  onClick={() => openModal("pickupQueueOpen")}
+                  color="danger"
+                  className="relative"
+                >
+                  <IonIcon icon={notificationsOutline} />
+                </IonFabButton>
+                <IonBadge className="absolute top-0 right-0 bg-white text-green rounded-full aspect-square w-5">
+                  {visiblePickups.length}
+                </IonBadge>
+              </IonCol>
+            </>
+          )}
+        </IonRow>
+    </main>
   );
 }
 

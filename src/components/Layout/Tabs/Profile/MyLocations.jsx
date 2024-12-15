@@ -34,7 +34,7 @@ function MyLocations() {
   };
 
   return (
-    <div>
+    <main className="container mx-auto max-w-4xl">
       <IonRow className="ion-no-padding flex-grow">
         <IonModal
           isOpen={isModalVisible}
@@ -86,7 +86,7 @@ function MyLocations() {
       </IonRow>
 
       {profile?.locations.length > 0 && profile.accountType === "User" && (
-        <IonRow className="ion-justify-content-between px-4">
+        <IonRow className="ion-justify-content-between">
           <IonCol size="3" className="ion-text-start"></IonCol>
 
           <IonCol
@@ -120,7 +120,7 @@ function MyLocations() {
           </IonCol>
         </IonRow>
       )}
-    </div>
+    </main>
   );
 }
 

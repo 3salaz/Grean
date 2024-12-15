@@ -8,7 +8,7 @@ import {
 } from "@ionic/react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import userIcon from "../../../../assets/icons/user.png";
-import { settingsOutline } from "ionicons/icons";
+import { addCircleOutline, settingsOutline } from "ionicons/icons";
 
 function ProfileHeader() {
   const { profile } = useAuthProfile();
@@ -19,20 +19,20 @@ function ProfileHeader() {
   console.log("Profile Picture URL:", profile?.profilePic);
 
   return (
-    <IonRow className="ion-align-items-center rounded-lg ion-justify-content-between h-20 px-4">
-      <IonCol size="2" className="ion-align-items-center ion-text-center px-2">
-        <div className="h-16 w-16 bg-white rounded-full overflow-hidden flex flex-col flex-wrap items-center justify-end">
+    <IonRow className="ion-align-items-center rounded-t-lg ion-justify-content-between max-h-40">
+      <IonCol size="3" className="ion-align-items-center ion-text-center">
+        <div className="h-full bg-white rounded-full overflow-hidden flex flex-col flex-wrap items-center justify-end">
           <img
-            className="w-full h-full object-cover"
+            className="object-cover w-20 h-20"
             src={profile?.profilePic || userIcon} // Debugging with native img tag
             alt="User Icon"
           />
         </div>
       </IonCol>
 
-      <IonCol size="8">
+      <IonCol size="7">
         <div className="flex flex-col items-start justify-center px-2">
-          <IonText className="text-2xl font-bold">
+          <IonText className="text-xl font-bold">
             {profile?.displayName || "User Name"} {/* Fallback for display name */}
           </IonText>
           <IonText className="text-xs bg-grean text-white font-bold rounded-lg p-1">
@@ -44,10 +44,13 @@ function ProfileHeader() {
       <IonCol
         size="2"
         offset="lg"
-        className="flex items-end h-full w-full justify-end px-2"
+        className="flex flex-col items-end h-full w-full justify-end px-2"
       >
+        <IonButton shape="round" color="secondary" size="small">
+          <IonIcon size="" slot="icon-only" icon={addCircleOutline} />
+        </IonButton>
         <IonButton shape="round" color="danger" size="small">
-          <IonIcon size="small" slot="icon-only" icon={settingsOutline} />
+          <IonIcon size="" slot="icon-only" icon={settingsOutline} />
         </IonButton>
       </IonCol>
     </IonRow>

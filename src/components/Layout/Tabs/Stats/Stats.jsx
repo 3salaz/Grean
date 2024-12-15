@@ -107,8 +107,7 @@ const Stats = () => {
     (totalWeight.aluminum + totalWeight.glass + totalWeight.plastic) * 1.5;
 
   return (
-    <IonGrid
-      color="light"
+    <IonGrid color="light"
       className="h-full relative flex flex-col items-center justify-between ion-no-padding bg-gradient-to-t from-grean to-blue-300"
     >
       <IonModal

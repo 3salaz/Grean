@@ -1,6 +1,3 @@
-import { useEffect, useState, Suspense, lazy } from "react";
-import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
-import { useAuthProfile } from "../context/AuthProfileContext";
 import {
   IonPage,
   IonContent,
@@ -15,6 +12,9 @@ import {
   IonRow,
   IonCol,
 } from "@ionic/react";
+import { useEffect, useState, Suspense, lazy } from "react";
+import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
+import { useAuthProfile } from "../context/AuthProfileContext";
 import {
   leafOutline,
   navigateCircleOutline,
@@ -39,13 +39,12 @@ function Account() {
     // Simulate loading delay
     const loadTab = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
       setLoading(false);
     };
     loadTab();
   }, [activeTab, profile]);
 
-  // Component Mapping
   const renderActiveTab = () => {
     if (!profile) return <CreateProfile />; // Render CreateProfile if profile is missing
 
@@ -81,9 +80,9 @@ function Account() {
 
   return (
     <IonPage>
-      <IonContent className="flex flex-col h-full" scroll-y="false">
+      <IonContent className="flex flex-col h-full">
         {loading ? (
-          <IonGrid className="h-full ion-no-padding">
+          <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">
               <IonCol className="flex items-center justify-center w-full h-full bg-white">
                 <IonSpinner color="primary" name="crescent" />
@@ -129,4 +128,3 @@ function Account() {
 }
 
 export default Account;
-

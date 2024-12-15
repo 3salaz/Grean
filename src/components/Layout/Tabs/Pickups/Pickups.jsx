@@ -3,7 +3,6 @@ import {
   IonButton,
   IonCol,
   IonFabButton,
-  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
@@ -14,15 +13,17 @@ import {
   IonSelect,
   IonSelectOption,
   IonText,
+  IonFooter,
+  IonListHeader,
+  IonLabel,
 } from "@ionic/react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
-
 import { useState } from "react";
 import RequestPickup from "../Map/RequestPickup";
 import { usePickups } from "../../../../context/PickupsContext";
 import {
   calendarNumberOutline,
-  checkmarkCircleOutline,
+  chevronForward,
   leafOutline,
   notificationsOutline,
 } from "ionicons/icons";
@@ -30,7 +31,7 @@ import {
 function Pickups() {
   const { profile } = useAuthProfile();
   const { userAcceptedPickups, userCreatedPickups, visiblePickups } =
-    usePickups();
+    usePickups(); // Using updated context
   const [modalState, setModalState] = useState({
     requestPickupOpen: false,
   });
@@ -44,173 +45,84 @@ function Pickups() {
   };
 
   return (
-    <IonGrid className="h-full w-full ion-no-margin bg-gradient-to-b from-grean to-blue-300">
-      
+    <IonGrid className="h-full overflow-auto flex flex-col ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
+      {/* Request Pickup Modal */}
       <IonModal
         isOpen={modalState.requestPickupOpen}
         onDidDismiss={() => closeModal("requestPickupOpen")}
       >
         <RequestPickup handleClose={() => closeModal("requestPickupOpen")} />
       </IonModal>
+      <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
+        <IonRow className="ion-margin ion-padding ">
+          <IonCol size="12">
+              <IonText className="sm:text-2xl font-bold">
+                Hi there, <span className="text-white">{profile.displayName}</span>
+              </IonText>
+          </IonCol>
+        </IonRow>
 
-      <IonRow className="h-[8svh] flex items-center justify-center container mx-auto max-w-xl">
-        <IonCol size="12" className="text-center">
-          <IonHeader className="shadow-none">
-            <IonText className="text-2xl font-bold">
-              Hi there, <span>{profile.displayName}</span>
-            </IonText>
-          </IonHeader>
-        </IonCol>
-      </IonRow>
+        {/* Main Content */}
+        <IonRow className="overflow-y-auto flex-grow">
+          <IonCol>
+            <IonList className="w-full max-h-[60vh] min-h-80 overflow-auto rounded-lg p-2">
+              {/* Example List Items */}
+              <IonListHeader>
+                <IonLabel className="text-2xl font-bold underline text-grean">Current Pickups</IonLabel>
+              </IonListHeader>
+              {userCreatedPickups.map((pickup, index) => (
+                <IonItem key={index} className="w-full ">
+                  <IonRow className="w-full">
+                    <IonCol
+                      size="1"
+                      className="flex items-center justify-center"
+                    >
+                      <IonIcon
+                        size="large"
+                        icon={calendarNumberOutline}
+                      ></IonIcon>
+                    </IonCol>
+                    <IonCol size="10" className="pl-2">
+                      <div>Date:{pickup.date}</div>
+                      <div className="text-sm">
+                        Materials:{" "}
+                        {Object.entries(pickup.materials || {}).map(
+                          ([key, value], idx) => (
+                            <span key={idx}>
+                              {key.charAt(0).toUpperCase() + key.slice(1)}{" "}
+                              {value}
+                              {idx < Object.entries(pickup.materials).length - 1
+                                ? ", "
+                                : ""}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </IonCol>
+                    <IonCol
+                      size="1"
+                      className="flex items-center justify-center"
+                    >
+                      <IonIcon
+                        size="small"
+                        icon={chevronForward}
+                      ></IonIcon>
+                    </IonCol>
+                  </IonRow>
+                </IonItem>
+              ))}
+            </IonList>
+          </IonCol>
+        </IonRow>
+      </main>
+      {/* Header */}
 
-      <IonRow className="h-[8svh] container mx-auto max-w-xl px-4">
-        <IonCol size="12">
-          <IonSelect
-            className="bg-white rounded-full px-4 w-full"
-            label="What are you recycling?"
-            placeholder="Material"
-            multiple={true}
-          >
-            <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
-            <IonSelectOption value="plastic">Plastic</IonSelectOption>
-            <IonSelectOption value="glass">Glass</IonSelectOption>
-            <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
-            <IonSelectOption value="palets">Palets</IonSelectOption>
-            <IonSelectOption value="appliances">Appliances</IonSelectOption>
-          </IonSelect>
-        </IonCol>
-      </IonRow>
-      {/* <IonRow className="max-w-4xl px-4 mx-auto">
-        <IonList className="overflow-auto max-h-[50svh] w-full rounded-md mx-auto">
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-
-          <IonItem className="w-full">
-            <IonRow className="w-full">
-              <IonCol size="2" className="flex items-center justify-center">
-                <IonIcon size="large" icon={checkmarkCircleOutline}></IonIcon>
-              </IonCol>
-              <IonCol size="10" className="flex flex-col">
-                <div>10/21/24</div>
-                <div>Aluminum/Glass</div>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-        </IonList>
-      </IonRow> */}
-
-      <RequestPickup/>
-
-      <IonFooter className="h-[8svh] absolute bottom-2 gap-2 left-0 ion-align-self-center ion-justify-content-center mx-auto z-50 shadow-none">
-        <IonRow className="w-full ion-justify-content-center container mx-auto max-w-xl">
+      {/* Fixed Footer Row */}
+      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
+        <IonRow className="w-full gap-2 container mx-auto max-w-xl justify-center items-center">
           {profile?.accountType === "User" && profile?.locations.length > 0 && (
             <>
-              <IonCol size="8" className="ion-align-self-center">
+              <IonCol size="8">
                 <IonButton
                   expand="block"
                   color="primary"
@@ -234,7 +146,6 @@ function Pickups() {
               </IonCol>
             </>
           )}
-
           {profile?.accountType === "Driver" && (
             <>
               <IonCol size="auto" className="relative">
@@ -255,7 +166,6 @@ function Pickups() {
                 <IonFabButton
                   onClick={() => openModal("pickupQueueOpen")}
                   color="danger"
-                  className="relative"
                 >
                   <IonIcon icon={notificationsOutline} />
                 </IonFabButton>

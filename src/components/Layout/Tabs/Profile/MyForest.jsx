@@ -114,7 +114,7 @@ function MyForest() {
   return (
     <div
       style={{ backgroundImage: `url(${forestBg})` }}
-      className="bg-cover bg-center w-full drop-shadow-lg"
+      className="bg-cover bg-center w-full drop-shadow-lg rounded-b-xl"
     >
       <IonRow className="mx-auto mb-4">
         <IonCol

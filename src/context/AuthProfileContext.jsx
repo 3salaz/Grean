@@ -24,6 +24,7 @@ const initializeProfile = async (user) => {
     email: user.email,
     uid: user.uid,
     locations: [],
+    pickups: [],
     accountType: "User",
     createdAt: serverTimestamp(),
   };

@@ -4,8 +4,6 @@ import ProfileHeader from "./ProfileHeader";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { IonCol, IonFooter, IonGrid, IonModal, IonRow } from "@ionic/react";
 
-import userIcon from "../../../../assets/icons/user.png";
-import driverIcon from "../../../../assets/icons/driver.png";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
@@ -73,24 +71,18 @@ function Profile() {
       >
         <AddLocation handleClose={handleCloseModal} />
       </IonModal>
+      {profile.locations.length > 0 && profile.accountType === "User" && (
+        <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
+          <LevelProgress />
+          <MyForest />
+          <Impact />
+          <MyLocations />
+        </main>
+      )}
 
-      <main className="container mx-auto max-w-4xl h-full">
-        {profile.locations.length > 0 && profile.accountType === "User" && (
-          <IonRow className="w-full">
-            <LevelProgress/> 
-            <MyForest />
-            <IonCol className="mx-auto container px-2">
-              <Impact />
-            </IonCol>
-          </IonRow>
-        )}
-      </main>
-
-      <MyLocations />
-      <IonFooter className="container max-w-4xl mx-auto bg-white rounded-t-md">
+      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
         <ProfileHeader />
       </IonFooter>
-
     </IonGrid>
   );
 }

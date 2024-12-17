@@ -7,7 +7,6 @@ import {
     IonText,
   } from "@ionic/react";
   import { home, informationCircle } from "ionicons/icons";
-  import React from "react";
 import ImpactBarGraph from "./ImpactBarGraph";
   
   function Impact() {
@@ -31,7 +30,7 @@ import ImpactBarGraph from "./ImpactBarGraph";
             {/* Level Section */}
             <div className="basis-1/3 flex items-center justify-end text-grean text-lg gap-1">
               <span className="font-bold">Level:</span>
-              <span className="">7</span>
+              <span className="">0</span>
             </div>
           </IonCardTitle>
         </IonCardHeader>

@@ -20,6 +20,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonHeader,
 } from "@ionic/react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { carOutline, fileTrayFullOutline, flashOutline, personOutline, scaleOutline } from "ionicons/icons";
@@ -80,70 +81,21 @@ const Stats = () => {
     setModalState((prevState) => ({ ...prevState, [modalName]: true }));
   };
 
-  const getUserRoleInfo = () => {
-    switch (profile?.accountType) {
-      case "Driver":
-        return { icon: driverIcon, text: "Driver" };
-      case "User":
-        return { icon: userIcon, text: "User" };
-      default:
-        return { icon: personOutline, text: "null" };
-    }
-  };
 
-  const userRoleInfo = getUserRoleInfo();
 
-  // Default weight object
-  const defaultWeight = { aluminum: 0, glass: 0, plastic: 0 };
-
-  // Calculate total pickups
-  const totalPickups = profile?.stats?.pickups?.length || 0;
-
-  // Calculate total weight (sum of aluminum, glass, plastic)
-  const totalWeight = profile?.stats?.weight || defaultWeight;
-
-  // Calculate energy saved (example: 1.5 kWh per pound of total weight)
-  const energySaved =
-    (totalWeight.aluminum + totalWeight.glass + totalWeight.plastic) * 1.5;
 
   return (
     <IonGrid color="light"
       className="h-full relative flex flex-col items-center justify-between ion-no-padding bg-gradient-to-t from-grean to-blue-300"
     >
-      <IonModal
-        isOpen={modalState.history}
-        onDidDismiss={() => closeModal("history")}
-      >
-        <History handleClose={() => closeModal("history")} />
-      </IonModal>
-
-      <main className="container mx-auto max-w-4xl overflow-auto">
+      {/* <IonHeader className="mx-auto container h-auto max-w-4xl bg-white p-2">
         <ProfileHeader />
+      </IonHeader> */}
+      <main className="container flex-grow mx-auto max-w-4xl overflow-auto">
         <RecyclingStats/>
         <Metrics/>
         <History/>
       </main>
-
-      {/* <IonRow className="w-full ion-justify-content-center ion-margin-top bg-slate-200 relative">
-        <IonCol size="auto" className="mx-auto text-center">
-          <IonText className="text-xl">Total</IonText>
-          <IonText className="font-bold text-white text-2xl">0</IonText>
-          <IonText>lbs</IonText>
-        </IonCol>
-        <IonCol
-          size="12"
-          className="text-right flex-col flex items-center justify-center"
-        >
-          <IonText>{totalWeight.glass}lbs of Glass</IonText>
-          <IonText>{totalWeight.aluminum}lbs of Aluminum</IonText>
-          <IonText>{totalWeight.plastic}lbs of Plastic</IonText>
-        </IonCol>
-        <IonCol className="absolute bottom-2 left-2">
-          <IonButton onClick={() => openModal("history")}>
-            <IonIcon icon={fileTrayFullOutline}></IonIcon>
-          </IonButton>
-        </IonCol>
-      </IonRow> */}
     </IonGrid>
   );
 };

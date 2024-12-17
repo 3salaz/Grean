@@ -51,7 +51,7 @@ function App() {
             <IonReactRouter>
               <SideMenu />
               <Navbar />
-              <IonContent id="content" scroll-y="false">
+              <IonContent id="content" scroll-y="false" className="bg-gradient-to-t from-grean to-blue-300">
                 <IonRouterOutlet>
                   <Switch>
                     <Route path="/home" exact component={Home} />

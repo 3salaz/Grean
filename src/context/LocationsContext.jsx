@@ -8,13 +8,11 @@ import {
   setDoc,
   onSnapshot,
   getDocs,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuthProfile } from "./AuthProfileContext";
-import {
-  incrementReadCount,
-  incrementWriteCount,
-} from "../utils/requestCounter";
 
 const LocationsContext = createContext();
 
@@ -24,28 +22,19 @@ export function LocationsProvider({ children }) {
   const { user } = useAuthProfile();
 
   const addLocationToCollection = async (uid, locationData) => {
-    const locationDocRef = doc(db, "locations", uid);
-
+    const locationsCollectionRef = collection(db, "locations");
+  
     try {
-      // Check if the document exists
-      const locationDoc = await getDoc(locationDocRef);
-      incrementReadCount();
-      if (!locationDoc.exists()) {
-        // If document doesn't exist, create it with an addresses array containing the new location data
-        await setDoc(locationDocRef, { addresses: [locationData] });
-        incrementWriteCount();
-      } else {
-        // Document exists, update addresses array
-        await updateDoc(locationDocRef, {
-          addresses: [
-            ...(locationDoc.data().addresses || []), // existing addresses or empty array
-            locationData, // new location data
-          ],
-        });
-        incrementWriteCount();
-      }
+      // Add a new document to the locations collection
+      await addDoc(locationsCollectionRef, {
+        ...locationData,
+        userId: uid, // Link the location to the user ID
+        timestamp: serverTimestamp(), // Optional: add a timestamp
+      });
+  
+      console.log("Location successfully added to the locations collection!");
     } catch (error) {
-      console.error("Error adding location: ", error);
+      console.error("Error adding location to the collection: ", error);
       throw error; // Propagate the error for handling
     }
   };
@@ -55,7 +44,6 @@ export function LocationsProvider({ children }) {
       try {
         const locationsCollectionRef = collection(db, "locations");
         const querySnapshot = await getDocs(locationsCollectionRef);
-        incrementReadCount();
 
         const locations = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -88,8 +76,6 @@ export function LocationsProvider({ children }) {
       fetchInitialLocations(); // Perform initial fetch
       const locationsCollectionRef = collection(db, "locations");
       const unsubscribe = onSnapshot(locationsCollectionRef, (snapshot) => {
-        incrementReadCount();
-
         const locations = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

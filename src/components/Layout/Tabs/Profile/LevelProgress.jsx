@@ -114,10 +114,10 @@ function LevelProgress() {
           size="12"
           className="flex flex-grow flex-col justify-center items-center ion-padding bg-white"
         >
-          <IonText className="text-2xl font-bold">Level: {level}</IonText>
-          <IonText className="text-xl font-bold">{profile.displayName}</IonText>
+          <IonText className="text-3xl font-bold text-orange">Level: {level}</IonText>
+          {/* <IonText className="text-lg font-bold">{profile.displayName}</IonText>/ */}
           <IonText className="text-center">
-            Earn {100 - (totalPoints % 100)} more points to reach level{" "}
+            Earn <span className="text-grean">{100 - (totalPoints % 100)}</span> more points to reach level{" "}
             {level + 1}
           </IonText>
         </IonCol>

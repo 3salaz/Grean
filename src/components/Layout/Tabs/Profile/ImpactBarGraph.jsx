@@ -2,7 +2,7 @@ import { IonCardContent, IonCol, IonRow, IonText } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-function ImpactBarGraph({ totalWeight = 340 }) { // Default to 0 if totalWeight is not provided
+function ImpactBarGraph({ totalWeight = 0 }) { // Default to 0 if totalWeight is not provided
   // Conversion factors
   const energyPerLb = 0.4; // Days of home power per lb
   const milesPerLb = 0.8; // Miles driven per lb

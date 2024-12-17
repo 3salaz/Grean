@@ -10,7 +10,7 @@ import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import userIcon from "../../../../assets/icons/user.png";
 import { addCircleOutline, settingsOutline } from "ionicons/icons";
 
-function ProfileHeader() {
+function ProfileHeader({openModal}) {
   const { profile } = useAuthProfile();
 
   console.log("Profile Data:", profile); // Debugging
@@ -20,17 +20,18 @@ function ProfileHeader() {
 
   return (
     <IonRow className="ion-align-items-center rounded-t-lg ion-justify-content-between max-h-40">
+      
       <IonCol size="3" className="ion-align-items-center ion-text-center">
-        <div className="h-full bg-white rounded-full overflow-hidden flex flex-col flex-wrap items-center justify-end">
+        <div className="h-full rounded-full overflow-hidden flex flex-col flex-wrap items-center justify-end">
           <img
-            className="object-cover w-20 h-20"
+            className="object-cover w-20 h-20 bg-white rounded-full"
             src={profile?.profilePic || userIcon} // Debugging with native img tag
             alt="User Icon"
           />
         </div>
       </IonCol>
-
-      <IonCol size="7">
+      
+      <IonCol size="6">
         <div className="flex flex-col items-start justify-center px-2">
           <IonText className="text-xl font-bold">
             {profile?.displayName || "User Name"} {/* Fallback for display name */}
@@ -42,17 +43,26 @@ function ProfileHeader() {
       </IonCol>
 
       <IonCol
-        size="2"
+        size="3"
         offset="lg"
         className="flex flex-col items-end h-full w-full justify-end px-2"
       >
-        <IonButton shape="round" color="secondary" size="small">
+        <div className="flex flex-col text-xs items-center justify-center font-bold">
+         
+          <IonButton shape="round"  color="secondary" onClick={openModal}>
           <IonIcon size="" slot="icon-only" icon={addCircleOutline} />
+          
         </IonButton>
-        <IonButton shape="round" color="danger" size="small">
+        </div>
+        <div className="flex text-xs items-center justify-center">
+        <IonButton shape="round" color="danger">
+
           <IonIcon size="" slot="icon-only" icon={settingsOutline} />
         </IonButton>
+        </div>
+
       </IonCol>
+
     </IonRow>
   );
 }

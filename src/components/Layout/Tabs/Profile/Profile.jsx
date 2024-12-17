@@ -71,6 +71,7 @@ function Profile() {
       >
         <AddLocation handleClose={handleCloseModal} />
       </IonModal>
+
       {profile.locations.length > 0 && profile.accountType === "User" && (
         <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
           <LevelProgress />
@@ -79,9 +80,9 @@ function Profile() {
           <MyLocations />
         </main>
       )}
-
+      
       <IonFooter className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
-        <ProfileHeader />
+        <ProfileHeader openModal={() => setIsModalVisible(true)} />
       </IonFooter>
     </IonGrid>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { useLocations } from "../../../../context/LocationsContext";
 import { motion } from "framer-motion";
 import {
   IonContent,
@@ -19,6 +20,8 @@ import {
   IonCardTitle,
   IonCardContent,
   IonToolbar,
+  IonSelectOption,
+  IonSelect,
 } from "@ionic/react";
 import Loader from "../../../Common/Loader"; // Adjust the import path as needed
 import homeIcon from "../../../../assets/icons/home.png";
@@ -27,6 +30,7 @@ import businessIcon from "../../../../assets/icons/business.png";
 const AddLocation = ({ handleClose }) => {
   // Context hooks
   const { profile, updateProfileField } = useAuthProfile();
+  const { addLocationToCollection } = useLocations();
 
   // State hooks
   const [step, setStep] = useState(0);
@@ -107,9 +111,10 @@ const AddLocation = ({ handleClose }) => {
       console.log("Please fill in all required fields.");
       return;
     }
-
+  
     setLoading(true);
     try {
+      // Construct the new location object
       const newLocation = {
         locationType: formData.locationType || "Unknown",
         street: formData.street || "",
@@ -123,10 +128,13 @@ const AddLocation = ({ handleClose }) => {
           businessPhoneNumber: formData.businessPhoneNumber || "",
         }),
       };
-
-      // Add the new location to the `locations` array in the profile
+  
+      // Add location to the user's profile collection
       await updateProfileField(profile.uid, "locations", newLocation, "addToArray");
-
+  
+      // Add location to the "locations" collection
+      await addLocationToCollection(profile.uid, newLocation);
+  
       console.log("Location added successfully!");
       handleClose();
     } catch (error) {
@@ -135,6 +143,7 @@ const AddLocation = ({ handleClose }) => {
       setLoading(false);
     }
   };
+  
 
   // Render helper functions
   const renderStepContent = () => {
@@ -144,17 +153,19 @@ const AddLocation = ({ handleClose }) => {
           <IonRadioGroup
             value={formData.locationType}
             className="w-full flex justify-center gap-4"
-            onIonChange={(e) => handleInputChange("locationType", e.detail.value)}
+            onIonChange={(e) =>
+              handleInputChange("locationType", e.detail.value)
+            }
           >
             <IonRadio value="Business" labelPlacement="stacked">
               <IonImg className="h-40 w-40" src={businessIcon} alt="Business" />
-              <IonText color="primary">
+              <IonText className="text-center" color="primary">
                 <h4>Business</h4>
               </IonText>
             </IonRadio>
             <IonRadio value="Home" labelPlacement="stacked">
               <IonImg className="h-40 w-40" src={homeIcon} alt="Home" />
-              <IonText color="primary">
+              <IonText className="text-center" color="primary">
                 <h4>Home</h4>
               </IonText>
             </IonRadio>
@@ -168,17 +179,25 @@ const AddLocation = ({ handleClose }) => {
               <IonInput
                 value={formData.street}
                 onIonChange={(e) => handleInputChange("street", e.detail.value)}
+                placeholder="Enter street address"
               />
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">City</IonLabel>
-              <IonInput
+              <IonSelect
                 value={formData.city}
                 onIonChange={(e) => handleInputChange("city", e.detail.value)}
-              />
+                placeholder="Select a city"
+              >
+                <IonSelectOption value="San Francisco">
+                  San Francisco
+                </IonSelectOption>
+                <IonSelectOption value="Daly City">Daly City</IonSelectOption>
+              </IonSelect>
             </IonItem>
           </>
         );
+
       case 2:
         return formData.locationType === "Home" ? (
           <IonItem>
@@ -195,7 +214,9 @@ const AddLocation = ({ handleClose }) => {
               <IonLabel position="stacked">Business Name</IonLabel>
               <IonInput
                 value={formData.businessName}
-                onIonChange={(e) => handleInputChange("businessName", e.detail.value)}
+                onIonChange={(e) =>
+                  handleInputChange("businessName", e.detail.value)
+                }
                 placeholder="Enter business name"
               />
             </IonItem>
@@ -203,7 +224,9 @@ const AddLocation = ({ handleClose }) => {
               <IonLabel position="stacked">Business Phone Number</IonLabel>
               <IonInput
                 value={formData.businessPhoneNumber}
-                onIonChange={(e) => handleInputChange("businessPhoneNumber", e.detail.value)}
+                onIonChange={(e) =>
+                  handleInputChange("businessPhoneNumber", e.detail.value)
+                }
                 placeholder="Enter business phone number"
               />
             </IonItem>
@@ -219,7 +242,7 @@ const AddLocation = ({ handleClose }) => {
       <IonGrid className="max-w-4xl h-full flex items-center justify-center">
         <IonRow className="w-full">
           <IonCol size="12">
-            <IonCard className="w-full m-0">
+            <IonCard className="w-full m-0 shadow-none">
               <IonCardHeader>
                 <IonCardTitle>Add Location</IonCardTitle>
               </IonCardHeader>
@@ -239,6 +262,17 @@ const AddLocation = ({ handleClose }) => {
             </IonCard>
             <IonToolbar>
               <IonRow className="ion-margin-top ion-justify-content-center">
+                {step === 0 && (
+                  <IonCol size="6">
+                    <IonButton
+                      color="danger"
+                      expand="block"
+                      onClick={handleClose}
+                    >
+                      Exit
+                    </IonButton>
+                  </IonCol>
+                )}
                 {step > 0 && (
                   <IonCol size="6">
                     <IonButton expand="block" onClick={prevStep}>

@@ -44,14 +44,12 @@ function History({ handleClose }) {
     const currentDate = normalizeDate(new Date());
     switch (activeTab) {
       case "weekly":
-        // Filter data for the last 7 days
         const oneWeekAgo = new Date(currentDate);
         oneWeekAgo.setDate(currentDate.getDate() - 7);
         return pickupHistory.filter(
           (item) => normalizeDate(item.date) >= oneWeekAgo
         );
       case "monthly":
-        // Filter data for the current month
         return pickupHistory.filter((item) => {
           const itemDate = normalizeDate(item.date);
           return (
@@ -61,42 +59,28 @@ function History({ handleClose }) {
         });
       case "all":
       default:
-        // Show all data
         return pickupHistory;
     }
   };
 
-  // Get the filtered history
   const activeHistory = filterData();
 
   // Ref and useInView for triggering animations
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
-  // Handle pickup item click
   const handlePickupClick = (pickup) => {
     console.log("Pickup clicked:", pickup);
   };
 
   return (
     <IonGrid className="m-0 p-0 flex flex-col" ref={ref}>
-      {/* Header */}
-      <IonRow className="ion-justify-content-between">
-        <IonCol size="12" className="pb-0">
-          <IonCard className="bg-transparent shadow-none">
-            <IonCardHeader className="pb-0">
-              <IonCardTitle className="text-3xl">History</IonCardTitle>
-            </IonCardHeader>
-          </IonCard>
-        </IonCol>
-      </IonRow>
-
-      {/* Tabs */}
-      <IonRow>
+      <IonRow className="bg-white">
+        {/* Tabs */}
         <IonCol size="12" className="ion-padding">
           <IonSegment
             value={activeTab}
-            className="bg-grean rounded-md"
+            className="bg-grean rounded-md transition-all duration-500"
             onIonChange={(e) => setActiveTab(e.detail.value)}
           >
             <IonSegmentButton
@@ -119,72 +103,81 @@ function History({ handleClose }) {
             </IonSegmentButton>
           </IonSegment>
         </IonCol>
-      </IonRow>
 
-      {/* History List */}
-      <IonRow className="bg-white">
+        {/* History List */}
         <IonCol size="12" className="ion-padding">
-          <IonList className="w-full bg-transparent">
-            {/* Header with animation */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}} // Trigger animation when in view
-              transition={{ duration: 0.5 }}
+          <motion.div
+            key={activeTab} // Re-trigger animation on tab change
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <IonList
+              className="w-full bg-transparent overflow-auto"
+              style={{ minHeight: "300px", maxHeight: "400px" }}
             >
-              <IonListHeader className="text-xl font-bold text-center">
-                History |{" "}
-                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-              </IonListHeader>
-            </motion.div>
-
-            {/* Table Headers */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}} // Trigger animation when in view
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <IonItem className="flex justify-between font-bold bg-transparent">
-                <IonLabel>Date</IonLabel>
-                <IonLabel>Aluminum</IonLabel>
-                <IonLabel>Plastic</IonLabel>
-              </IonItem>
-            </motion.div>
-
-            {/* Animated List Items */}
-            {activeHistory.map((pickup, index) => (
+              {/* Header */}
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}} // Trigger animation when in view
-                transition={{ duration: 0.3, delay: index * 0.1 }} // Stagger animation
+                initial={{ opacity: 0, y: -20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5 }}
               >
-                <IonItem
-                  className="flex justify-between cursor-pointer"
-                  onClick={() => handlePickupClick(pickup)}
-                >
-                  <IonLabel>{pickup.date}</IonLabel>
-                  <IonLabel>
-                    <motion.span
-                      initial={{ scale: 0.8 }}
-                      animate={isInView ? { scale: 1 } : {}} // Trigger scale animation
-                      transition={{ duration: 0.3 }}
-                    >
-                      {pickup.aluminumWeight} lbs
-                    </motion.span>
-                  </IonLabel>
-                  <IonLabel>
-                    <motion.span
-                      initial={{ scale: 0.8 }}
-                      animate={isInView ? { scale: 1 } : {}} // Trigger scale animation
-                      transition={{ duration: 0.3 }}
-                    >
-                      {pickup.plasticWeight} lbs
-                    </motion.span>
-                  </IonLabel>
+                <IonListHeader className="text-xl font-bold text-center">
+                  History |{" "}
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                </IonListHeader>
+              </motion.div>
+
+              {/* Table Headers */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <IonItem className="flex justify-between font-bold bg-transparent">
+                  <IonLabel>Date</IonLabel>
+                  <IonLabel>Aluminum</IonLabel>
+                  <IonLabel>Plastic</IonLabel>
                 </IonItem>
               </motion.div>
-            ))}
-          </IonList>
+
+              {/* Animated List Items */}
+              {activeHistory.map((pickup, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <IonItem
+                    className="flex justify-between cursor-pointer"
+                    onClick={() => handlePickupClick(pickup)}
+                  >
+                    <IonLabel>{pickup.date}</IonLabel>
+                    <IonLabel>
+                      <motion.span
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {pickup.aluminumWeight} lbs
+                      </motion.span>
+                    </IonLabel>
+                    <IonLabel>
+                      <motion.span
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {pickup.plasticWeight} lbs
+                      </motion.span>
+                    </IonLabel>
+                  </IonItem>
+                </motion.div>
+              ))}
+            </IonList>
+          </motion.div>
         </IonCol>
       </IonRow>
     </IonGrid>

@@ -1,7 +1,7 @@
 import { IonButton, IonCol, IonIcon, IonModal, IonRow } from "@ionic/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
-import { addCircleOutline, arrowDownOutline } from "ionicons/icons";
+import { addCircleOutline, arrowDownOutline, createOutline } from "ionicons/icons";
 import AddLocation from "./AddLocation";
 
 function MyLocations() {
@@ -36,6 +36,7 @@ function MyLocations() {
   return (
     <main className="container mx-auto max-w-4xl">
       <IonRow className="ion-no-padding flex-grow">
+        
         <IonModal
           isOpen={isModalVisible}
           onDidDismiss={handleCloseModal}
@@ -45,7 +46,7 @@ function MyLocations() {
           <AddLocation handleClose={handleCloseModal} />
         </IonModal>
 
-        <IonCol className="ion-margin ion-no-padding gap-2 bg-none flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll rounded-md">
+        <IonCol className="ion-no-padding gap-2 bg-none flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll rounded-md">
           {profile.locations.length > 0 ? (
             profile.locations.map((address, index) => (
               <div
@@ -88,7 +89,7 @@ function MyLocations() {
       {profile?.locations.length > 0 && profile.accountType === "User" && (
         <IonRow className="ion-justify-content-between">
           <IonCol size="3" className="ion-text-start"></IonCol>
-
+          
           <IonCol
             size="6"
             color="primary"
@@ -115,9 +116,10 @@ function MyLocations() {
               color="secondary"
               onClick={handleOpenModal}
             >
-              <IonIcon slot="icon-only" icon={addCircleOutline} />
+              <IonIcon slot="icon-only" icon={createOutline} />
             </IonButton>
           </IonCol>
+
         </IonRow>
       )}
     </main>

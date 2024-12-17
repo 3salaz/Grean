@@ -53,22 +53,24 @@ function Pickups() {
       >
         <RequestPickup handleClose={() => closeModal("requestPickupOpen")} />
       </IonModal>
-      <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
-        <IonRow className="ion-margin ion-padding ">
+      <main className="container max-w-4xl mx-auto h-[90%] flex flex-col overflow-auto">
+        <IonRow className="ion-no-margin ion-padding pb-0">
           <IonCol size="12">
-              <IonText className="sm:text-2xl font-bold">
-                Hi there, <span className="text-white">{profile.displayName}</span>
-              </IonText>
+            <IonText className="text-2xl font-bold">
+              Hi there,{" "}
+              <span className="text-white">{profile.displayName}</span>
+            </IonText>
           </IonCol>
         </IonRow>
-
         {/* Main Content */}
-        <IonRow className="overflow-y-auto flex-grow">
-          <IonCol>
-            <IonList className="w-full max-h-[60vh] min-h-80 overflow-auto rounded-lg p-2">
+        <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
+          <IonCol className="flex">
+            <IonList className="w-full max-h-[60vh] overflow-auto rounded-md">
               {/* Example List Items */}
               <IonListHeader>
-                <IonLabel className="text-2xl font-bold underline text-grean">Current Pickups</IonLabel>
+                <IonLabel className="text-2xl font-bold underline text-grean">
+                  Current Pickups: {userCreatedPickups.length}
+                </IonLabel>
               </IonListHeader>
               {userCreatedPickups.map((pickup, index) => (
                 <IonItem key={index} className="w-full ">
@@ -103,10 +105,7 @@ function Pickups() {
                       size="1"
                       className="flex items-center justify-center"
                     >
-                      <IonIcon
-                        size="small"
-                        icon={chevronForward}
-                      ></IonIcon>
+                      <IonIcon size="small" icon={chevronForward}></IonIcon>
                     </IonCol>
                   </IonRow>
                 </IonItem>
@@ -115,36 +114,21 @@ function Pickups() {
           </IonCol>
         </IonRow>
       </main>
-      {/* Header */}
 
       {/* Fixed Footer Row */}
-      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
+      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white drop-shadow-xl rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
         <IonRow className="w-full gap-2 container mx-auto max-w-xl justify-center items-center">
           {profile?.accountType === "User" && profile?.locations.length > 0 && (
-            <>
-              <IonCol size="8">
-                <IonButton
-                  expand="block"
-                  color="primary"
-                  onClick={() => openModal("requestPickupOpen")}
-                  className="drop-shadow-lg"
-                >
-                  Request Pickup
-                </IonButton>
-              </IonCol>
-              <IonCol size="auto" className="relative">
-                <IonFabButton
-                  onClick={() => openModal("alertsOpen")}
-                  color="light"
-                  className="drop-shadow-lg"
-                >
-                  <IonIcon color="primary" icon={leafOutline} />
-                </IonFabButton>
-                <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5 p-1 flex items-center justify-center">
-                  {userCreatedPickups.length}
-                </IonBadge>
-              </IonCol>
-            </>
+            <IonCol size="8">
+              <IonButton
+                expand="block"
+                color="primary"
+                onClick={() => openModal("requestPickupOpen")}
+                className="drop-shadow-lg"
+              >
+                Request Pickup
+              </IonButton>
+            </IonCol>
           )}
           {profile?.accountType === "Driver" && (
             <>

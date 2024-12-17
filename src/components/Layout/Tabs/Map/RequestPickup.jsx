@@ -153,7 +153,7 @@ function RequestPickup({ handleClose }) {
       if (newPickupId) {
         await updateProfileData(profile?.uid, {
           pickups: arrayUnion(newPickupId),
-        });
+        })
         toast.success("Pickup request created successfully!", {
           position: "top-right",
           autoClose: 5000,
@@ -201,7 +201,7 @@ function RequestPickup({ handleClose }) {
       pauseOnHover
       theme="light"
     />
-        <IonRow>
+        <IonRow className="ion-justify-content-center">
 
           <IonCol size="12" className="text-center mx-auto rounded-xl">
             <IonItem color="light" lines="none" className="w-full rounded-full">
@@ -225,6 +225,7 @@ function RequestPickup({ handleClose }) {
               </IonSelect>
             </IonItem>
           </IonCol>
+
           <IonCol size="12">
             <IonSelect
               className="bg-grean rounded-full px-4 w-full"
@@ -264,8 +265,8 @@ function RequestPickup({ handleClose }) {
           <IonCol size="12">
             <IonItem lines="none" className="w-full">
               <IonLabel
-                className=" w-full rounded-lg text-center"
-                position="float"
+                className="rounded-lg pb-2"
+                position="stacked"
               >
                 Pickup Notes
               </IonLabel>
@@ -277,6 +278,7 @@ function RequestPickup({ handleClose }) {
               />
             </IonItem>
           </IonCol>
+
           {profile?.accountType === "User" && profile?.locations.length > 0 && (
             <>
               <IonCol size="8" className="ion-align-self-center">

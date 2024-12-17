@@ -10,7 +10,7 @@ function Metrics() {
   ];
 
   return (
-    <IonRow className="bg-slate-100 p-4 md:rounded-md min-h-[350px]">
+    <IonRow className="bg-slate-200 p-4 md:rounded-t-md min-h-[350px]">
       {/* Header */}
       <IonCol size="12" className="text-left mb-4 ion-padding">
         <IonText className="text-2xl font-bold text-gray-800">Metrics</IonText>

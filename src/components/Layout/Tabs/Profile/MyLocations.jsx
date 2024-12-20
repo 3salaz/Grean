@@ -35,8 +35,8 @@ function MyLocations() {
 
   return (
     <main className="container mx-auto max-w-4xl">
-      <IonRow className="ion-no-padding flex-grow">
-        
+      
+      <IonRow className="ion-no-padding flex-grow">       
         <IonModal
           isOpen={isModalVisible}
           onDidDismiss={handleCloseModal}
@@ -122,6 +122,7 @@ function MyLocations() {
 
         </IonRow>
       )}
+
     </main>
   );
 }

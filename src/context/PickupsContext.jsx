@@ -39,6 +39,7 @@ export const PickupsProvider = ({ children }) => {
       await batch.commit();
 
       toast.success("Pickup created successfully!");
+      
     } catch (error) {
       console.error("Error creating pickup:", error);
       toast.error("Error creating pickup. Please try again.");

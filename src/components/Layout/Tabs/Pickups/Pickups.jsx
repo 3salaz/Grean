@@ -4,14 +4,11 @@ import {
   IonCol,
   IonFabButton,
   IonGrid,
-  IonHeader,
   IonIcon,
   IonItem,
   IonList,
   IonModal,
   IonRow,
-  IonSelect,
-  IonSelectOption,
   IonText,
   IonFooter,
   IonListHeader,
@@ -24,7 +21,6 @@ import { usePickups } from "../../../../context/PickupsContext";
 import {
   calendarNumberOutline,
   chevronForward,
-  leafOutline,
   notificationsOutline,
 } from "ionicons/icons";
 
@@ -45,7 +41,7 @@ function Pickups() {
   };
 
   return (
-    <IonGrid className="h-full overflow-auto flex flex-col ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
+    <IonGrid className="h-full overflow-auto flex flex-col justify-between ion-no-padding bg-gradient-to-t from-grean to-blue-300">
       {/* Request Pickup Modal */}
       <IonModal
         isOpen={modalState.requestPickupOpen}
@@ -116,13 +112,13 @@ function Pickups() {
       </main>
 
       {/* Fixed Footer Row */}
-      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white drop-shadow-xl rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
+      <IonFooter className="mx-auto container h-auto max-w-4xl shadow-none p-2">
         <IonRow className="w-full gap-2 container mx-auto max-w-xl justify-center items-center">
           {profile?.accountType === "User" && profile?.locations.length > 0 && (
             <IonCol size="8">
               <IonButton
                 expand="block"
-                color="primary"
+                color="light"
                 onClick={() => openModal("requestPickupOpen")}
                 className="drop-shadow-lg"
               >

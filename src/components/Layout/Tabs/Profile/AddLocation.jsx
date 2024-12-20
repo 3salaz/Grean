@@ -38,12 +38,13 @@ const AddLocation = ({ handleClose }) => {
   const [loadingCoordinates, setLoadingCoordinates] = useState(false);
   const [formData, setFormData] = useState({
     locationType: "",
-    homeName: "Home",
+    homeName: "",
     street: "",
     city: "",
     state: "California",
     businessName: "",
     businessPhoneNumber: "",
+    category: ""
   });
 
   // Helper functions
@@ -60,9 +61,10 @@ const AddLocation = ({ handleClose }) => {
         return formData.locationType;
       case 1:
         return formData.street && formData.city && formData.state;
+
       case 2:
         return formData.locationType === "Business"
-          ? formData.businessName && formData.businessPhoneNumber
+          ? formData.businessName && formData.businessPhoneNumber && formData.category
           : formData.homeName;
       default:
         return false;
@@ -122,18 +124,29 @@ const AddLocation = ({ handleClose }) => {
         state: formData.state || "California",
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
-        ...(formData.locationType === "Home" && { homeName: formData.homeName || "Home" }),
+        ...(formData.locationType === "Home" && {
+          homeName: formData.homeName || "Home",
+        }),
         ...(formData.locationType === "Business" && {
           businessName: formData.businessName || "",
           businessPhoneNumber: formData.businessPhoneNumber || "",
+          category: formData.category || "Other", // Include category for business locations
         }),
       };
   
-      // Add location to the user's profile collection
-      await updateProfileField(profile.uid, "locations", newLocation, "addToArray");
+      // 1. Add location to the "locations" collection and get document ID
+      const docId = await addLocationToCollection(profile.uid, newLocation);
   
-      // Add location to the "locations" collection
-      await addLocationToCollection(profile.uid, newLocation);
+      // 2. Update the location object with the generated document ID
+      const locationWithId = { ...newLocation, id: docId };
+  
+      // 3. Add the updated location (with ID) to the user's profile collection
+      await updateProfileField(
+        profile.uid,
+        "locations",
+        locationWithId,
+        "addToArray"
+      );
   
       console.log("Location added successfully!");
       handleClose();
@@ -188,8 +201,9 @@ const AddLocation = ({ handleClose }) => {
                 value={formData.city}
                 onIonChange={(e) => handleInputChange("city", e.detail.value)}
                 placeholder="Select a city"
+                justify="start"
               >
-                <IonSelectOption value="San Francisco">
+                <IonSelectOption className="" value="San Francisco">
                   San Francisco
                 </IonSelectOption>
                 <IonSelectOption value="Daly City">Daly City</IonSelectOption>
@@ -230,6 +244,30 @@ const AddLocation = ({ handleClose }) => {
                 placeholder="Enter business phone number"
               />
             </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Category</IonLabel>
+              <IonSelect
+                value={formData.category}
+                onIonChange={(e) =>
+                  handleInputChange("category", e.detail.value)
+                }
+                placeholder="Select a Category"
+              >
+                {[
+                  "Restaurant",
+                  "Bar",
+                  "Hotel",
+                  "Grocery Store",
+                  "Office",
+                  "Event Venue",
+                  "Other",
+                ].map((category) => (
+                  <IonSelectOption key={category} value={category}>
+                    {category}
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
           </>
         );
       default:
@@ -263,7 +301,7 @@ const AddLocation = ({ handleClose }) => {
             <IonToolbar>
               <IonRow className="ion-margin-top ion-justify-content-center">
                 {step === 0 && (
-                  <IonCol size="6">
+                  <IonCol size="4">
                     <IonButton
                       color="danger"
                       expand="block"
@@ -274,21 +312,21 @@ const AddLocation = ({ handleClose }) => {
                   </IonCol>
                 )}
                 {step > 0 && (
-                  <IonCol size="6">
+                  <IonCol size="4">
                     <IonButton expand="block" onClick={prevStep}>
                       Back
                     </IonButton>
                   </IonCol>
                 )}
                 {step < 2 && (
-                  <IonCol size="6">
+                  <IonCol size="4">
                     <IonButton expand="block" onClick={nextStep}>
                       Next
                     </IonButton>
                   </IonCol>
                 )}
                 {step === 2 && (
-                  <IonCol size="6">
+                  <IonCol size="4">
                     <IonButton expand="block" onClick={handleSubmit}>
                       Submit
                     </IonButton>

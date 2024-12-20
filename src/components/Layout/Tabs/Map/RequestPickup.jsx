@@ -1,5 +1,4 @@
 import {
-  IonContent,
   IonSelect,
   IonSelectOption,
   IonTextarea,
@@ -7,20 +6,11 @@ import {
   IonItem,
   IonLabel,
   IonIcon,
-  IonFooter,
-  IonGrid,
   IonRow,
   IonCol,
-  IonTitle,
-  IonToolbar,
-  IonHeader,
-  IonPage,
-  IonList,
   IonDatetime,
-  IonCheckbox,
   IonBadge,
   IonFabButton,
-  IonText,
 } from "@ionic/react";
 import { usePickups } from "../../../../context/PickupsContext";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";

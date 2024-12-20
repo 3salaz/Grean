@@ -58,7 +58,7 @@ function Profile() {
   };
 
   return (
-    <IonGrid className="h-full overflow-auto flex flex-col ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
+    <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
       <IonModal isOpen={isAddModalVisible} onDidDismiss={handleCloseAddModal}>
         <AddLocation handleClose={handleCloseAddModal} />
       </IonModal>
@@ -72,18 +72,20 @@ function Profile() {
         <AddLocation handleClose={handleCloseModal} />
       </IonModal>
 
-      {profile.locations.length > 0 && profile.accountType === "User" && (
-        <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
-          <LevelProgress />
-          <MyForest />
-          <Impact />
+      <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
+        {/* <IonRow className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-grean drop-shadow-xl border-2 border-b-0 border-b-transparent p-2"> */}
+          <ProfileHeader openModal={() => setIsModalVisible(true)} />
+        {/* </IonRow> */}
+        <MyForest />
+        <Impact />
+        {profile.locations.length > 0 && profile.accountType === "User" && (
           <MyLocations />
-        </main>
+        )}
+      </main>
+
+      {profile.locations.length < 0 && profile.accountType === "User" && (
+        <main>Add a location to get started!</main>
       )}
-      
-      <IonFooter className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-t-grean border-2 border-l-transparent border-r-transparent border-b-0 border-b-transparent p-2">
-        <ProfileHeader openModal={() => setIsModalVisible(true)} />
-      </IonFooter>
     </IonGrid>
   );
 }

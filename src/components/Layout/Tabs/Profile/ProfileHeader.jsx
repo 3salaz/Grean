@@ -22,10 +22,13 @@ function ProfileHeader({ openModal }) {
   console.log("Profile Picture URL:", profile?.profilePic);
 
   return (
-    <IonRow className="ion-align-items-center rounded-t-lg ion-justify-content-between max-h-40 bg-white">
-      {/* Profile Image Section */}
-      <IonCol size="3" className="ion-align-items-center ion-text-center">
-        <div className="h-full w-full aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
+    <IonRow className="ion-align-items-center ion-padding rounded-t-lg ion-justify-content-between bg-white">
+
+
+      {/* Profile Info Section */}
+      <IonCol size="10" className="flex bg-grean bg-opacity-15 md:p-4 rounded-md">
+        {/* Profile Image Section */}
+        <div className="h-full w-16 aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
           {isImageLoading && (
             <IonSpinner
               name="crescent"
@@ -46,24 +49,26 @@ function ProfileHeader({ openModal }) {
             }}
           />
         </div>
-      </IonCol>
 
-      {/* Profile Info Section */}
-      <IonCol size="6">
-        <div className="flex flex-col items-start justify-center bg-grean bg-opacity-20 p-2 rounded-lg">
+        <div className="flex flex-col items-start justify-center rounded-lg md:pl-4">
           <IonText className="text-xl font-bold">
             {profile?.displayName || "User Name"}
           </IonText>
           <IonText className="text-xs bg-green-50 font-bold rounded-lg">
-            ID: {profile?.email || "No Email"}
+            Email: {profile?.email || "No Email"}
           </IonText>
         </div>
       </IonCol>
 
       {/* Action Buttons */}
-      <IonCol size="3" className="flex flex-col items-end justify-end px-2">
+      <IonCol size="2" className="flex flex-col items-end justify-end">
         <div className="flex flex-col text-xs items-center justify-center font-bold">
-          <IonButton size="small" shape="round" color="secondary" onClick={openModal}>
+          <IonButton
+            size="small"
+            shape="round"
+            color="secondary"
+            onClick={openModal}
+          >
             <IonIcon slot="icon-only" icon={addCircleOutline} />
           </IonButton>
         </div>

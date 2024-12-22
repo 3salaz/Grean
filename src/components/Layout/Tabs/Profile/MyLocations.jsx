@@ -102,7 +102,7 @@ function MyLocations() {
                   onClick={() => handleSlideChange(index)}
                   className={`w-3 h-3 mx-1 rounded-full cursor-pointer ${
                     index === currentAddressIndex
-                      ? "bg-blue-500"
+                      ? "bg-orange"
                       : "bg-blue-100"
                   }`}
                 ></div>

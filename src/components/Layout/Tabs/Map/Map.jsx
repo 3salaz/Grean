@@ -154,7 +154,7 @@ function Map() {
             <IonSegment
               scrollable={true}
               value={selectedCategory}
-              className="bg-slate-200 bg-opacity-80 rounded-full no-scroll p-0 m-0"
+              className="bg-white rounded-full no-scroll p-0 m-0"
               onIonChange={(e) => setSelectedCategory(e.detail.value)}
             >
               {categories.map((category, index) => (

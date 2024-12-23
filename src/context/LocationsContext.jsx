@@ -11,6 +11,7 @@ import {
   arrayRemove,
   setDoc,
 } from "firebase/firestore";
+import { toast } from "react-toastify"; // Import toast from react-toastify
 import { db } from "../firebase";
 import { useAuthProfile } from "./AuthProfileContext";
 
@@ -38,9 +39,11 @@ export function LocationsProvider({ children }) {
       await setDoc(newLocationRef, newLocation);
       await updateProfileField(user.uid, "locations", newLocation, "addToArray");
 
+      toast.success("Location added successfully!");
       return newLocationRef.id;
     } catch (error) {
       console.error("Error adding location: ", error);
+      toast.error("Failed to add location. Please try again.");
       throw error;
     }
   };
@@ -53,8 +56,11 @@ export function LocationsProvider({ children }) {
       // Remove location from Firestore and profile.locations
       await deleteDoc(locationRef);
       await updateProfileField(user.uid, "locations", { id: locationId }, "removeFromArray");
+
+      toast.success("Location deleted successfully!");
     } catch (error) {
       console.error("Error deleting location: ", error);
+      toast.error("Failed to delete location. Please try again.");
       throw error;
     }
   };
@@ -73,8 +79,11 @@ export function LocationsProvider({ children }) {
       );
 
       await updateProfileField(user.uid, "locations", updatedLocations, "update");
+
+      toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location: ", error);
+      toast.error("Failed to update location. Please try again.");
       throw error;
     }
   };
@@ -100,6 +109,7 @@ export function LocationsProvider({ children }) {
         },
         (error) => {
           console.error("Error listening to locations: ", error);
+          toast.error("Failed to fetch locations. Please try again later.");
           setLocations([]);
         }
       );

@@ -26,13 +26,13 @@ function ProfileHeader({ openModal }) {
 
 
       {/* Profile Info Section */}
-      <IonCol size="10" className="flex bg-grean bg-opacity-15 md:p-4 rounded-md">
+      <IonCol size="10" className="flex bg-grean bg-opacity-15 p-2 md:p-4 rounded-md">
         {/* Profile Image Section */}
-        <div className="h-full w-16 aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
+        <div className="h-full w-20 aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
           {isImageLoading && (
             <IonSpinner
               name="crescent"
-              className="absolute w-10 h-10 text-gray-400"
+              className="absolute w-16 h-16 text-gray-400"
             />
           )}
           <img
@@ -50,7 +50,7 @@ function ProfileHeader({ openModal }) {
           />
         </div>
 
-        <div className="flex flex-col items-start justify-center rounded-lg md:pl-4">
+        <div className="flex flex-col items-start justify-center rounded-lg pl-4">
           <IonText className="text-xl font-bold">
             {profile?.displayName || "User Name"}
           </IonText>
@@ -62,16 +62,6 @@ function ProfileHeader({ openModal }) {
 
       {/* Action Buttons */}
       <IonCol size="2" className="flex flex-col items-end justify-end">
-        <div className="flex flex-col text-xs items-center justify-center font-bold">
-          <IonButton
-            size="small"
-            shape="round"
-            color="secondary"
-            onClick={openModal}
-          >
-            <IonIcon slot="icon-only" icon={addCircleOutline} />
-          </IonButton>
-        </div>
         <div className="flex text-xs items-center justify-center">
           <IonButton size="small" shape="round" color="danger">
             <IonIcon slot="icon-only" icon={settingsOutline} />

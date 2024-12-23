@@ -1,11 +1,5 @@
-import {
-  IonButton,
-  IonCol,
-  IonIcon,
-  IonModal,
-  IonRow,
-} from "@ionic/react";
-import React, { useRef, useState } from "react";
+import { IonButton, IonCol, IonIcon, IonModal, IonRow } from "@ionic/react";
+import React, { useRef, useState, useEffect } from "react";
 import { useLocations } from "../../../../context/LocationsContext"; // Import the context
 import {
   addCircleOutline,
@@ -36,6 +30,34 @@ function MyLocations() {
       setCurrentAddressIndex(index);
     }
   };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = addressRefs.current.findIndex(
+              (el) => el === entry.target
+            );
+            if (index !== -1) {
+              setCurrentAddressIndex(index);
+            }
+          }
+        });
+      },
+      {
+        root: null, // Observing the viewport
+        rootMargin: "0px",
+        threshold: 0.5, // Trigger when 50% of the element is visible
+      }
+    );
+
+    addressRefs.current.forEach((ref) => ref && observer.observe(ref));
+
+    return () => {
+      addressRefs.current.forEach((ref) => ref && observer.unobserve(ref));
+    };
+  }, [locations]);
 
   return (
     <main className="container mx-auto max-w-4xl bg-slate-50 rounded-md relative">
@@ -94,66 +116,82 @@ function MyLocations() {
 
       {locations.length > 0 && (
         <>
-        <IonRow className="ion-justify-content-center ion-padding">
-          <IonCol
-            size="auto"
-            color="primary"
-            className="mx-auto ion-text-center ion-align-items-center text-black"
-          >
-            <div className="flex w-full h-full p-2 mx-auto items-center justify-center">
-              <div
-                onClick={() =>
-                  currentAddressIndex > 0 &&
-                  handleSlideChange(currentAddressIndex - 1)
-                }
-                className={`cursor-pointer p-2 ${
-                  currentAddressIndex === 0 ? "text-slate-300" : "text-grean"
-                }`}
-              >
-                <IonIcon icon={chevronBackOutline} size="large" />
-              </div>
-
-              {locations.map((_, index) => (
+          <IonRow className="ion-justify-content-center">
+            <IonCol
+              size="auto"
+              color="primary"
+              className="mx-auto ion-text-center ion-align-items-center text-black"
+            >
+              <div className="flex w-full h-full px-2 mx-auto items-center justify-center">
                 <div
-                  key={index}
-                  onClick={() => handleSlideChange(index)}
-                  className={`w-3 h-3 mx-1 rounded-full cursor-pointer ${
-                    index === currentAddressIndex ? "bg-grean" : "bg-slate-300"
+                  onClick={() =>
+                    currentAddressIndex > 0 &&
+                    handleSlideChange(currentAddressIndex - 1)
+                  }
+                  className={`cursor-pointer p-2 ${
+                    currentAddressIndex === 0 ? "text-slate-300" : "text-grean"
                   }`}
-                ></div>
-              ))}
+                >
+                  <IonIcon icon={chevronBackOutline} size="large" />
+                </div>
 
-              <div
-                onClick={() =>
-                  currentAddressIndex < locations.length - 1 &&
-                  handleSlideChange(currentAddressIndex + 1)
-                }
-                className={`cursor-pointer p-2 ${
-                  currentAddressIndex === locations.length - 1
-                    ? "text-slate-300"
-                    : "text-grean"
-                }`}
-              >
-                <IonIcon icon={chevronForwardOutline} size="large" />
+                {locations.map((_, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSlideChange(index)}
+                    className={`w-3 h-3 mx-1 rounded-full cursor-pointer ${
+                      index === currentAddressIndex
+                        ? "bg-grean"
+                        : "bg-slate-300"
+                    }`}
+                  ></div>
+                ))}
+
+                <div
+                  onClick={() =>
+                    currentAddressIndex < locations.length - 1 &&
+                    handleSlideChange(currentAddressIndex + 1)
+                  }
+                  className={`cursor-pointer p-2 ${
+                    currentAddressIndex === locations.length - 1
+                      ? "text-slate-300"
+                      : "text-grean"
+                  }`}
+                >
+                  <IonIcon icon={chevronForwardOutline} size="large" />
+                </div>
+              </div>
+            </IonCol>
+          </IonRow>
+          <span className="p-2 absolute rounded-r-md bg-orange h-full flex flex-col items-center justify-center top-0 right-0">
+            <div size="2" className="flex flex-col items-end justify-end">
+              <div className="flex flex-col text-xs items-center justify-center font-bold">
+                <IonButton
+                  shape="round"
+                  color="secondary"
+                  size="small"
+                  onClick={""}
+                >
+                  <IonIcon slot="icon-only" icon={createOutline} />
+                </IonButton>
+              </div>
+              <div className="flex flex-col text-xs items-center justify-center font-bold">
+                <IonButton
+                  size="small"
+                  shape="round"
+                  color="secondary"
+                  onClick={handleOpenModal}
+                >
+                  <IonIcon slot="icon-only" icon={addCircleOutline} />
+                </IonButton>
               </div>
             </div>
-          </IonCol>
-        </IonRow>
-              <span className="px-2 absolute top-0 right-0">
-              <IonButton
-                shape="round"
-                color="secondary"
-                size="small"
-                onClick={handleOpenModal}
-              >
-                <IonIcon slot="icon-only" icon={createOutline} />
-              </IonButton>
-            </span>
-          </>
+          </span>
+        </>
       )}
-
     </main>
   );
 }
 
 export default MyLocations;
+

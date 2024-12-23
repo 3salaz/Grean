@@ -208,7 +208,7 @@ function Pickups() {
                       </span>
                     </IonLabel>
                   </IonListHeader>
-                  {profile?.locations.length === 0 && (
+                  {profile?.locations === 0 && (
                     <IonItem>
                       Add A Location To Start Creating Pickups Requests
                     </IonItem>
@@ -290,7 +290,7 @@ function Pickups() {
                   </IonListHeader>
                   {visiblePickups.length < 0 ? (
                     <IonItem className="w-full text-center">
-                      <IonText>Create A Pickup To Get Started!</IonText>
+                      <IonText>No Pickups Currently Available</IonText>
                     </IonItem>
                   ) : (
                     visiblePickups.map((pickup) => (

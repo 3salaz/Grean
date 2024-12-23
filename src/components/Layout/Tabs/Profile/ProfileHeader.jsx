@@ -22,8 +22,7 @@ function ProfileHeader({ openModal }) {
   console.log("Profile Picture URL:", profile?.profilePic);
 
   return (
-    <IonRow className="ion-align-items-center ion-padding rounded-t-lg ion-justify-content-between bg-white">
-
+    <IonRow className="ion-align-items-end ion-padding rounded-t-lg ion-justify-content-between bg-white">
 
       {/* Profile Info Section */}
       <IonCol size="10" className="flex bg-grean bg-opacity-15 p-2 md:p-4 rounded-md">

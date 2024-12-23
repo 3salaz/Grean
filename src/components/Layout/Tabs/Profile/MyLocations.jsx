@@ -1,21 +1,25 @@
-import { IonButton, IonCol, IonIcon, IonModal, IonRow } from "@ionic/react";
-import React, { useEffect, useRef, useState } from "react";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
-import { addCircleOutline, arrowDownOutline, createOutline } from "ionicons/icons";
+import {
+  IonButton,
+  IonCol,
+  IonIcon,
+  IonModal,
+  IonRow,
+} from "@ionic/react";
+import React, { useRef, useState } from "react";
+import { useLocations } from "../../../../context/LocationsContext"; // Import the context
+import {
+  addCircleOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  createOutline,
+} from "ionicons/icons";
 import AddLocation from "./AddLocation";
 
 function MyLocations() {
-  const [profileAddresses, setProfileAddresses] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentAddressIndex, setCurrentAddressIndex] = useState(0);
   const addressRefs = useRef([]);
-  const { profile } = useAuthProfile(); // Ensures profile is available before usage
-
-  useEffect(() => {
-    if (profile?.locations) {
-      setProfileAddresses(profile.locations || []);
-    }
-  }, [profile]);
+  const { locations } = useLocations(); // Access the real-time locations from context
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -34,25 +38,24 @@ function MyLocations() {
   };
 
   return (
-    <main className="container mx-auto max-w-4xl">
-      
-      <IonRow className="ion-no-padding flex-grow">       
-        <IonModal
-          isOpen={isModalVisible}
-          onDidDismiss={handleCloseModal}
-          initialBreakpoint={1}
-          breakpoints={[0, 1]}
-        >
-          <AddLocation handleClose={handleCloseModal} />
-        </IonModal>
+    <main className="container mx-auto max-w-4xl bg-slate-50 rounded-md relative">
+      <IonModal
+        isOpen={isModalVisible}
+        onDidDismiss={handleCloseModal}
+        initialBreakpoint={1}
+        breakpoints={[0, 1]}
+      >
+        <AddLocation handleClose={handleCloseModal} />
+      </IonModal>
 
+      <IonRow className="ion-no-padding flex-grow">
         <IonCol className="ion-no-padding gap-2 bg-none flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none no-scroll rounded-md">
-          {profile.locations.length > 0 ? (
-            profile.locations.map((address, index) => (
+          {locations.length > 0 ? (
+            locations.map((address, index) => (
               <div
                 key={index}
                 ref={(el) => (addressRefs.current[index] = el)}
-                className="flex-none w-full h-full  flex justify-center items-center snap-center rounded-md bg-white"
+                className="flex-none w-full h-full flex justify-center items-center snap-center rounded-md bg-white ion-padding"
               >
                 <div className="flex flex-col text-center items-center justify-center w-full h-full p-2">
                   {address.businessLogo && (
@@ -62,7 +65,6 @@ function MyLocations() {
                       alt="Business Logo"
                     />
                   )}
-                  {address.locationType && <span></span>}
                   <span>{address.street}</span>
                   <span>
                     {address.city}, {address.state}
@@ -73,54 +75,81 @@ function MyLocations() {
           ) : (
             <div className="flex-none w-full flex justify-center items-end snap-center">
               <IonButton
-                fill="secondary"
-                shape="round"
+                fill="primary"
                 size="large"
                 onClick={handleOpenModal}
+                className="text-sm"
               >
                 Add a Location!
-                <IonIcon size="large" slot="start" icon={addCircleOutline}></IonIcon>
+                <IonIcon
+                  size="large"
+                  slot="start"
+                  icon={addCircleOutline}
+                ></IonIcon>
               </IonButton>
             </div>
           )}
         </IonCol>
       </IonRow>
 
-      {profile?.locations.length > 0 && profile.accountType === "User" && (
-        <IonRow className="ion-justify-content-between">
-          <IonCol size="3" className="ion-text-start"></IonCol>
-          
+      {locations.length > 0 && (
+        <>
+        <IonRow className="ion-justify-content-center ion-padding">
           <IonCol
-            size="6"
+            size="auto"
             color="primary"
             className="mx-auto ion-text-center ion-align-items-center text-black"
           >
-            <div className="flex w-full h-full mx-auto items-center justify-center">
-              {profileAddresses.map((_, index) => (
+            <div className="flex w-full h-full p-2 mx-auto items-center justify-center">
+              <div
+                onClick={() =>
+                  currentAddressIndex > 0 &&
+                  handleSlideChange(currentAddressIndex - 1)
+                }
+                className={`cursor-pointer p-2 ${
+                  currentAddressIndex === 0 ? "text-slate-300" : "text-grean"
+                }`}
+              >
+                <IonIcon icon={chevronBackOutline} size="large" />
+              </div>
+
+              {locations.map((_, index) => (
                 <div
                   key={index}
                   onClick={() => handleSlideChange(index)}
                   className={`w-3 h-3 mx-1 rounded-full cursor-pointer ${
-                    index === currentAddressIndex
-                      ? "bg-orange"
-                      : "bg-blue-100"
+                    index === currentAddressIndex ? "bg-grean" : "bg-slate-300"
                   }`}
                 ></div>
               ))}
+
+              <div
+                onClick={() =>
+                  currentAddressIndex < locations.length - 1 &&
+                  handleSlideChange(currentAddressIndex + 1)
+                }
+                className={`cursor-pointer p-2 ${
+                  currentAddressIndex === locations.length - 1
+                    ? "text-slate-300"
+                    : "text-grean"
+                }`}
+              >
+                <IonIcon icon={chevronForwardOutline} size="large" />
+              </div>
             </div>
           </IonCol>
-
-          <IonCol size="auto" className="px-2">
-            <IonButton
-              shape="round"
-              color="secondary"
-              onClick={handleOpenModal}
-            >
-              <IonIcon slot="icon-only" icon={createOutline} />
-            </IonButton>
-          </IonCol>
-
         </IonRow>
+              <span className="px-2 absolute top-0 right-0">
+              <IonButton
+                shape="round"
+                color="secondary"
+                size="small"
+                onClick={handleOpenModal}
+              >
+                <IonIcon slot="icon-only" icon={createOutline} />
+              </IonButton>
+            </span>
+          </>
       )}
 
     </main>

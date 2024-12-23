@@ -11,56 +11,31 @@ import {
   IonDatetime,
   IonBadge,
   IonFabButton,
+  IonList,
 } from "@ionic/react";
 import { usePickups } from "../../../../context/PickupsContext";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import dayjs from "dayjs";
-import homeIcon from "../../../../assets/icons/home.png";
 import {
   calendarNumberOutline,
   closeOutline,
-  leafOutline,
   notificationsOutline,
 } from "ionicons/icons";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  arrayUnion,
-} from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { db } from "../../../../firebase";
 
 function RequestPickup({ handleClose }) {
-  const { createPickup } = usePickups();
-  const { profile, updateProfileData } = useAuthProfile();
-  const [profileLocations, setProfileLocations] = useState([]);
-  const { userAcceptedPickups, userCreatedPickups, visiblePickups } =
-    usePickups();
+  const { createPickup, visiblePickups, userAcceptedPickups } = usePickups();
+  const { profile } = useAuthProfile();
 
-  const initialFormData = useMemo(
-    () => ({
-      pickupDateTime: dayjs().toISOString(), // Default to current date and time
-      pickupNote: "",
-    }),
-    [profile]
-  );
-
-  const [modalState, setModalState] = useState({
-    requestPickupOpen: false,
+  const [pickupRequestData, setPickupRequestData] = useState({
+    address: "",
+    materials: [],
+    pickupDateTime: dayjs().toISOString(),
+    pickupNote: "",
   });
 
-  const openModal = (modalName) => {
-    setModalState((prevState) => ({ ...prevState, [modalName]: true }));
-  };
-
-  const closeModal = (modalName) => {
-    setModalState((prevState) => ({ ...prevState, [modalName]: false }));
-  };
-
-  const [pickupRequestData, setPickupRequestData] = useState(initialFormData);
+  const [profileLocations, setProfileLocations] = useState([]);
 
   useEffect(() => {
     if (profile?.locations) {
@@ -68,253 +43,145 @@ function RequestPickup({ handleClose }) {
     }
   }, [profile]);
 
-  const handleChange = useCallback((name, value) => {
-    setPickupRequestData((prevData) => ({
-      ...prevData,
+  const handleChange = (name, value) => {
+    setPickupRequestData((prev) => ({
+      ...prev,
       [name]: value,
     }));
-  }, []);
-
-  // Build the pickup data with materials included
+  };
 
   const handleSubmit = async () => {
     try {
-      // Query for active pickups of the current user (pickups that are not completed or deleted)
-      const pickupsRef = collection(db, "pickups"); // Reference to the "pickups" collection
-      const activePickupsQuery = query(
-        pickupsRef,
-        where("createdBy.userId", "==", profile?.uid),
-        where("isCompleted", "==", false)
-      );
-
-      const querySnapshot = await getDocs(activePickupsQuery);
-
-      // Restrict to only 2 active pickups at a time
-      if (querySnapshot.docs.length >= 2) {
-        toast.error("You can only have 2 active pickups at a time.", {
-          position: "top-right",
-          autoClose: 5000,
-        });
+      if (!pickupRequestData.address) {
+        toast.error("Please select a valid address.");
+        return;
+      }
+      if (!pickupRequestData.pickupDateTime) {
+        toast.error("Please select a valid pickup date and time.");
+        return;
+      }
+      if (pickupRequestData.materials.length === 0) {
+        toast.error("Please select at least one material.");
         return;
       }
 
-      // Proceed to create the new pickup if under the limit
+      const activePickups = visiblePickups.filter(
+        (pickup) => pickup.createdBy?.userId === profile?.uid
+      );
+
+      if (activePickups.length >= 2) {
+        toast.error("You can only have 2 active pickups at a time.");
+        return;
+      }
+
       const selectedAddress = profileLocations.find(
-        (address) => address.street === pickupRequestData.address
+        (location) => location.street === pickupRequestData.address
       );
 
       if (!selectedAddress) {
-        toast.error("Please select a valid address.", {
-          position: "top-right",
-          autoClose: 5000,
-        });
+        toast.error("Selected address is invalid.");
         return;
       }
 
-      if (!pickupRequestData.pickupDateTime) {
-        toast.error("Please select a valid pickup date and time.", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-        return;
-      }
-
-      // Build the pickup data with materials included
       const pickupData = {
         pickupDate: dayjs(pickupRequestData.pickupDateTime).format(
           "YYYY-MM-DD"
         ),
         pickupTime: dayjs(pickupRequestData.pickupDateTime).format("HH:mm"),
-        pickupNote: pickupRequestData.pickupNote || "", // Set default empty note
+        pickupNote: pickupRequestData.pickupNote,
         addressData: selectedAddress,
+        materials: pickupRequestData.materials,
         isAccepted: false,
         isCompleted: false,
-        materials: { ...materials }, // Include the materials object
         createdBy: {
-          displayName: profile?.displayName || "No Name",
-          photoURL: profile?.profilePic || "",
           userId: profile?.uid,
+          displayName: profile?.displayName || "No Name",
           email: profile?.email,
+          photoURL: profile?.profilePic || "",
         },
       };
 
-      const newPickupId = await createPickup(pickupData);
-
-      if (newPickupId) {
-        await updateProfileData(profile?.uid, {
-          pickups: arrayUnion(newPickupId),
-        });
-        toast.success("Pickup request created successfully!", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-        handleClose(); // Close the modal on success
-      }
+      await createPickup(pickupData);
+      handleClose();
     } catch (error) {
-      console.error("Error creating pickup or checking active pickups:", error);
-      toast.error("There was an error creating the pickup. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
+      console.error("Error creating pickup:", error);
+      toast.error("There was an error creating the pickup. Please try again.");
     }
   };
 
-  // Define available materials
-  const [materials, setMaterials] = useState({
-    plastic: false,
-    glass: false,
-    aluminum: false,
-  });
-
-  // Handle material selection
-  const handleMaterialChange = (material) => {
-    setMaterials((prevState) => ({
-      ...prevState,
-      [material]: !prevState[material],
-    }));
-  };
-
   return (
-    <main className="w-full h-[92svh] pb-6 z-10 absolute flex flex-col items-center justify-center">
-      <ToastContainer
-        position="top-right"
-        className="top-50"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <IonRow>
-        <IonCol size="12" className="text-center mx-auto rounded-xl">
-          <IonItem color="light" lines="none" className="w-full rounded-full">
-            {/* <IonLabel color="secondary" position="stacked" className="w-full">
-                    Address
-                  </IonLabel> */}
-            <IonSelect
-              className="ion-align-self-center w-full"
-              placeholder="Select your address"
-              onIonChange={(e) => handleChange("address", e.detail.value)}
-              value={pickupRequestData.address}
-            >
-              {profileLocations.map((address, index) => (
-                <IonSelectOption key={index} value={address.street}>
-                  <div className="flex items-center gap-4">
-                    <img className="w-10" src={homeIcon} alt="Home Icon" />
+    <main className="w-full h-full pb-6  overflow-auto">
+      <ToastContainer position="top-right" autoClose={5000} />
+      <IonRow className="h-[90%] w-full overflow-auto">
+        <IonCol size="auto" className="mx-auto">
+          <IonList>
+            <IonItem>
+              <IonLabel position="stacked">Select Address</IonLabel>
+              <IonSelect
+                value={pickupRequestData.address}
+                onIonChange={(e) => handleChange("address", e.detail.value)}
+                placeholder="Select your address"
+              >
+                {profileLocations.map((address, index) => (
+                  <IonSelectOption key={index} value={address.street}>
                     {address.street}
-                  </div>
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
-        </IonCol>
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
 
-        <IonCol size="12">
-          <IonSelect
-            className="bg-grean rounded-full px-4 w-full"
-            label="What are you recycling?"
-            placeholder="Material"
-            multiple={true}
-          >
-            <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
-            <IonSelectOption value="plastic">Plastic</IonSelectOption>
-            <IonSelectOption value="glass">Glass</IonSelectOption>
-            <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
-            <IonSelectOption value="palets">Palets</IonSelectOption>
-            <IonSelectOption value="appliances">Appliances</IonSelectOption>
-          </IonSelect>
-        </IonCol>
-
-        <IonCol size="12">
-          <IonItem lines="none" className="w-full">
-            <IonLabel className="mx-auto w-full" position="stacked">
-              Pickup Date & Time
-            </IonLabel>
-            <IonDatetime
-              presentation="date-time"
-              value={pickupRequestData.pickupDateTime}
-              className="mx-auto rounded-lg"
-              onIonChange={(e) =>
-                handleChange("pickupDateTime", e.detail.value)
-              }
-              placeholder="Select Date and Time"
-              min={dayjs().toISOString()} // Restrict to future date and time
-              minuteValues="0,15,30,45" // Only allow 30-minute intervals
-            />
-          </IonItem>
-        </IonCol>
-
-        <IonCol size="12">
-          <IonItem lines="none" className="w-full">
-            <IonLabel className="rounded-lg pb-2" position="stacked">
-              Pickup Notes
-            </IonLabel>
-            <IonTextarea
-              rows={3}
-              value={pickupRequestData.pickupNote}
-              className="bg-slate-50 rounded-md p-1"
-              onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
-            />
-          </IonItem>
-        </IonCol>
-
-        {profile?.accountType === "User" && profile?.locations.length > 0 && (
-          <>
-            <IonCol size="8" className="ion-align-self-center">
-              <IonButton
-                expand="block"
-                color="primary"
-                onClick={handleSubmit}
-                className="drop-shadow-lg"
+            <IonItem>
+              <IonLabel position="stacked">Materials</IonLabel>
+              <IonSelect
+                multiple
+                value={pickupRequestData.materials}
+                onIonChange={(e) => handleChange("materials", e.detail.value)}
+                placeholder="Select materials"
               >
-                Submit
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto" className="relative">
-              <IonFabButton onClick={() => handleClose()} color="danger">
-                <IonIcon className="" color="light" icon={closeOutline} />
-              </IonFabButton>
-              {/* <IonBadge className="absolute top-0 right-0 bg-red-500 rounded-full aspect-square w-5 p-1 flex items-center justify-center">
-                  {profile.pickups.length}
-                </IonBadge> */}
-            </IonCol>
-          </>
-        )}
+                <IonSelectOption value="plastic">Plastic</IonSelectOption>
+                <IonSelectOption value="glass">Glass</IonSelectOption>
+                <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
+                <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
+                <IonSelectOption value="palets">Palets</IonSelectOption>
+                <IonSelectOption value="appliances">Appliances</IonSelectOption>
+              </IonSelect>
+            </IonItem>
 
-        {profile?.accountType === "Driver" && (
-          <>
-            <IonCol size="auto" className="relative">
-              <IonFabButton
-                onClick={() => openModal("scheduleOpen")}
-                color="tertiary"
-              >
-                <IonIcon icon={calendarNumberOutline} />
-              </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-white text-green rounded-full aspect-square w-5">
-                {
-                  userAcceptedPickups.filter((pickup) => !pickup.isCompleted)
-                    .length
+            <IonItem>
+              <IonLabel position="stacked">Pickup Date & Time</IonLabel>
+              <IonDatetime
+                value={pickupRequestData.pickupDateTime}
+                onIonChange={(e) =>
+                  handleChange("pickupDateTime", e.detail.value)
                 }
-              </IonBadge>
-            </IonCol>
-            <IonCol size="auto" className="relative">
-              <IonFabButton
-                onClick={() => openModal("pickupQueueOpen")}
-                color="danger"
-                className="relative"
-              >
-                <IonIcon icon={notificationsOutline} />
-              </IonFabButton>
-              <IonBadge className="absolute top-0 right-0 bg-white text-grean rounded-full aspect-square w-5">
-                {visiblePickups.length}
-              </IonBadge>
-            </IonCol>
-          </>
-        )}
+                min={dayjs().toISOString()}
+                presentation="date-time"
+                minuteValues="0,15,30,45"
+              />
+            </IonItem>
+
+            <IonItem>
+              <IonLabel position="stacked">Pickup Notes</IonLabel>
+              <IonTextarea
+                rows={3}
+                value={pickupRequestData.pickupNote}
+                onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
+              />
+            </IonItem>
+          </IonList>
+        </IonCol>
+      </IonRow>
+      <IonRow className="h-[10%] mx-auto ion-justify-content-center ion-align-items-center">
+        <IonCol size="auto">
+          <IonButton expand="block" color="primary" onClick={handleSubmit}>
+            Submit
+          </IonButton>
+        </IonCol>
+        <IonCol size="auto">
+          <IonFabButton color="danger" onClick={handleClose}>
+            <IonIcon icon={closeOutline} />
+          </IonFabButton>
+        </IonCol>
       </IonRow>
     </main>
   );

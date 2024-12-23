@@ -28,11 +28,9 @@ import homeIcon from "../../../../assets/icons/home.png";
 import businessIcon from "../../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
-  // Context hooks
-  const { profile, updateProfileField } = useAuthProfile();
-  const { addLocationToCollection } = useLocations();
+  const { profile, updateProfileField } = useAuthProfile(); // Access AuthProfileContext
+  const { addLocation, locations } = useLocations(); // Access LocationsContext
 
-  // State hooks
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState(false);
@@ -44,10 +42,9 @@ const AddLocation = ({ handleClose }) => {
     state: "California",
     businessName: "",
     businessPhoneNumber: "",
-    category: ""
+    category: "",
   });
 
-  // Helper functions
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -61,7 +58,6 @@ const AddLocation = ({ handleClose }) => {
         return formData.locationType;
       case 1:
         return formData.street && formData.city && formData.state;
-
       case 2:
         return formData.locationType === "Business"
           ? formData.businessName && formData.businessPhoneNumber && formData.category
@@ -83,7 +79,6 @@ const AddLocation = ({ handleClose }) => {
     throw new Error("Unable to retrieve coordinates for the address.");
   };
 
-  // Navigation handlers
   const nextStep = async () => {
     if (!validateStep()) {
       console.log("Please fill in all required fields before proceeding.");
@@ -113,10 +108,9 @@ const AddLocation = ({ handleClose }) => {
       console.log("Please fill in all required fields.");
       return;
     }
-  
+
     setLoading(true);
     try {
-      // Construct the new location object
       const newLocation = {
         locationType: formData.locationType || "Unknown",
         street: formData.street || "",
@@ -130,35 +124,25 @@ const AddLocation = ({ handleClose }) => {
         ...(formData.locationType === "Business" && {
           businessName: formData.businessName || "",
           businessPhoneNumber: formData.businessPhoneNumber || "",
-          category: formData.category || "Other", // Include category for business locations
+          category: formData.category || "Other",
         }),
       };
-  
-      // 1. Add location to the "locations" collection and get document ID
-      const docId = await addLocationToCollection(profile.uid, newLocation);
-  
-      // 2. Update the location object with the generated document ID
-      const locationWithId = { ...newLocation, id: docId };
-  
-      // 3. Add the updated location (with ID) to the user's profile collection
-      await updateProfileField(
-        profile.uid,
-        "locations",
-        locationWithId,
-        "addToArray"
-      );
-  
+
+      const newLocationId = await addLocation(newLocation);
+
+      // Update profile.locations with the new location ID
+      const locationWithId = { ...newLocation, id: newLocationId };
+      await updateProfileField(profile.uid, "locations", locationWithId, "addToArray");
+
       console.log("Location added successfully!");
-      handleClose();
+      handleClose(); // Close the modal on success
     } catch (error) {
       console.error("Error adding location:", error.message);
     } finally {
       setLoading(false);
     }
   };
-  
 
-  // Render helper functions
   const renderStepContent = () => {
     switch (step) {
       case 0:
@@ -201,17 +185,13 @@ const AddLocation = ({ handleClose }) => {
                 value={formData.city}
                 onIonChange={(e) => handleInputChange("city", e.detail.value)}
                 placeholder="Select a city"
-                justify="start"
               >
-                <IonSelectOption className="" value="San Francisco">
-                  San Francisco
-                </IonSelectOption>
+                <IonSelectOption value="San Francisco">San Francisco</IonSelectOption>
                 <IonSelectOption value="Daly City">Daly City</IonSelectOption>
               </IonSelect>
             </IonItem>
           </>
         );
-
       case 2:
         return formData.locationType === "Home" ? (
           <IonItem>

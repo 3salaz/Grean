@@ -1,5 +1,14 @@
+import {
+  collection,
+  doc,
+  onSnapshot,
+  writeBatch,
+  arrayUnion,
+  arrayRemove,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
 import { createContext, useContext, useState, useEffect } from "react";
-import { collection, doc, onSnapshot, setDoc, updateDoc, writeBatch, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -13,6 +22,7 @@ export const PickupsProvider = ({ children }) => {
   const [pickups, setPickups] = useState([]);
   const { user, profile } = useAuthProfile();
 
+  // Real-time listener for pickups
   useEffect(() => {
     if (user) {
       const unsubscribe = onSnapshot(collection(db, "pickups"), (querySnapshot) => {
@@ -23,15 +33,13 @@ export const PickupsProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Create a new pickup
   const createPickup = async (pickupData) => {
     try {
-      // Generate a unique ID for the new pickup
       const newPickupId = uuidv4();
-  
-      // Build the complete pickup object
       const newPickup = {
         ...pickupData,
-        id: newPickupId, // Include the unique ID
+        id: newPickupId,
         createdAt: new Date(),
         isAccepted: false,
         isCompleted: false,
@@ -42,49 +50,93 @@ export const PickupsProvider = ({ children }) => {
           photoURL: profile?.profilePic || "",
         },
       };
-  
-      // Begin a Firebase batch operation
+
       const batch = writeBatch(db);
-  
-      // Add the new pickup to the Pickups collection
+
+      // Add the pickup to the pickups collection
       batch.set(doc(db, "pickups", newPickupId), newPickup);
-  
-      // Update the profile document to include the full pickup object in the pickups array
+
+      // Add the pickup ID to the profile's pickups array
       batch.update(doc(db, "profiles", user?.uid), {
-        pickups: arrayUnion(newPickup), // Add the full pickup object to the array
+        pickups: arrayUnion(newPickupId),
       });
-  
-      // Commit the batch
+
       await batch.commit();
-  
       toast.success("Pickup created successfully!");
     } catch (error) {
       console.error("Error creating pickup:", error);
       toast.error("Error creating pickup. Please try again.");
     }
   };
-  
 
-  const updatePickup = async (pickupId, updates) => {
+  // Edit an existing pickup
+  const editPickup = async (pickupId, updatedData) => {
     try {
-      await updateDoc(doc(db, "pickups", pickupId), updates);
+      const batch = writeBatch(db);
+
+      // Update the pickup in the pickups collection
+      const pickupRef = doc(db, "pickups", pickupId);
+      batch.update(pickupRef, updatedData);
+
+      // Update the pickup in the profile's pickups array
+      const profileRef = doc(db, "profiles", user?.uid);
+      const profileSnap = await getDoc(profileRef);
+      const profileData = profileSnap.data();
+
+      const updatedPickups = profileData.pickups.map((pickup) =>
+        pickup.id === pickupId ? { ...pickup, ...updatedData } : pickup
+      );
+
+      batch.update(profileRef, { pickups: updatedPickups });
+
+      await batch.commit();
       toast.success("Pickup updated successfully!");
     } catch (error) {
-      console.error("Error updating pickup:", error);
-      toast.error("Error updating pickup. Please try again.");
+      console.error("Error editing pickup:", error);
+      toast.error("Error editing pickup. Please try again.");
     }
   };
+
+  // Delete a pickup
+  const deletePickup = async (pickupId) => {
+    try {
+      const batch = writeBatch(db);
+
+      // Delete the pickup from the pickups collection
+      const pickupRef = doc(db, "pickups", pickupId);
+      batch.delete(pickupRef);
+
+      // Remove the pickup ID from the profile's pickups array
+      const profileRef = doc(db, "profiles", user?.uid);
+      batch.update(profileRef, {
+        pickups: arrayRemove(pickupId),
+      });
+
+      await batch.commit();
+      toast.success("Pickup deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting pickup:", error);
+      toast.error("Error deleting pickup. Please try again.");
+    }
+  };
+
+  // Filters
+  const userCreatedPickups = pickups.filter((pickup) => pickup.createdBy?.userId === user?.uid);
+  const userAcceptedPickups = pickups.filter((pickup) => pickup.acceptedBy?.uid === user?.uid);
+  const visiblePickups = pickups.filter((pickup) => !pickup.isAccepted);
+  const completedPickups = pickups.filter((pickup) => pickup.isCompleted);
 
   return (
     <PickupContext.Provider
       value={{
         pickups,
-        userCreatedPickups: pickups.filter((pickup) => pickup.createdBy?.userId === user?.uid),
-        userAcceptedPickups: pickups.filter((pickup) => pickup.acceptedBy?.uid === user?.uid),
-        visiblePickups: pickups.filter((pickup) => !pickup.isAccepted),
-        completedPickups: pickups.filter((pickup) => pickup.isCompleted),
+        userCreatedPickups,
+        userAcceptedPickups,
+        visiblePickups,
+        completedPickups,
         createPickup,
-        updatePickup,
+        editPickup,
+        deletePickup,
       }}
     >
       {children}

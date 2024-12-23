@@ -1,11 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
-  doc,
-  getDocs,
   collection,
+  doc,
   addDoc,
-  serverTimestamp,
+  deleteDoc,
+  updateDoc,
   onSnapshot,
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuthProfile } from "./AuthProfileContext";
@@ -15,54 +19,68 @@ const LocationsContext = createContext();
 export function LocationsProvider({ children }) {
   const [locations, setLocations] = useState([]);
   const [businessLocations, setBusinessLocations] = useState([]);
-  const { user } = useAuthProfile();
+  const { user, profile, updateProfileField } = useAuthProfile(); // Access user and profile
 
-  const addLocationToCollection = async (uid, locationData) => {
-    const locationsCollectionRef = collection(db, "locations");
-
+  // Add a new location and sync with profile
+  const addLocation = async (locationData) => {
     try {
-      const docRef = await addDoc(locationsCollectionRef, {
+      const locationsCollectionRef = collection(db, "locations");
+      const newLocationRef = doc(locationsCollectionRef);
+
+      const newLocation = {
         ...locationData,
-        userId: uid,
+        id: newLocationRef.id,
+        userId: user.uid,
         timestamp: serverTimestamp(),
-      });
-      console.log("Location successfully added with ID:", docRef.id);
-      return docRef.id;
+      };
+
+      // Add location to Firestore and update profile.locations
+      await setDoc(newLocationRef, newLocation);
+      await updateProfileField(user.uid, "locations", newLocation, "addToArray");
+
+      return newLocationRef.id;
     } catch (error) {
-      console.error("Error adding location to the collection: ", error);
+      console.error("Error adding location: ", error);
       throw error;
     }
   };
 
-  const fetchInitialLocations = async () => {
-    if (user) {
-      try {
-        const locationsCollectionRef = collection(db, "locations");
-        const querySnapshot = await getDocs(locationsCollectionRef);
+  // Delete a location and sync with profile
+  const deleteLocation = async (locationId) => {
+    try {
+      const locationRef = doc(db, "locations", locationId);
 
-        const fetchedLocations = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      // Remove location from Firestore and profile.locations
+      await deleteDoc(locationRef);
+      await updateProfileField(user.uid, "locations", { id: locationId }, "removeFromArray");
+    } catch (error) {
+      console.error("Error deleting location: ", error);
+      throw error;
+    }
+  };
 
-        setLocations(fetchedLocations);
+  // Update a location and ensure consistency
+  const updateLocation = async (locationId, updates) => {
+    try {
+      const locationRef = doc(db, "locations", locationId);
 
-        const filteredBusinessLocations = fetchedLocations.filter(
-          (location) => location.locationType === "Business"
-        );
+      // Update Firestore location
+      await updateDoc(locationRef, updates);
 
-        setBusinessLocations(filteredBusinessLocations);
-      } catch (error) {
-        console.error("Error fetching initial business locations: ", error);
-        setBusinessLocations([]);
-      }
+      // Update profile.locations manually (if needed)
+      const updatedLocations = profile.locations.map((loc) =>
+        loc.id === locationId ? { ...loc, ...updates } : loc
+      );
+
+      await updateProfileField(user.uid, "locations", updatedLocations, "update");
+    } catch (error) {
+      console.error("Error updating location: ", error);
+      throw error;
     }
   };
 
   useEffect(() => {
     if (user) {
-      fetchInitialLocations();
-
       const locationsCollectionRef = collection(db, "locations");
       const unsubscribe = onSnapshot(
         locationsCollectionRef,
@@ -81,19 +99,21 @@ export function LocationsProvider({ children }) {
           setBusinessLocations(filteredBusinessLocations);
         },
         (error) => {
-          console.error("Error listening to business locations: ", error);
-          setBusinessLocations([]);
+          console.error("Error listening to locations: ", error);
+          setLocations([]);
         }
       );
 
       return () => unsubscribe();
     }
   }, [user]);
-  
+
   const value = {
-    addLocationToCollection,
-    businessLocations,
     locations,
+    businessLocations,
+    addLocation,
+    deleteLocation,
+    updateLocation,
   };
 
   return (
@@ -106,4 +126,3 @@ export function LocationsProvider({ children }) {
 export function useLocations() {
   return useContext(LocationsContext);
 }
-

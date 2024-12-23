@@ -22,12 +22,12 @@ function ProfileHeader({ openModal }) {
   console.log("Profile Picture URL:", profile?.profilePic);
 
   return (
-    <IonRow className="ion-align-items-end ion-padding rounded-t-lg ion-justify-content-between bg-white">
+    <IonRow className="ion-align-items-end gap-2 ion-padding rounded-t-lg ion-justify-content-between bg-white">
 
       {/* Profile Info Section */}
-      <IonCol size="10" className="flex bg-grean bg-opacity-15 p-2 md:p-4 rounded-md">
+      <IonCol size="auto" className="flex justify-end  rounded-md bg-grean bg-opacity-80">
         {/* Profile Image Section */}
-        <div className="h-full w-20 aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
+        <div className="h-full w-16 aspect-square rounded-full overflow-hidden flex items-center justify-center relative">
           {isImageLoading && (
             <IonSpinner
               name="crescent"
@@ -35,7 +35,7 @@ function ProfileHeader({ openModal }) {
             />
           )}
           <img
-            className={`object-cover w-20 h-20 bg-white rounded-full transition-opacity duration-500 ${
+            className={`object-cover w-16 h-16 p-2  rounded-full transition-opacity duration-500 ${
               isImageLoading ? "opacity-0" : "opacity-100"
             }`}
             src={profile?.profilePic}
@@ -49,7 +49,7 @@ function ProfileHeader({ openModal }) {
           />
         </div>
 
-        <div className="flex flex-col items-start justify-center rounded-lg pl-4">
+        <div className="flex p-2 flex-col items-start justify-end rounded-lg">
           <IonText className="text-xl font-bold">
             {profile?.displayName || "User Name"}
           </IonText>
@@ -60,7 +60,7 @@ function ProfileHeader({ openModal }) {
       </IonCol>
 
       {/* Action Buttons */}
-      <IonCol size="2" className="flex flex-col items-end justify-end">
+      <IonCol size="auto" className="flex flex-col items-end justify-end">
         <div className="flex text-xs items-center justify-center">
           <IonButton size="small" shape="round" color="danger">
             <IonIcon slot="icon-only" icon={settingsOutline} />

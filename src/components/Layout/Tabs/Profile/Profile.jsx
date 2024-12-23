@@ -73,9 +73,7 @@ function Profile() {
       </IonModal>
 
       <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
-        {/* <IonRow className="mx-auto container h-auto max-w-4xl bg-white rounded-t-md border-grean drop-shadow-xl border-2 border-b-0 border-b-transparent p-2"> */}
-          <ProfileHeader openModal={() => setIsModalVisible(true)} />
-        {/* </IonRow> */}
+        <ProfileHeader openModal={() => setIsModalVisible(true)} />
         <MyForest />
         <Impact />
         {profile.locations.length > 0 && profile.accountType === "User" && (

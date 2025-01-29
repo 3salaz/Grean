@@ -29,7 +29,7 @@ import businessIcon from "../../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
   const { profile, updateProfileField } = useAuthProfile(); // Access AuthProfileContext
-  const { addLocation, locations } = useLocations(); // Access LocationsContext
+  const { createLocation, locations } = useLocations(); // Access LocationsContext
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -128,7 +128,7 @@ const AddLocation = ({ handleClose }) => {
         }),
       };
 
-      const newLocationId = await addLocation(newLocation);
+      const newLocationId = await createLocation(newLocation);
 
       // Update profile.locations with the new location ID
       const locationWithId = { ...newLocation, id: newLocationId };

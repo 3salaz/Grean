@@ -108,68 +108,67 @@ function RequestPickup({ handleClose }) {
       toast.error("There was an error creating the pickup. Please try again.");
     }
   };
+  console.log(profileLocations)
 
   return (
     <main className="w-full h-full pb-6  overflow-auto">
       <ToastContainer position="top-right" autoClose={5000} />
-      <IonRow className="h-[90%] w-full overflow-auto">
-        <IonCol size="auto" className="mx-auto">
-          <IonList>
-            <IonItem>
-              <IonLabel position="stacked">Select Address</IonLabel>
+      <IonRow className="h-[90%] w-full overflow-auto ion-padding">
+        <IonList className="w-full ion-padding bg-orange rounded-md">
+          <IonCol size="12">
+              {/* <IonLabel position="floating" className="text-center">Select Address</IonLabel> */}
               <IonSelect
                 value={pickupRequestData.address}
+                className="w-full px-2 bg-slate-50 text-center rounded-md"
                 onIonChange={(e) => handleChange("address", e.detail.value)}
-                placeholder="Select your address"
+                placeholder={  profileLocations[0]?.address ||"Select Address"}
               >
                 {profileLocations.map((address, index) => (
-                  <IonSelectOption key={index} value={address.street}>
+                  <IonSelectOption className="bg-orange" key={index} value={address.street}>
                     {address.street}
                   </IonSelectOption>
                 ))}
               </IonSelect>
-            </IonItem>
+          </IonCol>
+          <IonCol>
+            <IonLabel position="stacked">Materials</IonLabel>
+            <IonSelect
+              multiple
+              value={pickupRequestData.materials}
+              onIonChange={(e) => handleChange("materials", e.detail.value)}
+              placeholder="Select materials"
+            >
+              <IonSelectOption value="plastic">Plastic</IonSelectOption>
+              <IonSelectOption value="glass">Glass</IonSelectOption>
+              <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
+              <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
+              <IonSelectOption value="palets">Palets</IonSelectOption>
+              <IonSelectOption value="appliances">Appliances</IonSelectOption>
+            </IonSelect>
+          </IonCol>
 
-            <IonItem>
-              <IonLabel position="stacked">Materials</IonLabel>
-              <IonSelect
-                multiple
-                value={pickupRequestData.materials}
-                onIonChange={(e) => handleChange("materials", e.detail.value)}
-                placeholder="Select materials"
-              >
-                <IonSelectOption value="plastic">Plastic</IonSelectOption>
-                <IonSelectOption value="glass">Glass</IonSelectOption>
-                <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
-                <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
-                <IonSelectOption value="palets">Palets</IonSelectOption>
-                <IonSelectOption value="appliances">Appliances</IonSelectOption>
-              </IonSelect>
-            </IonItem>
+          <IonCol>
+            <IonLabel position="stacked">Pickup Date & Time</IonLabel>
+            <IonDatetime
+              value={pickupRequestData.pickupDateTime}
+              onIonChange={(e) =>
+                handleChange("pickupDateTime", e.detail.value)
+              }
+              min={dayjs().toISOString()}
+              presentation="date-time"
+              minuteValues="0,15,30,45"
+            />
+          </IonCol>
 
-            <IonItem>
-              <IonLabel position="stacked">Pickup Date & Time</IonLabel>
-              <IonDatetime
-                value={pickupRequestData.pickupDateTime}
-                onIonChange={(e) =>
-                  handleChange("pickupDateTime", e.detail.value)
-                }
-                min={dayjs().toISOString()}
-                presentation="date-time"
-                minuteValues="0,15,30,45"
-              />
-            </IonItem>
-
-            <IonItem>
-              <IonLabel position="stacked">Pickup Notes</IonLabel>
-              <IonTextarea
-                rows={3}
-                value={pickupRequestData.pickupNote}
-                onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
-              />
-            </IonItem>
-          </IonList>
-        </IonCol>
+          <IonCol>
+            <IonLabel position="stacked">Pickup Notes</IonLabel>
+            <IonTextarea
+              rows={3}
+              value={pickupRequestData.pickupNote}
+              onIonChange={(e) => handleChange("pickupNote", e.detail.value)}
+            />
+          </IonCol>
+        </IonList>
       </IonRow>
       <IonRow className="h-[10%] mx-auto ion-justify-content-center ion-align-items-center">
         <IonCol size="auto">

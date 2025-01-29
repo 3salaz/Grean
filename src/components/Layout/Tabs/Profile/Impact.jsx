@@ -1,4 +1,5 @@
 import {
+  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -15,21 +16,21 @@ function Impact() {
   return (
     <IonCard className="max-w-4xl mx-auto shadow-lg rounded-lg">
       {/* Card Header */}
-      <IonCardHeader className="bg-slate-100 rounded-t-lg">
+      <IonCardHeader className="bg-slate-100 rounded-t-lg pb-2">
         <IonCardTitle className="flex w-full justify-between items-center">
           {/* Title Section */}
           <IonRow className="flex justify-between w-full">
             <IonCol
               size="auto"
-              className="rounded-full text-center bg-grean px-4"
+              className="rounded-full text-center bg-grean px-4 flex items-center justify-center"
             >
-              <IonText className="  text-white rounded-full p-0 m-0  text-lg font-semibold text-center">
+              <div className="text-white rounded-full text-lg font-semibold text-center">
                 Impact
-              </IonText>
+              </div>
             </IonCol>
-            <IonCol size="auto" className="flex">
+            <IonCol size="auto" className="pr-2">
               {/* Level Section */}
-              <div className="flex items-center justify-end text-grean font-bolds text-xl gap-1">
+              <div className="flex items-center justify-end text-grean font-bolds text-lg gap-1">
                 <span className="">Level:</span>
                 <span className="font-bold">0</span>
               </div>
@@ -37,10 +38,11 @@ function Impact() {
           </IonRow>
         </IonCardTitle>
         {/* Info Icon */}
-        <div className=" flex items-center justify-center absolute top-1 right-1">
+        <div className="absolute top-1 right-1">
           <IonIcon
             size="small"
-            className="text-slate-150 cursor-pointer"
+            slot="icon-only"
+            className="text-slate-400 cursor-pointer"
             icon={informationCircle}
           />
         </div>

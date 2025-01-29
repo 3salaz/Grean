@@ -18,8 +18,8 @@ function ProfileHeader({ openModal }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   // Debugging
-  console.log("Profile Data:", profile);
-  console.log("Profile Picture URL:", profile?.profilePic);
+  // console.log("Profile Data:", profile);
+  // console.log("Profile Picture URL:", profile?.profilePic);
 
   return (
     <IonRow className="ion-align-items-end gap-2 ion-padding rounded-t-lg ion-justify-content-between bg-white">

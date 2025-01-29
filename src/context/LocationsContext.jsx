@@ -2,14 +2,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import {
   collection,
   doc,
-  addDoc,
+  setDoc,
   deleteDoc,
   updateDoc,
   onSnapshot,
   serverTimestamp,
   arrayUnion,
   arrayRemove,
-  setDoc,
 } from "firebase/firestore";
 import { toast } from "react-toastify"; // Import toast from react-toastify
 import { db } from "../firebase";
@@ -22,8 +21,8 @@ export function LocationsProvider({ children }) {
   const [businessLocations, setBusinessLocations] = useState([]);
   const { user, profile, updateProfileField } = useAuthProfile(); // Access user and profile
 
-  // Add a new location and sync with profile
-  const addLocation = async (locationData) => {
+  // Create a new location and sync with profile
+  const createLocation = async (locationData) => {
     try {
       const locationsCollectionRef = collection(db, "locations");
       const newLocationRef = doc(locationsCollectionRef);
@@ -37,13 +36,15 @@ export function LocationsProvider({ children }) {
 
       // Add location to Firestore and update profile.locations
       await setDoc(newLocationRef, newLocation);
-      await updateProfileField(user.uid, "locations", newLocation, "addToArray");
 
-      toast.success("Location added successfully!");
+      // Add the location ID to the user's profile
+      await updateProfileField(user.uid, "locations", newLocationRef.id, "addToArray");
+
+      toast.success("Location created successfully!");
       return newLocationRef.id;
     } catch (error) {
-      console.error("Error adding location: ", error);
-      toast.error("Failed to add location. Please try again.");
+      console.error("Error creating location: ", error);
+      toast.error("Failed to create location. Please try again.");
       throw error;
     }
   };
@@ -55,7 +56,7 @@ export function LocationsProvider({ children }) {
 
       // Remove location from Firestore and profile.locations
       await deleteDoc(locationRef);
-      await updateProfileField(user.uid, "locations", { id: locationId }, "removeFromArray");
+      await updateProfileField(user.uid, "locations", locationId, "removeFromArray");
 
       toast.success("Location deleted successfully!");
     } catch (error) {
@@ -121,7 +122,7 @@ export function LocationsProvider({ children }) {
   const value = {
     locations,
     businessLocations,
-    addLocation,
+    createLocation, // Renamed from addLocation
     deleteLocation,
     updateLocation,
   };

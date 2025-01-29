@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 // User Themes
 import "./theme/ionStyle.css";
 
+
 // React
 import { Switch, Route, Redirect } from "react-router-dom";
 import { IonApp, IonContent, IonHeader, IonRouterOutlet } from "@ionic/react";

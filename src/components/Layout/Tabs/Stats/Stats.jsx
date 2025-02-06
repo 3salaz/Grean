@@ -22,7 +22,6 @@ import {
   IonCardContent,
   IonHeader,
 } from "@ionic/react";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { carOutline, fileTrayFullOutline, flashOutline, personOutline, scaleOutline } from "ionicons/icons";
 import userIcon from "../../../../assets/icons/user.png";
 import driverIcon from "../../../../assets/icons/driver.png";
@@ -31,7 +30,7 @@ import ProfileHeader from "../Profile/ProfileHeader";
 import RecyclingStats from "./RecyclingStats";
 import Metrics from "./Metrics";
 
-const Stats = () => {
+const Stats = ( { profile }) => {
   const [pounds, setPounds] = useState(0); // Current pounds recycled
   const [level, setLevel] = useState(1); // Current user level
   const [progress, setProgress] = useState(0); // Progress for circle animation
@@ -40,7 +39,6 @@ const Stats = () => {
   const [modalState, setModalState] = useState({
     history: false,
   });
-  const { profile } = useAuthProfile();
 
   useEffect(() => {
     // Check if profile.stats exists, otherwise set default values

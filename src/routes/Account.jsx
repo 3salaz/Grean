@@ -14,13 +14,14 @@ import {
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
 import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
-import { useAuthProfile } from "../context/AuthProfileContext";
+import { useProfile } from "../context/ProfileContext";
 import {
   leafOutline,
   navigateCircleOutline,
   personCircleOutline,
   statsChartOutline,
 } from "ionicons/icons";
+
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Layout/Tabs/Profile/Profile"));
@@ -29,7 +30,7 @@ const Map = lazy(() => import("../components/Layout/Tabs/Map/Map"));
 const Pickups = lazy(() => import("../components/Layout/Tabs/Pickups/Pickups"));
 
 function Account() {
-  const { profile } = useAuthProfile(); // Get profile from context
+  const { profile } = useProfile(); // Get profile from context
   const [activeTab, setActiveTab] = useState("profile"); // Default tab
   const [loading, setLoading] = useState(true); // Loading state
 
@@ -52,25 +53,25 @@ function Account() {
       case "profile":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Profile />
+            <Profile profile={profile} />
           </Suspense>
         );
       case "pickups":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Pickups />
+            <Pickups profile={profile} />
           </Suspense>
         );
       case "map":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Map />
+            <Map profile={profile} />
           </Suspense>
         );
       case "stats":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Stats />
+            <Stats profile={profile} />
           </Suspense>
         );
       default:

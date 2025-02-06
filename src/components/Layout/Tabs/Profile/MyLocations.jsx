@@ -9,14 +9,14 @@ import {
   createOutline,
 } from "ionicons/icons";
 import AddLocation from "./AddLocation";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { useProfile } from "../../../../context/ProfileContext";
 
 function MyLocations() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentAddressIndex, setCurrentAddressIndex] = useState(0);
   const addressRefs = useRef([]);
   const { locations } = useLocations(); // Access the real-time locations from context
-  const { profile } = useAuthProfile(); // Ensures profile is available before usage
+  const { profile } = useProfile(); // Ensures profile is available before usage
 
   const handleOpenModal = () => {
     setIsModalVisible(true);

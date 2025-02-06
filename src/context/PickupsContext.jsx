@@ -12,7 +12,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { db } from "../firebase";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import { useAuthProfile } from "./AuthProfileContext";
+import { useProfile } from "./ProfileContext";
+import { useAuth } from "./AuthContext";
 
 const PickupContext = createContext();
 
@@ -20,7 +21,8 @@ export const usePickups = () => useContext(PickupContext);
 
 export const PickupsProvider = ({ children }) => {
   const [pickups, setPickups] = useState([]);
-  const { user, profile } = useAuthProfile();
+  const { user } = useAuth();
+  const { profile } = useProfile();
 
   // Real-time listener for pickups
   useEffect(() => {

@@ -7,12 +7,10 @@ import {
   IonText,
   IonSpinner,
 } from "@ionic/react";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import userIcon from "../../../../assets/icons/user.png";
 import { addCircleOutline, settingsOutline } from "ionicons/icons";
 
-function ProfileHeader({ openModal }) {
-  const { profile } = useAuthProfile();
+function ProfileHeader({ profile }) {
 
   // State to check image loading status
   const [isImageLoading, setIsImageLoading] = useState(true);

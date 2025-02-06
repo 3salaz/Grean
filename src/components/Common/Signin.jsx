@@ -19,14 +19,14 @@ import {
 } from "@ionic/react";
 import { toast, ToastContainer } from "react-toastify";
 import { closeOutline, logoGoogle } from "ionicons/icons";
-import { useAuthProfile } from "../../context/AuthProfileContext";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../context/AuthContext";
 
 function Signin({ handleClose, toggleToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, googleSignIn } = useAuthProfile();
+  const { signIn, googleSignIn } = useAuth();
   const history = useHistory();
 
   const handleGoogleSignIn = async () => {

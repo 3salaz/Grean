@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import AddLocation from "./AddLocation";
 import ProfileHeader from "./ProfileHeader";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { useProfile } from "../../../../context/ProfileContext";
 import {
   IonButton,
   IonGrid,
@@ -14,11 +14,10 @@ import Impact from "./Impact";
 import MyPickups from "../Pickups/MyPickups";
 import { addCircleOutline } from "ionicons/icons";
 
-function Profile() {
+function Profile({ profile }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState(null); // Dynamic content
   const [profileAddresses, setProfileAddresses] = useState([]);
-  const { profile } = useAuthProfile();
   const addressRefs = useRef([]);
 
   useEffect(() => {
@@ -49,7 +48,7 @@ function Profile() {
       </IonModal>
 
       <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
-        <ProfileHeader openModal={() => handleOpenModal(<AddLocation handleClose={handleCloseModal} />)} />
+        <ProfileHeader profile={profile} openModal={() => handleOpenModal(<AddLocation handleClose={handleCloseModal} />)} />
         <MyForest />
         <Impact />
       </main>

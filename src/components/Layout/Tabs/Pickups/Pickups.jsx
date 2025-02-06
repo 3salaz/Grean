@@ -33,8 +33,7 @@ import {
   notificationsOutline,
 } from "ionicons/icons";
 
-function Pickups() {
-  const { profile } = useAuthProfile();
+function Pickups( { profile }) {
   const { userAcceptedPickups, userCreatedPickups, visiblePickups, updatePickup } =
     usePickups();
 
@@ -91,7 +90,7 @@ function Pickups() {
           isOpen={modalState.requestPickupOpen}
           onDidDismiss={() => closeModal("requestPickupOpen")}
         >
-          <RequestPickup handleClose={() => closeModal("requestPickupOpen")} />
+          <RequestPickup profile={profile} handleClose={() => closeModal("requestPickupOpen")} />
         </IonModal>
 
         {/* View Pickup Modal */}

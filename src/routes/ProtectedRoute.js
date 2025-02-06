@@ -1,14 +1,14 @@
 import { useHistory } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuthProfile } from '../context/AuthProfileContext';
+import { useAuth } from '../context/AuthContext';
 
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuthProfile();
+  const { user, loadingAuth } = useAuth();
   const history = useHistory();
 
   return (
     <AnimatePresence>
-      {loading ? (
+      {loadingAuth ? (
         <motion.div
           className="fixed inset-0 z-30 flex items-center justify-center bg-white h-[80%] mt-[8svh]"
           initial={{ opacity: 1 }}

@@ -12,14 +12,17 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-toastify"; // Import toast from react-toastify
 import { db } from "../firebase";
-import { useAuthProfile } from "./AuthProfileContext";
+import { useProfile } from "./ProfileContext";
+import { useAuth } from "./AuthContext";
 
 const LocationsContext = createContext();
 
 export function LocationsProvider({ children }) {
   const [locations, setLocations] = useState([]);
   const [businessLocations, setBusinessLocations] = useState([]);
-  const { user, profile, updateProfileField } = useAuthProfile(); // Access user and profile
+  const { user } = useAuth(); // Access user and profile
+  const { profile, updateProfileField } = useProfile(); // Access user and profile
+
 
   // Create a new location and sync with profile
   const createLocation = async (locationData) => {

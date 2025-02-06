@@ -4,17 +4,18 @@ import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Signin from "../../Common/Signin";
 import Signup from "../../Common/Signup";
-import { useAuthProfile } from "../../../context/AuthProfileContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useHistory } from "react-router-dom";
 
 function Landing() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isSignin, setIsSignin] = useState(true); // Toggle between Signin and Signup
-  const { user } = useAuthProfile();
+  const { user } = useAuth();
   const history = useHistory();
 
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignin, setIsSignin] = useState(true); // default to SignIn
 
   const closeAuthModal = () => setIsAuthModalOpen(false);
+
   const openSigninModal = () => {
     setIsSignin(true);
     setIsAuthModalOpen(true);
@@ -29,7 +30,7 @@ function Landing() {
       <main className="w-full h-full">
         <IonImg
           src={Background}
-          alt="Woman sitting atop a rock edge which is extending outwards over a river."
+          alt="Woman sitting on a rock over a river."
           className="absolute top-0 object-cover h-full w-full"
         />
         <section className="relative z-20 flex flex-col items-center gap-8 justify-center text-center h-full w-full">
@@ -57,6 +58,7 @@ function Landing() {
         </section>
       </main>
 
+      {/* Auth Modal: Toggles Signin or Signup */}
       <IonModal
         isOpen={isAuthModalOpen}
         onDidDismiss={closeAuthModal}
@@ -79,3 +81,4 @@ function Landing() {
 }
 
 export default Landing;
+

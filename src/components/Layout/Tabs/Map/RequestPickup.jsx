@@ -24,9 +24,8 @@ import {
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
-function RequestPickup({ handleClose }) {
+function RequestPickup({ handleClose, profile }) {
   const { createPickup, visiblePickups, userAcceptedPickups } = usePickups();
-  const { profile } = useAuthProfile();
 
   const [pickupRequestData, setPickupRequestData] = useState({
     address: "",

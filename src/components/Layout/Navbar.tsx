@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
 import { Link } from "react-router-dom";
-import { useAuthProfile } from "../../context/AuthProfileContext";
-import Signup from "../../components/Common/Signup";
+import Signup from "../Common/Signup";
+import Signin from "../Common/Signin"; // if you want to show sign in from navbar
 import {
   IonModal,
   IonPopover,
@@ -20,58 +20,68 @@ import {
   IonHeader,
 } from "@ionic/react";
 import { logOutOutline, menuOutline } from "ionicons/icons";
+import { useAuth } from "../../context/AuthContext";
 
 function Navbar() {
-  const { user, logOut } = useAuthProfile();
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [popoverEvent, setPopoverEvent] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isRoutesPopoverOpen, setIsRoutesPopoverOpen] = useState(false);
-  const [routesPopoverEvent, setRoutesPopoverEvent] = useState(null);
+  const { user, logOut } = useAuth();
 
+  // Dropdown popover states
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [popoverEvent, setPopoverEvent] = useState<any>(null);
+
+  // Another popover for routes
+  const [isRoutesPopoverOpen, setIsRoutesPopoverOpen] = useState(false);
+  const [routesPopoverEvent, setRoutesPopoverEvent] = useState<any>(null);
+
+  // Auth modal states
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignin, setIsSignin] = useState(false);
+
+  // LOGOUT
   const handleLogout = async () => {
     try {
       await logOut();
       console.log("You are logged out");
-      setIsPopoverOpen(false); // Close the dropdown after logout
-    } catch (e) {
+      setIsPopoverOpen(false);
+    } catch (e: any) {
       console.log(e.message);
     }
   };
 
-  const handleOpenPopover = (event) => {
+  // Account popover
+  const handleOpenPopover = (event: any) => {
     event.persist();
     setPopoverEvent(event);
     setIsPopoverOpen(true);
   };
+  const handleClosePopover = () => setIsPopoverOpen(false);
 
-  const handleClosePopover = () => {
-    setIsPopoverOpen(false);
-  };
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setTimeout(() => setIsModalOpen(false), 100); // Allow layout stabilization
-  };
-
-  const handleOpenRoutesPopover = (event) => {
+  // Routes popover
+  const handleOpenRoutesPopover = (event: any) => {
     event.persist();
     setRoutesPopoverEvent(event);
     setIsRoutesPopoverOpen(true);
   };
+  const handleCloseRoutesPopover = () => setIsRoutesPopoverOpen(false);
 
-  const handleCloseRoutesPopover = () => {
-    setIsRoutesPopoverOpen(false);
+  // AUTH MODAL
+  const openSignupModal = () => {
+    setIsSignin(false);
+    setIsAuthModalOpen(true);
+  };
+  const openSigninModal = () => {
+    setIsSignin(true);
+    setIsAuthModalOpen(true);
+  };
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
   };
 
   return (
     <IonHeader className="ion-no-border ion-no-padding">
       <IonToolbar color="primary" className="h-full" id="navbar">
         <IonRow className="ion-justify-content-between ion-no-padding m-0 p-0">
-          {/* Menu */}
+          {/* Menu Button */}
           <IonCol color="light" className="ion-align-self-center mx-auto">
             <IonButton fill="clear" onClick={handleOpenRoutesPopover}>
               <IonIcon color="light" size="large" icon={menuOutline}></IonIcon>
@@ -81,18 +91,15 @@ function Navbar() {
           {/* Logo Section */}
           <IonCol className="ion-align-self-center flex items-center justify-center">
             <Link to="/">
-              <img
-                className="h-10 w-10 rounded-full"
-                src={logo}
-                alt="Grean Logo"
-              />
+              <img className="h-10 w-10 rounded-full" src={logo} alt="Grean Logo" />
             </Link>
           </IonCol>
 
-          {/* Account and Profile Section */}
+          {/* Account / Profile */}
           <IonCol className="ion-align-self-center flex items-center justify-end">
             {user ? (
               <>
+                {/* If logged in, show avatar & popover */}
                 <IonButton fill="clear" onClick={handleOpenPopover}>
                   <img
                     className="h-10 w-10 rounded-full"
@@ -121,12 +128,9 @@ function Navbar() {
                 </IonPopover>
               </>
             ) : (
-              <IonButton
-                size="medium"
-                color="light"
-                fill="clear"
-                onClick={handleOpenModal}
-              >
+              // If not logged in, show a signup button
+              // (You could add "Sign In" too, or let them toggle inside the modal)
+              <IonButton size="small" color="light" fill="clear" onClick={openSignupModal}>
                 Sign Up
               </IonButton>
             )}
@@ -151,13 +155,23 @@ function Navbar() {
           </IonContent>
         </IonPopover>
 
-        {/* Signup Modal */}
+        {/* Auth Modal */}
         <IonModal
-          isOpen={isModalOpen}
-          onDidDismiss={handleCloseModal}
+          isOpen={isAuthModalOpen}
+          onDidDismiss={closeAuthModal}
           backdropDismiss={true}
         >
-          {isModalOpen && <Signup handleClose={handleCloseModal} />}
+          {isSignin ? (
+            <Signin
+              handleClose={closeAuthModal}
+              toggleToSignup={openSignupModal}
+            />
+          ) : (
+            <Signup
+              handleClose={closeAuthModal}
+              toggleToSignin={openSigninModal}
+            />
+          )}
         </IonModal>
       </IonToolbar>
     </IonHeader>

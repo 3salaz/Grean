@@ -2,12 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import AddLocation from "./AddLocation";
 import ProfileHeader from "./ProfileHeader";
 import { useProfile } from "../../../../context/ProfileContext";
-import {
-  IonButton,
-  IonGrid,
-  IonIcon,
-  IonModal,
-} from "@ionic/react";
+import { IonButton, IonCol, IonGrid, IonIcon, IonModal, IonRow } from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
@@ -47,8 +42,13 @@ function Profile({ profile }) {
         {modalContent}
       </IonModal>
 
-      <main className="container max-w-4xl mx-auto flex-grow p-2 overflow-auto">
-        <ProfileHeader profile={profile} openModal={() => handleOpenModal(<AddLocation handleClose={handleCloseModal} />)} />
+      <main className="container max-w-2xl mx-auto flex-grow overflow-auto">
+        <ProfileHeader
+          profile={profile}
+          openModal={() =>
+            handleOpenModal(<AddLocation handleClose={handleCloseModal} />)
+          }
+        />
         <MyForest />
         <Impact />
       </main>
@@ -56,17 +56,25 @@ function Profile({ profile }) {
       {profile?.accountType === "User" && profileAddresses.length > 0 ? (
         <MyLocations />
       ) : (
-        <footer>
-          <div className="flex-none w-full flex justify-center items-end snap-center bg-transparent">
-            <IonButton
-              fill="primary"
-              onClick={() => handleOpenModal(<AddLocation handleClose={handleCloseModal} />)}
-              className="text-sm"
-            >
-              Add Location
-              <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
-            </IonButton>
-          </div>
+        <footer className="bg-white border-t-2 border-t-grean">
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="auto">
+              <IonButton
+                fill="primary"
+                color="primary"
+                expand="block"
+                onClick={() =>
+                  handleOpenModal(
+                    <AddLocation handleClose={handleCloseModal} />
+                  )
+                }
+                className="text-sm"
+              >
+                Add Location
+                <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>
         </footer>
       )}
 

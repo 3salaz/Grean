@@ -64,7 +64,7 @@ function App() {
                 <IonContent
                   id="content"
                   scroll-y="false"
-                  className="bg-gradient-to-t from-grean to-blue-300"
+                  className="bg-gradient-to-t from-grean to-blue-300 p-2"
                 >
                   <ToastContainer
                     position="top-center"

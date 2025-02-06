@@ -81,7 +81,7 @@ function Account() {
 
   return (
     <IonPage>
-      <IonContent className="flex flex-col h-full">
+      <IonContent scroll-y="false" className="flex flex-col h-full">
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">
@@ -124,6 +124,7 @@ function Account() {
           </IonSegment>
         </IonToolbar>
       </IonFooter>
+
     </IonPage>
   );
 }

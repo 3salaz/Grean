@@ -117,8 +117,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   };
 
   return (
-    <IonContent className="flex items-center justify-center">
-      <ToastContainer/>
       <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
         <IonRow className="h-full">
           <IonCol size="12" className="ion-align-self-center">
@@ -267,7 +265,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
           </IonCol>
         </IonRow>
       </IonGrid>
-    </IonContent>
   );
 }
 

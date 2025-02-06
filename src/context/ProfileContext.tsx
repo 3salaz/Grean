@@ -14,6 +14,7 @@ import { db } from "../firebase";  // Your Firestore instance
 import { toast } from "react-toastify";
 import { useAuth } from "./AuthContext"; // We rely on the current user
 
+
 // Type or interface for your profile data
 export interface UserProfile {
   displayName: string;
@@ -55,6 +56,47 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { user } = useAuth(); // The current Firebase Auth user
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    const fetchOrCreateProfile = async () => {
+      if (!user) {
+        setProfile(null);
+        setLoadingProfile(false);
+        return;
+      }
+      setLoadingProfile(true);
+  
+      try {
+        const existingDoc = await readProfile(user.uid);
+        if (!existingDoc) {
+          // If no doc, create a default profile
+          await createProfile(user.uid, {
+            displayName: user.displayName || "",
+            profilePic: user.photoURL || "",
+            email: user.email,
+            uid: user.uid,
+            locations: [],
+            pickups: [],
+            accountType: "User",
+          });
+        } else {
+          // Check if profilePic needs to be updated
+          if (existingDoc.profilePic !== user.photoURL) {
+            await updateProfile(user.uid, "profilePic", user.photoURL);
+          }
+          // Set existing profile to state
+          setProfile(existingDoc);
+        }
+      } catch (error) {
+        console.error("Error fetching/creating profile:", error);
+      }
+  
+      setLoadingProfile(false);
+    };
+  
+    fetchOrCreateProfile();
+  }, [user]);
+  
 
   /** CREATE a new profile (will overwrite if doc already exists) */
   const createProfile = async (uid: string, data: Partial<UserProfile>) => {

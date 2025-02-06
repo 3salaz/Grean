@@ -29,21 +29,6 @@ function Signin({ handleClose, toggleToSignup }) {
   const { signIn, googleSignIn } = useAuth();
   const history = useHistory();
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      await googleSignIn();
-      toast.success("Signed in successfully with Google!");
-      handleClose();
-      history.push("/account");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error signing in with Google. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSignIn = async () => {
     try {
       setLoading(true);
@@ -59,9 +44,6 @@ function Signin({ handleClose, toggleToSignup }) {
   };
 
   return (
-    <>
-      <ToastContainer />
-      <IonContent className="flex items-center justify-center">
         <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
           <IonRow className="h-full">
             <IonCol size="12" className="ion-align-self-center">
@@ -119,21 +101,6 @@ function Signin({ handleClose, toggleToSignup }) {
                     <IonCol size="6">
                       <IonButton
                         expand="block"
-                        color="light"
-                        onClick={handleGoogleSignIn}
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <IonSpinner name="crescent" />
-                        ) : (
-                          "Sign in W/"
-                        )}
-                        <IonIcon slot="end" icon={logoGoogle} />
-                      </IonButton>
-                    </IonCol>
-                    <IonCol size="6">
-                      <IonButton
-                        expand="block"
                         color="success"
                         onClick={handleSignIn}
                         disabled={loading}
@@ -161,8 +128,6 @@ function Signin({ handleClose, toggleToSignup }) {
             </IonCol>
           </IonRow>
         </IonGrid>
-      </IonContent>
-    </>
   );
 }
 

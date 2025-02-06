@@ -21,9 +21,11 @@ import {
 } from "@ionic/react";
 import { logOutOutline, menuOutline } from "ionicons/icons";
 import { useAuth } from "../../context/AuthContext";
+import { useProfile } from "../../context/ProfileContext";
 
 function Navbar() {
   const { user, logOut } = useAuth();
+  const { profile } = useProfile();
 
   // Dropdown popover states
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -73,37 +75,56 @@ function Navbar() {
     setIsSignin(true);
     setIsAuthModalOpen(true);
   };
+
   const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
+    setTimeout(() => setIsAuthModalOpen(false), 100); // Small delay prevents layout shift
   };
+  
 
   return (
     <IonHeader className="ion-no-border ion-no-padding">
       <IonToolbar color="primary" className="h-full" id="navbar">
-        <IonRow className="ion-justify-content-between ion-no-padding m-0 p-0">
-          {/* Menu Button */}
-          <IonCol color="light" className="ion-align-self-center mx-auto">
-            <IonButton fill="clear" onClick={handleOpenRoutesPopover}>
-              <IonIcon color="light" size="large" icon={menuOutline}></IonIcon>
+        <IonRow className="m-0 p-0 md:p-2 container mx-auto items-center justify-between">
+          {/* Mobile Menu Button - Visible only on small screens */}
+          <IonCol size="auto" className="lg:hidden">
+            <IonButton fill="clear" size="large" onClick={handleOpenRoutesPopover}>
+              <IonIcon slot="icon-only" color="light" icon={menuOutline}></IonIcon>
             </IonButton>
           </IonCol>
 
           {/* Logo Section */}
-          <IonCol className="ion-align-self-center flex items-center justify-center">
+          <IonCol size="auto" className="ion-align-self-center">
             <Link to="/">
-              <img className="h-10 w-10 rounded-full" src={logo} alt="Grean Logo" />
+              <img
+                className="h-10 w-10 rounded-full"
+                src={logo}
+                alt="Grean Logo"
+              />
             </Link>
           </IonCol>
 
-          {/* Account / Profile */}
-          <IonCol className="ion-align-self-center flex items-center justify-end">
-            {user ? (
+          {/* Desktop Navigation Links - Hidden on mobile */}
+          <IonCol className="hidden md:flex gap-6 items-center">
+            <Link to="/link1" className="text-white">
+              Link 1
+            </Link>
+            <Link to="/link2" className="text-white">
+              Link 2
+            </Link>
+            <Link to="/link3" className="text-white">
+              Link 3
+            </Link>
+          </IonCol>
+
+          {/* Account/Profile Section */}
+          <IonCol className="flex items-center justify-end">
+            {user && profile ? (
               <>
                 {/* If logged in, show avatar & popover */}
                 <IonButton fill="clear" onClick={handleOpenPopover}>
                   <img
                     className="h-10 w-10 rounded-full"
-                    src={user.photoURL || avatar}
+                    src={profile.profilePic || avatar}
                     alt="User Avatar"
                   />
                 </IonButton>
@@ -128,16 +149,20 @@ function Navbar() {
                 </IonPopover>
               </>
             ) : (
-              // If not logged in, show a signup button
-              // (You could add "Sign In" too, or let them toggle inside the modal)
-              <IonButton size="small" color="light" fill="clear" onClick={openSignupModal}>
+              // If not logged in, show signup button
+              <IonButton
+                size="small"
+                color="light"
+                fill="solid"
+                onClick={openSignupModal}
+              >
                 Sign Up
               </IonButton>
             )}
           </IonCol>
         </IonRow>
 
-        {/* Routes Popover */}
+        {/* Mobile Routes Popover */}
         <IonPopover
           isOpen={isRoutesPopoverOpen}
           event={routesPopoverEvent}
@@ -147,10 +172,18 @@ function Navbar() {
             <IonList>
               <IonListHeader>
                 <IonText>
-                  <h5>Home</h5>
+                  <h5>Menu</h5>
                 </IonText>
               </IonListHeader>
-              {/* Add route links here if needed */}
+              <IonItem button>
+                <Link to="/link1">Link 1</Link>
+              </IonItem>
+              <IonItem button>
+                <Link to="/link2">Link 2</Link>
+              </IonItem>
+              <IonItem button>
+                <Link to="/link3">Link 3</Link>
+              </IonItem>
             </IonList>
           </IonContent>
         </IonPopover>
@@ -161,17 +194,19 @@ function Navbar() {
           onDidDismiss={closeAuthModal}
           backdropDismiss={true}
         >
-          {isSignin ? (
-            <Signin
-              handleClose={closeAuthModal}
-              toggleToSignup={openSignupModal}
-            />
-          ) : (
-            <Signup
-              handleClose={closeAuthModal}
-              toggleToSignin={openSigninModal}
-            />
-          )}
+          <IonContent fullscreen>
+            {isSignin ? (
+              <Signin
+                handleClose={closeAuthModal}
+                toggleToSignup={openSignupModal}
+              />
+            ) : (
+              <Signup
+                handleClose={closeAuthModal}
+                toggleToSignin={openSigninModal}
+              />
+            )}
+          </IonContent>
         </IonModal>
       </IonToolbar>
     </IonHeader>

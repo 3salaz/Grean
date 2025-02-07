@@ -33,21 +33,20 @@ function Signin({ handleClose, toggleToSignup }) {
     try {
       setLoading(true);
       await signIn(email, password);
-      toast.success("Signed in successfully!");
       handleClose();
       history.push("/account");
     } catch (error) {
-      toast.error("Error signing in. Please check your credentials.");
+      console.error("Error signing in. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-        <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
-          <IonRow className="h-full">
+        <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
+          <IonRow className="h-full p-0 m-0 w-full">
             <IonCol size="12" className="ion-align-self-center">
-              <IonCard className="shadow-none">
+              <IonCard className="h-full m-0">
                 <IonCardHeader>
                   <IonText color="primary">
                     <h3 className="text-center text-[#75B657] mb-4">

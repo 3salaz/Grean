@@ -117,7 +117,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   };
 
   return (
-      <IonGrid className="h-full max-w-2xl bg-gradient-to-t from-grean to-blue-300">
+      <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
         <IonRow className="h-full">
           <IonCol size="12" className="ion-align-self-center">
             <IonCard>

@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import AddLocation from "./AddLocation";
 import ProfileHeader from "./ProfileHeader";
 import { useProfile } from "../../../../context/ProfileContext";
-import { IonButton, IonCol, IonGrid, IonIcon, IonModal, IonRow } from "@ionic/react";
+import {
+  IonButton,
+  IonCol,
+  IonGrid,
+  IonIcon,
+  IonModal,
+  IonRow,
+} from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
@@ -56,26 +63,22 @@ function Profile({ profile }) {
       {profile?.accountType === "User" && profileAddresses.length > 0 ? (
         <MyLocations />
       ) : (
-        <footer className="bg-white border-t-2 border-t-grean">
-          <IonRow className="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton
-                fill="primary"
-                color="primary"
-                expand="block"
-                onClick={() =>
-                  handleOpenModal(
-                    <AddLocation handleClose={handleCloseModal} />
-                  )
-                }
-                className="text-sm"
-              >
-                Add Location
-                <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </footer>
+        <IonRow className="container mx-auto w-full border-t-2 border-t-grean">
+          <IonCol size="auto" className="mx-auto ion-padding">
+            <IonButton
+              fill="primary"
+              color="primary"
+              expand="block"
+              onClick={() =>
+                handleOpenModal(<AddLocation handleClose={handleCloseModal} />)
+              }
+              className="text-sm"
+            >
+              Add Location
+              <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
+            </IonButton>
+          </IonCol>
+        </IonRow>
       )}
 
       {profile?.accountType === "Driver" && <MyPickups />}

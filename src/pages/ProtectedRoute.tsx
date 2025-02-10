@@ -1,10 +1,22 @@
-import { useHistory } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { ReactNode, useEffect } from "react";
+import { useHistory } from "react-router-dom"; // ✅ Use `useHistory` for v5
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
 
-function ProtectedRoute({ children }) {
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loadingAuth } = useAuth();
-  const history = useHistory();
+  const history = useHistory(); // ✅ Correct hook for v5
+
+  // ✅ Redirect only after authentication check completes
+  useEffect(() => {
+    if (!loadingAuth && !user) {
+      history.replace("/"); // Prevents back navigation
+    }
+  }, [user, loadingAuth, history]);
 
   return (
     <AnimatePresence>
@@ -25,14 +37,10 @@ function ProtectedRoute({ children }) {
           </motion.div>
         </motion.div>
       ) : (
-        !user ? (
-          history.push("/")
-        ) : (
-          children
-        )
+        user ? children : null // ✅ Render children only if authenticated
       )}
     </AnimatePresence>
   );
-}
+};
 
 export default ProtectedRoute;

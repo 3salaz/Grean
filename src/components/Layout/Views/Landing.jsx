@@ -76,7 +76,7 @@ function Landing() {
                       </IonButton>
                     </IonCol>
                   ) : (
-                    <IonCol size="6" className="ion-align-self-center mx-auto">
+                    <IonCol size="auto" className="ion-align-self-center mx-auto">
                       {/* <IonButton
                         color="light"
                         shape="square"
@@ -86,6 +86,7 @@ function Landing() {
                       </IonButton> */}
                       <IonButton
                         expand="block"
+                        size="small"
                         onClick={openSigninModal}
                       >
                         Sign In

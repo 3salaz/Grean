@@ -13,8 +13,8 @@ import {
   IonCol,
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
-import CreateProfile from "../components/Common/CreateProfile/CreateProfile";
 import { useProfile } from "../context/ProfileContext";
+import { UserProfile } from "../context/ProfileContext";
 import {
   leafOutline,
   navigateCircleOutline,
@@ -22,37 +22,36 @@ import {
   statsChartOutline,
 } from "ionicons/icons";
 
+// Lazy load components and define types
+const Profile = lazy(() => import("../components/Layout/Tabs/Profile/Profile")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Pickups = lazy(() => import("../components/Layout/Tabs/Pickups/Pickups")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Map = lazy(() => import("../components/Layout/Tabs/Map/Map")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Stats = lazy(() => import("../components/Layout/Tabs/Stats/Stats")) as React.ComponentType<{ profile: UserProfile | null }>;
 
-// Lazy load components
-const Profile = lazy(() => import("../components/Layout/Tabs/Profile/Profile"));
-const Stats = lazy(() => import("../components/Layout/Tabs/Stats/Stats"));
-const Map = lazy(() => import("../components/Layout/Tabs/Map/Map"));
-const Pickups = lazy(() => import("../components/Layout/Tabs/Pickups/Pickups"));
+// Define tab options
+type TabOption = "profile" | "pickups" | "map" | "stats";
 
-function Account() {
-  const { profile } = useProfile(); // Get profile from context
-  const [activeTab, setActiveTab] = useState("profile"); // Default tab
-  const [loading, setLoading] = useState(true); // Loading state
+const Account: React.FC = () => {
+  const { profile }: { profile: UserProfile | null } = useProfile(); // Get profile from context
+  const [activeTab, setActiveTab] = useState<TabOption>("profile"); // Default tab
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
 
   useEffect(() => {
-    if (!profile) return; // Skip loading if profile doesn't exist
-
-    // Simulate loading delay
     const loadTab = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate delay
       setLoading(false);
     };
     loadTab();
   }, [activeTab, profile]);
 
+  // Function to render active tab component
   const renderActiveTab = () => {
-    if (!profile) return <CreateProfile />; // Render CreateProfile if profile is missing
-
     switch (activeTab) {
       case "profile":
         return (
           <Suspense fallback={<IonSpinner />}>
+            
             <Profile profile={profile} />
           </Suspense>
         );
@@ -103,7 +102,7 @@ function Account() {
           <IonSegment
             className="max-w-2xl mx-auto"
             value={activeTab}
-            onIonChange={(e) => setActiveTab(e.detail.value)}
+            onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
           >
             <IonSegmentButton value="profile" aria-label="Profile Tab">
               <IonLabel className="text-xs">Profile</IonLabel>
@@ -124,9 +123,8 @@ function Account() {
           </IonSegment>
         </IonToolbar>
       </IonFooter>
-
     </IonPage>
   );
-}
+};
 
 export default Account;

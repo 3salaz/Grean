@@ -92,35 +92,35 @@ export function LocationsProvider({ children }) {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      const locationsCollectionRef = collection(db, "locations");
-      const unsubscribe = onSnapshot(
-        locationsCollectionRef,
-        (snapshot) => {
-          const fetchedLocations = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+  // useEffect(() => {
+  //   if (user) {
+  //     const locationsCollectionRef = collection(db, "locations");
+  //     const unsubscribe = onSnapshot(
+  //       locationsCollectionRef,
+  //       (snapshot) => {
+  //         const fetchedLocations = snapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           ...doc.data(),
+  //         }));
 
-          setLocations(fetchedLocations);
+  //         setLocations(fetchedLocations);
 
-          const filteredBusinessLocations = fetchedLocations.filter(
-            (location) => location.locationType === "Business"
-          );
+  //         const filteredBusinessLocations = fetchedLocations.filter(
+  //           (location) => location.locationType === "Business"
+  //         );
 
-          setBusinessLocations(filteredBusinessLocations);
-        },
-        (error) => {
-          console.error("Error listening to locations: ", error);
-          toast.error("Failed to fetch locations. Please try again later.");
-          setLocations([]);
-        }
-      );
+  //         setBusinessLocations(filteredBusinessLocations);
+  //       },
+  //       (error) => {
+  //         console.error("Error listening to locations: ", error);
+  //         toast.error("Failed to fetch locations. Please try again later.");
+  //         setLocations([]);
+  //       }
+  //     );
 
-      return () => unsubscribe();
-    }
-  }, [user]);
+  //     return () => unsubscribe();
+  //   }
+  // }, [user]);
 
   const value = {
     locations,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { useProfile } from "../../../../context/ProfileContext";
 import { useLocations } from "../../../../context/LocationsContext";
 import { motion } from "framer-motion";
 import {
@@ -28,7 +28,7 @@ import homeIcon from "../../../../assets/icons/home.png";
 import businessIcon from "../../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
-  const { profile, updateProfileField } = useAuthProfile(); // Access AuthProfileContext
+  const { profile, updateProfileField } = useProfile(); // Access AuthProfileContext
   const { createLocation, locations } = useLocations(); // Access LocationsContext
 
   const [step, setStep] = useState(0);
@@ -267,9 +267,9 @@ const AddLocation = ({ handleClose }) => {
               <IonCardContent>
                 <motion.div
                   key={step}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 50 }}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.3 }}
                 >
                   {renderStepContent()}

@@ -97,7 +97,7 @@ function Signin({ handleClose, toggleToSignup }) {
                     </IonCol>
                   </IonRow>
                   <IonRow className="ion-justify-content-center max-w-sm mx-auto">
-                    <IonCol size="6">
+                    <IonCol size="auto">
                       <IonButton
                         expand="block"
                         color="success"
@@ -116,6 +116,7 @@ function Signin({ handleClose, toggleToSignup }) {
                       <IonFabButton
                         expand="block"
                         color="danger"
+                        size="small"
                         onClick={handleClose}
                       >
                         <IonIcon icon={closeOutline} />

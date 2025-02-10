@@ -84,19 +84,19 @@ function Navbar() {
   return (
     <IonHeader className="ion-no-border ion-no-padding">
       <IonToolbar color="primary" className="h-full" id="navbar">
-        <IonRow className="m-0 p-0 md:p-2 container mx-auto items-center justify-between">
+        <IonRow className="m-0 p-0 md:p-2 h-12 container mx-auto items-center justify-between ion-align-items-center">
           {/* Mobile Menu Button - Visible only on small screens */}
-          <IonCol size="auto" className="lg:hidden">
-            <IonButton fill="clear" size="large" onClick={handleOpenRoutesPopover}>
+          <IonCol size="auto" className="lg:hidden h-full flex items-center">
+            <IonButton fill="clear" className="h-full ion-align-self-center" onClick={handleOpenRoutesPopover}>
               <IonIcon slot="icon-only" color="light" icon={menuOutline}></IonIcon>
             </IonButton>
           </IonCol>
 
           {/* Logo Section */}
-          <IonCol size="auto" className="ion-align-self-center">
+          <IonCol size="auto" className="items-center flex h-full">
             <Link to="/">
               <img
-                className="h-10 w-10 rounded-full"
+                className="h-8 w-8 rounded-full"
                 src={logo}
                 alt="Grean Logo"
               />
@@ -104,7 +104,7 @@ function Navbar() {
           </IonCol>
 
           {/* Desktop Navigation Links - Hidden on mobile */}
-          <IonCol className="hidden md:flex gap-6 items-center">
+          <IonCol className="hidden md:flex gap-6 items-center h-full">
             <Link to="/link1" className="text-white">
               Link 1
             </Link>
@@ -117,13 +117,13 @@ function Navbar() {
           </IonCol>
 
           {/* Account/Profile Section */}
-          <IonCol className="flex items-center justify-end">
+          <IonCol className="flex items-center justify-end h-full">
             {user && profile ? (
               <>
                 {/* If logged in, show avatar & popover */}
                 <IonButton fill="clear" onClick={handleOpenPopover}>
                   <img
-                    className="h-10 w-10 rounded-full"
+                    className="h-8 w-8 rounded-full"
                     src={profile.profilePic || avatar}
                     alt="User Avatar"
                   />

@@ -16,7 +16,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // User Themes
-import "./theme/ionStyle.css";
+import "./styles/ionStyle.css";
 
 // React
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -33,25 +33,13 @@ import { LocationsProvider } from "./context/LocationsContext";
 import Navbar from "./components/Layout/Navbar";
 
 // Routes
-import Home from "./routes/Home";
-import Account from "./routes/Account";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import Home from "./pages/Home";
+import Account from "./pages/Account";
+import ProtectedRoute from "./pages/ProtectedRoute";
 import SideMenu from "./components/Layout/SideMenu";
+import Profile from "./components/Layout/Tabs/Profile/Profile";
 
 function App() {
-  const localUrl = "http://127.0.0.1:5001/grean-de04f/us-central1/helloWorld";
-  const callHelloWorld = async () => {
-    try {
-      const response = await fetch(localUrl);
-      const text = await response.text();
-      console.log("Function response:", text);
-      alert(`Response from Cloud Function: ${text}`);
-    } catch (error) {
-      console.error("Error calling helloWorld:", error);
-      alert("Error calling Cloud Function, see console for details.");
-    }
-  };
-
   return (
     <IonApp>
       <AuthProvider>
@@ -86,7 +74,7 @@ function App() {
                         path="/account"
                         render={() => (
                           <ProtectedRoute>
-                            <Account />
+                              <Account />
                           </ProtectedRoute>
                         )}
                       />

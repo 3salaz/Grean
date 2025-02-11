@@ -56,7 +56,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
     if (!profile) return;
 
     try {
-      await deleteProfile(profile.uid);
+      await deleteProfile();
       onClose();
     } catch (error) {
       console.error("Error deleting profile:", error);

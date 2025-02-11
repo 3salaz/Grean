@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, MutableRefObject } from "react";
 import { useLocations } from "../../../context/LocationsContext";
-import ReactMapGl, { Marker, Popup } from "react-map-gl";
+import ReactMapGl, { Marker, Popup, ViewStateChangeEvent, MapRef } from "react-map-gl";
 import {
   IonInput,
   IonSegment,
@@ -15,40 +15,54 @@ import {
   IonFooter,
 } from "@ionic/react";
 import businessIcon from "../../../assets/icons/business.png";
+import { UserProfile } from "../../../context/ProfileContext";
 
-function Map() {
-  const { businessLocations } = useLocations();
+interface BusinessLocation {
+  businessName: string;
+  category: string;
+  longitude: number;
+  latitude: number;
+  street?: string;
+  city?: string;
+  state?: string;
+  businessWebsite?: string;
+}
+
+interface MapProps {
+  profile: UserProfile | null;
+}
+
+function Map({ profile }: MapProps) {
+  const { businessLocations } = useLocations() as { businessLocations: BusinessLocation[] };
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [filteredLocations, setFilteredLocations] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [popupInfo, setPopupInfo] = useState(null);
+  const [filteredLocations, setFilteredLocations] = useState<BusinessLocation[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [popupInfo, setPopupInfo] = useState<BusinessLocation | null>(null);
   const [viewPort, setViewPort] = useState({
     latitude: 37.742646,
     longitude: -122.433247,
     zoom: 11,
   });
 
-  const mapRef = useRef(null);
+const mapRef = useRef<MapRef | null>(null);
+
 
   useEffect(() => {
-    // Resize map on viewport change
     if (mapRef.current) {
-      mapRef.current.resize();
+      mapRef.current.resize?.();
     }
   }, [viewPort]);
 
   useEffect(() => {
-    console.log(businessLocations.categories)
-    // Dynamically generate categories
     const uniqueCategories = Array.from(
       new Set(businessLocations.map((location) => location.category))
-    ).filter(Boolean); // Remove null or undefined categories
+    ).filter(Boolean) as string[];
+
     setCategories(["all", ...uniqueCategories]);
   }, [businessLocations]);
 
   useEffect(() => {
-    // Filter locations by search query and category
     const results = businessLocations.filter((location) => {
       const matchesSearch =
         searchQuery === "" ||
@@ -63,7 +77,7 @@ function Map() {
     setFilteredLocations(results);
   }, [searchQuery, selectedCategory, businessLocations]);
 
-  const pins = filteredLocations?.map((location, index) => (
+  const pins = filteredLocations.map((location, index) => (
     <Marker
       key={`marker-${index}`}
       longitude={location.longitude}
@@ -87,7 +101,7 @@ function Map() {
   ));
 
   return (
-    <IonGrid className="h-full ion-no-padding flex flex-col">
+    <IonGrid className="h-full w-full ion-no-padding flex flex-col">
       {/* Search Bar and Category Filter */}
       <main className="absolute top-0 left-0 right-0 z-50 p-2">
         <IonRow className="w-full container mx-auto max-w-4xl">
@@ -95,7 +109,9 @@ function Map() {
             <IonInput
               value={searchQuery}
               placeholder="Search for businesses"
-              onIonChange={(e) => setSearchQuery(e.detail.value)}
+              onIonChange={(e: CustomEvent) =>
+                setSearchQuery((e.detail as { value: string }).value)
+              }
               className="search-bar bg-white p-2 text-center rounded-lg drop-shadow-lg"
             />
           </IonCol>
@@ -108,9 +124,16 @@ function Map() {
           <ReactMapGl
             {...viewPort}
             ref={mapRef}
-            onMove={(evt) => setViewPort(evt.viewState)}
+            onMove={(evt: ViewStateChangeEvent) => {
+              setViewPort(evt.viewState);
+              mapRef.current?.flyTo({
+                center: [evt.viewState.longitude, evt.viewState.latitude],
+                zoom: evt.viewState.zoom,
+                duration: 300,
+              });
+            }}
+            
             mapboxAccessToken="pk.eyJ1IjoiM3NhbGF6IiwiYSI6ImNsZG1xNjZ2aDBidnozb21kNTIxNTQ1a2wifQ.0JC6qoYDFC96znCbHh4kpQ"
-            transitionDuration="30"
             mapStyle="mapbox://styles/3salaz/cli6bc4e000m201rf0dfp3oyh"
             style={{ width: "100%", height: "100%", position: "relative" }}
           >
@@ -148,14 +171,15 @@ function Map() {
           </ReactMapGl>
         </IonCol>
       </IonRow>
-      <IonFooter className="mx-auto container h-auto max-w-4xl shadow-none absolute bottom-10 p-2">
+
+      <IonFooter className="mx-auto w-full h-auto shadow-none absolute bottom-10 p-2">
         <IonRow className="w-full gap-2 container mx-auto max-w-xl justify-center items-center">
-        <IonCol size="10" className="mx-auto pt-2 rounded-md h-8">
+          <IonCol size="10" className="mx-auto rounded-md h-8">
             <IonSegment
               scrollable={true}
               value={selectedCategory}
               className="bg-white rounded-full no-scroll p-0 m-0"
-              onIonChange={(e) => setSelectedCategory(e.detail.value)}
+              onIonChange={(e: CustomEvent) => setSelectedCategory(e.detail.value!)}
             >
               {categories.map((category, index) => (
                 <IonSegmentButton
@@ -163,7 +187,7 @@ function Map() {
                   value={category.toLowerCase()}
                   className="max-w-20 m-0 p-0"
                 >
-                  <IonLabel className="bg-grean rounded-full px-2 p-1 box-border text-white text-xs flex">
+                  <IonLabel className="bg-green rounded-full px-2 p-1 m-0 text-white text-xs flex">
                     {category}
                   </IonLabel>
                 </IonSegmentButton>

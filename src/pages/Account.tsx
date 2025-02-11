@@ -11,10 +11,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonModal,
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
 import { useProfile } from "../context/ProfileContext";
-import { UserProfile } from "../context/ProfileContext";
 import {
   leafOutline,
   navigateCircleOutline,
@@ -22,19 +22,20 @@ import {
   statsChartOutline,
 } from "ionicons/icons";
 
-// Lazy load components and define types
-const Profile = lazy(() => import("../components/Tabs/Profile/Profile")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Pickups = lazy(() => import("../components/Tabs/Pickups/Pickups")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Map = lazy(() => import("../components/Tabs/Map/Map")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Stats = lazy(() => import("../components/Tabs/Stats/Stats")) as React.ComponentType<{ profile: UserProfile | null }>;
+// Lazy load components
+const Profile = lazy(() => import("../components/Tabs/Profile/Profile"));
+const Pickups = lazy(() => import("../components/Tabs/Pickups/Pickups"));
+const Map = lazy(() => import("../components/Tabs/Map/Map"));
+const Stats = lazy(() => import("../components/Tabs/Stats/Stats"));
+const ProfileSetup = lazy(() => import("../components/Tabs/Profile/ProfileSetup"));
 
-// Define tab options
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const Account: React.FC = () => {
-  const { profile }: { profile: UserProfile | null } = useProfile(); // Get profile from context
-  const [activeTab, setActiveTab] = useState<TabOption>("profile"); // Default tab
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const { profile, updateProfile } = useProfile();
+  const [activeTab, setActiveTab] = useState<TabOption>("profile");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
 
   useEffect(() => {
     const loadTab = async () => {
@@ -43,15 +44,34 @@ const Account: React.FC = () => {
       setLoading(false);
     };
     loadTab();
-  }, [activeTab, profile]);
+  }, [activeTab]);
 
-  // Function to render active tab component
+  // Open modal if displayName is missing
+  useEffect(() => {
+    if (profile && !profile.displayName) {
+      setShowProfileSetup(true);
+    } else {
+      setShowProfileSetup(false);
+    }
+  }, [profile]);
+
+  // ✅ Correctly update displayName and close modal
+  const handleProfileSave = async (displayName: string) => {
+    if (!profile?.uid) return; // Ensure profile exists
+
+    try {
+      await updateProfile("displayName", displayName, "update"); // Save to Firestore
+      setShowProfileSetup(false); // Close modal after successful save
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
   const renderActiveTab = () => {
     switch (activeTab) {
       case "profile":
         return (
           <Suspense fallback={<IonSpinner />}>
-            
             <Profile profile={profile} />
           </Suspense>
         );
@@ -74,7 +94,7 @@ const Account: React.FC = () => {
           </Suspense>
         );
       default:
-        return <div>Invalid tab selected.</div>; // Fallback for invalid tabs
+        return <div>Invalid tab selected.</div>;
     }
   };
 
@@ -90,11 +110,18 @@ const Account: React.FC = () => {
             </IonRow>
           </IonGrid>
         ) : (
-          renderActiveTab() // Render the active tab component
+          renderActiveTab()
         )}
       </IonContent>
 
-      <IonFooter className="h-[8svh] flex items-center justify-center border-t-grean border-t-2">
+      {/* Profile Setup Modal */}
+      <IonModal isOpen={showProfileSetup} backdropDismiss={false}>
+        <Suspense fallback={<IonSpinner />}>
+          <ProfileSetup onSave={handleProfileSave} />
+        </Suspense>
+      </IonModal>
+
+      <IonFooter className="h-[8svh] flex items-center justify-center border-t-green border-t-2">
         <IonToolbar
           color="secondary"
           className="flex items-center justify-center h-full"
@@ -104,19 +131,19 @@ const Account: React.FC = () => {
             value={activeTab}
             onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
           >
-            <IonSegmentButton value="profile" aria-label="Profile Tab">
+            <IonSegmentButton value="profile">
               <IonLabel className="text-xs">Profile</IonLabel>
               <IonIcon icon={personCircleOutline}></IonIcon>
             </IonSegmentButton>
-            <IonSegmentButton value="pickups" aria-label="Pickups Tab">
+            <IonSegmentButton value="pickups">
               <IonLabel className="text-xs">Pickups</IonLabel>
               <IonIcon icon={leafOutline}></IonIcon>
             </IonSegmentButton>
-            <IonSegmentButton value="map" aria-label="Map Tab">
+            <IonSegmentButton value="map">
               <IonLabel className="text-xs">Map</IonLabel>
               <IonIcon icon={navigateCircleOutline}></IonIcon>
             </IonSegmentButton>
-            <IonSegmentButton value="stats" aria-label="Stats Tab">
+            <IonSegmentButton value="stats">
               <IonLabel className="text-xs">Stats</IonLabel>
               <IonIcon icon={statsChartOutline}></IonIcon>
             </IonSegmentButton>

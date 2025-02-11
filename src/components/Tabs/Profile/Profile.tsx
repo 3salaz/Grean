@@ -72,7 +72,7 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
       {profile?.accountType === "User" && profileAddresses.length > 0 ? (
         <MyLocations />
       ) : (
-        <IonRow className="container max-w-2xl mx-auto w-full bg-white rounded-t-md drop-shadow-xl">
+        <IonRow className="container max-w-2xl mx-auto w-full bg-white border-t-yellow-300 border-t rounded-t-md drop-shadow-xl">
           <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">
             <IonButton
               fill="outline"

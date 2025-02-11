@@ -22,6 +22,7 @@ import {
   IonToolbar,
   IonSelectOption,
   IonSelect,
+  IonList,
 } from "@ionic/react";
 import Loader from "../../Common/Loader"; // Adjust the import path as needed
 import homeIcon from "../../../assets/icons/home.png";
@@ -60,7 +61,9 @@ const AddLocation = ({ handleClose }) => {
         return formData.street && formData.city && formData.state;
       case 2:
         return formData.locationType === "Business"
-          ? formData.businessName && formData.businessPhoneNumber && formData.category
+          ? formData.businessName &&
+              formData.businessPhoneNumber &&
+              formData.category
           : formData.homeName;
       default:
         return false;
@@ -132,7 +135,12 @@ const AddLocation = ({ handleClose }) => {
 
       // Update profile.locations with the new location ID
       const locationWithId = { ...newLocation, id: newLocationId };
-      await updateProfileField(profile.uid, "locations", locationWithId, "addToArray");
+      await updateProfileField(
+        profile.uid,
+        "locations",
+        locationWithId,
+        "addToArray"
+      );
 
       console.log("Location added successfully!");
       handleClose(); // Close the modal on success
@@ -147,6 +155,7 @@ const AddLocation = ({ handleClose }) => {
     switch (step) {
       case 0:
         return (
+          
           <IonRadioGroup
             value={formData.locationType}
             className="w-full flex justify-center gap-4"
@@ -170,7 +179,7 @@ const AddLocation = ({ handleClose }) => {
         );
       case 1:
         return (
-          <>
+          <IonList className="w-full bg-orange p-0 m-0">
             <IonItem>
               <IonLabel position="stacked">Street</IonLabel>
               <IonInput
@@ -186,11 +195,13 @@ const AddLocation = ({ handleClose }) => {
                 onIonChange={(e) => handleInputChange("city", e.detail.value)}
                 placeholder="Select a city"
               >
-                <IonSelectOption value="San Francisco">San Francisco</IonSelectOption>
+                <IonSelectOption value="San Francisco">
+                  San Francisco
+                </IonSelectOption>
                 <IonSelectOption value="Daly City">Daly City</IonSelectOption>
               </IonSelect>
             </IonItem>
-          </>
+          </IonList>
         );
       case 2:
         return formData.locationType === "Home" ? (
@@ -256,15 +267,15 @@ const AddLocation = ({ handleClose }) => {
   };
 
   return (
-    <IonContent className="flex h-full items-center justify-center">
-      <IonGrid className="max-w-4xl h-full flex items-center justify-center">
-        <IonRow className="w-full">
-          <IonCol size="12">
-            <IonCard className="w-full m-0 shadow-none">
+    <IonContent>
+      <IonGrid className="h-full flex flex-col bg-orange">
+        <IonRow className="w-full flex-grow">
+          <IonCol size="12" className="h-full">
+            <IonCard className="w-full m-0 shadow-none h-full flex flex-col items-center justify-center">
               <IonCardHeader>
                 <IonCardTitle>Add Location</IonCardTitle>
               </IonCardHeader>
-              <IonCardContent>
+              <IonCardContent className="flex flex-col items-center justify-center p-2 w-full h-[300px]">
                 <motion.div
                   key={step}
                   initial={{ opacity: 0, y: 50 }}
@@ -272,49 +283,45 @@ const AddLocation = ({ handleClose }) => {
                   exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {renderStepContent()}
+                  <IonRow className="p-2 w-full">
+                    {renderStepContent()}
+                  </IonRow>
                   {loadingCoordinates && <Loader />}
                 </motion.div>
                 {loading && <Loader />}
               </IonCardContent>
             </IonCard>
-            <IonToolbar>
-              <IonRow className="ion-margin-top ion-justify-content-center">
-                {step === 0 && (
-                  <IonCol size="4">
-                    <IonButton
-                      color="danger"
-                      expand="block"
-                      onClick={handleClose}
-                    >
-                      Exit
-                    </IonButton>
-                  </IonCol>
-                )}
-                {step > 0 && (
-                  <IonCol size="4">
-                    <IonButton expand="block" onClick={prevStep}>
-                      Back
-                    </IonButton>
-                  </IonCol>
-                )}
-                {step < 2 && (
-                  <IonCol size="4">
-                    <IonButton expand="block" onClick={nextStep}>
-                      Next
-                    </IonButton>
-                  </IonCol>
-                )}
-                {step === 2 && (
-                  <IonCol size="4">
-                    <IonButton expand="block" onClick={handleSubmit}>
-                      Submit
-                    </IonButton>
-                  </IonCol>
-                )}
-              </IonRow>
-            </IonToolbar>
           </IonCol>
+          </IonRow>
+          <IonRow className="flex items-center justify-center">
+          {step === 0 && (
+            <IonCol size="4">
+              <IonButton color="danger" expand="block" onClick={handleClose}>
+                Exit
+              </IonButton>
+            </IonCol>
+          )}
+          {step > 0 && (
+            <IonCol size="4">
+              <IonButton expand="block" onClick={prevStep}>
+                Back
+              </IonButton>
+            </IonCol>
+          )}
+          {step < 2 && (
+            <IonCol size="4">
+              <IonButton expand="block" onClick={nextStep}>
+                Next
+              </IonButton>
+            </IonCol>
+          )}
+          {step === 2 && (
+            <IonCol size="4">
+              <IonButton expand="block" onClick={handleSubmit}>
+                Submit
+              </IonButton>
+            </IonCol>
+          )}
         </IonRow>
       </IonGrid>
     </IonContent>

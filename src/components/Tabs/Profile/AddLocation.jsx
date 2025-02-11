@@ -155,32 +155,45 @@ const AddLocation = ({ handleClose }) => {
     switch (step) {
       case 0:
         return (
-          
-          <IonRadioGroup
-            value={formData.locationType}
-            className="w-full flex justify-center gap-4"
-            onIonChange={(e) =>
-              handleInputChange("locationType", e.detail.value)
-            }
-          >
-            <IonRadio value="Business" labelPlacement="stacked">
-              <IonImg className="h-40 w-40" src={businessIcon} alt="Business" />
-              <IonText className="text-center" color="primary">
-                <h4>Business</h4>
-              </IonText>
-            </IonRadio>
-            <IonRadio value="Home" labelPlacement="stacked">
-              <IonImg className="h-40 w-40" src={homeIcon} alt="Home" />
-              <IonText className="text-center" color="primary">
-                <h4>Home</h4>
-              </IonText>
-            </IonRadio>
-          </IonRadioGroup>
+          <IonCol size="12">
+            <IonRadioGroup
+              value={formData.locationType}
+              className="w-full flex justify-center gap-2"
+              onIonChange={(e) =>
+                handleInputChange("locationType", e.detail.value)
+              }
+            >
+              <IonRadio value="Business" labelPlacement="start">
+                <IonImg
+                  className={`transition-all duration-300 ${
+                    formData.locationType === "Business" ? "w-40 h-40" : "w-20 h-20"
+                  }`}
+                  src={businessIcon}
+                  alt="Business"
+                />
+                <IonText className="text-center" color="primary">
+                  <h4>Business</h4>
+                </IonText>
+              </IonRadio>
+              <IonRadio value="Home" labelPlacement="end">
+                <IonImg
+                  className={`transition-all duration-300 ${
+                    formData.locationType === "Home" ? "w-40 h-40" : "w-20 h-20"
+                  }`}
+                  src={homeIcon}
+                  alt="Home"
+                />
+                <IonText className="text-center" color="primary">
+                  <h4>Home</h4>
+                </IonText>
+              </IonRadio>
+            </IonRadioGroup>
+          </IonCol>
         );
       case 1:
         return (
-          <IonList className="w-full bg-orange p-0 m-0">
-            <IonItem>
+          <IonList className="w-full p-0 m-0">
+            <IonItem className="w-full">
               <IonLabel position="stacked">Street</IonLabel>
               <IonInput
                 value={formData.street}
@@ -268,7 +281,7 @@ const AddLocation = ({ handleClose }) => {
 
   return (
     <IonContent>
-      <IonGrid className="h-full flex flex-col bg-orange">
+      <IonGrid className="h-full flex flex-col">
         <IonRow className="w-full flex-grow">
           <IonCol size="12" className="h-full">
             <IonCard className="w-full m-0 shadow-none h-full flex flex-col items-center justify-center">
@@ -278,22 +291,21 @@ const AddLocation = ({ handleClose }) => {
               <IonCardContent className="flex flex-col items-center justify-center p-2 w-full h-[300px]">
                 <motion.div
                   key={step}
+                  className="w-full"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <IonRow className="p-2 w-full">
-                    {renderStepContent()}
-                  </IonRow>
+                  <IonRow className="w-full">{renderStepContent()}</IonRow>
                   {loadingCoordinates && <Loader />}
                 </motion.div>
                 {loading && <Loader />}
               </IonCardContent>
             </IonCard>
           </IonCol>
-          </IonRow>
-          <IonRow className="flex items-center justify-center">
+        </IonRow>
+        <IonRow className="flex items-center justify-center ion-padding">
           {step === 0 && (
             <IonCol size="4">
               <IonButton color="danger" expand="block" onClick={handleClose}>

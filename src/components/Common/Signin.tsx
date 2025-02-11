@@ -1,0 +1,179 @@
+import React, { useState, useMemo } from "react";
+import {
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonText,
+  IonSpinner,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonFabButton,
+  IonIcon,
+} from "@ionic/react";
+import { InputChangeEventDetail } from "@ionic/core";
+import { closeOutline } from "ionicons/icons";
+import { useAuth } from "../../context/AuthContext";
+
+interface SigninProps {
+  handleClose: () => void;
+  toggleToSignup: () => void;
+}
+
+const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+
+  // Handles input changes to update state
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Check if the form is valid (both fields filled & valid email)
+  const isFormValid = useMemo(() => {
+    const { email, password } = formData;
+    return email.trim() !== "" && password.trim() !== "" && isValidEmail(email);
+  }, [formData]);
+
+  const handleSignIn = async () => {
+    const { email, password } = formData;
+
+    if (!isFormValid) {
+      console.error("Invalid email or missing password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await signIn(email, password);
+      handleClose();
+    } catch (error) {
+      console.error("Error signing in. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
+      <IonRow className="h-full">
+        <IonCol size="12" className="ion-align-self-center">
+          <IonCard>
+            <IonCardHeader>
+              <IonText color="primary">
+                <h3 className="text-center text-[#75B657] mb-4">
+                  Sign In To Your Account
+                </h3>
+              </IonText>
+            </IonCardHeader>
+            <IonCardContent>
+              {/* Email Field */}
+              <IonRow>
+                <IonCol size="12">
+                  <IonItem color={formData.email && !isValidEmail(formData.email) ? "danger" : undefined}>
+                    <IonLabel position="stacked">Email</IonLabel>
+                    <IonInput
+                      name="email"
+                      value={formData.email}
+                      onIonChange={handleInputChange}
+                      type="email"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </IonItem>
+                  {formData.email && !isValidEmail(formData.email) && (
+                    <IonText color="danger" className="text-sm">
+                      Invalid email format.
+                    </IonText>
+                  )}
+                </IonCol>
+              </IonRow>
+
+              {/* Password Field */}
+              <IonRow>
+                <IonCol size="12">
+                  <IonItem>
+                    <IonLabel position="stacked">Password</IonLabel>
+                    <IonInput
+                      name="password"
+                      value={formData.password}
+                      onIonChange={handleInputChange}
+                      type="password"
+                      placeholder="Enter your password"
+                      required
+                    />
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+              {/* Not a member? */}
+              <IonRow className="ion-padding">
+                <IonCol size="12" className="text-center">
+                  <IonText className="text-center text-gray-500">
+                    Not a member?{" "}
+                    <span
+                      className="text-[#75B657] cursor-pointer"
+                      onClick={toggleToSignup}
+                    >
+                      Sign Up
+                    </span>
+                  </IonText>
+                </IonCol>
+              </IonRow>
+
+              {/* Sign In Button - Disabled if form invalid */}
+              <IonRow className="ion-justify-content-center max-w-sm mx-auto">
+                <IonCol size="auto">
+                  <IonButton
+                    expand="block"
+                    color="success"
+                    onClick={handleSignIn}
+                    disabled={!isFormValid || loading}
+                  >
+                    {loading ? <IonSpinner name="crescent" /> : "Sign In"}
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+
+              {/* Close Button */}
+              <IonRow>
+                <IonCol
+                  size="12"
+                  className="flex items-center justify-center pt-10"
+                >
+                  <IonFabButton
+                    color="danger"
+                    size="small"
+                    onClick={handleClose}
+                  >
+                    <IonIcon icon={closeOutline} />
+                  </IonFabButton>
+                </IonCol>
+              </IonRow>
+            </IonCardContent>
+          </IonCard>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
+  );
+};
+
+export default Signin;

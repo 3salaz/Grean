@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useProfile } from "../../../../context/ProfileContext";
-import { useLocations } from "../../../../context/LocationsContext";
+import { useProfile } from "../../../context/ProfileContext";
+import { useLocations } from "../../../context/LocationsContext";
 import { motion } from "framer-motion";
 import {
   IonContent,
@@ -23,13 +23,13 @@ import {
   IonSelectOption,
   IonSelect,
 } from "@ionic/react";
-import Loader from "../../../Common/Loader"; // Adjust the import path as needed
-import homeIcon from "../../../../assets/icons/home.png";
-import businessIcon from "../../../../assets/icons/business.png";
+import Loader from "../../Common/Loader"; // Adjust the import path as needed
+import homeIcon from "../../../assets/icons/home.png";
+import businessIcon from "../../../assets/icons/business.png";
 
 const AddLocation = ({ handleClose }) => {
   const { profile, updateProfileField } = useProfile(); // Access AuthProfileContext
-  const { createLocation, locations } = useLocations(); // Access LocationsContext
+  const { createLocation } = useLocations(); // Access LocationsContext
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);

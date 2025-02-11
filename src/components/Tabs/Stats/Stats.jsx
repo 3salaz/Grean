@@ -1,32 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonButton,
-  IonModal,
-  IonIcon,
-  IonList,
-  IonListHeader,
-  IonText,
-  IonSegment,
-  IonSegmentButton,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonFab,
-  IonFabButton,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonHeader,
-} from "@ionic/react";
-import { carOutline, fileTrayFullOutline, flashOutline, personOutline, scaleOutline } from "ionicons/icons";
-import userIcon from "../../../../assets/icons/user.png";
-import driverIcon from "../../../../assets/icons/driver.png";
+import { IonGrid } from "@ionic/react";
 import History from "./History";
-import ProfileHeader from "../Profile/ProfileHeader";
 import RecyclingStats from "./RecyclingStats";
 import Metrics from "./Metrics";
 
@@ -36,9 +10,6 @@ const Stats = ( { profile }) => {
   const [progress, setProgress] = useState(0); // Progress for circle animation
   const maxPounds = 100; // Pounds needed to reach the next level
   const [totalPoints, setTotalPoints] = useState(0); // Total points for display
-  const [modalState, setModalState] = useState({
-    history: false,
-  });
 
   useEffect(() => {
     // Check if profile.stats exists, otherwise set default values
@@ -70,17 +41,6 @@ const Stats = ( { profile }) => {
     const newProgress = (newPounds / maxPounds) * 100;
     setProgress(newProgress);
   }, [profile]); // This useEffect runs whenever the profile changes
-
-  const closeModal = (modalName) => {
-    setModalState((prevState) => ({ ...prevState, [modalName]: false }));
-  };
-
-  const openModal = (modalName) => {
-    setModalState((prevState) => ({ ...prevState, [modalName]: true }));
-  };
-
-
-
 
   return (
     <IonGrid color="light"

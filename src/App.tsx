@@ -12,7 +12,7 @@ import "@ionic/react/css/display.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // Toastify
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // User Themes
@@ -20,7 +20,7 @@ import "./styles/ionStyle.css";
 
 // React
 import { Switch, Route, Redirect } from "react-router-dom";
-import { IonApp, IonContent, IonHeader, IonRouterOutlet } from "@ionic/react";
+import { IonApp, IonContent, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 // Context
@@ -37,7 +37,6 @@ import Home from "./pages/Home";
 import Account from "./pages/Account";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import SideMenu from "./components/Layout/SideMenu";
-import Profile from "./components/Layout/Tabs/Profile/Profile";
 
 function App() {
   return (

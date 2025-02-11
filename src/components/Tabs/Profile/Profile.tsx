@@ -14,7 +14,7 @@ import MyLocations from "./MyLocations";
 import Impact from "./Impact";
 import MyPickups from "../Pickups/MyPickups";
 import { addCircleOutline } from "ionicons/icons";
-import { UserProfile } from "../../../../context/ProfileContext";
+import { UserProfile } from "../../../context/ProfileContext";
 
 // **Define Props Interface**
 interface ProfileProps {

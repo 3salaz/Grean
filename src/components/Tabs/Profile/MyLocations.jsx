@@ -1,15 +1,14 @@
 import { IonButton, IonCol, IonIcon, IonModal, IonRow } from "@ionic/react";
-import React, { useRef, useState, useEffect } from "react";
-import { useLocations } from "../../../../context/LocationsContext"; // Import the context
+import { useRef, useState, useEffect } from "react";
+import { useLocations } from "../../../context/LocationsContext"; // Import the context
 import {
-  addCircle,
   addCircleOutline,
   chevronBackOutline,
   chevronForwardOutline,
   createOutline,
 } from "ionicons/icons";
 import AddLocation from "./AddLocation";
-import { useProfile } from "../../../../context/ProfileContext";
+import { useProfile } from "../../../context/ProfileContext";
 
 function MyLocations() {
   const [isModalVisible, setIsModalVisible] = useState(false);

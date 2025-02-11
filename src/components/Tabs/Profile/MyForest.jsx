@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { IonRow, IonCol, IonText, IonButton } from "@ionic/react";
+import { useState } from "react";
+import { IonRow, IonCol, IonText} from "@ionic/react";
 import { motion, AnimatePresence } from "framer-motion";
-import forestBg from "../../../../assets/forestbg.webp";
+import forestBg from "../../../assets/forestbg.webp";
 
-import sprout from "../../../../assets/icons/sprout.png";
-import glassTree from "../../../../assets/icons/glassTree.png";
-import aluminumTree from "../../../../assets/icons/aluminumTree.png";
-import plasticTree from "../../../../assets/icons/plasticTree.png";
-import mediumTree from "../../../../assets/icons/mediumTree.png";
+import sprout from "../../../assets/icons/sprout.png";
+import glassTree from "../../../assets/icons/glassTree.png";
+import aluminumTree from "../../../assets/icons/aluminumTree.png";
+import plasticTree from "../../../assets/icons/plasticTree.png";
+import mediumTree from "../../../assets/icons/mediumTree.png";
 
 // Tree data with different growth stages
 const treeData = {
@@ -103,13 +103,6 @@ function MyForest() {
 
   const [recyclingProgress, setRecyclingProgress] = useState(initialRecycling);
   const [selectedTree, setSelectedTree] = useState(null); // Track selected tree
-
-  const handleRecycle = (material, amount) => {
-    setRecyclingProgress((prev) => ({
-      ...prev,
-      [material]: Math.max(prev[material] + amount, 0), // Ensure weight doesn’t go below 0
-    }));
-  };
 
   return (
     <div

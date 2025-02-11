@@ -172,17 +172,17 @@ function Navbar() {
             <IonList>
               <IonListHeader>
                 <IonText>
-                  <h5>Menu</h5>
+                  <h5>Grean</h5>
                 </IonText>
               </IonListHeader>
               <IonItem button>
-                <Link to="/link1">Link 1</Link>
+                <Link to="/">Home</Link>
               </IonItem>
               <IonItem button>
-                <Link to="/link2">Link 2</Link>
+                <Link to="/account">Account</Link>
               </IonItem>
               <IonItem button>
-                <Link to="/link3">Link 3</Link>
+                <Link to="/services">Services</Link>
               </IonItem>
             </IonList>
           </IonContent>

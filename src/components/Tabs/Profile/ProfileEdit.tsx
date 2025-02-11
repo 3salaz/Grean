@@ -11,9 +11,9 @@ import {
   IonFooter,
   IonButtons,
 } from "@ionic/react";
-import { useProfile, UserProfile } from "../../../../context/ProfileContext";
+import { useProfile, UserProfile } from "../../../context/ProfileContext";
 import { httpsCallable } from "firebase/functions";
-import { functions } from "../../../../firebase"; // Import the initialized functions
+import { functions } from "../../../firebase"; // Import the initialized functions
 
 interface ProfileEditProps {
   profile: UserProfile | null;

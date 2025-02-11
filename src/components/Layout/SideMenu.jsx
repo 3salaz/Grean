@@ -15,7 +15,7 @@ const SideMenu = () => {
     <IonMenu side="start" contentId="content">
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle>Menu</IonTitle>
+          <IonTitle>Grean</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>

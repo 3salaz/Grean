@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocations } from "../../../../context/LocationsContext";
+import { useLocations } from "../../../context/LocationsContext";
 import ReactMapGl, { Marker, Popup } from "react-map-gl";
 import {
   IonInput,
@@ -14,7 +14,7 @@ import {
   IonCardContent,
   IonFooter,
 } from "@ionic/react";
-import businessIcon from "../../../../assets/icons/business.png";
+import businessIcon from "../../../assets/icons/business.png";
 
 function Map() {
   const { businessLocations } = useLocations();

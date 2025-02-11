@@ -23,10 +23,10 @@ import {
 } from "ionicons/icons";
 
 // Lazy load components and define types
-const Profile = lazy(() => import("../components/Layout/Tabs/Profile/Profile")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Pickups = lazy(() => import("../components/Layout/Tabs/Pickups/Pickups")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Map = lazy(() => import("../components/Layout/Tabs/Map/Map")) as React.ComponentType<{ profile: UserProfile | null }>;
-const Stats = lazy(() => import("../components/Layout/Tabs/Stats/Stats")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Profile = lazy(() => import("../components/Tabs/Profile/Profile")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Pickups = lazy(() => import("../components/Tabs/Pickups/Pickups")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Map = lazy(() => import("../components/Tabs/Map/Map")) as React.ComponentType<{ profile: UserProfile | null }>;
+const Stats = lazy(() => import("../components/Tabs/Stats/Stats")) as React.ComponentType<{ profile: UserProfile | null }>;
 
 // Define tab options
 type TabOption = "profile" | "pickups" | "map" | "stats";

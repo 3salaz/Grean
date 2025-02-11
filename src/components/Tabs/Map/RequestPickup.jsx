@@ -3,29 +3,24 @@ import {
   IonSelectOption,
   IonTextarea,
   IonButton,
-  IonItem,
   IonLabel,
   IonIcon,
   IonRow,
   IonCol,
   IonDatetime,
-  IonBadge,
   IonFabButton,
   IonList,
 } from "@ionic/react";
-import { usePickups } from "../../../../context/PickupsContext";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
+import { usePickups } from "../../../context/PickupsContext";
 import dayjs from "dayjs";
 import {
-  calendarNumberOutline,
   closeOutline,
-  notificationsOutline,
 } from "ionicons/icons";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 function RequestPickup({ handleClose, profile }) {
-  const { createPickup, visiblePickups, userAcceptedPickups } = usePickups();
+  const { createPickup, visiblePickups } = usePickups();
 
   const [pickupRequestData, setPickupRequestData] = useState({
     address: "",

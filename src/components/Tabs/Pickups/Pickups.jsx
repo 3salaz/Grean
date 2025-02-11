@@ -1,8 +1,6 @@
 import {
-  IonBadge,
   IonButton,
   IonCol,
-  IonFabButton,
   IonGrid,
   IonIcon,
   IonItem,
@@ -19,22 +17,19 @@ import {
 } from "@ionic/react";
 import { ToastContainer } from "react-toastify"; // Import ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { useState } from "react";
 import RequestPickup from "../Map/RequestPickup";
-import { usePickups } from "../../../../context/PickupsContext";
+import { usePickups } from "../../../context/PickupsContext";
 import {
-  alertCircleOutline,
   calendarNumberOutline,
   checkmarkCircleOutline,
   chevronForward,
   closeCircleOutline,
   leafOutline,
-  notificationsOutline,
 } from "ionicons/icons";
 
 function Pickups( { profile }) {
-  const { userAcceptedPickups, userCreatedPickups, visiblePickups, updatePickup } =
+  const { userCreatedPickups, visiblePickups, updatePickup } =
     usePickups();
 
   const [modalState, setModalState] = useState({

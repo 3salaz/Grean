@@ -79,7 +79,6 @@ function Navbar() {
   const closeAuthModal = () => {
     setTimeout(() => setIsAuthModalOpen(false), 100); // Small delay prevents layout shift
   };
-  
 
   return (
     <IonHeader className="ion-no-border ion-no-padding">
@@ -87,8 +86,16 @@ function Navbar() {
         <IonRow className="m-0 p-0 md:p-2 h-12 container mx-auto items-center justify-between ion-align-items-center">
           {/* Mobile Menu Button - Visible only on small screens */}
           <IonCol size="auto" className="lg:hidden h-full flex items-center">
-            <IonButton fill="clear" className="h-full ion-align-self-center" onClick={handleOpenRoutesPopover}>
-              <IonIcon slot="icon-only" color="light" icon={menuOutline}></IonIcon>
+            <IonButton
+              fill="clear"
+              className="h-full ion-align-self-center"
+              onClick={handleOpenRoutesPopover}
+            >
+              <IonIcon
+                slot="icon-only"
+                color="light"
+                icon={menuOutline}
+              ></IonIcon>
             </IonButton>
           </IonCol>
 
@@ -104,27 +111,29 @@ function Navbar() {
           </IonCol>
 
           {/* Desktop Navigation Links - Hidden on mobile */}
-          <IonCol className="hidden md:flex gap-6 items-center h-full">
-            <Link to="/link1" className="text-white">
-              Link 1
+          <IonCol className="hidden pl-8 md:flex gap-6 items-center h-full">
+            <Link to="/home" className="text-white">
+              Home
             </Link>
-            <Link to="/link2" className="text-white">
-              Link 2
-            </Link>
-            <Link to="/link3" className="text-white">
-              Link 3
+            {user && (
+              <Link to="/account" className="text-white">
+                Account
+              </Link>
+            )}
+            <Link to="/services" className="text-white">
+              Services
             </Link>
           </IonCol>
 
           {/* Account/Profile Section */}
           <IonCol className="flex items-center justify-end h-full">
-            {user && profile ? (
+            {user ? (
               <>
                 {/* If logged in, show avatar & popover */}
                 <IonButton fill="clear" onClick={handleOpenPopover}>
                   <img
                     className="h-8 w-8 rounded-full"
-                    src={profile.profilePic || avatar}
+                    src={profile?.profilePic || avatar}
                     alt="User Avatar"
                   />
                 </IonButton>

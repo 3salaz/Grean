@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { httpsCallable } from "firebase/functions";
-import { functions } from "../firebase";
+import { db, functions } from "../firebase";
 import { toast } from "react-toastify";
 import { useAuth } from "./AuthContext";
 import { useLocation } from "react-router-dom";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 // Define Profile Interface
 export interface UserProfile {
@@ -40,7 +41,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoadingProfile(false);
       return;
     }
-
     const fetchProfile = async () => {
       setLoadingProfile(true);
       try {
@@ -67,17 +67,43 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
 
     fetchProfile();
-  }, [user]);
-
+  }, [user, location.pathname]);
   const createProfile = async (data: Partial<UserProfile>) => {
     try {
-      const createProfileFn = httpsCallable(functions, "createProfile");
-      await createProfileFn(data);
-      toast.success("Profile created!");
+      if (!data.uid) {
+        console.error("❌ Missing UID in createProfile call!", data);
+        throw new Error("User UID is required!");
+      }
+  
+      console.log("🔥 Attempting to create profile in Firestore for UID:", data.uid);
+  
+      const profileData = {
+        displayName: data.displayName || "New User",
+        profilePic: data.profilePic || null,
+        email: data.email || "",
+        uid: data.uid,
+        locations: data.locations || [],
+        pickups: data.pickups || [],
+        accountType: data.accountType || "User",
+        createdAt: serverTimestamp(),
+      };
+  
+      console.log("📌 Profile Data to Write:", profileData);
+  
+      await setDoc(doc(db, "profiles", data.uid), profileData);
+  
+      setProfile(profileData); // Update local state
+      toast.success("Profile created successfully!");
+      console.log("✅ Profile successfully written to Firestore!");
     } catch (error) {
-      console.error("Error creating profile:", error);
+      console.error("❌ Error creating profile:", error);
+      toast.error("Failed to create profile.");
     }
   };
+  
+  
+  
+  
 
   const readProfile = async (): Promise<UserProfile | null> => {
     try {

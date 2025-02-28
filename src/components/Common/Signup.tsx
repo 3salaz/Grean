@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   IonInput,
   IonItem,
@@ -18,9 +18,12 @@ import {
   IonContent,
 } from "@ionic/react";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
+import { useProfile } from "../../context/ProfileContext"; // Import the Profile contexts
+import { getFunctions, httpsCallable } from "firebase/functions";
+// import { app } from "../../firebase"; // Adjust based on your Firebase config location
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +54,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
 
   // Grab signUp from AuthContext
   const { signUp } = useAuth();
+  const { createProfile } = useProfile(); // Get createProfile function
 
   // Handler for text input changes
   const handleInputChange = (e: any) => {
@@ -80,191 +84,216 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
 
   // Show/hide password text
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
-
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
   const handleSignUp = async () => {
-    const { email, password, confirmPassword } = formData;
-
-    // Final check before submitting, or you can rely on isFormValid
-    if (!email || !password || !confirmPassword) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-    if (!isValidEmail(email)) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    if (!isValidPassword(password)) {
-      toast.error("Password must be at least 6 characters.");
-      return;
-    }
-    if (!passwordsMatch) {
-      toast.error("Passwords do not match. Please try again.");
-      return;
-    }
-
+    console.log("🟢 handleSignUp called!");
+  
     try {
-      setIsSubmitting(true);
-      await signUp(email, password);
-      // AuthContext will show success or error toasts
-      handleClose();
-    } catch (error: any) {
-      // AuthContext already showed an error toast
-      console.error("Sign Up Error:", error);
+      const userCredential = await signUp(formData.email, formData.password);
+  
+      console.log("✅ Firebase signUp response:", userCredential);
+  
+      // Fix: Check if userCredential is valid and properly structured
+      const user = userCredential?.user || userCredential; // Ensure we get the user object
+  
+      if (!user || !user.uid) {
+        console.error("❌ Signup failed, user is undefined or missing UID:", user);
+        toast.error("Signup failed. Please try again.");
+        return;
+      }
+  
+      console.log("✅ User signed up successfully:", user);
+  
+      console.log("🔥 Calling createProfile for UID:", user.uid);
+      await createProfile({
+        displayName: user.displayName || "user",
+        profilePic: user.photoURL || null,
+        email: user.email || "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: "User",
+      });
+  
+      console.log("✅ Profile should be created now.");
+      toast.success("Account and profile created successfully!");
+      
+      handleClose(); // Close modal after success
+    } catch (error) {
+      console.error("❌ Sign Up Error:", error);
+      toast.error("Failed to sign up. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+  
+  
 
   return (
-      <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
-        <IonRow className="h-full">
-          <IonCol size="12" className="ion-align-self-center">
-            <IonCard>
-              <IonCardHeader>
-                <IonCardTitle>
-                  <IonText color="primary">
-                    <h3 className="text-center text-[#75B657] mb-4">
-                      Create Your Account
-                    </h3>
-                  </IonText>
-                </IonCardTitle>
-              </IonCardHeader>
+    <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
+      <IonRow className="h-full">
+        <IonCol size="12" className="ion-align-self-center">
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>
+                <IonText color="primary">
+                  <h3 className="text-center text-[#75B657] mb-4">
+                    Create Your Account
+                  </h3>
+                </IonText>
+              </IonCardTitle>
+            </IonCardHeader>
 
-              <IonCardContent>
-                {/* Email Field */}
-                <IonRow>
-                  <IonCol size="12">
-                    <IonItem
-                      color={
-                        formData.email && !isValidEmail(formData.email)
-                          ? "danger"
-                          : undefined
-                      }
-                    >
-                      <IonLabel position="stacked">Email</IonLabel>
-                      <IonInput
-                        name="email"
-                        value={formData.email}
-                        onIonChange={handleInputChange}
-                        type="email"
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </IonItem>
-                    {formData.email && !isValidEmail(formData.email) && (
-                      <IonText color="danger" className="text-sm">
-                        Invalid email format.
-                      </IonText>
-                    )}
-                  </IonCol>
-                </IonRow>
-
-                {/* Password Field */}
-                <IonRow>
-                  <IonCol size="12">
-                    <IonItem
-                      color={
-                        formData.password && !isValidPassword(formData.password)
-                          ? "danger"
-                          : undefined
-                      }
-                    >
-                      <IonLabel position="stacked">Password</IonLabel>
-                      <IonInput
-                        name="password"
-                        value={formData.password}
-                        onIonChange={handleInputChange}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        required
-                      />
-                      <IonButton fill="clear" slot="end" onClick={togglePasswordVisibility}>
-                        <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
-                      </IonButton>
-                    </IonItem>
-                    {formData.password && !isValidPassword(formData.password) && (
-                      <IonText color="danger" className="text-sm">
-                        Password must be at least 6 characters.
-                      </IonText>
-                    )}
-                  </IonCol>
-                </IonRow>
-
-                {/* Confirm Password Field */}
-                <IonRow>
-                  <IonCol size="12">
-                    <IonItem
-                      color={
-                        formData.confirmPassword && !passwordsMatch
-                          ? "danger"
-                          : undefined
-                      }
-                    >
-                      <IonLabel position="stacked">Confirm Password</IonLabel>
-                      <IonInput
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onIonChange={handleInputChange}
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Re-enter your password"
-                        required
-                      />
-                      <IonButton fill="clear" slot="end" onClick={toggleConfirmPasswordVisibility}>
-                        <IonIcon icon={showConfirmPassword ? eyeOffOutline : eyeOutline} />
-                      </IonButton>
-                    </IonItem>
-                    {formData.confirmPassword && !passwordsMatch && (
-                      <IonText color="danger" className="text-sm">
-                        Passwords do not match.
-                      </IonText>
-                    )}
-                  </IonCol>
-                </IonRow>
-
-                {/* Already have an account? */}
-                <IonRow className="ion-padding">
-                  <IonCol size="12" className="text-center">
-                    <IonText className="text-center text-gray-500">
-                      Already have an account?{" "}
-                      <span
-                        className="text-[#75B657] cursor-pointer"
-                        onClick={toggleToSignin}
-                      >
-                        Sign In
-                      </span>
+            <IonCardContent>
+              {/* Email Field */}
+              <IonRow>
+                <IonCol size="12">
+                  <IonItem
+                    color={
+                      formData.email && !isValidEmail(formData.email)
+                        ? "danger"
+                        : undefined
+                    }
+                  >
+                    <IonLabel position="stacked">Email</IonLabel>
+                    <IonInput
+                      name="email"
+                      value={formData.email}
+                      onIonChange={handleInputChange}
+                      type="email"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </IonItem>
+                  {formData.email && !isValidEmail(formData.email) && (
+                    <IonText color="danger" className="text-sm">
+                      Invalid email format.
                     </IonText>
-                  </IonCol>
-                </IonRow>
+                  )}
+                </IonCol>
+              </IonRow>
 
-                {/* Sign Up Button - Disabled if form invalid */}
-                <IonRow className="ion-justify-content-center max-w-sm mx-auto">
-                  <IonCol size="12">
+              {/* Password Field */}
+              <IonRow>
+                <IonCol size="12">
+                  <IonItem
+                    color={
+                      formData.password && !isValidPassword(formData.password)
+                        ? "danger"
+                        : undefined
+                    }
+                  >
+                    <IonLabel position="stacked">Password</IonLabel>
+                    <IonInput
+                      name="password"
+                      value={formData.password}
+                      onIonChange={handleInputChange}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      required
+                    />
                     <IonButton
-                      expand="block"
-                      color="success"
-                      onClick={handleSignUp}
-                      disabled={!isFormValid || isSubmitting}
-                      className="text-white"
+                      fill="clear"
+                      slot="end"
+                      onClick={togglePasswordVisibility}
                     >
-                      {isSubmitting ? <IonSpinner /> : "Sign Up"}
+                      <IonIcon
+                        icon={showPassword ? eyeOffOutline : eyeOutline}
+                      />
                     </IonButton>
-                  </IonCol>
-                </IonRow>
+                  </IonItem>
+                  {formData.password && !isValidPassword(formData.password) && (
+                    <IonText color="danger" className="text-sm">
+                      Password must be at least 6 characters.
+                    </IonText>
+                  )}
+                </IonCol>
+              </IonRow>
 
-                {/* Close button */}
-                <IonRow>
-                  <IonCol size="12" className="flex items-center justify-center pt-10">
-                    <IonFabButton color="danger" onClick={handleClose}>
-                      <IonIcon icon={closeOutline} />
-                    </IonFabButton>
-                  </IonCol>
-                </IonRow>
-              </IonCardContent>
-            </IonCard>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+              {/* Confirm Password Field */}
+              <IonRow>
+                <IonCol size="12">
+                  <IonItem
+                    color={
+                      formData.confirmPassword && !passwordsMatch
+                        ? "danger"
+                        : undefined
+                    }
+                  >
+                    <IonLabel position="stacked">Confirm Password</IonLabel>
+                    <IonInput
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onIonChange={handleInputChange}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Re-enter your password"
+                      required
+                    />
+                    <IonButton
+                      fill="clear"
+                      slot="end"
+                      onClick={toggleConfirmPasswordVisibility}
+                    >
+                      <IonIcon
+                        icon={showConfirmPassword ? eyeOffOutline : eyeOutline}
+                      />
+                    </IonButton>
+                  </IonItem>
+                  {formData.confirmPassword && !passwordsMatch && (
+                    <IonText color="danger" className="text-sm">
+                      Passwords do not match.
+                    </IonText>
+                  )}
+                </IonCol>
+              </IonRow>
+
+              {/* Already have an account? */}
+              <IonRow className="ion-padding">
+                <IonCol size="12" className="text-center">
+                  <IonText className="text-center text-gray-500">
+                    Already have an account?{" "}
+                    <span
+                      className="text-[#75B657] cursor-pointer"
+                      onClick={toggleToSignin}
+                    >
+                      Sign In
+                    </span>
+                  </IonText>
+                </IonCol>
+              </IonRow>
+
+              {/* Sign Up Button - Disabled if form invalid */}
+              <IonRow className="ion-justify-content-center max-w-sm mx-auto">
+                <IonCol size="12">
+                  <IonButton
+                    expand="block"
+                    color="success"
+                    onClick={handleSignUp}
+                    disabled={!isFormValid || isSubmitting}
+                    className="text-white"
+                  >
+                    {isSubmitting ? <IonSpinner /> : "Sign Up"}
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+
+              {/* Close button */}
+              <IonRow>
+                <IonCol
+                  size="12"
+                  className="flex items-center justify-center pt-10"
+                >
+                  <IonFabButton color="danger" onClick={handleClose}>
+                    <IonIcon icon={closeOutline} />
+                  </IonFabButton>
+                </IonCol>
+              </IonRow>
+            </IonCardContent>
+          </IonCard>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
   );
 }
 

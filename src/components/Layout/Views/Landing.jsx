@@ -40,19 +40,19 @@ function Landing() {
     setIsAuthModalOpen(true);
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      await googleSignIn();
-      toast.success("Signed in successfully with Google!");
-      history.push("/account");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error signing in with Google. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     setLoading(true);
+  //     await googleSignIn();
+  //     toast.success("Signed in successfully with Google!");
+  //     history.push("/account");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Error signing in with Google. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <IonContent className="h-full w-full">

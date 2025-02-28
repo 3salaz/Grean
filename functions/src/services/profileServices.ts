@@ -1,4 +1,4 @@
-import { db, admin } from "../config";
+import { db, admin } from "../config/firebase";
 
 export interface UserProfile {
   displayName: string;
@@ -27,7 +27,6 @@ export const readProfile = async (uid: string): Promise<UserProfile | null> => {
 
   return docSnap.exists ? (docSnap.data() as UserProfile) : null;
 };
-
 /** ✅ Update profile fields */
 export const updateProfileField = async (
   uid: string,

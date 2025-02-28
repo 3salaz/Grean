@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const auth = getAuth();
     try {
       const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-      toast.success("Account created successfully!");
+      console.log("Account created successfully!");
       return userCreds.user;
     } catch (error: any) {
       console.error("Sign Up Error:", error);

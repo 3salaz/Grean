@@ -27,6 +27,7 @@ import {
 import Loader from "../../Common/Loader"; // Adjust the import path as needed
 import homeIcon from "../../../assets/icons/home.png";
 import businessIcon from "../../../assets/icons/business.png";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddLocation = ({ handleClose }) => {
   const { profile, updateProfileField } = useProfile(); // Access AuthProfileContext
@@ -84,7 +85,7 @@ const AddLocation = ({ handleClose }) => {
 
   const nextStep = async () => {
     if (!validateStep()) {
-      console.log("Please fill in all required fields before proceeding.");
+      toast.error("Please fill in all required fields before proceeding.");
       return;
     }
 
@@ -134,6 +135,7 @@ const AddLocation = ({ handleClose }) => {
       const newLocationId = await createLocation(newLocation);
 
       // Update profile.locations with the new location ID
+      console.log(profile.uid);
       const locationWithId = { ...newLocation, id: newLocationId };
       await updateProfileField(
         profile.uid,
@@ -166,7 +168,9 @@ const AddLocation = ({ handleClose }) => {
               <IonRadio value="Business" labelPlacement="start">
                 <IonImg
                   className={`transition-all duration-300 ${
-                    formData.locationType === "Business" ? "w-40 h-40" : "w-20 h-20"
+                    formData.locationType === "Business"
+                      ? "w-40 h-40"
+                      : "w-20 h-20"
                   }`}
                   src={businessIcon}
                   alt="Business"
@@ -281,6 +285,18 @@ const AddLocation = ({ handleClose }) => {
 
   return (
     <IonContent>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <IonGrid className="h-full flex flex-col">
         <IonRow className="w-full flex-grow">
           <IonCol size="12" className="h-full">

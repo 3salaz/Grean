@@ -36,7 +36,7 @@ import Navbar from "./components/Layout/Navbar";
 import Home from "./pages/Home";
 import Account from "./pages/Account";
 import ProtectedRoute from "./pages/ProtectedRoute";
-import SideMenu from "./components/Layout/SideMenu";
+// import SideMenu from "./components/Layout/SideMenu";
 
 function App() {
   return (
@@ -46,7 +46,7 @@ function App() {
           <LocationsProvider>
             <PickupsProvider>
               <IonReactRouter>
-                <SideMenu />
+                {/* <SideMenu /> */}
                 <Navbar />
                 <IonContent
                   id="content"

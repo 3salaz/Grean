@@ -10,7 +10,6 @@ import {
 import { settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
 import { UserProfile } from "../../../context/ProfileContext";
-import { useProfile } from "../../../context/ProfileContext";
 
 // ✅ Define props interface
 interface ProfileHeaderProps {

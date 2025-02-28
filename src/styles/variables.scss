@@ -1,0 +1,70 @@
+/* variables.scss */
+
+:root {
+    /* Primary Color (Green) */
+    --ion-color-primary: #75B657;
+    --ion-color-primary-rgb: 117, 182, 87;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #669b4f;
+    --ion-color-primary-tint: #85c169;
+  
+    /* Secondary Color (Dark Green) */
+    --ion-color-secondary: #4A8C42;
+    --ion-color-secondary-rgb: 74, 140, 66;
+    --ion-color-secondary-contrast: #ffffff;
+    --ion-color-secondary-contrast-rgb: 255, 255, 255;
+    --ion-color-secondary-shade: #427b3a;
+    --ion-color-secondary-tint: #5fb559;
+  
+    /* Tertiary Color (Light Green) */
+    --ion-color-tertiary: #A9D58B;
+    --ion-color-tertiary-rgb: 169, 213, 139;
+    --ion-color-tertiary-contrast: #ffffff;
+    --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+    --ion-color-tertiary-shade: #95c77b;
+    --ion-color-tertiary-tint: #b8dd9f;
+  
+    /* Accent Color (Orange) */
+    --ion-color-accent: #FFA500;
+    --ion-color-accent-rgb: 255, 165, 0;
+    --ion-color-accent-contrast: #ffffff;
+    --ion-color-accent-contrast-rgb: 255, 255, 255;
+    --ion-color-accent-shade: #e69500;
+    --ion-color-accent-tint: #ffb733;
+  
+    /* Alternative Tertiary (Teal) */
+    --ion-color-teal: #66B2B2;
+    --ion-color-teal-rgb: 102, 178, 178;
+    --ion-color-teal-contrast: #ffffff;
+    --ion-color-teal-contrast-rgb: 255, 255, 255;
+    --ion-color-teal-shade: #5aa2a2;
+    --ion-color-teal-tint: #79bcbc;
+  
+    /* Neutral Colors */
+    --ion-color-light: #F5F5F5;
+    --ion-color-light-rgb: 245, 245, 245;
+    --ion-color-light-contrast: #333333;
+    --ion-color-light-contrast-rgb: 51, 51, 51;
+    --ion-color-light-shade: #e0e0e0;
+    --ion-color-light-tint: #fafafa;
+  
+    --ion-color-dark: #333333;
+    --ion-color-dark-rgb: 51, 51, 51;
+    --ion-color-dark-contrast: #ffffff;
+    --ion-color-dark-contrast-rgb: 255, 255, 255;
+    --ion-color-dark-shade: #2e2e2e;
+    --ion-color-dark-tint: #4d4d4d;
+  }
+  
+  /* Optional: Customize specific component colors */
+  ion-button {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+  }
+  
+  ion-toolbar {
+    --background: var(--ion-color-secondary);
+    --color: var(--ion-color-secondary-contrast);
+  }
+  

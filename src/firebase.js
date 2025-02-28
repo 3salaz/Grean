@@ -1,8 +1,9 @@
-import { browserLocalPersistence, getAuth, setPersistence } from "firebase/auth";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
-import { initializeApp } from "firebase/app";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -22,11 +23,6 @@ const app = initializeApp(firebaseConfig);
 // Auth
 export const auth = getAuth(app);
 
-// Set persistence to browserLocalPersistence
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error("Error setting persistence:", error);
-});
-
 // Firestore
 export const db = getFirestore(app);
 
@@ -35,5 +31,8 @@ export const storage = getStorage(app);
 
 // Analytics
 export const analytics = getAnalytics(app);
+
+// **🔥 FIX: Ensure Functions Uses the Correct Region**
+export const functions = getFunctions(app, "us-central1"); // ✅ Explicitly set region
 
 export default app;

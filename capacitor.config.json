@@ -1,0 +1,11 @@
+{
+  "appId": "com.grean.global",
+  "appName": "grean",
+  "webDir": "build",
+  "ios": {
+    "minVersion": "12.0",
+    "cordovaSwiftVersion": "5.0",
+    "useLegacyBridge": false,
+    "allowMixedContent": false
+  }
+}

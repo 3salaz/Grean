@@ -1,18 +1,42 @@
-// src/context/AuthProfileContext.js
-import { createContext, useContext, useState, useEffect } from "react";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc } from "firebase/firestore";
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  serverTimestamp,
+} from "firebase/firestore";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "../firebase";
-import { incrementReadCount, incrementWriteCount, incrementDeleteCount } from "../utils/requestCounter";
+import { toast } from "react-toastify";
 
 const AuthProfileContext = createContext();
+
+const initializeProfile = async (user) => {
+  const profileDocRef = doc(db, "profiles", user.uid);
+  const profileSnap = await getDoc(profileDocRef);
+
+  const defaultProfileData = {
+    displayName: user.displayName || "",
+    profilePic: user.photoURL || "",
+    email: user.email,
+    uid: user.uid,
+    locations: [],
+    pickups: [],
+    accountType: "User",
+    createdAt: serverTimestamp(),
+  };
+
+  if (!profileSnap.exists()) {
+    await setDoc(profileDocRef, defaultProfileData);
+    return defaultProfileData;
+  }
+
+  const existingProfileData = profileSnap.data();
+  return { ...defaultProfileData, ...existingProfileData };
+};
 
 export function AuthProfileProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -21,71 +45,20 @@ export function AuthProfileProvider({ children }) {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const initialProfileData = {
-          displayName: "",
-          profilePic: "",
-          email: "",
-          uid: "",
-          addresses: [],
-          stats: {
-            overall: 0,
-            pickups: [],
-          },
-          accountType: null, // Add other necessary fields here
-        };
-        const profileDocRef = doc(db, "profiles", user.uid);
-        const unsubscribeProfile = onSnapshot(profileDocRef, async (doc) => {
-          if (doc.exists()) {
-            setProfile(doc.data());
-            incrementReadCount();
-          } else {
-            await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
-            setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
-            incrementWriteCount();
-          }
-          setLoading(false);
-        });
-        setUser(user);
-        return () => unsubscribeProfile();
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        const updatedProfile = await initializeProfile(currentUser);
+        setProfile(updatedProfile);
+        setUser(currentUser);
       } else {
         setUser(null);
         setProfile(null);
-        setLoading(false);
       }
+      setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
-
-  const ensureProfileExists = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    const initialProfileData = {
-      displayName: "",
-      profilePic: "",
-      email: "",
-      uid: "",
-      addresses: [],
-      stats: {
-        overall: 0,
-        pickups: [],
-      },
-      accountType: null, // Add other necessary fields here
-    };
-
-    if (user) {
-      const profileDocRef = doc(db, "profiles", user.uid);
-      const profileSnap = await getDoc(profileDocRef);
-      incrementReadCount();
-
-      if (!profileSnap.exists()) {
-        await setDoc(profileDocRef, { ...initialProfileData, email: user.email, uid: user.uid });
-        setProfile({ ...initialProfileData, email: user.email, uid: user.uid });
-        incrementWriteCount();
-      }
-    }
-  };
 
   const logOut = async () => {
     const auth = getAuth();
@@ -94,122 +67,94 @@ export function AuthProfileProvider({ children }) {
     setProfile(null);
   };
 
-  const signUp = async (email, password, profileData) => {
+  const signUp = async (email, password, profileData = {}) => {
     const auth = getAuth();
-    const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCreds.user;
-    const profileDocRef = doc(db, "profiles", user.uid);
 
-    await setDoc(profileDocRef, { ...profileData, uid: user.uid });
-    setProfile({ ...profileData, uid: user.uid });
-    incrementWriteCount();
-    return user;
+    try {
+      const userCreds = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCreds.user;
+
+      const updatedProfile = {
+        ...(await initializeProfile(user)),
+        ...profileData,
+      };
+
+      setProfile(updatedProfile);
+      return user;
+    } catch (error) {
+      toast.error("Failed to sign up. Please try again.");
+      throw error;
+    }
   };
 
   const googleSignIn = async () => {
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
 
-    const initialProfileData = {
-      displayName: "",
-      profilePic: "",
-      email: user.email,
-      uid: user.uid,
-      addresses: [],
-      stats: {
-        overall: 0,
-        pickups: [],
-      },
-      accountType: null, // Add other necessary fields here
-    };
-    const profileDocRef = doc(db, "profiles", user.uid);
-    const profileSnap = await getDoc(profileDocRef);
-    incrementReadCount();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-    if (!profileSnap.exists()) {
-      const profileData = {
-        displayName: user.displayName,
-        profilePic: user.photoURL,
-        email: user.email,
-        uid: user.uid,
-        ...initialProfileData, // Add other necessary fields here
-      };
-      await setDoc(profileDocRef, profileData);
-      setProfile(profileData);
-      incrementWriteCount();
-    } else {
-      setProfile(profileSnap.data());
+      const updatedProfile = await initializeProfile(user);
+      setProfile(updatedProfile);
+      return user;
+    } catch (error) {
+      toast.error("Failed to sign in with Google. Please try again.");
+      throw error;
     }
-    return user;
   };
 
   const signIn = async (email, password) => {
     const auth = getAuth();
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    return user;
-  };
 
-  const updateProfile = async (uid, profileData) => {
-    const profileDocRef = doc(db, "profiles", uid);
-    await setDoc(profileDocRef, profileData, { merge: true });
-    incrementWriteCount();
-    const profileSnap = await getDoc(profileDocRef);
-    incrementReadCount();
-    if (profileSnap.exists()) {
-      setProfile(profileSnap.data());
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const updatedProfile = await initializeProfile(user);
+      setProfile(updatedProfile);
+      return user;
+    } catch (error) {
+      toast.error("Failed to sign in. Please try again.");
+      throw error;
     }
   };
 
-  const deleteProfile = async (uid) => {
+  // Generic function to update profile data
+  const updateProfileField = async (uid, field, value, operation = "update") => {
     const profileDocRef = doc(db, "profiles", uid);
-    await deleteDoc(profileDocRef);
-    setProfile(null);
-    incrementDeleteCount();
-  };
 
-  const addAddressToProfile = async (uid, address) => {
-    const profileDocRef = doc(db, "profiles", uid);
-    await updateDoc(profileDocRef, {
-      addresses: arrayUnion(address),
-    });
-    incrementWriteCount();
-    const updatedProfile = await getDoc(profileDocRef);
-    incrementReadCount();
-    if (updatedProfile.exists()) {
-      setProfile(updatedProfile.data());
+    try {
+      if (operation === "addToArray") {
+        await updateDoc(profileDocRef, { [field]: arrayUnion(value) });
+      } else if (operation === "removeFromArray") {
+        await updateDoc(profileDocRef, { [field]: arrayRemove(value) });
+      } else if (operation === "update") {
+        await updateDoc(profileDocRef, { [field]: value });
+      }
+
+      const updatedProfile = (await getDoc(profileDocRef)).data();
+      setProfile(updatedProfile);
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error(`Failed to update profile: ${error.message}`);
+      throw error;
     }
   };
 
-  const removeAddressFromProfile = async (uid, address) => {
-    const profileDocRef = doc(db, "profiles", uid);
-    await updateDoc(profileDocRef, {
-      addresses: arrayRemove(address),
-    });
-    incrementWriteCount();
-    const updatedProfile = await getDoc(profileDocRef);
-    incrementReadCount();
-    if (updatedProfile.exists()) {
-      setProfile(updatedProfile.data());
-    }
-  };
-
-  const value = {
-    user,
-    profile,
-    loading,
-    ensureProfileExists,
-    logOut,
-    signUp,
-    signIn,
-    googleSignIn,
-    updateProfile,
-    deleteProfile,
-    addAddressToProfile,
-    removeAddressFromProfile,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      profile,
+      loading,
+      logOut,
+      signUp,
+      signIn,
+      googleSignIn,
+      updateProfileField, // Expose the generic update function
+    }),
+    [user, profile, loading]
+  );
 
   return (
     <AuthProfileContext.Provider value={value}>

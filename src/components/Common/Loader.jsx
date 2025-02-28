@@ -1,7 +1,7 @@
 import { Spin } from 'antd';
 import PropTypes from 'prop-types';
 
-const Loader = ({ fullscreen }) => {
+const Loader = ({ fullscreen = false }) => {
   return (
     <div
       className={`flex justify-center items-center bg-white bg-opacity-80 ${
@@ -17,8 +17,5 @@ Loader.propTypes = {
   fullscreen: PropTypes.bool,
 };
 
-Loader.defaultProps = {
-  fullscreen: false,
-};
-
 export default Loader;
+

@@ -1,72 +1,91 @@
-// App.tsx
 import "./App.css";
+import "@ionic/react/css/core.css";
+import "@ionic/react/css/normalize.css";
+import "@ionic/react/css/structure.css";
+import "@ionic/react/css/typography.css";
+import "@ionic/react/css/padding.css";
+import "@ionic/react/css/float-elements.css";
+import "@ionic/react/css/text-alignment.css";
+import "@ionic/react/css/text-transformation.css";
+import "@ionic/react/css/flex-utils.css";
+import "@ionic/react/css/display.css";
+import "mapbox-gl/dist/mapbox-gl.css";
+
+// Toastify
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// User Themes
+import "./styles/ionStyle.css";
+
 // React
-import { useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { IonApp, IonContent, IonRouterOutlet } from "@ionic/react";
+import { IonReactRouter } from "@ionic/react-router";
+
 // Context
-import { AuthProfileProvider } from "./context/AuthProfileContext";
+import { AuthProvider } from "./context/AuthContext";
+import { ProfileProvider } from "./context/ProfileContext";
 import { PickupsProvider } from "./context/PickupsContext";
 import { LocationsProvider } from "./context/LocationsContext";
 
 // Component
 import Navbar from "./components/Layout/Navbar";
-import Tabbar from "./components/Layout/TabBar";
 
 // Routes
-import Home from "./routes/Home";
-import Account from "./routes/Account";
-import Settings from "./routes/Settings";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import Home from "./pages/Home";
+import Account from "./pages/Account";
+import ProtectedRoute from "./pages/ProtectedRoute";
+// import SideMenu from "./components/Layout/SideMenu";
 
 function App() {
-  const [activeTab, setActiveTab] = useState(1);
-  const location = useLocation(); // Get the current path
-
   return (
-    <AuthProfileProvider>
-      <LocationsProvider>
-        <PickupsProvider>
-          <Navbar />
-          <main className="h-[82svh] w-full bg-white relative">
-            <ToastContainer
-              position="top-center"
-              style={{
-                width: "100%",
-                top: "8%",
-                left: "50%",
-                transform: "translateX(-50%)",
-              }}
-            />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/account"
-                element={
-                  <ProtectedRoute>
-                    <Account active={activeTab} />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
-          { location.pathname !== "/settings" &&
-            location.pathname !== "/" && (
-              <Tabbar active={activeTab} setActive={setActiveTab} />
-            )}
-        </PickupsProvider>
-      </LocationsProvider>
-    </AuthProfileProvider>
+    <IonApp>
+      <AuthProvider>
+        <ProfileProvider>
+          <LocationsProvider>
+            <PickupsProvider>
+              <IonReactRouter>
+                {/* <SideMenu /> */}
+                <Navbar />
+                <IonContent
+                  id="content"
+                  scroll-y="false"
+                  className="bg-gradient-to-t from-grean to-blue-300 p-2"
+                >
+                  <ToastContainer
+                    position="top-center"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="colored"
+                  />
+                  <IonRouterOutlet>
+                    <Switch>
+                      <Redirect exact from="/" to="/home" />
+                      <Route path="/home" exact component={Home} />
+                      <Route
+                        path="/account"
+                        render={() => (
+                          <ProtectedRoute>
+                              <Account />
+                          </ProtectedRoute>
+                        )}
+                      />
+                    </Switch>
+                  </IonRouterOutlet>
+                </IonContent>
+              </IonReactRouter>
+            </PickupsProvider>
+          </LocationsProvider>
+        </ProfileProvider>
+      </AuthProvider>
+    </IonApp>
   );
 }
 

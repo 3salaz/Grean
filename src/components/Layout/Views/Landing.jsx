@@ -1,92 +1,123 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import {
+  IonButton,
+  IonCard,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonImg,
+  IonModal,
+  IonRow,
+  IonText,
+} from "@ionic/react";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
-import Button from "../Button";
 import Signin from "../../Common/Signin";
-import { useAuthProfile } from "../../../context/AuthProfileContext";
-import SpringModal from "../Modals/SpringModal";
-import Loader from "../../Common/Loader"; // Adjust the import path as needed
-
-const fadeInVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } },
-};
+import Signup from "../../Common/Signup";
+import { useAuth } from "../../../context/AuthContext";
+import { useHistory } from "react-router-dom";
+import { logoGoogle } from "ionicons/icons";
+import { toast, ToastContainer } from "react-toastify";
 
 function Landing() {
-  const [signInModalOpen, setSigninModalOpen] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const { user } = useAuthProfile();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const history = useHistory();
+  const [loading, setLoading] = useState(false);
+  const { googleSignIn } = useAuth();
 
-  const closeSigninModal = () => setSigninModalOpen(false);
-  const openSigninModal = () => setSigninModalOpen(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignin, setIsSignin] = useState(true); // default to SignIn
 
-  const navigateTo = (route) => {
-    navigate(`/${route}`);
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+
+  const openSigninModal = () => {
+    setIsSignin(true);
+    setIsAuthModalOpen(true);
+  };
+  const openSignupModal = () => {
+    setIsSignin(false);
+    setIsAuthModalOpen(true);
   };
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = Background;
-    img.onload = () => setImageLoaded(true);
-  }, []);
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     setLoading(true);
+  //     await googleSignIn();
+  //     toast.success("Signed in successfully with Google!");
+  //     history.push("/account");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Error signing in with Google. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
-    <section className="relative h-full w-full flex justify-center items-center">
-      {!imageLoaded && <Loader fullscreen />}
-      <AnimatePresence>
-        {imageLoaded && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={fadeInVariants}
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <img
-              src={Background}
-              alt="Woman sitting atop a rock edge which is extending outwards over a river."
-              onLoad={() => setImageLoaded(true)}
-              style={{ display: imageLoaded ? 'block' : 'none' }}
-              className="absolute top-0 object-cover h-full"
-            />
-            <div className="relative z-20 flex flex-col items-center gap-8 justify-center text-center h-full w-full">
-              <AnimatedTextWord text="GREAN" />
-              <div className="w-full items-center justify-center flex flex-col gap-2">
-                {user ? (
-                  <Button
-                    className="border-2 border-grean text-grean bg-white bg-transparent rounded-lg flex items-center justify-center"
-                    size="medium"
-                    shape="circle"
-                    onClick={() => navigateTo('account')}
-                  >
-                    Account
-                  </Button>
-                ) : (
-                  <Button
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={openSigninModal}
-                    size="medium"
-                    className="border-2 border-grean text-grean bg-white bg-transparent rounded-lg flex items-center justify-center"
-                  >
-                    Sign In
-                  </Button>
-                )}
-                <Button variant="primary" className="border-2 border-white">
-                  Browse
-                </Button>
-              </div>
-            </div>
-            <SpringModal isOpen={signInModalOpen} handleClose={closeSigninModal}>
-              <Signin />
-            </SpringModal>
-          </motion.div>
+    <IonContent className="h-full w-full">
+      <IonGrid className="h-full w-full p-0 m-0">
+        <IonImg
+          src={Background}
+          alt="Woman sitting on a rock over a river."
+          className="absolute top-0 object-cover h-full w-full"
+        />
+        <section className="mx-auto relative container max-w-2xl z-20 flex flex-col items-center gap-8 justify-center text-center h-full">
+          <AnimatedTextWord text="GREAN" />
+          <IonRow className="w-full">
+                  {user ? (
+                    <IonCol size="6" className="ion-align-self-center mx-auto">
+                      <IonButton
+                      expand="block"
+                      color="light"
+                      onClick={() => history.push("/account")}
+                    >
+                      Account
+                      </IonButton>
+                    </IonCol>
+                  ) : (
+                    <IonCol size="auto" className="ion-align-self-center mx-auto">
+                      {/* <IonButton
+                        color="light"
+                        shape="square"
+                        onClick={handleGoogleSignIn}
+                      >
+                        <IonIcon slot="icon-only" icon={logoGoogle} />
+                      </IonButton> */}
+                      <IonButton
+                        expand="block"
+                        size="small"
+                        onClick={openSigninModal}
+                      >
+                        Sign In
+                      </IonButton>
+                      {/* <IonText onClick={handleGoogleSignIn} className="cursor-pointer text-xs font-bold text-center text-grean">or sign in with Google</IonText> */}
+                    </IonCol>
+                  )}
+          </IonRow>
+        </section>
+      </IonGrid>
+
+      {/* Auth Modal: Toggles Signin or Signup */}
+      <IonModal
+        isOpen={isAuthModalOpen}
+        onDidDismiss={closeAuthModal}
+        backdropDismiss={true}
+      >
+        <ToastContainer/>
+        {isSignin ? (
+          <Signin
+            handleClose={closeAuthModal}
+            toggleToSignup={openSignupModal}
+          />
+        ) : (
+          <Signup
+            handleClose={closeAuthModal}
+            toggleToSignin={openSigninModal}
+          />
         )}
-      </AnimatePresence>
-    </section>
+      </IonModal>
+    </IonContent>
   );
 }
 

@@ -1,11 +1,9 @@
-import {
-  createProfileFunction,
-  readProfileFunction,
-  updateProfileFunction,
-  deleteProfileFunction,
-} from "./routes/profileFunctions";
+import * as functions from "firebase-functions";
 
-exports.createProfile = createProfileFunction;
-exports.readProfile = readProfileFunction;
-exports.updateProfile = updateProfileFunction;
-exports.deleteProfile = deleteProfileFunction;
+// // Start writing Firebase Functions
+// // https://firebase.google.com/docs/functions/typescript
+//
+// export const helloWorld = functions.https.onRequest((request, response) => {
+//   functions.logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });

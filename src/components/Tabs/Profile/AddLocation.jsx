@@ -71,18 +71,60 @@ const AddLocation = ({ handleClose }) => {
     }
   };
 
+  const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  // const getCoordinates = async (address) => {
+  //   const response = await fetch(
+  //     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`
+  //   );
+  //   const data = await response.json();
+  //   if (data.results.length > 0) {
+  //     const { lat, lng } = data.results[0].geometry.location;
+  //     return { latitude: lat, longitude: lng };
+  //   }
+  //   throw new Error("Unable to retrieve coordinates for the address.");
+  // };
   const getCoordinates = async (address) => {
-    const response = await fetch(
-      `https://geocode.maps.co/search?q=${encodeURIComponent(address)}`
-    );
-    const data = await response.json();
-    if (data.length > 0) {
-      const { lat, lon } = data[0];
-      return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+    try {
+      console.log("Fetching coordinates for address:", address);
+
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          address
+        )}&key=${API_KEY}`
+      );
+
+      const data = await response.json();
+      console.log("Google Maps API Response:", data);
+
+      if (data.status === "OK" && data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry.location;
+        console.log("Extracted Coordinates:", {
+          latitude: lat,
+          longitude: lng,
+        });
+        return { latitude: lat, longitude: lng };
+      } else {
+        throw new Error(
+          `Geocoding API Error: ${data.status} - ${
+            data.error_message || "No results found"
+          }`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      return null;
     }
-    throw new Error("Unable to retrieve coordinates for the address.");
   };
 
+  // Test function
+  const testGetCoordinates = async () => {
+    const testAddress = "1600 Amphitheatre Parkway, Mountain View, CA"; // Example address
+    const coordinates = await getCoordinates(testAddress);
+    console.log("Test Result:", coordinates);
+  };
+
+  // Run the test
+  testGetCoordinates();
   const nextStep = async () => {
     if (!validateStep()) {
       toast.error("Please fill in all required fields before proceeding.");

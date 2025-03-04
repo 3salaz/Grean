@@ -24,7 +24,7 @@ import {
   IonSelect,
   IonList,
 } from "@ionic/react";
-import Loader from "../../Common/Loader"; // Adjust the import path as needed
+
 import homeIcon from "../../../assets/icons/home.png";
 import businessIcon from "../../../assets/icons/business.png";
 import { toast, ToastContainer } from "react-toastify";
@@ -71,7 +71,7 @@ const AddLocation = ({ handleClose }) => {
     }
   };
 
-  const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  const API_KEY = process.env.VITE_GOOGLE_MAPS_API_KEY;
   // const getCoordinates = async (address) => {
   //   const response = await fetch(
   //     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`
@@ -356,9 +356,9 @@ const AddLocation = ({ handleClose }) => {
                   transition={{ duration: 0.3 }}
                 >
                   <IonRow className="w-full">{renderStepContent()}</IonRow>
-                  {loadingCoordinates && <Loader />}
+                  {loadingCoordinates}
                 </motion.div>
-                {loading && <Loader />}
+                {loading}
               </IonCardContent>
             </IonCard>
           </IonCol>

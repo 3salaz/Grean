@@ -7,18 +7,17 @@ import {
   IonText,
   IonModal,
 } from "@ionic/react";
-import { settingsOutline } from "ionicons/icons";
+import { addCircle, settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
-import { UserProfile } from "../../../context/ProfileContext";
+import { useProfile } from "../../../context/ProfileContext";
 
-// ✅ Define props interface
+// ✅ Define props interface (only optional openModal)
 interface ProfileHeaderProps {
-  profile: UserProfile | null;
-  openModal?: () => void; // Make this optional
+  openModal?: () => void;
 }
 
-
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, openModal }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal }) => {
+  const { profile } = useProfile(); // ✅ Use profile from ProfileContext
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -41,7 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, openModal }) => 
 
         {/* Action Buttons */}
         <IonCol size="3" className="flex flex-col items-end justify-end">
-          <div className="flex text-xs items-center justify-center">
+          <div className="flex text-xs items-center justify-center gap-1">
             <IonButton
               onClick={() => setIsModalOpen(true)}
               size="small"
@@ -51,12 +50,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, openModal }) => 
               <IonIcon slot="icon-only" icon={settingsOutline} />
             </IonButton>
 
-            {/* ✅ Optional Add Location Button (openModal) */}
-            {/* {!profile?.locations && (
+            {/* ✅ Optional Add Location Button (if profile has no locations) */}
+            {!profile?.locations?.length && openModal && (
               <IonButton onClick={openModal} size="small" shape="round" color="primary">
-                Add Location
+                <IonIcon slot="icon-only" icon={addCircle} />
               </IonButton>
-            )} */}
+            )}
           </div>
         </IonCol>
       </IonRow>

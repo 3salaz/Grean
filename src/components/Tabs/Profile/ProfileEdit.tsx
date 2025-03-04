@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   IonButton,
   IonHeader,
@@ -10,61 +10,82 @@ import {
   IonLabel,
   IonFooter,
   IonButtons,
+  IonPage,
 } from "@ionic/react";
-import { useProfile, UserProfile } from "../../../context/ProfileContext";
-import { httpsCallable } from "firebase/functions";
-import { functions } from "../../../firebase"; // Import the initialized functions
+import { useProfile } from "../../../context/ProfileContext";
+import { toast } from "react-toastify";
 
+// ** Define Props Interface **
 interface ProfileEditProps {
-  profile: UserProfile | null;
   onClose: () => void;
 }
 
-const updateUserProfile = httpsCallable(functions, "updateUserProfileFunction");
 const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
   const { profile, updateProfile, deleteProfile } = useProfile();
 
-  // Store all profile fields in state
+  // ✅ Ensure profile data is loaded before rendering
   const [formData, setFormData] = useState({
-    displayName: profile?.displayName || "",
-    email: profile?.email || "",
-    profilePic: profile?.profilePic || "",
-    accountType: profile?.accountType || "User",
+    displayName: "",
+    email: "",
+    profilePic: "",
+    accountType: "User",
   });
 
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        displayName: profile.displayName || "",
+        email: profile.email || "",
+        profilePic: profile.profilePic || "",
+        accountType: profile.accountType || "User",
+      });
+    }
+  }, [profile]);
+
+  // ✅ Handle input changes
   const handleChange = (e: CustomEvent) => {
     const { name, value } = e.target as HTMLInputElement;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Handle saving profile changes
   const handleSave = async () => {
     try {
-      const response = await updateUserProfile({
-        displayName: formData.displayName,
-        email: formData.email,
-        profilePic: formData.profilePic,
-      });
-
-      console.log(response.data);
+      await updateProfile("displayName", formData.displayName);
+      await updateProfile("email", formData.email);
+      await updateProfile("profilePic", formData.profilePic);
+      toast.success("Profile updated successfully!");
       onClose();
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("❌ Error updating profile:", error);
+      toast.error("Failed to update profile.");
     }
   };
 
+  // ✅ Handle profile deletion
   const handleDelete = async () => {
-    if (!profile) return;
-
     try {
       await deleteProfile();
+      toast.warn("Profile deleted!");
       onClose();
     } catch (error) {
-      console.error("Error deleting profile:", error);
+      console.error("❌ Error deleting profile:", error);
+      toast.error("Failed to delete profile.");
     }
   };
 
+  if (!profile) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding flex items-center justify-center">
+          <IonLabel>Loading profile...</IonLabel>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
-    <>
+    <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Edit Profile</IonTitle>
@@ -103,16 +124,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
             onIonInput={handleChange}
           />
         </IonItem>
-
-        <IonItem>
-          <IonLabel position="fixed">Account Type</IonLabel>
-          <IonInput
-            name="accountType"
-            type="text"
-            value={formData.accountType}
-            onIonInput={handleChange}
-          />
-        </IonItem>
       </IonContent>
 
       <IonFooter className="ion-padding">
@@ -126,7 +137,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
           Cancel
         </IonButton>
       </IonFooter>
-    </>
+    </IonPage>
   );
 };
 

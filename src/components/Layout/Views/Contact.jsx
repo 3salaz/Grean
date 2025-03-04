@@ -1,11 +1,23 @@
 import { useRef } from "react";
 import emailjs from "@emailjs/browser";
-import { Form, Input, Button } from "antd";
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+  IonButton,
+} from "@ionic/react";
 
 function Contact() {
   const form = useRef();
 
-  const sendEmail = (values) => {
+  const sendEmail = (event) => {
+    event.preventDefault();
+
     emailjs
       .sendForm(
         "service_d6aj2lw",
@@ -22,60 +34,46 @@ function Contact() {
         }
       );
   };
+
   return (
-    <div className="h-full gap-2 container snap-always snap-center bg-white flex flex-col items-center p-2">
-      <header className="bg-grean text-white w-full p-2 drop-shadow-lg">
-        <div className="rounded-sm font-bold text-lg">Contact</div>
-      </header>
-      <main className="w-full bg-slate-800 h-full p-2">
-        <Form
-          ref={form}
-          onFinish={sendEmail}
-          layout="vertical"
-          className="container mx-auto bg-green rounded-md p-2"
-        >
-          <Form.Item
-            label="Name"
-            name="user_name"
-            rules={[{ required: true, message: "Please input your name!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Email"
-            name="user_email"
-            rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-                type: "email",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Subject"
-            name="subject"
-            rules={[{ required: true, message: "Please input the subject!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Message"
-            name="message"
-            rules={[{ required: true, message: "Please input your message!" }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Send
-            </Button>
-          </Form.Item>
-        </Form>
-      </main>
-    </div>
+    <IonContent className="h-full flex flex-col items-center p-2">
+      <IonHeader>
+        <IonToolbar className="bg-green text-white">
+          <IonTitle>Contact</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <form
+        ref={form}
+        onSubmit={sendEmail}
+        className="w-full max-w-lg bg-white p-4 rounded-md shadow-md"
+      >
+        <IonItem>
+          <IonLabel position="floating">Name</IonLabel>
+          <IonInput required name="user_name" type="text" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel position="floating">Email</IonLabel>
+          <IonInput required name="user_email" type="email" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel position="floating">Subject</IonLabel>
+          <IonInput required name="subject" type="text" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel position="floating">Message</IonLabel>
+          <IonTextarea required name="message" rows={4} />
+        </IonItem>
+
+        <div className="flex justify-center mt-4">
+          <IonButton type="submit" expand="full">
+            Send
+          </IonButton>
+        </div>
+      </form>
+    </IonContent>
   );
 }
 

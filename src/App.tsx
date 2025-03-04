@@ -1,4 +1,3 @@
-import "./App.css";
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
@@ -15,8 +14,9 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// User Themes
-import "./styles/ionStyle.css";
+// Main Styles
+import "./styles/index.css";
+
 
 // React
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -49,9 +49,8 @@ function App() {
                 {/* <SideMenu /> */}
                 <Navbar />
                 <IonContent
-                  id="content"
                   scroll-y="false"
-                  className="bg-gradient-to-t from-grean to-blue-300 p-2"
+                  className="bg-gradient-to-t from-grean to-blue-300"
                 >
                   <ToastContainer
                     position="top-center"

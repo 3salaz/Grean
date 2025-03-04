@@ -15,11 +15,12 @@ import {
   IonListHeader,
   IonItem,
   IonText,
-  IonCol,
-  IonRow,
   IonHeader,
+  IonTitle,
+  IonButtons,
+  IonMenuButton,
 } from "@ionic/react";
-import { logOutOutline, menuOutline } from "ionicons/icons";
+import { logInOutline, logOutOutline, menuOutline } from "ionicons/icons";
 import { useAuth } from "../../context/AuthContext";
 import { useProfile } from "../../context/ProfileContext";
 
@@ -82,94 +83,43 @@ function Navbar() {
 
   return (
     <IonHeader className="ion-no-border ion-no-padding">
-      <IonToolbar color="primary" className="h-full" id="navbar">
-        <IonRow className="m-0 p-0 md:p-2 h-12 container mx-auto items-center justify-between ion-align-items-center">
-          {/* Mobile Menu Button - Visible only on small screens */}
-          <IonCol size="auto" className="lg:hidden h-full flex items-center">
-            <IonButton
-              fill="clear"
-              className="h-full ion-align-self-center"
-              onClick={handleOpenRoutesPopover}
-            >
-              <IonIcon
-                slot="icon-only"
-                color="light"
-                icon={menuOutline}
-              ></IonIcon>
-            </IonButton>
-          </IonCol>
-
-          {/* Logo Section */}
-          <IonCol size="auto" className="items-center flex h-full">
-            <Link to="/">
-              <img
-                className="h-8 w-8 rounded-full"
-                src={logo}
-                alt="Grean Logo"
-              />
-            </Link>
-          </IonCol>
-
-          {/* Desktop Navigation Links - Hidden on mobile */}
-          <IonCol className="hidden pl-8 md:flex gap-6 items-center h-full">
-            <Link to="/home" className="text-white">
-              Home
-            </Link>
-            {user && (
-              <Link to="/account" className="text-white">
-                Account
-              </Link>
-            )}
-            <Link to="/services" className="text-white">
-              Services
-            </Link>
-          </IonCol>
-
-          {/* Account/Profile Section */}
-          <IonCol className="flex items-center justify-end h-full">
-            {user ? (
-              <>
-                {/* If logged in, show avatar & popover */}
-                <IonButton fill="clear" onClick={handleOpenPopover}>
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={profile?.profilePic || avatar}
-                    alt="User Avatar"
-                  />
-                </IonButton>
-                <IonPopover
-                  isOpen={isPopoverOpen}
-                  event={popoverEvent}
-                  onDidDismiss={handleClosePopover}
-                >
-                  <IonContent>
-                    <IonList>
-                      <IonListHeader>
-                        <IonText>
-                          <h6 className="text-xs">{user.email}</h6>
-                        </IonText>
-                      </IonListHeader>
-                      <IonItem button onClick={handleLogout}>
-                        <IonIcon slot="start" icon={logOutOutline} />
-                        <IonText>Sign Out</IonText>
-                      </IonItem>
-                    </IonList>
-                  </IonContent>
-                </IonPopover>
-              </>
-            ) : (
-              // If not logged in, show signup button
-              <IonButton
-                size="small"
-                color="light"
-                fill="solid"
-                onClick={openSignupModal}
-              >
-                Sign Up
-              </IonButton>
-            )}
-          </IonCol>
-        </IonRow>
+      <IonToolbar color="primary" className="h-full">
+        <IonButtons className="lg:hidden" slot="start">
+          <IonMenuButton
+            onClick={handleOpenRoutesPopover}
+            autoHide={false}
+          ></IonMenuButton>
+        </IonButtons>
+        <IonTitle>
+          <Link to="/" className="bg-blue-400">
+            <img
+              className="aspect-square w-8 rounded-full object-cover"
+              src={logo}
+              alt="Grean Logo"
+            />
+          </Link>
+        </IonTitle>
+        {/* If logged in, show avatar & popover */}
+        {user ? (
+          <IonButton fill="clear" slot="end" onClick={handleOpenPopover}>
+            <img
+              className="h-10 w-10 rounded-full text-white"
+              src={profile?.profilePic || avatar}
+              alt="User Avatar"
+            />
+          </IonButton>
+        ) : (
+          <IonButton
+            className="pr-1 text-xs"
+            slot="end"
+            onClick={openSignupModal}
+            fill="solid"
+            color="light"
+          >
+            Sign Up
+            <IonIcon slot="end" icon={logInOutline}></IonIcon>
+          </IonButton>
+        )}
 
         {/* Mobile Routes Popover */}
         <IonPopover
@@ -196,6 +146,32 @@ function Navbar() {
             </IonList>
           </IonContent>
         </IonPopover>
+
+        {/* Profile Popover */}
+        {user && (
+          <IonPopover
+            isOpen={isPopoverOpen}
+            event={popoverEvent}
+            onDidDismiss={handleClosePopover}
+          >
+            <IonContent>
+              <IonList>
+                {/* Profile Email Header */}
+                <IonListHeader className="bg-slate-200 flex justify-end px-3 py-2">
+                  <IonText className="text-xs text-gray-600">
+                    {user.email}
+                  </IonText>
+                </IonListHeader>
+
+                {/* Sign Out Button */}
+                <IonItem button onClick={handleLogout}>
+                  <IonIcon slot="start" icon={logOutOutline} />
+                  <IonText>Sign Out</IonText>
+                </IonItem>
+              </IonList>
+            </IonContent>
+          </IonPopover>
+        )}
 
         {/* Auth Modal */}
         <IonModal

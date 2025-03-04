@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddLocation from "./AddLocation";
 import ProfileHeader from "./ProfileHeader";
 import {
@@ -23,53 +23,36 @@ interface ProfileProps {
 
 const Profile: React.FC<ProfileProps> = ({ profile }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-  const [profileAddresses, setProfileAddresses] = useState<string[]>([]);
+  const profileLocations = profile?.locations ?? [];
 
-  useEffect(() => {
-    // Ensure locations are an array before setting state
-    if (profile?.locations && Array.isArray(profile.locations)) {
-      setProfileAddresses(profile.locations);
-    } else {
-      setProfileAddresses([]); // Default to an empty array if null/undefined
-    }
-  }, [profile]);
-
-  const handleOpenModal = (content: JSX.Element) => {
-    setModalContent(content);
-    setIsModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-    setModalContent(null);
-  };
+  if (!profile) {
+    return (
+      <IonGrid className="h-full flex items-center justify-center">
+        <IonRow>
+          <IonCol className="text-center">
+            <IonButton color="primary" expand="block">
+              Loading Profile...
+            </IonButton>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+    );
+  }
 
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
       {/* Modal for Add Location */}
-      <IonModal
-        isOpen={isModalVisible}
-        onDidDismiss={handleCloseModal}
-        initialBreakpoint={1}
-        breakpoints={[0, 1]}
-      >
-        {modalContent}
+      <IonModal isOpen={isModalVisible} onDidDismiss={() => setIsModalVisible(false)}>
+        <AddLocation handleClose={() => setIsModalVisible(false)} />
       </IonModal>
 
       <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
-        <ProfileHeader
-          profile={profile}
-          openModal={() =>
-            handleOpenModal(<AddLocation handleClose={handleCloseModal} />)
-          }
-        />
+        <ProfileHeader profile={profile} />
         <MyForest />
         <Impact />
       </main>
 
-      {/* Ensure `locations` is an array before using `.length` */}
-      {profile?.accountType === "User" && profileAddresses.length > 0 ? (
+      {profile?.accountType === "User" && profileLocations.length ? (
         <MyLocations />
       ) : (
         <IonRow className="container max-w-2xl mx-auto w-full bg-white border-t-yellow-300 border-t rounded-t-md drop-shadow-xl">
@@ -79,9 +62,7 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
               size="small"
               color="primary"
               expand="block"
-              onClick={() =>
-                handleOpenModal(<AddLocation handleClose={handleCloseModal} />)
-              }
+              onClick={() => setIsModalVisible(true)}
               className="text-sm"
             >
               Add Location

@@ -6,7 +6,7 @@
         "destination": "/index.html"
       }
     ],
-    "public": "build",
+    "public": "dist",
     "ignore": [
       "**/.*",
       "**/node_modules/**"

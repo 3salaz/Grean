@@ -15,24 +15,6 @@ interface Location {
   category?: string;
 }
 
-/** ✅ Fetch user locations
- * @param {string} uid - The user's unique ID.
- * @return {Promise<Location[]>} Array of locations.
- */
-export const fetchUserLocations = async (
-    uid: string
-): Promise<Location[]> => {
-  const snapshot = await db
-      .collection("locations")
-      .where("uid", "==", uid)
-      .get();
-
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Location),
-  }));
-};
-
 /** ✅ Create a new location
  * @param {string} uid - The user's unique ID.
  * @param {Location} data - The location details.

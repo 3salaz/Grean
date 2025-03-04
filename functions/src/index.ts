@@ -10,7 +10,6 @@ exports.updateProfile = updateProfileFunction;
 exports.deleteProfile = deleteProfileFunction;
 
 import {
-  getLocations,
   createLocationFunction,
   updateLocationFunction,
   deleteLocationFunction,
@@ -18,7 +17,6 @@ import {
 
 
 // 🔥 Export Location Functions
-exports.getLocations = getLocations;
 exports.createLocation = createLocationFunction;
 exports.updateLocation = updateLocationFunction;
 exports.deleteLocation = deleteLocationFunction;

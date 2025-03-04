@@ -1,9 +1,24 @@
-import * as functions from "firebase-functions";
+import {
+  createProfileFunction,
+  updateProfileFunction,
+  deleteProfileFunction,
+} from "./routes/profileFunctions";
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// 🔥 Export Profile Functions
+exports.createProfile = createProfileFunction;
+exports.updateProfile = updateProfileFunction;
+exports.deleteProfile = deleteProfileFunction;
+
+import {
+  getLocations,
+  createLocationFunction,
+  updateLocationFunction,
+  deleteLocationFunction,
+} from "./routes/locationFunctions";
+
+
+// 🔥 Export Location Functions
+exports.getLocations = getLocations;
+exports.createLocation = createLocationFunction;
+exports.updateLocation = updateLocationFunction;
+exports.deleteLocation = deleteLocationFunction;

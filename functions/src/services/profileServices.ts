@@ -1,0 +1,78 @@
+import {db, admin} from "../config/firebase";
+
+/** ✅ User profile interface */
+export interface UserProfile {
+  displayName: string;
+  profilePic?: string | null;
+  email: string;
+  uid: string;
+  locations: string[];
+  pickups: string[];
+  accountType: string;
+  createdAt?: FirebaseFirestore.Timestamp;
+}
+
+/** ✅ Create a new user profile
+ * @param {string} uid - The unique user ID.
+ * @param {Partial<UserProfile>} profileData - The user's profile details.
+ * @return {Promise<void>} Resolves when the profile is created.
+ */
+export const createProfile = async (
+    uid: string,
+    profileData: Partial<UserProfile>
+): Promise<void> => {
+  const profileRef = db.collection("profiles").doc(uid);
+  await profileRef.set({
+    ...profileData,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+};
+
+/** ✅ Read a user profile
+ * @param {string} uid - The unique user ID.
+ * @return {Promise<UserProfile | null>}
+ */
+export const readProfile = async (uid: string): Promise<UserProfile | null> => {
+  const profileRef = db.collection("profiles").doc(uid);
+  const docSnap = await profileRef.get();
+
+  return docSnap.exists ? (docSnap.data() as UserProfile) : null;
+};
+
+/** ✅ Update profile fields
+ * @param {string} uid - The unique user ID.
+ * @param {string} field - The profile field to update.
+ * @param {string | number | string[] | number[]} value - The value to update.
+ * @param {"update" | "addToArray" | "removeFromArray"} [operation="update"]
+ * Determines if value is updated, added to an array, or removed from an array.
+ * @return {Promise<void>} Resolves when the update is successful.
+ */
+export const updateProfileField = async (
+    uid: string,
+    field: string,
+    value: string | number | string[] | number[],
+    operation: "update" | "addToArray" | "removeFromArray" = "update"
+): Promise<void> => {
+  const profileRef = db.collection("profiles").doc(uid);
+
+  if (operation === "addToArray") {
+    await profileRef.update({
+      [field]: admin.firestore.FieldValue.arrayUnion(value),
+    });
+  } else if (operation === "removeFromArray") {
+    await profileRef.update({
+      [field]: admin.firestore.FieldValue.arrayRemove(value),
+    });
+  } else {
+    await profileRef.update({[field]: value});
+  }
+};
+
+/** ✅ Delete a profile
+ * @param {string} uid - The unique user ID.
+ * @return {Promise<void>} Resolves when the profile is deleted.
+ */
+export const deleteProfile = async (uid: string): Promise<void> => {
+  const profileRef = db.collection("profiles").doc(uid);
+  await profileRef.delete();
+};

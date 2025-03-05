@@ -11,25 +11,27 @@ import {
   IonFooter,
   IonButtons,
   IonPage,
+  IonSpinner,
+  IonText,
 } from "@ionic/react";
-import { useProfile } from "../../../context/ProfileContext";
+import { useProfile, UserProfile } from "../../../context/ProfileContext";
 import { toast } from "react-toastify";
 
 // ** Define Props Interface **
 interface ProfileEditProps {
+  profile: UserProfile | null;
   onClose: () => void;
 }
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
-  const { profile, updateProfile, deleteProfile } = useProfile();
+const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onClose }) => {
+  const { updateProfile, deleteProfile } = useProfile();
+  const [formData, setFormData] = useState<Partial<UserProfile>>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // ✅ Ensure profile data is loaded before rendering
-  const [formData, setFormData] = useState({
-    displayName: "",
-    email: "",
-    profilePic: "",
-    accountType: "User",
-  });
+  // New state to manage editing mode and saving/loading status
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
     if (profile) {
@@ -39,28 +41,48 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
         profilePic: profile.profilePic || "",
         accountType: profile.accountType || "User",
       });
+      setLoading(false);
+    } else {
+      setError("Failed to load profile. Please try again.");
+      setLoading(false);
     }
   }, [profile]);
 
-  // ✅ Handle input changes
+  // ✅ Handle input changes (Fixed event typing)
   const handleChange = (e: CustomEvent) => {
-    const { name, value } = e.target as HTMLInputElement;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const target = e.target as HTMLInputElement;
+    setFormData((prev) => ({
+      ...prev,
+      [target.name]: target.value,
+    }));
   };
 
-  // ✅ Handle saving profile changes
-  const handleSave = async () => {
-    try {
-      await updateProfile("displayName", formData.displayName);
-      await updateProfile("email", formData.email);
-      await updateProfile("profilePic", formData.profilePic);
-      toast.success("Profile updated successfully!");
-      onClose();
-    } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      toast.error("Failed to update profile.");
+  // ✅ Handle button click which acts as "Edit" and "Save"
+  const handleEditSaveButtonClick = async () => {
+    // If not already editing, turn on edit mode
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
     }
-  };
+
+    // If already in editing mode, attempt to save
+    if (!profile) return;
+  setIsSaving(true);
+  try {
+    await updateProfile({
+      displayName: formData.displayName || profile.displayName,
+      email: formData.email || profile.email,
+      profilePic: formData.profilePic || profile.profilePic,
+    });
+    toast.success("Profile updated successfully!");
+    onClose();
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    toast.error("Failed to update profile.");
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   // ✅ Handle profile deletion
   const handleDelete = async () => {
@@ -74,11 +96,21 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
     }
   };
 
-  if (!profile) {
+  if (loading) {
     return (
       <IonPage>
         <IonContent className="ion-padding flex items-center justify-center">
-          <IonLabel>Loading profile...</IonLabel>
+          <IonSpinner name="crescent" />
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  if (error) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding flex items-center justify-center">
+          <IonText color="danger">{error}</IonText>
         </IonContent>
       </IonPage>
     );
@@ -100,8 +132,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
           <IonLabel position="fixed">Name</IonLabel>
           <IonInput
             name="displayName"
-            value={formData.displayName}
+            value={formData.displayName || ""}
             onIonInput={handleChange}
+            disabled={!isEditing}
           />
         </IonItem>
 
@@ -110,8 +143,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
           <IonInput
             name="email"
             type="email"
-            value={formData.email}
+            value={formData.email || ""}
             onIonInput={handleChange}
+            disabled={!isEditing}
           />
         </IonItem>
 
@@ -120,22 +154,44 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onClose }) => {
           <IonInput
             name="profilePic"
             type="text"
-            value={formData.profilePic}
+            value={formData.profilePic || ""}
             onIonInput={handleChange}
+            disabled={!isEditing}
           />
         </IonItem>
+        <div className="w-full bg-orange-100 text-center text-xs">
+          <IonButton
+            className="max-w-xs mx-auto"
+            expand="block"
+            color="danger"
+            onClick={handleDelete}
+          >
+            Delete Profile
+          </IonButton>
+          <IonText>
+            Once you delete your profile, you will not be able to recover it.
+          </IonText>
+        </div>
       </IonContent>
 
       <IonFooter className="ion-padding">
-        <IonButton expand="block" color="primary" onClick={handleSave}>
-          Save
-        </IonButton>
-        <IonButton expand="block" color="danger" onClick={handleDelete}>
-          Delete
-        </IonButton>
-        <IonButton expand="block" fill="outline" onClick={onClose}>
-          Cancel
-        </IonButton>
+        <div className="gap-2 flex flex-col max-w-xs mx-auto">
+          <IonButton
+            expand="block"
+            color="primary"
+            onClick={handleEditSaveButtonClick}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <IonSpinner name="crescent" />
+            ) : (
+              isEditing ? "Save" : "Edit"
+            )}
+          </IonButton>
+          <IonButton expand="block" fill="outline" onClick={onClose}>
+            Cancel
+          </IonButton>
+        </div>
       </IonFooter>
     </IonPage>
   );

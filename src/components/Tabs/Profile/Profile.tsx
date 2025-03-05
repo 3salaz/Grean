@@ -23,8 +23,7 @@ interface ProfileProps {
 
 const Profile: React.FC<ProfileProps> = ({ profile }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const profileLocations = profile?.locations ?? [];
-
+  const profileLocations = profile?.locations || [];
   if (!profile) {
     return (
       <IonGrid className="h-full flex items-center justify-center">
@@ -43,7 +42,7 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
       {/* Modal for Add Location */}
       <IonModal isOpen={isModalVisible} onDidDismiss={() => setIsModalVisible(false)}>
-        <AddLocation handleClose={() => setIsModalVisible(false)} />
+        <AddLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
       </IonModal>
 
       <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
@@ -53,7 +52,7 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
       </main>
 
       {profile?.accountType === "User" && profileLocations.length ? (
-        <MyLocations />
+        <MyLocations profile={profile} />
       ) : (
         <IonRow className="container max-w-2xl mx-auto w-full bg-white border-t-yellow-300 border-t rounded-t-md drop-shadow-xl">
           <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">

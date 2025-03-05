@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {
   createProfile,
   updateProfileField,
+  updateProfileBulk, // <-- Import the new function
   deleteProfile,
 } from "../services/profileServices";
 import {authMiddleware} from "../utils/authMiddleware";
@@ -38,10 +39,19 @@ export const createProfileFunction = functions.https.onCall(
  * @param {functions.https.CallableContext} context - The request context.
  * @returns {Promise<{success: boolean}>} Success response.
  */
+/** ✅ Update profile function supporting bulk updates */
 export const updateProfileFunction = functions.https.onCall(
     async (data, context) => {
       const uid = await authMiddleware(context);
-      await updateProfileField(uid, data.field, data.value, data.operation);
+
+      // Check if bulk updates were provided
+      if (data.updates && typeof data.updates === "object") {
+        await updateProfileBulk(uid, data.updates);
+      } else {
+      // Fallback for single field updates
+        await updateProfileField(uid, data.field, data.value, data.operation);
+      }
+
       return {success: true};
     }
 );

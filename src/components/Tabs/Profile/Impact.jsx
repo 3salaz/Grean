@@ -14,7 +14,7 @@ import ImpactBarGraph from "./ImpactBarGraph";
 
 function Impact() {
   return (
-    <IonCard className="max-w-4xl mx-auto shadow-lg rounded-lg">
+    <IonCard className="max-w-4xl mx-auto shadow-lg mt-2 rounded-lg">
       {/* Card Header */}
       <IonCardHeader className="bg-slate-100 rounded-t-lg pb-2">
         <IonCardTitle className="flex w-full justify-between items-center">
@@ -24,7 +24,7 @@ function Impact() {
               size="auto"
               className="rounded-full text-center bg-grean px-4 flex items-center justify-center"
             >
-              <div className="text-white rounded-full text-lg font-semibold text-center">
+              <div className="rounded-full text-lg font-semibold text-center">
                 Impact
               </div>
             </IonCol>

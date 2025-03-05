@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.0.9",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
+    "@vis.gl/react-google-maps": "^1.5.1",
     "antd": "^5.12.2",
     "css-select": "^5.1.0",
     "dayjs": "^1.11.11",
@@ -39,7 +40,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "jest",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy",
+    "lint": "eslint --ext .js,.ts ."
   },
   "eslintConfig": {
     "extends": [

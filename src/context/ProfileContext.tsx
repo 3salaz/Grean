@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { db, functions } from "../firebase"; // ✅ Ensure Firebase is initialized
 import { toast } from "react-toastify";
@@ -39,21 +39,54 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     if (!user) {
+      console.warn("⚠️ No user found, clearing profile.");
       setProfile(null);
       setLoadingProfile(false);
       return;
     }
 
-    // ✅ Firestore real-time listener (auto-updates when data changes)
-    const profileRef = doc(db, "profiles", user.uid);
-    const unsubscribe = onSnapshot(profileRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setProfile(docSnap.data() as UserProfile);
-      } else {
+    console.log("👤 User detected:", user.uid);
+
+    // ✅ First, check if profile exists
+    const checkProfileExists = async () => {
+      const profileRef = doc(db, "profiles", user.uid);
+      const profileSnap = await getDoc(profileRef);
+
+      if (!profileSnap.exists()) {
+        console.warn("⚠️ Profile does not exist in Firestore for user:", user.uid);
         setProfile(null);
+        setLoadingProfile(false);
+        return;
       }
+    };
+
+    checkProfileExists().catch((err) => {
+      console.error("🔥 Error checking profile existence:", err);
+      setProfile(null);
       setLoadingProfile(false);
     });
+
+    // ✅ Firestore real-time listener (auto-updates when data changes)
+    const profileRef = doc(db, "profiles", user.uid);
+    const unsubscribe = onSnapshot(
+      profileRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          console.log("✅ Profile Data received:", docSnap.data());
+          setProfile(docSnap.data() as UserProfile);
+        } else {
+          console.warn("⚠️ Profile does not exist in Firestore!");
+          setProfile(null);
+        }
+        setLoadingProfile(false);
+      },
+      (error) => {
+        console.error("❌ Firestore error:", error);
+        toast.error("Permission denied: Unable to access profile.");
+        setProfile(null);
+        setLoadingProfile(false);
+      }
+    );
 
     return () => unsubscribe(); // ✅ Cleanup listener
   }, [user]);
@@ -70,21 +103,17 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  /** ✅ Update Profile */
-  const updateProfile = async (
-    field: string,
-    value: any,
-    operation: "update" | "addToArray" | "removeFromArray" = "update"
-  ) => {
-    try {
-      const updateProfileFn = httpsCallable(functions, "updateProfile");
-      await updateProfileFn({ field, value, operation });
-      toast.success("Profile updated!");
-    } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      toast.error("Failed to update profile.");
-    }
-  };
+/** ✅ Update Profile in Bulk */
+const updateProfile = async (updates: Partial<UserProfile>) => {
+  try {
+    const updateProfileFn = httpsCallable(functions, "updateProfile");
+    // Send all updates in one call
+    await updateProfileFn({ updates });
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    throw error; // Let the caller handle error notifications
+  }
+};
 
   /** ✅ Delete Profile */
   const deleteProfile = async () => {

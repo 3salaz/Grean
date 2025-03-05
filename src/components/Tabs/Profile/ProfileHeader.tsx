@@ -9,15 +9,15 @@ import {
 } from "@ionic/react";
 import { addCircle, settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
-import { useProfile } from "../../../context/ProfileContext";
+import { UserProfile } from "../../../context/ProfileContext";
 
 // ✅ Define props interface (only optional openModal)
 interface ProfileHeaderProps {
   openModal?: () => void;
+  profile: UserProfile | null;  // Add this line
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal }) => {
-  const { profile } = useProfile(); // ✅ Use profile from ProfileContext
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

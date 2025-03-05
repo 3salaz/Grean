@@ -28,17 +28,6 @@ export const createProfile = async (
   });
 };
 
-/** ✅ Read a user profile
- * @param {string} uid - The unique user ID.
- * @return {Promise<UserProfile | null>}
- */
-export const readProfile = async (uid: string): Promise<UserProfile | null> => {
-  const profileRef = db.collection("profiles").doc(uid);
-  const docSnap = await profileRef.get();
-
-  return docSnap.exists ? (docSnap.data() as UserProfile) : null;
-};
-
 /** ✅ Update profile fields
  * @param {string} uid - The unique user ID.
  * @param {string} field - The profile field to update.
@@ -66,6 +55,19 @@ export const updateProfileField = async (
   } else {
     await profileRef.update({[field]: value});
   }
+};
+
+/** ✅ Bulk update profile fields
+ * @param {string} uid - The unique user ID.
+ * @param {Partial<UserProfile>} updates - Object containing all profile fields.
+ * @return {Promise<void>}
+ */
+export const updateProfileBulk = async (
+    uid: string,
+    updates: Partial<UserProfile>
+): Promise<void> => {
+  const profileRef = db.collection("profiles").doc(uid);
+  await profileRef.update({...updates});
 };
 
 /** ✅ Delete a profile

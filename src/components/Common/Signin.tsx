@@ -17,6 +17,7 @@ import {
 } from "@ionic/react";
 import { closeOutline } from "ionicons/icons";
 import { useAuth } from "../../context/AuthContext";
+import { useHistory } from "react-router-dom";
 
 interface SigninProps {
   handleClose: () => void;
@@ -35,6 +36,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const history = useHistory(); // Initialize history
   const { signIn } = useAuth();
 
   // Handles input changes to update state
@@ -64,6 +66,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
       setLoading(true);
       await signIn(email, password);
       handleClose();
+      history.push("/account"); // Redirect to account page
     } catch (error) {
       console.error("Error signing in. Please check your credentials.");
     } finally {

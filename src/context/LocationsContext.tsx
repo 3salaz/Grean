@@ -35,28 +35,6 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
   const [businessLocations, setBusinessLocations] = useState<Location[]>([]); // Added state for business locations
   const { user } = useAuth();
 
-  // Fetch locations from Firebase (mock example)
-  useEffect(() => {
-    async function fetchLocations() {
-      try {
-        const getLocationsFn = httpsCallable(functions, "getLocations");
-        const response = await getLocationsFn();
-        
-        if (response.data && Array.isArray(response.data)) {
-          const fetchedLocations = response.data as Location[];
-          setLocations(fetchedLocations);
-          setBusinessLocations(fetchedLocations.filter(loc => loc.locationType === "Business"));
-        }
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-      }
-    }
-    
-    if (user) {
-      fetchLocations();
-    }
-  }, [user]);
-
   const createLocation = async (locationData: Location): Promise<string | undefined> => {
     try {
       const createLocationFn = httpsCallable(functions, "createLocation");

@@ -23,6 +23,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
 import { useProfile } from "../../context/ProfileContext"; // Import the Profile contexts
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { useHistory } from "react-router-dom";
 // import { app } from "../../firebase"; // Adjust based on your Firebase config location
 
 const isValidEmail = (email: string) => {
@@ -40,6 +41,7 @@ interface SignupProps {
 }
 
 function Signup({ handleClose, toggleToSignin }: SignupProps) {
+  const history = useHistory(); // Initialize history
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -107,7 +109,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       }
 
       console.log("✅ User signed up successfully:", user);
-
       console.log("🔥 Calling createProfile for UID:", user.uid);
       await createProfile({
         displayName: user.displayName || "user",
@@ -122,6 +123,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       console.log("✅ Profile should be created now.");
 
       handleClose(); // Close modal after success
+      history.push("/account"); // Redirect to account page
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
       toast.error("Failed to sign up. Please try again.");

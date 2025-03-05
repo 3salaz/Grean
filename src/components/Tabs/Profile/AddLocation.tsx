@@ -24,38 +24,17 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import homeIcon from "../../../assets/icons/home.png";
 import businessIcon from "../../../assets/icons/business.png";
-import { UserProfile } from "../../../context/ProfileContext";
+import { useProfile, UserProfile } from "../../../context/ProfileContext";
 
-// Import Google Maps components from the library
-import {
-  APIProvider,
-  Map,
-  MapControl,
-  AdvancedMarker,
-  useMap,
-  useMapsLibrary,
-  ControlPosition,
-} from "@vis.gl/react-google-maps";
-
-// ✅ Define Props Interface
-interface AddLocationProps {
-  profile: UserProfile | null;
-  updateProfile: (
-    field: string,
-    value: any,
-    operation?: "update" | "addToArray" | "removeFromArray"
-  ) => Promise<void>;
-  handleClose: () => void;
-}
+// Import APIProvider and useMapsLibrary for autocomplete functionality.
+import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 // ---------- PlaceAutocomplete Component ----------
 interface PlaceAutocompleteProps {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
 }
 
-const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({
-  onPlaceSelect,
-}) => {
+const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({ onPlaceSelect }) => {
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,37 +63,20 @@ const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({
     <input
       ref={inputRef}
       placeholder="Enter street address"
-      className="bg-white p-2"
+      className="bg-white p-2 w-full"
     />
   );
 };
 
-// ---------- MapHandler Component ----------
-interface MapHandlerProps {
-  place: google.maps.places.PlaceResult | null;
+// ---------- Main Component ----------
+interface AddLocationProps {
+  profile: UserProfile | null;
+  handleClose: () => void;
 }
 
-const MapHandler: React.FC<MapHandlerProps> = ({ place }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (!map || !place || !place.geometry) return;
-    if (place.geometry.viewport) {
-      map.fitBounds(place.geometry.viewport);
-    } else if (place.geometry.location) {
-      map.setCenter(place.geometry.location);
-      map.setZoom(15);
-    }
-  }, [map, place]);
-  return null;
-};
-
-// ---------- Main Component ----------
-const AddLocation: React.FC<AddLocationProps> = ({
-  profile,
-  updateProfile,
-  handleClose,
-}) => {
+const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
   const { createLocation } = useLocations();
+  const { updateProfile } = useProfile();
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
@@ -130,25 +92,36 @@ const AddLocation: React.FC<AddLocationProps> = ({
     latitude: null as number | null,
     longitude: null as number | null,
   });
-  // We'll also keep track of the selected place from autocomplete
+  // Track the selected place from autocomplete.
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
 
-  // Your API key from .env
+  // Your API key (used for both APIProvider and fallback geocoding)
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  // Update form and selectedPlace when a place is chosen
+  // When a place is selected from autocomplete, update the form data.
   const handlePlaceSelect = (place: google.maps.places.PlaceResult | null) => {
-    if (place && place.formatted_address) {
-      setFormData((prevData) => ({
-        ...prevData,
-        street: place.formatted_address ?? "",
-      }));
+    if (place) {
+      // Store the complete address.
+      if (place.formatted_address) {
+        setFormData((prevData) => ({
+          ...prevData,
+          street: place.formatted_address,
+        }));
+      }
+      // Also store latitude and longitude if available.
+      if (place.geometry && place.geometry.location) {
+        setFormData((prevData) => ({
+          ...prevData,
+          latitude: place.geometry.location.lat(),
+          longitude: place.geometry.location.lng(),
+        }));
+      }
     }
     setSelectedPlace(place);
   };
 
-  // The existing getCoordinates function (in case you want to use it as fallback)
+  // Fallback function to fetch coordinates using the Geocoding API if autocomplete doesn't provide them.
   const getCoordinates = async (address: string) => {
     if (!API_KEY) {
       toast.error("Google Maps API Key is missing.");
@@ -185,7 +158,8 @@ const AddLocation: React.FC<AddLocationProps> = ({
       case 0:
         return formData.locationType;
       case 1:
-        // On step 1, we expect a street and city; note: city might be entered manually.
+        // In step 1, we expect that the address (street) is filled (from autocomplete)
+        // and that the city has been manually entered.
         return formData.street && formData.city;
       case 2:
         return formData.locationType === "Business"
@@ -203,8 +177,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
       toast.error("Please fill in all required fields before proceeding.");
       return;
     }
-    // Optionally, if no place was selected via autocomplete,
-    // you could fetch coordinates using getCoordinates as a fallback.
+    // If no place was selected in step 1, attempt to fetch coordinates as a fallback.
     if (step === 1 && !selectedPlace) {
       setLoadingCoordinates(true);
       const fullAddress = `${formData.street}, ${formData.city}, ${formData.state}`;
@@ -237,7 +210,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
     try {
       const newLocation = {
         locationType: formData.locationType,
-        street: formData.street,
+        street: formData.street, // complete address
         city: formData.city,
         state: formData.state,
         latitude: formData.latitude ?? undefined,
@@ -271,15 +244,15 @@ const AddLocation: React.FC<AddLocationProps> = ({
 
       <IonGrid className="h-full flex flex-col">
         <IonRow className="w-full flex-grow">
-          <IonCol size="12" className="h-full">
-            <IonCard className="w-full m-0 shadow-none h-full flex flex-col items-center justify-center">
+          <IonCol size="12">
+            <IonCard className="w-full m-0 shadow-none flex flex-col items-center justify-center">
               <IonCardHeader>
                 <IonCardTitle>Add Location</IonCardTitle>
               </IonCardHeader>
-              <IonCardContent className="flex flex-col items-center justify-center p-2 w-full h-[300px] bg-amber-100">
+              <IonCardContent className="flex flex-col items-center justify-center p-2 w-full">
                 <motion.div
                   key={step}
-                  className="w-full p-2 h-full flex flex-col"
+                  className="w-full p-2 flex flex-col"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -50 }}
@@ -290,76 +263,37 @@ const AddLocation: React.FC<AddLocationProps> = ({
                       <IonRadioGroup
                         value={formData.locationType}
                         onIonChange={(e) =>
-                          handleInputChange(
-                            "locationType",
-                            e.detail.value ?? ""
-                          )
+                          handleInputChange("locationType", e.detail.value ?? "")
                         }
                         className="w-full flex justify-center gap-2"
                       >
                         <IonRadio value="Business">
-                          <IonImg
-                            src={businessIcon}
-                            alt="Business"
-                            className="w-20 h-20"
-                          />
+                          <IonImg src={businessIcon} alt="Business" className="w-20 h-20" />
                           <IonText>Business</IonText>
                         </IonRadio>
                         <IonRadio value="Home">
-                          <IonImg
-                            src={homeIcon}
-                            alt="Home"
-                            className="w-20 h-20"
-                          />
+                          <IonImg src={homeIcon} alt="Home" className="w-20 h-20" />
                           <IonText>Home</IonText>
                         </IonRadio>
                       </IonRadioGroup>
                     </div>
                   )}
                   {step === 1 && (
-                    <div
-                      className="w-full relative"
-                      style={{ height: "300px" }}
-                    >
+                    <div className="w-full">
+                      {/* Wrap the autocomplete in an APIProvider so the Places library is loaded */}
                       <APIProvider apiKey={API_KEY}>
-                        <Map
-                          defaultZoom={15}
-                          defaultCenter={
-                            selectedPlace?.geometry?.location
-                              ? { 
-                                  lat: selectedPlace.geometry.location.lat(),
-                                  lng: selectedPlace.geometry.location.lng()
-                                }
-                              : {
-                                  lat: 37.7749,
-                                  lng: -122.4194,
-                                }
-                          }
-                          style={{ height: "100%", width: "100%" }}
-                        >
-                          <MapControl position={ControlPosition.TOP}>
-                            <div className="bg-orange-300"
-                              style={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                margin: "8px",
-                                boxShadow: "0px 2px 6px rgba(0,0,0,0.3)",
-                              }}
-                            >
-                              <PlaceAutocomplete
-                                onPlaceSelect={handlePlaceSelect}
-                              />
-                            </div>
-                          </MapControl>
-                          {selectedPlace &&
-                            selectedPlace.geometry?.location && (
-                              <AdvancedMarker
-                                position={selectedPlace.geometry.location}
-                              />
-                            )}
-                          <MapHandler place={selectedPlace} />
-                        </Map>
+                        <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
                       </APIProvider>
+                      {/* Optionally, you can include additional inputs (like City) */}
+                      <IonItem>
+                        <IonLabel position="stacked">City</IonLabel>
+                        <IonInput
+                          value={formData.city}
+                          onIonChange={(e) =>
+                            handleInputChange("city", e.detail.value ?? "")
+                          }
+                        />
+                      </IonItem>
                     </div>
                   )}
                   {step === 2 && (
@@ -367,16 +301,11 @@ const AddLocation: React.FC<AddLocationProps> = ({
                       {formData.locationType === "Business" ? (
                         <>
                           <IonItem>
-                            <IonLabel position="stacked">
-                              Business Name
-                            </IonLabel>
+                            <IonLabel position="stacked">Business Name</IonLabel>
                             <IonInput
                               value={formData.businessName}
                               onIonChange={(e) =>
-                                handleInputChange(
-                                  "businessName",
-                                  e.detail.value ?? ""
-                                )
+                                handleInputChange("businessName", e.detail.value ?? "")
                               }
                             />
                           </IonItem>
@@ -385,10 +314,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
                             <IonInput
                               value={formData.businessPhoneNumber}
                               onIonChange={(e) =>
-                                handleInputChange(
-                                  "businessPhoneNumber",
-                                  e.detail.value ?? ""
-                                )
+                                handleInputChange("businessPhoneNumber", e.detail.value ?? "")
                               }
                             />
                           </IonItem>
@@ -397,10 +323,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
                             <IonInput
                               value={formData.category}
                               onIonChange={(e) =>
-                                handleInputChange(
-                                  "category",
-                                  e.detail.value ?? ""
-                                )
+                                handleInputChange("category", e.detail.value ?? "")
                               }
                             />
                           </IonItem>
@@ -411,10 +334,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
                           <IonInput
                             value={formData.homeName}
                             onIonChange={(e) =>
-                              handleInputChange(
-                                "homeName",
-                                e.detail.value ?? ""
-                              )
+                              handleInputChange("homeName", e.detail.value ?? "")
                             }
                           />
                         </IonItem>
@@ -448,11 +368,7 @@ const AddLocation: React.FC<AddLocationProps> = ({
             </IonCol>
           ) : (
             <IonCol size="3">
-              <IonButton
-                expand="block"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
+              <IonButton expand="block" onClick={handleSubmit} disabled={loading}>
                 {loading ? <IonSpinner name="crescent" /> : "Submit"}
               </IonButton>
             </IonCol>

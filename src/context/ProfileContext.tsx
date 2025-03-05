@@ -11,7 +11,7 @@ export interface UserProfile {
   profilePic?: string | null;
   email: string;
   uid: string;
-  locations: string[];
+  locations: Location[];
   pickups: string[];
   accountType: string;
 }

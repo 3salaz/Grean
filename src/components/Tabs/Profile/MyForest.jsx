@@ -109,10 +109,10 @@ function MyForest() {
       style={{ backgroundImage: `url(${forestBg})` }}
       className="bg-cover bg-center w-full drop-shadow-lg rounded-b-xl"
     >
-      <IonRow className="mx-auto mb-4">
+      <IonRow className="mb-10 pl-2">
         <IonCol
           size="auto"
-          className="mx-auto bg-green-500 py-2 text-center rounded-full"
+          className="bg-[#75B657] px-2 mx-auto text-center rounded-b-md px-4"
         >
           <IonText color="secondary" className="font-bold text-white text-xl">
             Your Forest

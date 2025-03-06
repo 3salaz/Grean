@@ -1,16 +1,14 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { httpsCallable } from "firebase/functions";
-import { functions } from "../firebase";
-import { toast } from "react-toastify";
-import { useAuth } from "./AuthContext";
+import {createContext, useContext, useEffect, useState, ReactNode} from "react";
+import {httpsCallable} from "firebase/functions";
+import {functions} from "../firebase";
+import {toast} from "react-toastify";
+import {useAuth} from "./AuthContext";
 
 // Define types for location
 interface Location {
   id?: string;
   locationType: string;
-  street: string;
-  city: string;
-  state: string;
+  address: string; // full address stored here
   latitude?: number;
   longitude?: number;
   homeName?: string;
@@ -24,45 +22,31 @@ interface LocationContextType {
   businessLocations: Location[]; // Added business locations
   createLocation: (locationData: Location) => Promise<string | undefined>;
   deleteLocation: (locationId: string) => Promise<void>;
-  updateLocation: (locationId: string, updates: Partial<Location>) => Promise<void>;
+  updateLocation: (
+    locationId: string,
+    updates: Partial<Location>
+  ) => Promise<void>;
 }
 
 // Create Context
 const LocationsContext = createContext<LocationContextType | null>(null);
 
-export function LocationsProvider({ children }: { children: ReactNode }) {
+export function LocationsProvider({children}: {children: ReactNode}) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [businessLocations, setBusinessLocations] = useState<Location[]>([]); // Added state for business locations
-  const { user } = useAuth();
 
-  // Fetch locations from Firebase (mock example)
-  useEffect(() => {
-    async function fetchLocations() {
-      try {
-        const getLocationsFn = httpsCallable(functions, "getLocations");
-        const response = await getLocationsFn();
-        
-        if (response.data && Array.isArray(response.data)) {
-          const fetchedLocations = response.data as Location[];
-          setLocations(fetchedLocations);
-          setBusinessLocations(fetchedLocations.filter(loc => loc.locationType === "Business"));
-        }
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-      }
-    }
-    
-    if (user) {
-      fetchLocations();
-    }
-  }, [user]);
-
-  const createLocation = async (locationData: Location): Promise<string | undefined> => {
+  const createLocation = async (
+    locationData: Location
+  ): Promise<string | undefined> => {
     try {
       const createLocationFn = httpsCallable(functions, "createLocation");
       const response = await createLocationFn(locationData);
 
-      if (response.data && typeof response.data === "object" && "locationId" in response.data) {
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        "locationId" in response.data
+      ) {
         toast.success("Location created successfully!");
         return response.data.locationId as string;
       } else {
@@ -77,7 +61,7 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
   const deleteLocation = async (locationId: string): Promise<void> => {
     try {
       const deleteLocationFn = httpsCallable(functions, "deleteLocation");
-      await deleteLocationFn({ locationId });
+      await deleteLocationFn({locationId});
       toast.success("Location deleted successfully!");
     } catch (error) {
       console.error("Error deleting location:", error);
@@ -85,10 +69,13 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateLocation = async (locationId: string, updates: Partial<Location>): Promise<void> => {
+  const updateLocation = async (
+    locationId: string,
+    updates: Partial<Location>
+  ): Promise<void> => {
     try {
       const updateLocationFn = httpsCallable(functions, "updateLocation");
-      await updateLocationFn({ locationId, updates });
+      await updateLocationFn({locationId, updates});
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);
@@ -97,7 +84,15 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LocationsContext.Provider value={{ locations, businessLocations, createLocation, deleteLocation, updateLocation }}>
+    <LocationsContext.Provider
+      value={{
+        locations,
+        businessLocations,
+        createLocation,
+        deleteLocation,
+        updateLocation
+      }}
+    >
       {children}
     </LocationsContext.Provider>
   );

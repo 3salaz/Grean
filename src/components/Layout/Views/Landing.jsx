@@ -16,16 +16,15 @@ import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Signin from "../../Common/Signin";
 import Signup from "../../Common/Signup";
 import { useAuth } from "../../../context/AuthContext";
+import { useProfile } from "../../../context/ProfileContext";
 import { useHistory } from "react-router-dom";
 import { logoGoogle } from "ionicons/icons";
 import { toast, ToastContainer } from "react-toastify";
 
 function Landing() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
-  const { googleSignIn } = useAuth();
-
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSignin, setIsSignin] = useState(true); // default to SignIn
 
@@ -40,29 +39,17 @@ function Landing() {
     setIsAuthModalOpen(true);
   };
 
-  // const handleGoogleSignIn = async () => {
-  //   try {
-  //     setLoading(true);
-  //     await googleSignIn();
-  //     toast.success("Signed in successfully with Google!");
-  //     history.push("/account");
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("Error signing in with Google. Please try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  console.log(profile)
 
   return (
     <IonContent className="h-full w-full">
-      <IonGrid className="h-full w-full p-0 m-0">
+      <IonGrid className="h-full w-full">
         <IonImg
           src={Background}
           alt="Woman sitting on a rock over a river."
           className="absolute top-0 object-cover h-full w-full"
         />
-        <section className="mx-auto relative container max-w-2xl z-20 flex flex-col items-center gap-8 justify-center text-center h-full">
+        <section className="mx-auto relative container max-w-2xl z-20 flex flex-col items-center gap-8 justify-center text-center p-0 h-full">
           <AnimatedTextWord text="GREAN" />
           <IonRow className="w-full">
                   {user ? (

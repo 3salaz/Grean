@@ -1,7 +1,8 @@
 {
   "appId": "com.grean.global",
   "appName": "grean",
-  "webDir": "build",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
   "ios": {
     "minVersion": "12.0",
     "cordovaSwiftVersion": "5.0",

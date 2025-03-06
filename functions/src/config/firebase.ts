@@ -1,14 +1,19 @@
 import * as admin from "firebase-admin";
 
-// 🔥 Initialize Firebase Admin SDK only if it hasn't been initialized
+// ✅ Check if Firebase Admin is already initialized
 if (!admin.apps.length) {
-  admin.initializeApp();
+  admin.initializeApp({
+    // Uses default Firebase credentials
+    credential: admin.credential.applicationDefault(),
+    // Optional: Explicitly set storage bucket
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
 }
 
-// Export services
+// ✅ Export Firestore, Auth, and Storage services
 export const db = admin.firestore();
 export const auth = admin.auth();
 export const storage = admin.storage();
 
-
+// ✅ Export Admin SDK for advanced use cases
 export { admin };

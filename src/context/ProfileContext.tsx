@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { doc, onSnapshot, getDoc } from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../firebase"; // ✅ Ensure Firebase is initialized
-import { toast } from "react-toastify";
-import { useAuth } from "./AuthContext";
+import React, {createContext, useContext, useState, useEffect} from "react";
+import {doc, onSnapshot, getDoc} from "firebase/firestore";
+import {httpsCallable} from "firebase/functions";
+import {db, functions} from "../firebase"; // ✅ Ensure Firebase is initialized
+import {toast} from "react-toastify";
+import {useAuth} from "./AuthContext";
 
 // ✅ Define Profile Interface
 export interface UserProfile {
@@ -11,7 +11,7 @@ export interface UserProfile {
   profilePic?: string | null;
   email: string;
   uid: string;
-  locations: Location[];
+  locations: string[];
   pickups: string[];
   accountType: string;
 }
@@ -30,10 +30,14 @@ interface ProfileContextValue {
 }
 
 // ✅ Create Context
-const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
+const ProfileContext = createContext<ProfileContextValue | undefined>(
+  undefined
+);
 
-export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
+  children
+}) => {
+  const {user} = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
 
@@ -53,7 +57,10 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const profileSnap = await getDoc(profileRef);
 
       if (!profileSnap.exists()) {
-        console.warn("⚠️ Profile does not exist in Firestore for user:", user.uid);
+        console.warn(
+          "⚠️ Profile does not exist in Firestore for user:",
+          user.uid
+        );
         setProfile(null);
         setLoadingProfile(false);
         return;
@@ -103,18 +110,30 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-/** ✅ Update Profile in Bulk */
-const updateProfile = async (updates: Partial<UserProfile>) => {
-  try {
-    const updateProfileFn = httpsCallable(functions, "updateProfile");
-    // Send all updates in one call
-    await updateProfileFn({ updates });
-  } catch (error) {
-    console.error("❌ Error updating profile:", error);
-    throw error; // Let the caller handle error notifications
-  }
-};
-
+  const updateProfile = async (
+    fieldOrUpdates: string | Partial<UserProfile>,
+    value?: any,
+    operation: "update" | "addToArray" | "removeFromArray" = "update"
+  ): Promise<void> => {
+    let data;
+    if (typeof fieldOrUpdates === "string") {
+      // Single field update: construct the payload accordingly.
+      data = {field: fieldOrUpdates, value, operation};
+    } else {
+      // Bulk update: send the entire object.
+      data = {updates: fieldOrUpdates};
+    }
+    try {
+      const updateProfileFn = httpsCallable(functions, "updateProfile");
+      const response = await updateProfileFn(data);
+      if (!response.data || !response.data.success) {
+        throw new Error("Profile update failed.");
+      }
+    } catch (error) {
+      console.error("❌ Error updating profile:", error);
+      throw error;
+    }
+  };
   /** ✅ Delete Profile */
   const deleteProfile = async () => {
     try {
@@ -129,7 +148,15 @@ const updateProfile = async (updates: Partial<UserProfile>) => {
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, loadingProfile, createProfile, updateProfile, deleteProfile }}>
+    <ProfileContext.Provider
+      value={{
+        profile,
+        loadingProfile,
+        createProfile,
+        updateProfile,
+        deleteProfile
+      }}
+    >
       {!loadingProfile && children}
     </ProfileContext.Provider>
   );

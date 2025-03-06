@@ -1,5 +1,5 @@
-import { useState } from "react";
-import AddLocation from "./AddLocation";
+import {useState} from "react";
+import AddLocation from "./CreateLocation";
 import ProfileHeader from "./ProfileHeader";
 import {
   IonButton,
@@ -7,21 +7,21 @@ import {
   IonGrid,
   IonIcon,
   IonModal,
-  IonRow,
+  IonRow
 } from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
 import MyPickups from "../Pickups/MyPickups";
-import { addCircleOutline } from "ionicons/icons";
-import { UserProfile } from "../../../context/ProfileContext";
+import {addCircleOutline} from "ionicons/icons";
+import {UserProfile} from "../../../context/ProfileContext";
 
 // **Define Props Interface**
 interface ProfileProps {
   profile: UserProfile | null;
 }
 
-const Profile: React.FC<ProfileProps> = ({ profile }) => {
+const Profile: React.FC<ProfileProps> = ({profile}) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const profileLocations = profile?.locations || [];
   if (!profile) {
@@ -41,8 +41,14 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
       {/* Modal for Add Location */}
-      <IonModal isOpen={isModalVisible} onDidDismiss={() => setIsModalVisible(false)}>
-        <AddLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
+      <IonModal
+        isOpen={isModalVisible}
+        onDidDismiss={() => setIsModalVisible(false)}
+      >
+        <AddLocation
+          profile={profile}
+          handleClose={() => setIsModalVisible(false)}
+        />
       </IonModal>
 
       <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
@@ -71,7 +77,7 @@ const Profile: React.FC<ProfileProps> = ({ profile }) => {
         </IonRow>
       )}
 
-      {profile?.accountType === "Driver" && <MyPickups />}
+      {/* {profile?.accountType === "Driver" && <MyPickups />} */}
     </IonGrid>
   );
 };

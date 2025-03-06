@@ -16,4 +16,4 @@ export const auth = admin.auth();
 export const storage = admin.storage();
 
 // ✅ Export Admin SDK for advanced use cases
-export {admin};
+export { admin };

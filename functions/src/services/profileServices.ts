@@ -1,4 +1,4 @@
-import {db, admin} from "../config/firebase";
+import { db, admin } from "../config/firebase";
 
 /** ✅ User profile interface */
 export interface UserProfile {
@@ -18,8 +18,8 @@ export interface UserProfile {
  * @return {Promise<void>} Resolves when the profile is created.
  */
 export const createProfile = async (
-    uid: string,
-    profileData: Partial<UserProfile>
+  uid: string,
+  profileData: Partial<UserProfile>,
 ): Promise<void> => {
   const profileRef = db.collection("profiles").doc(uid);
   await profileRef.set({
@@ -37,13 +37,22 @@ export const createProfile = async (
  * @return {Promise<void>} Resolves when the update is successful.
  */
 export const updateProfileField = async (
-    uid: string,
-    field: string,
-    value: string | number | string[] | number[],
-    operation: "update" | "addToArray" | "removeFromArray" = "update"
+  uid: string,
+  field: string,
+  value: string | number | string[] | number[],
+  operation: "update" | "addToArray" | "removeFromArray" = "update",
 ): Promise<void> => {
   const profileRef = db.collection("profiles").doc(uid);
-
+  console.log(
+    "Updating profile",
+    uid,
+    "field:",
+    field,
+    "value:",
+    value,
+    "operation:",
+    operation,
+  );
   if (operation === "addToArray") {
     await profileRef.update({
       [field]: admin.firestore.FieldValue.arrayUnion(value),
@@ -53,7 +62,7 @@ export const updateProfileField = async (
       [field]: admin.firestore.FieldValue.arrayRemove(value),
     });
   } else {
-    await profileRef.update({[field]: value});
+    await profileRef.update({ [field]: value });
   }
 };
 
@@ -63,11 +72,11 @@ export const updateProfileField = async (
  * @return {Promise<void>}
  */
 export const updateProfileBulk = async (
-    uid: string,
-    updates: Partial<UserProfile>
+  uid: string,
+  updates: Partial<UserProfile>,
 ): Promise<void> => {
   const profileRef = db.collection("profiles").doc(uid);
-  await profileRef.update({...updates});
+  await profileRef.update({ ...updates });
 };
 
 /** ✅ Delete a profile

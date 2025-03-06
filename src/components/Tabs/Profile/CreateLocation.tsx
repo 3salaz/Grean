@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocations } from "../../../context/LocationsContext";
-import { motion } from "framer-motion";
+import {useState, useEffect, useRef} from "react";
+import {useLocations} from "../../../context/LocationsContext";
+import {useProfile, UserProfile} from "../../../context/ProfileContext";
+import {motion} from "framer-motion";
 import {
   IonContent,
   IonItem,
@@ -19,22 +20,23 @@ import {
   IonCardTitle,
   IonCardContent,
   IonList,
-  IonSpinner,
+  IonSpinner
 } from "@ionic/react";
-import { toast, ToastContainer } from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import homeIcon from "../../../assets/icons/home.png";
 import businessIcon from "../../../assets/icons/business.png";
-import { useProfile, UserProfile } from "../../../context/ProfileContext";
 
 // Import APIProvider and useMapsLibrary for autocomplete functionality.
-import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
+import {APIProvider, useMapsLibrary} from "@vis.gl/react-google-maps";
 
 // ---------- PlaceAutocomplete Component ----------
 interface PlaceAutocompleteProps {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
 }
 
-const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({ onPlaceSelect }) => {
+const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({
+  onPlaceSelect
+}) => {
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +47,7 @@ const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({ onPlaceSelect }) 
     const options = {
       fields: ["geometry", "name", "formatted_address"],
       types: ["address"],
-      componentRestrictions: { country: "us" },
+      componentRestrictions: {country: "us"}
     };
     const auto = new places.Autocomplete(inputRef.current, options);
     setAutocomplete(auto);
@@ -69,59 +71,58 @@ const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({ onPlaceSelect }) 
 };
 
 // ---------- Main Component ----------
-interface AddLocationProps {
+// Renamed from AddLocationProps to CreateLocationProps
+interface CreateLocationProps {
   profile: UserProfile | null;
   handleClose: () => void;
 }
 
-const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
-  const { createLocation } = useLocations();
-  const { updateProfile } = useProfile();
+const CreateLocation: React.FC<CreateLocationProps> = ({
+  profile,
+  handleClose
+}) => {
+  const {createLocation} = useLocations();
+  const {updateProfile} = useProfile();
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     locationType: "",
+    address: "", // Complete address from autocomplete
     homeName: "",
-    street: "",
-    city: "",
-    state: "California",
     businessName: "",
     businessPhoneNumber: "",
     category: "",
     latitude: null as number | null,
-    longitude: null as number | null,
+    longitude: null as number | null
   });
+
   // Track the selected place from autocomplete.
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
-
   // Your API key (used for both APIProvider and fallback geocoding)
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   // When a place is selected from autocomplete, update the form data.
   const handlePlaceSelect = (place: google.maps.places.PlaceResult | null) => {
     if (place) {
-      // Store the complete address.
+      const updatedFields: Partial<typeof formData> = {};
       if (place.formatted_address) {
-        setFormData((prevData) => ({
-          ...prevData,
-          street: place.formatted_address,
-        }));
+        updatedFields.address = place.formatted_address; // store the full address
       }
-      // Also store latitude and longitude if available.
       if (place.geometry && place.geometry.location) {
-        setFormData((prevData) => ({
-          ...prevData,
-          latitude: place.geometry.location.lat(),
-          longitude: place.geometry.location.lng(),
-        }));
+        updatedFields.latitude = place.geometry.location.lat();
+        updatedFields.longitude = place.geometry.location.lng();
       }
+      setFormData((prevData) => ({
+        ...prevData,
+        ...updatedFields
+      }));
     }
     setSelectedPlace(place);
   };
 
-  // Fallback function to fetch coordinates using the Geocoding API if autocomplete doesn't provide them.
+  // Fallback function to fetch coordinates using the Geocoding API.
   const getCoordinates = async (address: string) => {
     if (!API_KEY) {
       toast.error("Google Maps API Key is missing.");
@@ -135,8 +136,8 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
       );
       const data = await response.json();
       if (data.status === "OK" && data.results.length > 0) {
-        const { lat, lng } = data.results[0].geometry.location;
-        return { latitude: lat, longitude: lng };
+        const {lat, lng} = data.results[0].geometry.location;
+        return {latitude: lat, longitude: lng};
       } else {
         throw new Error(`Geocoding API Error: ${data.status}`);
       }
@@ -149,18 +150,17 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
   const handleInputChange = (name: string, value: string) => {
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value
     }));
   };
 
+  // Step validation: now we require address, latitude, and longitude in step 1.
   const validateStep = () => {
     switch (step) {
       case 0:
         return formData.locationType;
       case 1:
-        // In step 1, we expect that the address (street) is filled (from autocomplete)
-        // and that the city has been manually entered.
-        return formData.street && formData.city;
+        return formData.address && formData.latitude && formData.longitude;
       case 2:
         return formData.locationType === "Business"
           ? formData.businessName &&
@@ -177,17 +177,16 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
       toast.error("Please fill in all required fields before proceeding.");
       return;
     }
-    // If no place was selected in step 1, attempt to fetch coordinates as a fallback.
+    // If no place was selected in step 1, fetch coordinates as a fallback.
     if (step === 1 && !selectedPlace) {
       setLoadingCoordinates(true);
-      const fullAddress = `${formData.street}, ${formData.city}, ${formData.state}`;
       try {
-        const coordinates = await getCoordinates(fullAddress);
+        const coordinates = await getCoordinates(formData.address);
         if (coordinates) {
           setFormData((prevData) => ({
             ...prevData,
             latitude: coordinates.latitude,
-            longitude: coordinates.longitude,
+            longitude: coordinates.longitude
           }));
         }
       } catch (error) {
@@ -210,22 +209,20 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
     try {
       const newLocation = {
         locationType: formData.locationType,
-        street: formData.street, // complete address
-        city: formData.city,
-        state: formData.state,
+        address: formData.address,
         latitude: formData.latitude ?? undefined,
         longitude: formData.longitude ?? undefined,
-        ...(formData.locationType === "Home" && {
-          homeName: formData.homeName,
-        }),
+        ...(formData.locationType === "Home" && {homeName: formData.homeName}),
         ...(formData.locationType === "Business" && {
           businessName: formData.businessName,
           businessPhoneNumber: formData.businessPhoneNumber,
-          category: formData.category,
-        }),
+          category: formData.category
+        })
       };
 
+      console.log("Submitting newLocation:", newLocation);
       const newLocationId = await createLocation(newLocation);
+      console.log("Received newLocationId:", newLocationId);
       await updateProfile("locations", newLocationId, "addToArray");
 
       toast.success("Location added successfully!");
@@ -253,26 +250,37 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                 <motion.div
                   key={step}
                   className="w-full p-2 flex flex-col"
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{opacity: 0, y: 50}}
+                  animate={{opacity: 1, y: 0}}
+                  exit={{opacity: 0, x: -50}}
+                  transition={{duration: 0.3}}
                 >
                   {step === 0 && (
                     <div>
                       <IonRadioGroup
                         value={formData.locationType}
                         onIonChange={(e) =>
-                          handleInputChange("locationType", e.detail.value ?? "")
+                          handleInputChange(
+                            "locationType",
+                            e.detail.value ?? ""
+                          )
                         }
                         className="w-full flex justify-center gap-2"
                       >
                         <IonRadio value="Business">
-                          <IonImg src={businessIcon} alt="Business" className="w-20 h-20" />
+                          <IonImg
+                            src={businessIcon}
+                            alt="Business"
+                            className="w-20 h-20"
+                          />
                           <IonText>Business</IonText>
                         </IonRadio>
                         <IonRadio value="Home">
-                          <IonImg src={homeIcon} alt="Home" className="w-20 h-20" />
+                          <IonImg
+                            src={homeIcon}
+                            alt="Home"
+                            className="w-20 h-20"
+                          />
                           <IonText>Home</IonText>
                         </IonRadio>
                       </IonRadioGroup>
@@ -280,20 +288,9 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                   )}
                   {step === 1 && (
                     <div className="w-full">
-                      {/* Wrap the autocomplete in an APIProvider so the Places library is loaded */}
                       <APIProvider apiKey={API_KEY}>
                         <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
                       </APIProvider>
-                      {/* Optionally, you can include additional inputs (like City) */}
-                      <IonItem>
-                        <IonLabel position="stacked">City</IonLabel>
-                        <IonInput
-                          value={formData.city}
-                          onIonChange={(e) =>
-                            handleInputChange("city", e.detail.value ?? "")
-                          }
-                        />
-                      </IonItem>
                     </div>
                   )}
                   {step === 2 && (
@@ -301,11 +298,16 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                       {formData.locationType === "Business" ? (
                         <>
                           <IonItem>
-                            <IonLabel position="stacked">Business Name</IonLabel>
+                            <IonLabel position="stacked">
+                              Business Name
+                            </IonLabel>
                             <IonInput
                               value={formData.businessName}
                               onIonChange={(e) =>
-                                handleInputChange("businessName", e.detail.value ?? "")
+                                handleInputChange(
+                                  "businessName",
+                                  e.detail.value ?? ""
+                                )
                               }
                             />
                           </IonItem>
@@ -314,7 +316,10 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                             <IonInput
                               value={formData.businessPhoneNumber}
                               onIonChange={(e) =>
-                                handleInputChange("businessPhoneNumber", e.detail.value ?? "")
+                                handleInputChange(
+                                  "businessPhoneNumber",
+                                  e.detail.value ?? ""
+                                )
                               }
                             />
                           </IonItem>
@@ -323,7 +328,10 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                             <IonInput
                               value={formData.category}
                               onIonChange={(e) =>
-                                handleInputChange("category", e.detail.value ?? "")
+                                handleInputChange(
+                                  "category",
+                                  e.detail.value ?? ""
+                                )
                               }
                             />
                           </IonItem>
@@ -334,7 +342,10 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
                           <IonInput
                             value={formData.homeName}
                             onIonChange={(e) =>
-                              handleInputChange("homeName", e.detail.value ?? "")
+                              handleInputChange(
+                                "homeName",
+                                e.detail.value ?? ""
+                              )
                             }
                           />
                         </IonItem>
@@ -368,7 +379,11 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
             </IonCol>
           ) : (
             <IonCol size="3">
-              <IonButton expand="block" onClick={handleSubmit} disabled={loading}>
+              <IonButton
+                expand="block"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
                 {loading ? <IonSpinner name="crescent" /> : "Submit"}
               </IonButton>
             </IonCol>
@@ -379,4 +394,4 @@ const AddLocation: React.FC<AddLocationProps> = ({ profile, handleClose }) => {
   );
 };
 
-export default AddLocation;
+export default CreateLocation;

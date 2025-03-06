@@ -7,7 +7,7 @@ if (!admin.apps.length) {
 }
 
 export const authMiddleware = async (
-    contextOrReq: functions.https.CallableContext | functions.https.Request
+  contextOrReq: functions.https.CallableContext | functions.https.Request,
 ): Promise<string> => {
   let token;
 
@@ -15,8 +15,8 @@ export const authMiddleware = async (
     // Firebase Callable Function Context
     if (!contextOrReq.auth) {
       throw new functions.https.HttpsError(
-          "unauthenticated",
-          "No authentication token provided."
+        "unauthenticated",
+        "No authentication token provided.",
       );
     }
     return contextOrReq.auth.uid;
@@ -26,8 +26,8 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       throw new functions.https.HttpsError(
-          "unauthenticated",
-          "No authentication token provided."
+        "unauthenticated",
+        "No authentication token provided.",
       );
     }
     token = authHeader.split("Bearer ")[1];
@@ -39,8 +39,8 @@ export const authMiddleware = async (
   } catch (error) {
     console.error("❌ Authentication failed:", error);
     throw new functions.https.HttpsError(
-        "unauthenticated",
-        "Invalid authentication token."
+      "unauthenticated",
+      "Invalid authentication token.",
     );
   }
 };

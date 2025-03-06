@@ -5,7 +5,7 @@ import {
   updateProfileBulk, // <-- Import the new function
   deleteProfile,
 } from "../services/profileServices";
-import {authMiddleware} from "../utils/authMiddleware";
+import { authMiddleware } from "../utils/authMiddleware";
 
 /** ✅ Create a new profile
  * @param {any} data - The profile data.
@@ -13,25 +13,25 @@ import {authMiddleware} from "../utils/authMiddleware";
  * @returns {Promise<{success: boolean}>} Success response.
  */
 export const createProfileFunction = functions.https.onCall(
-    async (data, context) => {
-      console.log("🔥 createProfileFunction TRIGGERED with data:", data);
+  async (data, context) => {
+    console.log("🔥 createProfileFunction TRIGGERED with data:", data);
 
-      try {
-        const uid = await authMiddleware(context);
-        console.log("✅ User authenticated with UID:", uid);
+    try {
+      const uid = await authMiddleware(context);
+      console.log("✅ User authenticated with UID:", uid);
 
-        await createProfile(uid, data);
-        console.log("✅ Profile created successfully in Firestore!");
+      await createProfile(uid, data);
+      console.log("✅ Profile created successfully in Firestore!");
 
-        return {success: true};
-      } catch (error) {
-        console.error("❌ ERROR in createProfileFunction:", error);
-        throw new functions.https.HttpsError(
-            "internal",
-            "Profile creation failed."
-        );
-      }
+      return { success: true };
+    } catch (error) {
+      console.error("❌ ERROR in createProfileFunction:", error);
+      throw new functions.https.HttpsError(
+        "internal",
+        "Profile creation failed."
+      );
     }
+  }
 );
 
 /** ✅ Update profile
@@ -41,19 +41,19 @@ export const createProfileFunction = functions.https.onCall(
  */
 /** ✅ Update profile function supporting bulk updates */
 export const updateProfileFunction = functions.https.onCall(
-    async (data, context) => {
-      const uid = await authMiddleware(context);
+  async (data, context) => {
+    const uid = await authMiddleware(context);
 
-      // Check if bulk updates were provided
-      if (data.updates && typeof data.updates === "object") {
-        await updateProfileBulk(uid, data.updates);
-      } else {
+    // Check if bulk updates were provided
+    if (data.updates && typeof data.updates === "object") {
+      await updateProfileBulk(uid, data.updates);
+    } else {
       // Fallback for single field updates
-        await updateProfileField(uid, data.field, data.value, data.operation);
-      }
-
-      return {success: true};
+      await updateProfileField(uid, data.field, data.value, data.operation);
     }
+
+    return { success: true };
+  }
 );
 
 /** ✅ Delete profile
@@ -62,9 +62,9 @@ export const updateProfileFunction = functions.https.onCall(
  * @returns {Promise<{success: boolean}>} Success response.
  */
 export const deleteProfileFunction = functions.https.onCall(
-    async (data, context) => {
-      const uid = await authMiddleware(context);
-      await deleteProfile(uid);
-      return {success: true};
-    }
+  async (data, context) => {
+    const uid = await authMiddleware(context);
+    await deleteProfile(uid);
+    return { success: true };
+  }
 );

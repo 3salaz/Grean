@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuthProfile } from "../../../../context/AuthProfileContext";
 import { useLocations } from "../../../../context/LocationsContext";
-import AddLocation from "./AddLocation";
+import AddLocation from "./CreateLocation";
 import {
   IonButton,
   IonInput,

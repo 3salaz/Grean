@@ -1,66 +1,72 @@
 import * as functions from "firebase-functions";
-import * as corsLib from "cors";
-import {authMiddleware} from "../utils/authMiddleware";
 import {
   createLocation,
   updateLocation,
   deleteLocation,
 } from "../services/locationServices";
 
-const cors = corsLib({origin: true});
-
-/** ✅ Create a location */
-export const createLocationFunction = functions.https.onRequest(
-    (req, res) => {
-      cors(req, res, async () => {
-        try {
-          const uid = await authMiddleware(req);
-          const locationId = await createLocation(uid, req.body);
-          res.status(201).json({locationId});
-        } catch (error: unknown) {
-          console.error("❌ Error creating location:", error);
-          const errMsg =
-          error instanceof Error ? error.message : "Unknown error.";
-          res.status(500).json({error: errMsg});
-        }
-      });
+/** ✅ Create a location (Callable Function) */
+export const createLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
     }
+    const uid = context.auth.uid;
+    try {
+      const result = await createLocation(uid, data);
+      // Return an object with a locationId property.
+      return { locationId: result.locationId };
+    } catch (error: unknown) {
+      console.error("❌ Error creating location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
 );
 
-/** ✅ Update a location */
-export const updateLocationFunction = functions.https.onRequest(
-    (req, res) => {
-      cors(req, res, async () => {
-        try {
-          const uid = await authMiddleware(req);
-          const {locationId, updates} = req.body;
-          await updateLocation(uid, locationId, updates);
-          res.status(200).json({success: true});
-        } catch (error: unknown) {
-          console.error("❌ Error updating location:", error);
-          const errMsg =
-          error instanceof Error ? error.message : "Unknown error.";
-          res.status(403).json({error: errMsg});
-        }
-      });
+/** ✅ Update a location (Callable Function) */
+export const updateLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
     }
+    const uid = context.auth.uid;
+    const { locationId, updates } = data;
+    try {
+      await updateLocation(uid, locationId, updates);
+      return { success: true };
+    } catch (error: unknown) {
+      console.error("❌ Error updating location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
 );
 
-/** ✅ Delete a location */
-export const deleteLocationFunction = functions.https.onRequest(
-    (req, res) => {
-      cors(req, res, async () => {
-        try {
-          const uid = await authMiddleware(req);
-          const {locationId} = req.body;
-          await deleteLocation(uid, locationId);
-          res.status(200).json({success: true});
-        } catch (error: unknown) {
-          console.error("❌ Error deleting location:", error);
-          const errMsg =
-          error instanceof Error ? error.message : "Unknown error.";
-          res.status(403).json({error: errMsg});
-        }
-      });
+/** ✅ Delete a location (Callable Function) */
+export const deleteLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
     }
+    const uid = context.auth.uid;
+    const { locationId } = data;
+    try {
+      await deleteLocation(uid, locationId);
+      return { success: true };
+    } catch (error: unknown) {
+      console.error("❌ Error deleting location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
 );

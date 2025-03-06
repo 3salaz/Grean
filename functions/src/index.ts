@@ -15,7 +15,6 @@ import {
   deleteLocationFunction,
 } from "./routes/locationFunctions";
 
-
 // 🔥 Export Location Functions
 exports.createLocation = createLocationFunction;
 exports.updateLocation = updateLocationFunction;

@@ -1,103 +1,74 @@
-import admin from "firebase-admin";
+import * as admin from "firebase-admin";
+const db = admin.firestore();
 
-// ✅ Ensure Firebase Admin is initialized
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-// ✅ Export Firestore instance (for compatibility)
-export const db = admin.firestore();
-
-/** ✅ Location Data Interface */
+/** ✅ Updated Location Data Structure */
 interface Location {
-  id?: string;
   locationType: string;
-  address: string;
+  address: string; // Combined full address
   latitude?: number;
   longitude?: number;
   homeName?: string;
   businessName?: string;
   businessPhoneNumber?: string;
   category?: string;
-  uid: string;
-  createdAt?: FirebaseFirestore.FieldValue;
 }
 
-/**
- * ✅ Create a new location
+/** ✅ Create a new location
+ * @param {string} uid - The user's unique ID.
+ * @param {Location} data - The location details.
+ * @return {Promise<{id: string}>} The created location ID.
  */
 export const createLocation = async (
   uid: string,
-  data: Omit<Location, "id" | "createdAt">
+  data: Location,
 ): Promise<{ locationId: string }> => {
-  try {
-    const locationData: Location = {
-      ...data,
-      uid,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    const locationRef = await db.collection("locations").add(locationData);
-    return { locationId: locationRef.id };
-  } catch (error) {
-    console.error("❌ Error creating location:", error);
-    throw new Error("Failed to create location.");
-  }
+  const locationData = {
+    ...data,
+    uid,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  const locationRef = await db.collection("locations").add(locationData);
+  return { locationId: locationRef.id };
 };
 
-/**
- * ✅ Update an existing location
+/** ✅ Update an existing location
+ * @param {string} uid - The user's unique ID.
+ * @param {string} locationId - The location ID to update.
+ * @param {Partial<Location>} updates - The updates to apply.
+ * @return {Promise<{success: boolean}>} Success response.
  */
 export const updateLocation = async (
   uid: string,
   locationId: string,
-  updates: Partial<Omit<Location, "id" | "createdAt">>
+  updates: Partial<Location>,
 ): Promise<{ success: boolean }> => {
-  try {
-    const locationRef = db.collection("locations").doc(locationId);
-    const doc = await locationRef.get();
+  const locationRef = db.collection("locations").doc(locationId);
+  const doc = await locationRef.get();
 
-    if (!doc.exists) {
-      throw new Error("Location not found.");
-    }
-
-    const locationData = doc.data() as Location;
-    if (locationData.uid !== uid) {
-      throw new Error("Unauthorized: You cannot update this location.");
-    }
-
-    await locationRef.update(updates);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error updating location:", error);
-    throw new Error("Failed to update location.");
+  if (!doc.exists || doc.data()?.uid !== uid) {
+    throw new Error("Unauthorized: You cannot update this location.");
   }
+
+  await locationRef.update(updates);
+  return { success: true };
 };
 
-/**
- * ✅ Delete a location
+/** ✅ Delete a location
+ * @param {string} uid - The user's unique ID.
+ * @param {string} locationId - The location ID to delete.
+ * @return {Promise<{success: boolean}>} Success response.
  */
 export const deleteLocation = async (
   uid: string,
-  locationId: string
+  locationId: string,
 ): Promise<{ success: boolean }> => {
-  try {
-    const locationRef = db.collection("locations").doc(locationId);
-    const doc = await locationRef.get();
+  const locationRef = db.collection("locations").doc(locationId);
+  const doc = await locationRef.get();
 
-    if (!doc.exists) {
-      throw new Error("Location not found.");
-    }
-
-    const locationData = doc.data() as Location;
-    if (locationData.uid !== uid) {
-      throw new Error("Unauthorized: You cannot delete this location.");
-    }
-
-    await locationRef.delete();
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error deleting location:", error);
-    throw new Error("Failed to delete location.");
+  if (!doc.exists || doc.data()?.uid !== uid) {
+    throw new Error("Unauthorized: You cannot delete this location.");
   }
+
+  await locationRef.delete();
+  return { success: true };
 };

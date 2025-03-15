@@ -1,76 +1,72 @@
-import { onCall } from "firebase-functions/v2/https"; // ✅ Updated import
+import * as functions from "firebase-functions";
 import {
   createLocation,
   updateLocation,
   deleteLocation,
-} from "../services/locationServices.js";
-import { authMiddleware } from "../utils/authMiddleware.js";
+} from "../services/locationServices";
 
-/**
- * ✅ Create a new location (Callable Function)
- * @param {CallableRequest} request - The request object containing location data.
- * @returns {Promise<{locationId: string}>} - The created location ID.
- */
-export const createLocationFunction = onCall(async (request) => {
-  console.log("🔥 createLocationFunction TRIGGERED with data:", request.data);
+/** ✅ Create a location (Callable Function) */
+export const createLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
+    }
+    const uid = context.auth.uid;
+    try {
+      const result = await createLocation(uid, data);
+      // Return an object with a locationId property.
+      return { locationId: result.locationId };
+    } catch (error: unknown) {
+      console.error("❌ Error creating location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
+);
 
-  try {
-    const uid = await authMiddleware(request);
-    console.log("✅ User authenticated with UID:", uid);
+/** ✅ Update a location (Callable Function) */
+export const updateLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
+    }
+    const uid = context.auth.uid;
+    const { locationId, updates } = data;
+    try {
+      await updateLocation(uid, locationId, updates);
+      return { success: true };
+    } catch (error: unknown) {
+      console.error("❌ Error updating location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
+);
 
-    const result = await createLocation(uid, request.data);
-    console.log("✅ Location created successfully with ID:", result.locationId);
-
-    return { locationId: result.locationId };
-  } catch (error) {
-    console.error("❌ ERROR in createLocationFunction:", error);
-    throw new Error("Failed to create location.");
-  }
-});
-
-/**
- * ✅ Update a location (Callable Function)
- * @param {CallableRequest} request - The request object containing update data.
- * @returns {Promise<{success: boolean}>} - Whether the update was successful.
- */
-export const updateLocationFunction = onCall(async (request) => {
-  try {
-    const uid = await authMiddleware(request);
-    console.log("🔥 updateLocationFunction TRIGGERED for UID:", uid);
-
-    const { locationId, updates } = request.data;
-    if (!locationId || !updates)
-      throw new Error("Missing locationId or updates.");
-
-    await updateLocation(uid, locationId, updates);
-    console.log("✅ Location updated successfully.");
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ ERROR in updateLocationFunction:", error);
-    throw new Error("Failed to update location.");
-  }
-});
-
-/**
- * ✅ Delete a location (Callable Function)
- * @param {CallableRequest} request - The request object containing location ID.
- * @returns {Promise<{success: boolean}>} - Whether the deletion was successful.
- */
-export const deleteLocationFunction = onCall(async (request) => {
-  try {
-    const uid = await authMiddleware(request);
-    console.log("🔥 deleteLocationFunction TRIGGERED for UID:", uid);
-
-    const { locationId } = request.data;
-    if (!locationId) throw new Error("Missing locationId.");
-
-    await deleteLocation(uid, locationId);
-    console.log("✅ Location deleted successfully.");
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ ERROR in deleteLocationFunction:", error);
-    throw new Error("Failed to delete location.");
-  }
-});
+/** ✅ Delete a location (Callable Function) */
+export const deleteLocationFunction = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+      );
+    }
+    const uid = context.auth.uid;
+    const { locationId } = data;
+    try {
+      await deleteLocation(uid, locationId);
+      return { success: true };
+    } catch (error: unknown) {
+      console.error("❌ Error deleting location:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error.";
+      throw new functions.https.HttpsError("internal", errMsg);
+    }
+  },
+);

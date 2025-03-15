@@ -49,8 +49,6 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       return;
     }
 
-    console.log("👤 User detected:", user.uid);
-
     // ✅ First, check if profile exists
     const checkProfileExists = async () => {
       const profileRef = doc(db, "profiles", user.uid);
@@ -79,7 +77,6 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       profileRef,
       (docSnap) => {
         if (docSnap.exists()) {
-          console.log("✅ Profile Data received:", docSnap.data());
           setProfile(docSnap.data() as UserProfile);
         } else {
           console.warn("⚠️ Profile does not exist in Firestore!");

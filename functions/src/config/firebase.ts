@@ -1,6 +1,6 @@
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 
-// ✅ Check if Firebase Admin is already initialized
+// ✅ Ensure Firebase Admin is initialized
 if (!admin.apps.length) {
   admin.initializeApp({
     // Uses default Firebase credentials
@@ -15,5 +15,5 @@ export const db = admin.firestore();
 export const auth = admin.auth();
 export const storage = admin.storage();
 
-// ✅ Export Admin SDK for advanced use cases
+// ✅ Export Admin SDK for advanced use cases (ESM-compatible)
 export { admin };

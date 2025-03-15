@@ -1,70 +1,74 @@
-import * as functions from "firebase-functions";
+import { onCall } from "firebase-functions/v2/https"; // ✅ Updated import
 import {
   createProfile,
   updateProfileField,
-  updateProfileBulk, // <-- Import the new function
+  updateProfileBulk,
   deleteProfile,
-} from "../services/profileServices";
-import { authMiddleware } from "../utils/authMiddleware";
+} from "../services/profileServices.js";
+import { authMiddleware } from "../utils/authMiddleware.js";
 
-/** ✅ Create a new profile
- * @param {any} data - The profile data.
- * @param {functions.https.CallableContext} context - The request context.
- * @returns {Promise<{success: boolean}>} Success response.
+/**
+ * ✅ Create a new profile
  */
-export const createProfileFunction = functions.https.onCall(
-  async (data, context) => {
-    console.log("🔥 createProfileFunction TRIGGERED with data:", data);
+export const createProfileFunction = onCall(async (request) => {
+  console.log("🔥 createProfileFunction TRIGGERED with data:", request.data);
 
-    try {
-      const uid = await authMiddleware(context);
-      console.log("✅ User authenticated with UID:", uid);
+  try {
+    const uid = await authMiddleware(request);
+    console.log("✅ User authenticated with UID:", uid);
 
-      await createProfile(uid, data);
-      console.log("✅ Profile created successfully in Firestore!");
+    await createProfile(uid, request.data);
+    console.log("✅ Profile created successfully in Firestore!");
 
-      return { success: true };
-    } catch (error) {
-      console.error("❌ ERROR in createProfileFunction:", error);
-      throw new functions.https.HttpsError(
-        "internal",
-        "Profile creation failed."
-      );
-    }
+    return { success: true };
+  } catch (error) {
+    console.error("❌ ERROR in createProfileFunction:", error);
+    throw new Error("Profile creation failed.");
   }
-);
+});
 
-/** ✅ Update profile
- * @param {any} data - The update data.
- * @param {functions.https.CallableContext} context - The request context.
- * @returns {Promise<{success: boolean}>} Success response.
+/**
+ * ✅ Update profile (supports bulk updates)
  */
-/** ✅ Update profile function supporting bulk updates */
-export const updateProfileFunction = functions.https.onCall(
-  async (data, context) => {
-    const uid = await authMiddleware(context);
+export const updateProfileFunction = onCall(async (request) => {
+  try {
+    const uid = await authMiddleware(request);
+    console.log("🔥 updateProfileFunction TRIGGERED for UID:", uid);
 
-    // Check if bulk updates were provided
-    if (data.updates && typeof data.updates === "object") {
-      await updateProfileBulk(uid, data.updates);
+    if (request.data.updates && typeof request.data.updates === "object") {
+      await updateProfileBulk(uid, request.data.updates);
+      console.log("✅ Bulk profile updates applied.");
     } else {
-      // Fallback for single field updates
-      await updateProfileField(uid, data.field, data.value, data.operation);
+      await updateProfileField(
+        uid,
+        request.data.field,
+        request.data.value,
+        request.data.operation
+      );
+      console.log("✅ Single profile field updated.");
     }
 
     return { success: true };
+  } catch (error) {
+    console.error("❌ ERROR in updateProfileFunction:", error);
+    throw new Error("Profile update failed.");
   }
-);
+});
 
-/** ✅ Delete profile
- * @param {any} data - The request data.
- * @param {functions.https.CallableContext} context - The request context.
- * @returns {Promise<{success: boolean}>} Success response.
+/**
+ * ✅ Delete profile
  */
-export const deleteProfileFunction = functions.https.onCall(
-  async (data, context) => {
-    const uid = await authMiddleware(context);
+export const deleteProfileFunction = onCall(async (request) => {
+  try {
+    const uid = await authMiddleware(request);
+    console.log("🔥 deleteProfileFunction TRIGGERED for UID:", uid);
+
     await deleteProfile(uid);
+    console.log("✅ Profile deleted successfully.");
+
     return { success: true };
+  } catch (error) {
+    console.error("❌ ERROR in deleteProfileFunction:", error);
+    throw new Error("Profile deletion failed.");
   }
-);
+});

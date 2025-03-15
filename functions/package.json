@@ -1,19 +1,20 @@
 {
   "name": "functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions for Firebase",
   "scripts": {
-    "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "serve": "npm run build && firebase emulators:start --only functions",
-    "shell": "npm run build && firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "dev": "npm run build:watch & firebase emulators:start",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "lint": "npx eslint --ext .js,.ts ."
   },
   "engines": {
     "node": "16"
   },
   "main": "lib/index.js",
+  "type": "module",
   "dependencies": {
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0"

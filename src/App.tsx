@@ -11,23 +11,22 @@ import "@ionic/react/css/display.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // Toastify
-import { ToastContainer } from "react-toastify";
+import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Main Styles
 import "./styles/index.css";
 
-
 // React
-import { Switch, Route, Redirect } from "react-router-dom";
-import { IonApp, IonContent, IonRouterOutlet } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
+import {Switch, Route, Redirect} from "react-router-dom";
+import {IonApp, IonContent, IonRouterOutlet} from "@ionic/react";
+import {IonReactRouter} from "@ionic/react-router";
 
 // Context
-import { AuthProvider } from "./context/AuthContext";
-import { ProfileProvider } from "./context/ProfileContext";
-import { PickupsProvider } from "./context/PickupsContext";
-import { LocationsProvider } from "./context/LocationsContext";
+import {AuthProvider} from "./context/AuthContext";
+import {ProfileProvider} from "./context/ProfileContext";
+import {PickupsProvider} from "./context/PickupsContext";
+import {LocationsProvider} from "./context/LocationsContext";
 
 // Component
 import Navbar from "./components/Layout/Navbar";
@@ -72,7 +71,7 @@ function App() {
                         path="/account"
                         render={() => (
                           <ProtectedRoute>
-                              <Account />
+                            <Account />
                           </ProtectedRoute>
                         )}
                       />

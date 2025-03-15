@@ -1,25 +1,14 @@
-import {
-  collection,
-  doc,
-  onSnapshot,
-  writeBatch,
-  arrayUnion,
-  arrayRemove,
-  updateDoc,
-  getDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { db } from "../firebase";
-import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
-import { useProfile } from "./ProfileContext";
-import { useAuth } from "./AuthContext";
+import {createContext, useContext, useState, ReactNode} from "react";
+import {httpsCallable} from "firebase/functions";
+import {functions} from "../firebase";
+import {toast} from "react-toastify";
+import {useAuth} from "./AuthContext";
+import {useProfile} from "./ProfileContext";
 
-// Define Types
-interface Pickup {
+// Define Pickup Type
+export interface Pickup {
   id: string;
-  createdAt: Date;
+  createdAt: string; // Stored as ISO string in Firestore
   isAccepted: boolean;
   isCompleted: boolean;
   createdBy: {
@@ -32,151 +21,101 @@ interface Pickup {
     uid: string;
     displayName: string;
   };
+  addressData: {address: string}; // ✅ Updated to match the database structure
+  pickupDate: string;
+  pickupTime: string;
+  pickupNote?: string;
+  materials: string[];
 }
 
+// Define PickupContext Type
 interface PickupContextType {
   pickups: Pickup[];
   userCreatedPickups: Pickup[];
   userAcceptedPickups: Pickup[];
   visiblePickups: Pickup[];
   completedPickups: Pickup[];
-  createPickup: (pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">) => Promise<void>;
+  createPickup: (
+    pickupData: Omit<
+      Pickup,
+      "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
+    >
+  ) => Promise<string | undefined>;
   editPickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
 }
 
-const PickupContext = createContext<PickupContextType | undefined>(undefined);
+// Create Context
+const PickupContext = createContext<PickupContextType | null>(null);
 
-export const usePickups = (): PickupContextType => {
-  const context = useContext(PickupContext);
-  if (!context) {
-    throw new Error("usePickups must be used within a PickupsProvider");
-  }
-  return context;
-};
-
-interface PickupsProviderProps {
-  children: ReactNode;
-}
-
-export const PickupsProvider: React.FC<PickupsProviderProps> = ({ children }) => {
+export function PickupsProvider({children}: {children: ReactNode}) {
   const [pickups, setPickups] = useState<Pickup[]>([]);
-  const { user } = useAuth();
-  const { profile } = useProfile();
+  const {user} = useAuth();
+  const {profile} = useProfile();
 
-  // Real-time listener for pickups
-  useEffect(() => {
-    if (user) {
-      const unsubscribe = onSnapshot(collection(db, "pickups"), (querySnapshot) => {
-        const fetchedPickups: Pickup[] = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Pickup[];
-        setPickups(fetchedPickups);
-      });
-
-      return () => unsubscribe();
-    }
-  }, [user]);
-
-  // Create a new pickup
-  const createPickup = async (pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">) => {
+  // Create Pickup
+  const createPickup = async (
+    pickupData: Omit<
+      Pickup,
+      "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
+    >
+  ): Promise<string | undefined> => {
     try {
       if (!user || !profile) throw new Error("User or Profile not found");
 
-      const newPickupId = uuidv4();
-      const newPickup: Pickup = {
-        id: newPickupId,
-        createdAt: new Date(),
-        isAccepted: false,
-        isCompleted: false,
-        createdBy: {
-          userId: user.uid,
-          displayName: profile.displayName || "No Name",
-          email: profile.email,
-          photoURL: profile.profilePic || "",
-        },
-        ...pickupData,
-      };
+      const createPickupFn = httpsCallable(functions, "createPickup");
+      const response = await createPickupFn({...pickupData, userId: user.uid});
 
-      const batch = writeBatch(db);
-
-      // Add the pickup to the pickups collection
-      batch.set(doc(db, "pickups", newPickupId), newPickup);
-
-      // Add the pickup ID to the profile's pickups array
-      batch.update(doc(db, "profiles", user.uid), {
-        pickups: arrayUnion(newPickupId),
-      });
-
-      await batch.commit();
-      toast.success("Pickup created successfully!");
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        "pickupId" in response.data
+      ) {
+        toast.success("Pickup created successfully!");
+        return response.data.pickupId as string;
+      } else {
+        throw new Error("Unexpected response format.");
+      }
     } catch (error) {
       console.error("Error creating pickup:", error);
-      toast.error("Error creating pickup. Please try again.");
+      toast.error("Failed to create pickup.");
     }
   };
 
-  // Edit an existing pickup
-  const editPickup = async (pickupId: string, updatedData: Partial<Pickup>) => {
+  // Edit Pickup
+  const editPickup = async (
+    pickupId: string,
+    updatedData: Partial<Pickup>
+  ): Promise<void> => {
     try {
-      if (!user) throw new Error("User not found");
-
-      const batch = writeBatch(db);
-
-      // Update the pickup in the pickups collection
-      const pickupRef = doc(db, "pickups", pickupId);
-      batch.update(pickupRef, updatedData);
-
-      // Update the pickup in the profile's pickups array
-      const profileRef = doc(db, "profiles", user.uid);
-      const profileSnap = await getDoc(profileRef);
-      const profileData = profileSnap.data();
-
-      if (profileData?.pickups) {
-        const updatedPickups = profileData.pickups.map((pickup: Pickup) =>
-          pickup.id === pickupId ? { ...pickup, ...updatedData } : pickup
-        );
-
-        batch.update(profileRef, { pickups: updatedPickups });
-      }
-
-      await batch.commit();
+      const editPickupFn = httpsCallable(functions, "editPickup");
+      await editPickupFn({pickupId, updatedData});
       toast.success("Pickup updated successfully!");
     } catch (error) {
-      console.error("Error editing pickup:", error);
-      toast.error("Error editing pickup. Please try again.");
+      console.error("Error updating pickup:", error);
+      toast.error("Failed to update pickup.");
     }
   };
 
-  // Delete a pickup
-  const deletePickup = async (pickupId: string) => {
+  // Delete Pickup
+  const deletePickup = async (pickupId: string): Promise<void> => {
     try {
-      if (!user) throw new Error("User not found");
-
-      const batch = writeBatch(db);
-
-      // Delete the pickup from the pickups collection
-      const pickupRef = doc(db, "pickups", pickupId);
-      batch.delete(pickupRef);
-
-      // Remove the pickup ID from the profile's pickups array
-      const profileRef = doc(db, "profiles", user.uid);
-      batch.update(profileRef, {
-        pickups: arrayRemove(pickupId),
-      });
-
-      await batch.commit();
+      const deletePickupFn = httpsCallable(functions, "deletePickup");
+      await deletePickupFn({pickupId});
       toast.success("Pickup deleted successfully!");
     } catch (error) {
       console.error("Error deleting pickup:", error);
-      toast.error("Error deleting pickup. Please try again.");
+      toast.error("Failed to delete pickup.");
     }
   };
 
   // Filters
-  const userCreatedPickups = pickups.filter((pickup) => pickup.createdBy?.userId === user?.uid);
-  const userAcceptedPickups = pickups.filter((pickup) => pickup.acceptedBy?.uid === user?.uid);
+  const userCreatedPickups = pickups.filter(
+    (pickup) => pickup.createdBy?.userId === user?.uid
+  );
+  const userAcceptedPickups = pickups.filter(
+    (pickup) => pickup.acceptedBy?.uid === user?.uid
+  );
   const visiblePickups = pickups.filter((pickup) => !pickup.isAccepted);
   const completedPickups = pickups.filter((pickup) => pickup.isCompleted);
 
@@ -190,10 +129,18 @@ export const PickupsProvider: React.FC<PickupsProviderProps> = ({ children }) =>
         completedPickups,
         createPickup,
         editPickup,
-        deletePickup,
+        deletePickup
       }}
     >
       {children}
     </PickupContext.Provider>
   );
-};
+}
+
+export function usePickups() {
+  const context = useContext(PickupContext);
+  if (!context) {
+    throw new Error("usePickups must be used within a PickupsProvider");
+  }
+  return context;
+}

@@ -1,4 +1,5 @@
-import { db, admin } from "../config/firebase";
+import { db } from "../config/firebase.js";
+import admin from "firebase-admin";
 
 /** ✅ User profile interface */
 export interface UserProfile {
@@ -12,78 +13,89 @@ export interface UserProfile {
   createdAt?: FirebaseFirestore.Timestamp;
 }
 
-/** ✅ Create a new user profile
- * @param {string} uid - The unique user ID.
- * @param {Partial<UserProfile>} profileData - The user's profile details.
- * @return {Promise<void>} Resolves when the profile is created.
+/**
+ * ✅ Create a new user profile
  */
 export const createProfile = async (
   uid: string,
-  profileData: Partial<UserProfile>,
+  profileData: Partial<UserProfile>
 ): Promise<void> => {
-  const profileRef = db.collection("profiles").doc(uid);
-  await profileRef.set({
-    ...profileData,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  try {
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.set({
+      ...profileData,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("❌ Error creating profile:", error);
+    throw new Error("Failed to create profile.");
+  }
 };
 
-/** ✅ Update profile fields
- * @param {string} uid - The unique user ID.
- * @param {string} field - The profile field to update.
- * @param {string | number | string[] | number[]} value - The value to update.
- * @param {"update" | "addToArray" | "removeFromArray"} [operation="update"]
- * Determines if value is updated, added to an array, or removed from an array.
- * @return {Promise<void>} Resolves when the update is successful.
+/**
+ * ✅ Update profile fields
  */
 export const updateProfileField = async (
   uid: string,
   field: string,
   value: string | number | string[] | number[],
-  operation: "update" | "addToArray" | "removeFromArray" = "update",
+  operation: "update" | "addToArray" | "removeFromArray" = "update"
 ): Promise<void> => {
-  const profileRef = db.collection("profiles").doc(uid);
-  console.log(
-    "Updating profile",
-    uid,
-    "field:",
-    field,
-    "value:",
-    value,
-    "operation:",
-    operation,
-  );
-  if (operation === "addToArray") {
-    await profileRef.update({
-      [field]: admin.firestore.FieldValue.arrayUnion(value),
-    });
-  } else if (operation === "removeFromArray") {
-    await profileRef.update({
-      [field]: admin.firestore.FieldValue.arrayRemove(value),
-    });
-  } else {
-    await profileRef.update({ [field]: value });
+  try {
+    const profileRef = db.collection("profiles").doc(uid);
+    console.log(
+      "Updating profile:",
+      uid,
+      "Field:",
+      field,
+      "Value:",
+      value,
+      "Operation:",
+      operation
+    );
+
+    if (operation === "addToArray") {
+      await profileRef.update({
+        [field]: admin.firestore.FieldValue.arrayUnion(value),
+      });
+    } else if (operation === "removeFromArray") {
+      await profileRef.update({
+        [field]: admin.firestore.FieldValue.arrayRemove(value),
+      });
+    } else {
+      await profileRef.update({ [field]: value });
+    }
+  } catch (error) {
+    console.error("❌ Error updating profile field:", error);
+    throw new Error("Failed to update profile field.");
   }
 };
 
-/** ✅ Bulk update profile fields
- * @param {string} uid - The unique user ID.
- * @param {Partial<UserProfile>} updates - Object containing all profile fields.
- * @return {Promise<void>}
+/**
+ * ✅ Bulk update profile fields
  */
 export const updateProfileBulk = async (
   uid: string,
-  updates: Partial<UserProfile>,
+  updates: Partial<UserProfile>
 ): Promise<void> => {
-  const profileRef = db.collection("profiles").doc(uid);
-  await profileRef.update({ ...updates });
+  try {
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.update({ ...updates });
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    throw new Error("Failed to update profile.");
+  }
 };
 
-/** ✅ Delete a profile
- * @param {string} uid - The unique user ID.
- * @return {Promise<void>} Resolves when the profile is deleted.
+/**
+ * ✅ Delete a profile
  */
 export const deleteProfile = async (uid: string): Promise<void> => {
-  const profileRef = db.collection("profiles").doc(uid);
-  await profileRef.delete();
+  try {
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.delete();
+  } catch (error) {
+    console.error("❌ Error deleting profile:", error);
+    throw new Error("Failed to delete profile.");
+  }
 };

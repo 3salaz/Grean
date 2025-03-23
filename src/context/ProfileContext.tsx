@@ -1,8 +1,8 @@
 import React, {createContext, useContext, useState, useEffect} from "react";
 import {doc, onSnapshot, getDoc} from "firebase/firestore";
-import {httpsCallable} from "firebase/functions";
-import {db, functions} from "../firebase"; // ✅ Ensure Firebase is initialized
+import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
+import axios from "axios";
 import {useAuth} from "./AuthContext";
 
 // ✅ Define Profile Interface
@@ -96,10 +96,20 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
   }, [user]);
 
   /** ✅ Create Profile */
-  const createProfile = async (data: Partial<UserProfile>) => {
+  const createProfile = async (profileData: any) => {
     try {
-      const createProfileFn = httpsCallable(functions, "createProfile");
-      await createProfileFn(data);
+      console.log("🚀 Creating profile with data:", profileData);
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createProfileFunction",
+        profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log("✅ Profile created successfully:", response.data);
       toast.success("Profile created successfully!");
     } catch (error) {
       console.error("❌ Error creating profile:", error);
@@ -121,9 +131,17 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       data = {updates: fieldOrUpdates};
     }
     try {
-      const updateProfileFn = httpsCallable(functions, "updateProfile");
-      const response = await updateProfileFn(data);
-      if (!response.data || !response.data.success) {
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateProfileFunction",
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (!response.data.success) {
         throw new Error("Profile update failed.");
       }
     } catch (error) {
@@ -131,11 +149,20 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       throw error;
     }
   };
+
   /** ✅ Delete Profile */
   const deleteProfile = async () => {
     try {
-      const deleteProfileFn = httpsCallable(functions, "deleteProfile");
-      await deleteProfileFn({});
+      const token = await user.getIdToken();
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteProfileFunction",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       setProfile(null);
       toast.warn("Profile deleted!");
     } catch (error) {

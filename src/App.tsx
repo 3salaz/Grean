@@ -35,6 +35,7 @@ import Navbar from "./components/Layout/Navbar";
 import Home from "./pages/Home";
 import Account from "./pages/Account";
 import ProtectedRoute from "./pages/ProtectedRoute";
+import Testing from "./pages/Testing";
 // import SideMenu from "./components/Layout/SideMenu";
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
                     <Switch>
                       <Redirect exact from="/" to="/home" />
                       <Route path="/home" exact component={Home} />
+                      <Route path="/testing" component={Testing} />
                       <Route
                         path="/account"
                         render={() => (

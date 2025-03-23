@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo} from "react";
 import {
   IonInput,
   IonItem,
@@ -13,11 +13,11 @@ import {
   IonCardHeader,
   IonCardContent,
   IonFabButton,
-  IonIcon,
+  IonIcon
 } from "@ionic/react";
-import { closeOutline } from "ionicons/icons";
-import { useAuth } from "../../context/AuthContext";
-import { useHistory } from "react-router-dom";
+import {closeOutline} from "ionicons/icons";
+import {useAuth} from "../../context/AuthContext";
+import {useHistory} from "react-router-dom";
 
 interface SigninProps {
   handleClose: () => void;
@@ -29,33 +29,33 @@ const isValidEmail = (email: string) => {
   return emailRegex.test(email);
 };
 
-const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
+const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
   const [loading, setLoading] = useState(false);
   const history = useHistory(); // Initialize history
-  const { signIn } = useAuth();
+  const {signIn} = useAuth();
 
   // Handles input changes to update state
   const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
   // Check if the form is valid (both fields filled & valid email)
   const isFormValid = useMemo(() => {
-    const { email, password } = formData;
+    const {email, password} = formData;
     return email.trim() !== "" && password.trim() !== "" && isValidEmail(email);
   }, [formData]);
 
   const handleSignIn = async () => {
-    const { email, password } = formData;
+    const {email, password} = formData;
 
     if (!isFormValid) {
       console.error("Invalid email or missing password.");
@@ -161,14 +161,14 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
             </IonRow>
           </IonCardContent>
         </IonCard>
-      {/* Close Button */}
-      <IonRow>
-        <IonCol size="12" className="flex items-center justify-center pt-2">
-          <IonFabButton color="danger" onClick={handleClose}>
-            <IonIcon icon={closeOutline} />
-          </IonFabButton>
-        </IonCol>
-      </IonRow>
+        {/* Close Button */}
+        <IonRow>
+          <IonCol size="12" className="flex items-center justify-center pt-2">
+            <IonFabButton color="danger" onClick={handleClose}>
+              <IonIcon icon={closeOutline} />
+            </IonFabButton>
+          </IonCol>
+        </IonRow>
       </div>
     </IonGrid>
   );

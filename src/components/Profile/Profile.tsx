@@ -26,11 +26,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
     return (
       <IonGrid className="h-full flex items-center justify-center">
         <IonRow>
-          <IonCol className="text-center">
-            <IonButton color="primary" expand="block">
-              Loading Profile...
-            </IonButton>
-          </IonCol>
+          <IonCol className="text-center">Loading Profile...</IonCol>
         </IonRow>
       </IonGrid>
     );

@@ -118,14 +118,14 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>Edit Profile</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onClose}>Close</IonButton>
           </IonButtons>
         </IonToolbar>
-      </IonHeader>
+      </IonHeader> */}
 
       <IonContent className="ion-padding">
         <IonItem>

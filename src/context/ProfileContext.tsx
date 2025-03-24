@@ -98,11 +98,21 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
   /** ✅ Create Profile */
   const createProfile = async (profileData: any) => {
     try {
-      console.log("🚀 Creating profile with data:", profileData);
+      const initialData: UserProfile = {
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: user.email,
+        profilePic: "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: "user"
+      };
+
+      console.log("🚀 Creating profile with data:", initialData);
       const token = await user.getIdToken();
       const response = await axios.post(
         "https://us-central1-grean-de04f.cloudfunctions.net/api/createProfileFunction",
-        profileData,
+        initialData,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -117,6 +127,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
+  // Updated updateProfile function with toast notifications
   const updateProfile = async (
     fieldOrUpdates: string | Partial<UserProfile>,
     value?: any,
@@ -144,6 +155,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       if (!response.data.success) {
         throw new Error("Profile update failed.");
       }
+      console.log("✅ Profile updated successfully:", response.data);
     } catch (error) {
       console.error("❌ Error updating profile:", error);
       throw error;

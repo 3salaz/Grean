@@ -8,11 +8,11 @@ import {
   deleteProfileFunction,
 } from "./profile/profileFunctions";
 
-// import {
-//   createLocationFunction,
-//   updateLocationFunction,
-//   deleteLocationFunction,
-// } from "./locations/locationFunctions";
+import {
+  createLocationFunction,
+  updateLocationFunction,
+  deleteLocationFunction,
+} from "./locations/locationFunctions";
 
 // import {
 //   createPickupFunction,
@@ -30,9 +30,9 @@ app.use(cors({ origin: true }));
 app.post("/createProfileFunction", createProfileFunction);
 app.post("/updateProfileFunction", updateProfileFunction);
 app.post("/deleteProfileFunction", deleteProfileFunction);
-// app.post("/createLocationFunction", createLocationFunction);
-// app.post("/updateLocationFunction", updateLocationFunction);
-// app.post("/deleteLocationFunction", deleteLocationFunction);
+app.post("/createLocationFunction", createLocationFunction);
+app.post("/updateLocationFunction", updateLocationFunction);
+app.post("/deleteLocationFunction", deleteLocationFunction);
 // app.post("/createPickupFunction", createPickupFunction);
 // app.post("/updatePickupFunction", updatePickupFunction);
 // app.post("/deletePickupFunction", deletePickupFunction);

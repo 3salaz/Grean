@@ -11,28 +11,28 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonModal,
+  IonModal
 } from "@ionic/react";
-import { useEffect, useState, Suspense, lazy } from "react";
-import { useProfile } from "../context/ProfileContext";
+import {useEffect, useState, Suspense, lazy} from "react";
+import {useProfile} from "../context/ProfileContext";
 import {
   leafOutline,
   navigateCircleOutline,
   personCircleOutline,
-  statsChartOutline,
+  statsChartOutline
 } from "ionicons/icons";
 
 // Lazy load components
-const Profile = lazy(() => import("../components/Tabs/Profile/Profile"));
-const Pickups = lazy(() => import("../components/Tabs/Pickups/Pickups"));
-const Map = lazy(() => import("../components/Tabs/Map/Map"));
-const Stats = lazy(() => import("../components/Tabs/Stats/Stats"));
-const ProfileSetup = lazy(() => import("../components/Tabs/Profile/ProfileSetup"));
+const Profile = lazy(() => import("../components/Profile/Profile"));
+const Pickups = lazy(() => import("../components/Pickups/Pickups"));
+const Map = lazy(() => import("../components/Map/Map"));
+const Stats = lazy(() => import("../components/Stats/Stats"));
+const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const Account: React.FC = () => {
-  const { profile, updateProfile } = useProfile();
+  const {profile, updateProfile} = useProfile();
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [loading, setLoading] = useState<boolean>(true);
   const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
@@ -129,7 +129,9 @@ const Account: React.FC = () => {
           <IonSegment
             className="max-w-2xl mx-auto"
             value={activeTab}
-            onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
+            onIonChange={(e: CustomEvent) =>
+              setActiveTab(e.detail.value as TabOption)
+            }
           >
             <IonSegmentButton value="profile">
               <IonLabel className="text-xs">Profile</IonLabel>

@@ -1,8 +1,8 @@
 import React, {createContext, useContext, useState, useEffect} from "react";
 import {doc, onSnapshot, getDoc} from "firebase/firestore";
-import {httpsCallable} from "firebase/functions";
-import {db, functions} from "../firebase"; // ✅ Ensure Firebase is initialized
+import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
+import axios from "axios";
 import {useAuth} from "./AuthContext";
 
 // ✅ Define Profile Interface
@@ -49,8 +49,6 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       return;
     }
 
-    console.log("👤 User detected:", user.uid);
-
     // ✅ First, check if profile exists
     const checkProfileExists = async () => {
       const profileRef = doc(db, "profiles", user.uid);
@@ -79,7 +77,6 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       profileRef,
       (docSnap) => {
         if (docSnap.exists()) {
-          console.log("✅ Profile Data received:", docSnap.data());
           setProfile(docSnap.data() as UserProfile);
         } else {
           console.warn("⚠️ Profile does not exist in Firestore!");
@@ -99,10 +96,30 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
   }, [user]);
 
   /** ✅ Create Profile */
-  const createProfile = async (data: Partial<UserProfile>) => {
+  const createProfile = async (profileData: any) => {
     try {
-      const createProfileFn = httpsCallable(functions, "createProfile");
-      await createProfileFn(data);
+      const initialData: UserProfile = {
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: user.email,
+        profilePic: "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: "user"
+      };
+
+      console.log("🚀 Creating profile with data:", initialData);
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createProfileFunction",
+        initialData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log("✅ Profile created successfully:", response.data);
       toast.success("Profile created successfully!");
     } catch (error) {
       console.error("❌ Error creating profile:", error);
@@ -110,6 +127,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
+  // Updated updateProfile function with toast notifications
   const updateProfile = async (
     fieldOrUpdates: string | Partial<UserProfile>,
     value?: any,
@@ -124,21 +142,39 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       data = {updates: fieldOrUpdates};
     }
     try {
-      const updateProfileFn = httpsCallable(functions, "updateProfile");
-      const response = await updateProfileFn(data);
-      if (!response.data || !response.data.success) {
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateProfileFunction",
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (!response.data.success) {
         throw new Error("Profile update failed.");
       }
+      console.log("✅ Profile updated successfully:", response.data);
     } catch (error) {
       console.error("❌ Error updating profile:", error);
       throw error;
     }
   };
+
   /** ✅ Delete Profile */
   const deleteProfile = async () => {
     try {
-      const deleteProfileFn = httpsCallable(functions, "deleteProfile");
-      await deleteProfileFn({});
+      const token = await user.getIdToken();
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteProfileFunction",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       setProfile(null);
       toast.warn("Profile deleted!");
     } catch (error) {

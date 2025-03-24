@@ -1,7 +1,7 @@
-import { useState } from "react";
+import {useState} from "react";
 import logo from "../../assets/logo.png";
 import avatar from "../../assets/avatar.svg";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import Signup from "../Common/Signup";
 import Signin from "../Common/Signin"; // if you want to show sign in from navbar
 import {
@@ -18,15 +18,15 @@ import {
   IonHeader,
   IonTitle,
   IonButtons,
-  IonMenuButton,
+  IonMenuButton
 } from "@ionic/react";
-import { logInOutline, logOutOutline, menuOutline } from "ionicons/icons";
-import { useAuth } from "../../context/AuthContext";
-import { useProfile } from "../../context/ProfileContext";
+import {logInOutline, logOutOutline, menuOutline} from "ionicons/icons";
+import {useAuth} from "../../context/AuthContext";
+import {useProfile} from "../../context/ProfileContext";
 
 function Navbar() {
-  const { user, logOut } = useAuth();
-  const { profile } = useProfile();
+  const {user, logOut} = useAuth();
+  const {profile} = useProfile();
 
   // Dropdown popover states
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);

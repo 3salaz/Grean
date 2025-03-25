@@ -19,8 +19,8 @@ interface Location {
  * @return {Promise<{id: string}>} The created location ID.
  */
 export const createLocation = async (
-    uid: string,
-    data: Location,
+  uid: string,
+  data: Location
 ): Promise<{ locationId: string }> => {
   const locationData = {
     ...data,
@@ -28,7 +28,7 @@ export const createLocation = async (
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   };
   const locationRef = await db.collection("locations").add(locationData);
-  return {locationId: locationRef.id};
+  return { locationId: locationRef.id };
 };
 
 /** ✅ Update an existing location
@@ -38,9 +38,9 @@ export const createLocation = async (
  * @return {Promise<{success: boolean}>} Success response.
  */
 export const updateLocation = async (
-    uid: string,
-    locationId: string,
-    updates: Partial<Location>,
+  uid: string,
+  locationId: string,
+  updates: Partial<Location>
 ): Promise<{ success: boolean }> => {
   const locationRef = db.collection("locations").doc(locationId);
   const doc = await locationRef.get();
@@ -50,7 +50,7 @@ export const updateLocation = async (
   }
 
   await locationRef.update(updates);
-  return {success: true};
+  return { success: true };
 };
 
 /** ✅ Delete a location
@@ -59,8 +59,8 @@ export const updateLocation = async (
  * @return {Promise<{success: boolean}>} Success response.
  */
 export const deleteLocation = async (
-    uid: string,
-    locationId: string,
+  uid: string,
+  locationId: string
 ): Promise<{ success: boolean }> => {
   const locationRef = db.collection("locations").doc(locationId);
   const doc = await locationRef.get();
@@ -70,5 +70,5 @@ export const deleteLocation = async (
   }
 
   await locationRef.delete();
-  return {success: true};
+  return { success: true };
 };

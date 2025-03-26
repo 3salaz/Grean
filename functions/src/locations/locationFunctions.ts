@@ -1,4 +1,4 @@
-import { Response } from "express";
+import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import {
   createLocation,
@@ -28,10 +28,10 @@ export const createLocationFunction = [
       logger.info("✅ User authenticated:", uid);
 
       const result = await createLocation(uid, req.body as CreateLocationData);
-      res.status(200).send({ locationId: result.locationId });
+      res.status(200).send({locationId: result.locationId});
     } catch (error) {
       logger.error("❌ ERROR in createLocationFunction:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -68,12 +68,12 @@ export const deleteLocationFunction = [
       }
       logger.info("✅ User authenticated:", uid);
 
-      const { locationId } = req.body as DeleteLocationData;
+      const {locationId} = req.body as DeleteLocationData;
       await deleteLocation(uid, locationId);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in deleteLocationFunction:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];

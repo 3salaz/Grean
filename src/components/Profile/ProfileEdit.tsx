@@ -12,7 +12,8 @@ import {
   IonButtons,
   IonPage,
   IonSpinner,
-  IonText
+  IonText,
+  IonAlert
 } from "@ionic/react";
 import {useProfile, UserProfile} from "../../context/ProfileContext";
 import {toast} from "react-toastify";
@@ -32,16 +33,20 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
   // New state to manage editing mode and saving/loading status
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState<boolean>(false);
 
   useEffect(() => {
     if (profile) {
-      setFormData({
-        displayName: profile.displayName || "",
-        email: profile.email || "",
-        profilePic: profile.profilePic || "",
-        accountType: profile.accountType || "User"
-      });
       setLoading(false);
+      setFormData({
+        displayName: profile.displayName,
+        email: profile.email,
+        profilePic: profile.profilePic,
+        uid: profile.uid,
+        locations: profile.locations,
+        pickups: profile.pickups,
+        accountType: profile.accountType
+      });
     } else {
       setError("Failed to load profile. Please try again.");
       setLoading(false);
@@ -69,11 +74,15 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
     if (!profile) return;
     setIsSaving(true);
     try {
-      await updateProfile({
-        displayName: formData.displayName || profile.displayName,
-        email: formData.email || profile.email,
-        profilePic: formData.profilePic || profile.profilePic
-      });
+      if (formData.displayName) {
+        await updateProfile("displayName", formData.displayName);
+      }
+      if (formData.email) {
+        await updateProfile("email", formData.email);
+      }
+      if (formData.profilePic) {
+        await updateProfile("profilePic", formData.profilePic);
+      }
       toast.success("Profile updated successfully!");
       onClose();
     } catch (error) {
@@ -85,7 +94,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
   };
 
   // ✅ Handle profile deletion
-  const handleDelete = async () => {
+  const handleDeleteProfile = async () => {
     try {
       await deleteProfile();
       toast.warn("Profile deleted!");
@@ -118,15 +127,6 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
 
   return (
     <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>Edit Profile</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={onClose}>Close</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader> */}
-
       <IonContent className="ion-padding">
         <IonItem>
           <IonLabel position="fixed">Name</IonLabel>
@@ -164,7 +164,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
             className="max-w-xs mx-auto"
             expand="block"
             color="danger"
-            onClick={handleDelete}
+            onClick={() => setShowDeleteAlert(true)}
           >
             Delete Profile
           </IonButton>
@@ -195,6 +195,30 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
           </IonButton>
         </div>
       </IonFooter>
+
+      <IonAlert
+        isOpen={showDeleteAlert}
+        onDidDismiss={() => setShowDeleteAlert(false)}
+        header={"Delete Profile"}
+        message={
+          "Are you sure you want to delete your profile? This action cannot be undone."
+        }
+        buttons={[
+          {
+            text: "Cancel",
+            role: "cancel",
+            handler: () => {
+              setShowDeleteAlert(false);
+            }
+          },
+          {
+            text: "Delete",
+            handler: () => {
+              handleDeleteProfile();
+            }
+          }
+        ]}
+      />
     </IonPage>
   );
 };

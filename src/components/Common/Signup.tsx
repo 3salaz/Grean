@@ -1,4 +1,4 @@
-import {useState, useMemo} from "react";
+import {useState, useMemo, useEffect} from "react";
 import {
   IonInput,
   IonItem,
@@ -53,7 +53,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Grab signUp from AuthContext
-  const {signUp} = useAuth();
+  const {signUp, currentUser} = useAuth();
   const {createProfile} = useProfile(); // Get createProfile function
 
   // Handler for text input changes
@@ -86,7 +86,9 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () =>
     setShowConfirmPassword(!showConfirmPassword);
+
   const handleSignUp = async () => {
+    setIsSubmitting(true); // Start loading state
     try {
       const user = await signUp(formData.email, formData.password);
 
@@ -99,25 +101,30 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
         return;
       }
 
-      await createProfile({
-        displayName: user.displayName || "user",
-        profilePic: user.photoURL || null,
-        email: user.email || "",
-        uid: user.uid,
-        locations: [],
-        pickups: [],
-        accountType: "User"
-      });
-
       console.log("✅ User Profile signed up successfully:", user);
       handleClose(); // Close modal after success
       history.push("/account"); // Redirect to account page
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
+      toast.error("Signup failed. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // End loading state
     }
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      createProfile({
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: currentUser.email || "",
+        photoURL: "",
+        uid: currentUser.uid,
+        locations: [],
+        pickups: [],
+        accountType: "user"
+      });
+    }
+  }, [currentUser, createProfile]);
 
   return (
     <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-end justify-center">

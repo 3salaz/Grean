@@ -14,7 +14,7 @@ import {
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import {useState} from "react";
 import CreatePickup from "./CreatePickup";
-import {usePickups, Pickup} from "../../context/PickupsContext";
+import {Pickup, usePickups} from "../../context/PickupsContext"; // Import usePickups
 import {
   calendarNumberOutline,
   checkmarkCircleOutline,
@@ -23,6 +23,7 @@ import {
 } from "ionicons/icons";
 import ViewPickups from "./ViewPickups"; // Import modal content
 import {UserProfile} from "../../context/ProfileContext";
+import {ToastContainer} from "react-toastify";
 
 interface PickupsProps {
   profile: UserProfile | null;
@@ -32,20 +33,20 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
   const {userCreatedPickups, visiblePickups} = usePickups();
 
   const [modalState, setModalState] = useState({
-    requestPickupOpen: false,
+    createPickupOpen: false,
     viewPickupOpen: false
   });
   const [selectedPickup, setSelectedPickup] = useState<Pickup | null>(null);
 
   const openModal = (
-    modalName: "requestPickupOpen" | "viewPickupOpen",
+    modalName: "createPickupOpen" | "viewPickupOpen",
     pickup: Pickup | null = null
   ) => {
     setModalState((prevState) => ({...prevState, [modalName]: true}));
     if (modalName === "viewPickupOpen") setSelectedPickup(pickup);
   };
 
-  const closeModal = (modalName: "requestPickupOpen" | "viewPickupOpen") => {
+  const closeModal = (modalName: "createPickupOpen" | "viewPickupOpen") => {
     setModalState((prevState) => ({...prevState, [modalName]: false}));
     if (modalName === "viewPickupOpen") setSelectedPickup(null);
   };
@@ -66,14 +67,15 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
 
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
+      <ToastContainer />
       {/* Create Pickup Modal */}
       <IonModal
-        isOpen={modalState.requestPickupOpen}
-        onDidDismiss={() => closeModal("requestPickupOpen")}
+        isOpen={modalState.createPickupOpen}
+        onDidDismiss={() => closeModal("createPickupOpen")}
       >
         <CreatePickup
           profile={profile}
-          handleClose={() => closeModal("requestPickupOpen")}
+          handleClose={() => closeModal("createPickupOpen")}
         />
       </IonModal>
 
@@ -164,7 +166,7 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
               </IonList>
             </IonCol>
             <IonCol size="auto" className="flex-grow mx-auto p-2">
-              <IonButton onClick={() => openModal("requestPickupOpen")}>
+              <IonButton onClick={() => openModal("createPickupOpen")}>
                 Create Pickup
               </IonButton>
             </IonCol>

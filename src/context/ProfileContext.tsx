@@ -8,7 +8,7 @@ import {useAuth} from "./AuthContext";
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
-  profilePic?: string | null;
+  photoURL?: string | null;
   email: string;
   uid: string;
   locations: string[];
@@ -97,11 +97,17 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
 
   /** ✅ Create Profile */
   const createProfile = async (profileData: any) => {
+    if (!user) {
+      console.error("❌ Error: user is null");
+      toast.error("User not authenticated. Please try again.");
+      return;
+    }
+
     try {
       const initialData: UserProfile = {
         displayName: `user${Math.floor(Math.random() * 10000)}`,
         email: user.email,
-        profilePic: "",
+        photoURL: "",
         uid: user.uid,
         locations: [],
         pickups: [],

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import AddLocation from "./CreateLocation";
+import CreateLocation from "./CreateLocation";
 import ProfileHeader from "./ProfileHeader";
 import {
   IonButton,
@@ -14,6 +14,7 @@ import MyLocations from "./MyLocations";
 import Impact from "./Impact";
 import {addCircleOutline} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
+import {ToastContainer} from "react-toastify";
 
 // **Define Props Interface**
 interface ProfileProps {
@@ -22,6 +23,7 @@ interface ProfileProps {
 
 const Profile: React.FC<ProfileProps> = ({profile}) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
   if (!profile) {
     return (
       <IonGrid className="h-full flex items-center justify-center">
@@ -32,14 +34,17 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
     );
   }
 
+  console.log("Profile:", profile.locations.length);
+
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
+      <ToastContainer />
       {/* Modal for Add Location */}
       <IonModal
         isOpen={isModalVisible}
         onDidDismiss={() => setIsModalVisible(false)}
       >
-        <AddLocation
+        <CreateLocation
           profile={profile}
           handleClose={() => setIsModalVisible(false)}
         />
@@ -49,11 +54,10 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
         <ProfileHeader profile={profile} />
         <MyForest />
         <Impact />
+        <MyLocations profile={profile} />
       </main>
 
-      {profile?.accountType === "User" && profile?.locations.length ? (
-        <MyLocations profile={profile} />
-      ) : (
+      {profile?.accountType === "User" && profile.locations.length < 1 && (
         <IonRow className="container max-w-2xl mx-auto w-full bg-white rounded-t-md drop-shadow-xl">
           <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">
             <IonButton
@@ -64,7 +68,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
               onClick={() => setIsModalVisible(true)}
               className="text-sm"
             >
-              Add Location
+              Add Location in Profile
               <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
             </IonButton>
           </IonCol>

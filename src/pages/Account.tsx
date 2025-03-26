@@ -21,6 +21,7 @@ import {
   personCircleOutline,
   statsChartOutline
 } from "ionicons/icons";
+import {useAuth} from "../context/AuthContext"; // Import useAuth
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -32,7 +33,8 @@ const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const Account: React.FC = () => {
-  const {profile, updateProfile} = useProfile();
+  const {profile, createProfile, updateProfile} = useProfile(); // Add createProfile
+  const {user} = useAuth(); // Get currentUser from useAuth
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [loading, setLoading] = useState<boolean>(true);
   const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
@@ -45,6 +47,28 @@ const Account: React.FC = () => {
     };
     loadTab();
   }, [activeTab]);
+
+  useEffect(() => {
+    const ensureProfile = async () => {
+      if (user && !profile) {
+        try {
+          await createProfile({
+            displayName: `user${Math.floor(Math.random() * 10000)}`,
+            email: user.email || "",
+            photoURL: "",
+            uid: user.uid,
+            locations: [],
+            pickups: [],
+            accountType: "user"
+          });
+        } catch (error) {
+          console.error("Error creating profile:", error);
+        }
+      }
+    };
+
+    ensureProfile();
+  }, [user, profile, createProfile]);
 
   // Open modal if displayName is missing
   useEffect(() => {

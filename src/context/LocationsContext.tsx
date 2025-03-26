@@ -1,6 +1,5 @@
-import {createContext, useContext, useEffect, useState, ReactNode} from "react";
-import {httpsCallable} from "firebase/functions";
-import {functions} from "../firebase";
+import {createContext, useContext, useState, ReactNode} from "react";
+import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
 
@@ -32,6 +31,7 @@ interface LocationContextType {
 const LocationsContext = createContext<LocationContextType | null>(null);
 
 export function LocationsProvider({children}: {children: ReactNode}) {
+  const {user} = useAuth();
   const [locations, setLocations] = useState<Location[]>([]);
   const [businessLocations, setBusinessLocations] = useState<Location[]>([]); // Added state for business locations
 
@@ -39,8 +39,19 @@ export function LocationsProvider({children}: {children: ReactNode}) {
     locationData: Location
   ): Promise<string | undefined> => {
     try {
-      const createLocationFn = httpsCallable(functions, "createLocation");
-      const response = await createLocationFn(locationData);
+      console.log("🚀 Creating location with data:", locationData);
+      const token = await user.getIdToken(); // Assuming `user` is available in the context
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createLocationFunction",
+        locationData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log("✅ Location created successfully:", response.data);
 
       if (
         response.data &&
@@ -53,15 +64,17 @@ export function LocationsProvider({children}: {children: ReactNode}) {
         throw new Error("Unexpected response format.");
       }
     } catch (error) {
-      console.error("Error creating location:", error);
+      console.error("❌ Error creating location:", error);
       toast.error("Failed to create location.");
     }
   };
 
   const deleteLocation = async (locationId: string): Promise<void> => {
     try {
-      const deleteLocationFn = httpsCallable(functions, "deleteLocation");
-      await deleteLocationFn({locationId});
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteLocationFunction",
+        {locationId}
+      );
       toast.success("Location deleted successfully!");
     } catch (error) {
       console.error("Error deleting location:", error);
@@ -74,8 +87,10 @@ export function LocationsProvider({children}: {children: ReactNode}) {
     updates: Partial<Location>
   ): Promise<void> => {
     try {
-      const updateLocationFn = httpsCallable(functions, "updateLocation");
-      await updateLocationFn({locationId, updates});
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocation",
+        {locationId, updates}
+      );
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);

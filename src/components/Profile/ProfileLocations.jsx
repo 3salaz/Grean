@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
-import { useAuthProfile } from "../../../../context/AuthProfileContext";
-import { useLocations } from "../../../../context/LocationsContext";
-import AddLocation from "./CreateLocation";
+import {useEffect, useState, useRef} from "react";
+import {useAuthProfile} from "../../../../context/AuthProfileContext";
+import {useLocations} from "../../../../context/LocationsContext";
+import CreateLocation from "./CreateLocation";
 import {
   IonButton,
   IonInput,
@@ -9,15 +9,13 @@ import {
   IonLabel,
   IonModal,
   IonIcon,
-  IonCol,
+  IonCol
 } from "@ionic/react";
-import {
-  arrowDownOutline,
-} from "ionicons/icons";
+import {arrowDownOutline} from "ionicons/icons";
 
 function ProfileLocations() {
-  const { profile } = useAuthProfile();
-  const { updateProfileLocation } = useLocations();
+  const {profile} = useAuthProfile();
+  const {updateProfileLocation} = useLocations();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [profileAddresses, setProfileAddresses] = useState([]);
@@ -42,7 +40,7 @@ function ProfileLocations() {
         });
       },
       {
-        threshold: 0.5,
+        threshold: 0.5
       }
     );
 
@@ -57,7 +55,7 @@ function ProfileLocations() {
     };
   }, []);
 
-  const openAddLocationModal = () => {
+  const openCreateLocationModal = () => {
     setIsAddModalVisible(true);
   };
 
@@ -73,10 +71,10 @@ function ProfileLocations() {
 
   const handleSaveEdit = async (values) => {
     const updatedAddresses = profileAddresses.map((addr, index) =>
-      index === currentAddressIndex ? { ...addr, ...values } : addr
+      index === currentAddressIndex ? {...addr, ...values} : addr
     );
 
-    await updateProfileLocation(profile.id, { ...addressToEdit, ...values });
+    await updateProfileLocation(profile.id, {...addressToEdit, ...values});
     setProfileAddresses(updatedAddresses);
     setIsEditModalVisible(false);
   };
@@ -88,7 +86,7 @@ function ProfileLocations() {
   const handleSlideChange = (index) => {
     const element = addressRefs.current[index];
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", inline: "center" });
+      element.scrollIntoView({behavior: "smooth", inline: "center"});
       setCurrentAddressIndex(index);
     }
   };
@@ -96,7 +94,7 @@ function ProfileLocations() {
   return (
     <IonCol size="12" className=" mx-auto ion-padding">
       <IonModal isOpen={isAddModalVisible} onDidDismiss={handleCloseAddModal}>
-        <AddLocation handleClose={handleCloseAddModal} />
+        <CreateLocation handleClose={handleCloseAddModal} />
       </IonModal>
 
       <IonModal isOpen={isEditModalVisible} onDidDismiss={handleCloseEditModal}>
@@ -109,7 +107,7 @@ function ProfileLocations() {
                 onIonChange={(e) =>
                   setAddressToEdit({
                     ...addressToEdit,
-                    locationType: e.detail.value,
+                    locationType: e.detail.value
                   })
                 }
                 required
@@ -120,7 +118,7 @@ function ProfileLocations() {
               <IonInput
                 value={addressToEdit.street}
                 onIonChange={(e) =>
-                  setAddressToEdit({ ...addressToEdit, street: e.detail.value })
+                  setAddressToEdit({...addressToEdit, street: e.detail.value})
                 }
                 required
               />
@@ -130,7 +128,7 @@ function ProfileLocations() {
               <IonInput
                 value={addressToEdit.city}
                 onIonChange={(e) =>
-                  setAddressToEdit({ ...addressToEdit, city: e.detail.value })
+                  setAddressToEdit({...addressToEdit, city: e.detail.value})
                 }
                 required
               />
@@ -140,7 +138,7 @@ function ProfileLocations() {
               <IonInput
                 value={addressToEdit.state}
                 onIonChange={(e) =>
-                  setAddressToEdit({ ...addressToEdit, state: e.detail.value })
+                  setAddressToEdit({...addressToEdit, state: e.detail.value})
                 }
                 required
               />
@@ -186,7 +184,7 @@ function ProfileLocations() {
           ))
         ) : (
           <div className="section rounded-md flex-none w-full h-full flex justify-center items-center snap-center">
-            <IonButton fill="outline" onClick={openAddLocationModal}>
+            <IonButton fill="outline" onClick={openCreateLocationModal}>
               Add a Location!
               <IonIcon slot="start" icon={arrowDownOutline}></IonIcon>
             </IonButton>

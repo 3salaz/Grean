@@ -13,11 +13,20 @@ export const createProfile = async (
     profileData: Partial<UserProfile>
 ): Promise<void> => {
   try {
-    const profileRef = db.collection("profiles").doc(uid);
-    await profileRef.set({
-      ...profileData,
+    const initialData: UserProfile = {
+      displayName:
+        profileData.displayName || `user${Math.floor(Math.random() * 10000)}`,
+      email: profileData.email || "",
+      photoURL: profileData.photoURL || "",
+      uid: uid,
+      locations: profileData.locations || [],
+      pickups: profileData.pickups || [],
+      accountType: profileData.accountType || "user",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    };
+
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.set(initialData);
     logger.info(`Profile created for UID: ${uid}`);
   } catch (error) {
     logger.error(`Error creating profile for UID: ${uid}`, error);

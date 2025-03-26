@@ -1,4 +1,4 @@
-import { Response } from "express";
+import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import {
   createProfile,
@@ -27,11 +27,22 @@ export const createProfileFunction = [
       }
       logger.info("✅ User authenticated:", uid);
 
-      await createProfile(uid, req.body as CreateProfileData);
-      res.status(200).send({ success: true });
+      // Ensure initial data is passed to createProfile
+      const initialData: CreateProfileData = {
+        displayName:
+          req.body.displayName || `user${Math.floor(Math.random() * 10000)}`,
+        email: req.body.email || req.user?.email || "",
+        photoURL: req.body.photoURL || "",
+        locations: req.body.locations || [],
+        pickups: req.body.pickups || [],
+        accountType: req.body.accountType || "user",
+      };
+
+      await createProfile(uid, initialData);
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -54,19 +65,19 @@ export const updateProfileFunction = [
 
       if (operation === "update" || operation === "set") {
         await updateProfileField(
-          uid,
-          field,
-          value,
+            uid,
+            field,
+            value,
           operation as ProfileUpdateOperation
         );
       } else {
-        await updateProfileBulk(uid, { [field]: value });
+        await updateProfileBulk(uid, {[field]: value});
       }
 
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -82,10 +93,10 @@ export const deleteProfileFunction = [
       logger.info("✅ User authenticated:", uid);
 
       await deleteProfile(uid);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];

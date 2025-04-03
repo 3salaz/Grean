@@ -1,8 +1,10 @@
-import {createContext, useContext, useState, ReactNode} from "react";
+import {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
 import {useProfile} from "./ProfileContext";
+import {collection, query, where, getDocs} from "firebase/firestore";
+import {db} from "../firebase";
 
 // Define Pickup Type
 export interface Pickup {
@@ -45,6 +47,8 @@ interface PickupContextType {
     updatedData: Partial<Pickup>
   ) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
+  fetchAllPickups: () => Promise<void>;
+  fetchUserCreatedPickups: (userId: string) => Promise<void>;
 }
 
 // Create Context
@@ -58,6 +62,45 @@ export function PickupsProvider({children}: {children: ReactNode}) {
   const [userAcceptedPickups, setUserAcceptedPickups] = useState<Pickup[]>([]);
   const [visiblePickups, setVisiblePickups] = useState<Pickup[]>([]);
   const [completedPickups, setCompletedPickups] = useState<Pickup[]>([]);
+
+  // Fetch All Pickups
+  const fetchAllPickups = async () => {
+    try {
+      const q = query(
+        collection(db, "pickups"),
+        where("isAccepted", "==", false),
+        where("isCompleted", "==", false)
+      );
+      const querySnapshot = await getDocs(q);
+      const allPickups = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Pickup[];
+      setPickups(allPickups);
+    } catch (error) {
+      console.error("Error fetching all pickups:", error);
+      toast.error("Failed to fetch pickups.");
+    }
+  };
+
+  // Fetch User Created Pickups
+  const fetchUserCreatedPickups = async (userId: string) => {
+    try {
+      const q = query(
+        collection(db, "pickups"),
+        where("createdBy.userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      const userPickups = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Pickup[];
+      setUserCreatedPickups(userPickups);
+    } catch (error) {
+      console.error("Error fetching user created pickups:", error);
+      toast.error("Failed to fetch user created pickups.");
+    }
+  };
 
   // Create Pickup
   const createPickup = async (
@@ -155,6 +198,12 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      fetchUserCreatedPickups(user.uid);
+    }
+  }, [user]);
+
   return (
     <PickupContext.Provider
       value={{
@@ -165,7 +214,9 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         completedPickups,
         createPickup,
         updatePickup,
-        deletePickup
+        deletePickup,
+        fetchAllPickups,
+        fetchUserCreatedPickups
       }}
     >
       {children}

@@ -80,7 +80,6 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
   handleClose
 }) => {
   const {createLocation} = useLocations();
-  const {updateProfile} = useProfile();
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);

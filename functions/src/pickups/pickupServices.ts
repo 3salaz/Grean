@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { Pickup, CreatePickupData } from "./pickupTypes";
+import {Pickup, CreatePickupData} from "./pickupTypes";
 
 // Ensure Firebase Admin is initialized
 if (!admin.apps.length) {
@@ -18,12 +18,12 @@ const pickupCollection = db.collection("pickups");
 export const fetchPickups = async (userId: string): Promise<Pickup[]> => {
   try {
     const snapshot = await pickupCollection
-      .where("createdBy.userId", "==", userId)
-      .orderBy("createdAt", "desc")
-      .get();
+        .where("createdBy.userId", "==", userId)
+        .orderBy("createdAt", "desc")
+        .get();
 
     return snapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Pickup)
+        (doc) => ({id: doc.id, ...doc.data()} as Pickup)
     );
   } catch (error) {
     console.error("❌ Error fetching pickups:", error);
@@ -38,13 +38,12 @@ export const fetchPickups = async (userId: string): Promise<Pickup[]> => {
  * @return {Promise<{ pickupId: string }>}
  */
 export const createPickup = async (
-  uid: string,
-  data: CreatePickupData
+    uid: string,
+    data: CreatePickupData
 ): Promise<{ pickupId: string }> => {
   try {
     console.log("🚀 Received createdBy data:", data.createdBy);
 
-    // Ensure createdBy fields are properly assigned
     const createdBy = {
       userId: uid,
       displayName: data.createdBy?.displayName?.trim() || "No Name",
@@ -63,8 +62,19 @@ export const createPickup = async (
     };
 
     const docRef = await pickupCollection.add(newPickup);
-    console.log("✅ Pickup created successfully with ID:", docRef.id);
-    return { pickupId: docRef.id };
+    const pickupId = docRef.id;
+
+    // ✅ Update the user's profile with the new pickup ID
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.update({
+      pickups: admin.firestore.FieldValue.arrayUnion(pickupId),
+    });
+
+    console.log(
+        "✅ Pickup created successfully and added to user profile:",
+        pickupId
+    );
+    return {pickupId};
   } catch (error) {
     console.error("❌ Error creating pickup:", error);
     throw new Error("Failed to create pickup.");
@@ -79,16 +89,16 @@ export const createPickup = async (
  * @return {Promise<{ success: boolean }>}
  */
 export const updatePickup = async (
-  uid: string,
-  pickupId: string,
-  updates: Partial<Pickup>
+    uid: string,
+    pickupId: string,
+    updates: Partial<Pickup>
 ): Promise<{ success: boolean }> => {
   try {
     console.log(
-      "🚀 Updating pickup with ID:",
-      pickupId,
-      "and updates:",
-      updates
+        "🚀 Updating pickup with ID:",
+        pickupId,
+        "and updates:",
+        updates
     );
     const docRef = pickupCollection.doc(pickupId);
     const doc = await docRef.get();
@@ -99,7 +109,7 @@ export const updatePickup = async (
 
     await docRef.update(updates);
     console.log("✅ Pickup updated successfully with ID:", pickupId);
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.error("❌ Error updating pickup:", error);
     throw new Error("Failed to update pickup.");
@@ -113,8 +123,8 @@ export const updatePickup = async (
  * @return {Promise<{ success: boolean }>}
  */
 export const deletePickup = async (
-  uid: string,
-  pickupId: string
+    uid: string,
+    pickupId: string
 ): Promise<{ success: boolean }> => {
   try {
     console.log("🚀 Deleting pickup with ID:", pickupId);
@@ -125,9 +135,20 @@ export const deletePickup = async (
       throw new Error("Unauthorized: You cannot delete this pickup.");
     }
 
+    // Delete the pickup document
     await docRef.delete();
-    console.log("✅ Pickup deleted successfully with ID:", pickupId);
-    return { success: true };
+
+    // ✅ Remove the pickup ID from the user's profile
+    const profileRef = db.collection("profiles").doc(uid);
+    await profileRef.update({
+      pickups: admin.firestore.FieldValue.arrayRemove(pickupId),
+    });
+
+    console.log(
+        "✅ Pickup deleted successfully and removed from user profile:",
+        pickupId
+    );
+    return {success: true};
   } catch (error) {
     console.error("❌ Error deleting pickup:", error);
     throw new Error("Failed to delete pickup.");

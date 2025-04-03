@@ -1,4 +1,4 @@
-import {useState, useMemo, useEffect} from "react";
+import {useState, useMemo} from "react";
 import {
   IonInput,
   IonItem,
@@ -14,14 +14,12 @@ import {
   IonCardTitle,
   IonCardContent,
   IonFabButton,
-  IonIcon,
-  IonContent
+  IonIcon
 } from "@ionic/react";
 import {closeOutline, eyeOutline, eyeOffOutline} from "ionicons/icons";
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {useAuth} from "../../context/AuthContext";
-import {useProfile} from "../../context/ProfileContext"; // Import the Profile contexts
 import {useHistory} from "react-router-dom";
 
 const isValidEmail = (email: string) => {
@@ -53,18 +51,21 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Grab signUp from AuthContext
-  const {signUp, currentUser} = useAuth();
-  const {createProfile} = useProfile(); // Get createProfile function
+  const {signUp} = useAuth();
+  // const {createProfile} = useProfile(); // Get createProfile function
 
-  // Handler for text input changes
-  const handleInputChange = (e: any) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleInputChange = (e: CustomEvent<{value: string}>) => {
+    const input = e.target as HTMLInputElement;
+    const {name} = input;
+    const {value} = e.detail;
+
+    if (name) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
-
   // Check if passwords match in real-time
   const passwordsMatch = formData.password === formData.confirmPassword;
 
@@ -87,7 +88,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const toggleConfirmPasswordVisibility = () =>
     setShowConfirmPassword(!showConfirmPassword);
 
-  const handleSignUp = async () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true); // Start loading state
     try {
       const user = await signUp(formData.email, formData.password);
@@ -101,7 +102,10 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
         return;
       }
 
-      console.log("✅ User Profile signed up successfully:", user);
+      console.log("✅ User signed up successfully:", user);
+
+      // Create profile immediately after signup
+
       handleClose(); // Close modal after success
       history.push("/account"); // Redirect to account page
     } catch (error) {
@@ -111,20 +115,6 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
       setIsSubmitting(false); // End loading state
     }
   };
-
-  useEffect(() => {
-    if (currentUser) {
-      createProfile({
-        displayName: `user${Math.floor(Math.random() * 10000)}`,
-        email: currentUser.email || "",
-        photoURL: "",
-        uid: currentUser.uid,
-        locations: [],
-        pickups: [],
-        accountType: "user"
-      });
-    }
-  }, [currentUser, createProfile]);
 
   return (
     <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-end justify-center">
@@ -257,7 +247,6 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                     )}
                   </IonCol>
                 </IonRow>
-
                 {/* Already have an account? */}
                 <IonRow className="ion-padding">
                   <IonCol size="12" className="text-center">
@@ -279,7 +268,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                     <IonButton
                       expand="block"
                       color="success"
-                      onClick={handleSignUp}
+                      onClick={handleSubmit}
                       disabled={!isFormValid || isSubmitting}
                       className="text-white"
                     >

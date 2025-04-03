@@ -18,6 +18,7 @@ import {toast, ToastContainer} from "react-toastify";
 import {Pickup, usePickups} from "../../context/PickupsContext";
 import {useUserLocations} from "../../hooks/useUserLocations";
 import {UserProfile} from "../../context/ProfileContext";
+import {updateProfile} from "firebase/auth";
 
 // Define type for local state (matching Pickup type)
 type PickupData = Omit<

@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import CreateLocation from "./CreateLocation";
 import ProfileHeader from "./ProfileHeader";
 import {
@@ -24,6 +24,18 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({profile}) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
+  useEffect(() => {
+    const fixTouchEvent = (event: TouchEvent) => {};
+
+    document.addEventListener("touchstart", fixTouchEvent, {passive: true});
+    document.addEventListener("touchmove", fixTouchEvent, {passive: true});
+
+    return () => {
+      document.removeEventListener("touchstart", fixTouchEvent);
+      document.removeEventListener("touchmove", fixTouchEvent);
+    };
+  }, []);
+
   if (!profile) {
     return (
       <IonGrid className="h-full flex items-center justify-center">
@@ -33,8 +45,6 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
       </IonGrid>
     );
   }
-
-  console.log("Profile:", profile.locations.length);
 
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">

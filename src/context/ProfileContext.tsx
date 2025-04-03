@@ -8,7 +8,7 @@ import {useAuth} from "./AuthContext";
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
-  photoURL?: string | null;
+  profilePic?: string | null;
   email: string;
   uid: string;
   locations: string[];
@@ -27,6 +27,7 @@ interface ProfileContextValue {
     operation?: "update" | "addToArray" | "removeFromArray"
   ) => Promise<void>;
   deleteProfile: () => Promise<void>;
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
 // ✅ Create Context
@@ -43,7 +44,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
 
   useEffect(() => {
     if (!user) {
-      console.warn("⚠️ No user found, clearing profile.");
+      // console.warn("⚠️ No user found");
       setProfile(null);
       setLoadingProfile(false);
       return;
@@ -55,10 +56,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       const profileSnap = await getDoc(profileRef);
 
       if (!profileSnap.exists()) {
-        console.warn(
-          "⚠️ Profile does not exist in Firestore for user:",
-          user.uid
-        );
+        console.warn("⚠️ Users Profile does not exist in Firestore", user.uid);
         setProfile(null);
         setLoadingProfile(false);
         return;
@@ -107,11 +105,11 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       const initialData: UserProfile = {
         displayName: `user${Math.floor(Math.random() * 10000)}`,
         email: user.email,
-        photoURL: "",
+        profilePic: "",
         uid: user.uid,
         locations: [],
         pickups: [],
-        accountType: "user"
+        accountType: ""
       };
 
       console.log("🚀 Creating profile with data:", initialData);
@@ -194,6 +192,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       value={{
         profile,
         loadingProfile,
+        setProfile,
         createProfile,
         updateProfile,
         deleteProfile

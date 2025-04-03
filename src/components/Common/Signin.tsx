@@ -67,7 +67,6 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
     try {
       setLoading(true);
       await signIn(email, password);
-      await createProfile(); // Create profile if it doesn't exist
       handleClose();
       history.push("/account"); // Redirect to account page
     } catch (error) {

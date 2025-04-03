@@ -33,7 +33,7 @@ const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const Account: React.FC = () => {
-  const {profile, createProfile, updateProfile} = useProfile(); // Add createProfile
+  const {profile, createProfile, updateProfile, setProfile} = useProfile(); // Add createProfile
   const {user} = useAuth(); // Get currentUser from useAuth
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,34 +48,31 @@ const Account: React.FC = () => {
     loadTab();
   }, [activeTab]);
 
-  useEffect(() => {
-    const ensureProfile = async () => {
-      if (user && !profile) {
-        try {
-          await createProfile({
-            displayName: `user${Math.floor(Math.random() * 10000)}`,
-            email: user.email || "",
-            photoURL: "",
-            uid: user.uid,
-            locations: [],
-            pickups: [],
-            accountType: "user"
-          });
-        } catch (error) {
-          console.error("Error creating profile:", error);
-        }
-      }
-    };
-
-    ensureProfile();
-  }, [user, profile, createProfile]);
-
   // Open modal if displayName is missing
+
   useEffect(() => {
-    if (profile && !profile.displayName) {
-      setShowProfileSetup(true);
-    } else {
-      setShowProfileSetup(false);
+    if (user && !profile) {
+      const newProfile = {
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: user.email || "",
+        photoURL: "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: "" // Initial empty accountType
+      };
+
+      createProfile(newProfile).then(() => {
+        setProfile(newProfile);
+        setShowProfileSetup(true); // ✅ Open modal after profile creation
+      });
+    }
+  }, [user, profile]); // Runs when `user` or `profile` changes
+
+  useEffect(() => {
+    if (profile?.accountType === "") {
+      setLoading(false);
+      setShowProfileSetup(true); // ✅ Open modal if accountType is empty
     }
   }, [profile]);
 

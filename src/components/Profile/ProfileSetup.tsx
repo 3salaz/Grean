@@ -94,7 +94,6 @@ const ProfileSetup: React.FC = () => {
           className="mt-2"
         />
       </div>
-
       {/* Save Button */}
       <div className="flex justify-center mt-4">
         <IonButton onClick={handleSubmit} disabled={loading || !accountType}>

@@ -46,13 +46,7 @@ const PickupsQueue: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const {user} = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      // fetchUserCreatedPickups(user.uid);
-    }
-  }, [user]);
+  console.log(visiblePickups);
 
   return (
     <>

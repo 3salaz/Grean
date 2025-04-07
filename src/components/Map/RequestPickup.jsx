@@ -89,7 +89,7 @@ function RequestPickup({handleClose, profile}) {
           userId: profile?.uid,
           displayName: profile?.displayName || "No Name",
           email: profile?.email,
-          photoURL: profile?.profilePic || ""
+          photoURL: profile?.photoURL || ""
         }
       };
 

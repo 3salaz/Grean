@@ -70,8 +70,6 @@ const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({
   );
 };
 
-// ---------- Main Component ----------
-// Renamed from AddLocationProps to CreateLocationProps
 interface CreateLocationProps {
   profile: UserProfile | null;
   handleClose: () => void;
@@ -82,7 +80,6 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
   handleClose
 }) => {
   const {createLocation} = useLocations();
-  const {updateProfile} = useProfile();
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
@@ -220,9 +217,13 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
         })
       };
       const newLocationId = await createLocation(newLocation);
-      await updateProfile("locations", newLocationId, "addToArray");
-      toast.success("Location added successfully!");
-      handleClose();
+      if (newLocationId) {
+        // await updateProfile("locations", newLocationId, "addToArray");
+        toast.success("Location added successfully!");
+        handleClose();
+      } else {
+        throw new Error("Failed to create location.");
+      }
     } catch (error) {
       console.error("Error adding location:", error);
       toast.error("Failed to add location.");

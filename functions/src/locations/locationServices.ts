@@ -16,11 +16,11 @@ interface Location {
 /** ✅ Create a new location
  * @param {string} uid - The user's unique ID.
  * @param {Location} data - The location details.
- * @return {Promise<{id: string}>} The created location ID.
+ * @return {Promise<{ locationId: string }>} The created location ID.
  */
 export const createLocation = async (
     uid: string,
-    data: Location,
+    data: Location
 ): Promise<{ locationId: string }> => {
   const locationData = {
     ...data,
@@ -28,19 +28,27 @@ export const createLocation = async (
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   };
   const locationRef = await db.collection("locations").add(locationData);
-  return {locationId: locationRef.id};
+  const locationId = locationRef.id;
+
+  // Update the user's profile with the new location ID
+  const profileRef = db.collection("profiles").doc(uid);
+  await profileRef.update({
+    locations: admin.firestore.FieldValue.arrayUnion(locationId),
+  });
+
+  return {locationId};
 };
 
 /** ✅ Update an existing location
  * @param {string} uid - The user's unique ID.
  * @param {string} locationId - The location ID to update.
  * @param {Partial<Location>} updates - The updates to apply.
- * @return {Promise<{success: boolean}>} Success response.
+ * @return {Promise<{ success: boolean }>} Success response.
  */
 export const updateLocation = async (
     uid: string,
     locationId: string,
-    updates: Partial<Location>,
+    updates: Partial<Location>
 ): Promise<{ success: boolean }> => {
   const locationRef = db.collection("locations").doc(locationId);
   const doc = await locationRef.get();
@@ -56,11 +64,11 @@ export const updateLocation = async (
 /** ✅ Delete a location
  * @param {string} uid - The user's unique ID.
  * @param {string} locationId - The location ID to delete.
- * @return {Promise<{success: boolean}>} Success response.
+ * @return {Promise<{ success: boolean }>} Success response.
  */
 export const deleteLocation = async (
     uid: string,
-    locationId: string,
+    locationId: string
 ): Promise<{ success: boolean }> => {
   const locationRef = db.collection("locations").doc(locationId);
   const doc = await locationRef.get();
@@ -69,6 +77,14 @@ export const deleteLocation = async (
     throw new Error("Unauthorized: You cannot delete this location.");
   }
 
+  // Delete the location document
   await locationRef.delete();
+
+  // Remove the location ID from the user's profile's locations array
+  const profileRef = db.collection("profiles").doc(uid);
+  await profileRef.update({
+    locations: admin.firestore.FieldValue.arrayRemove(locationId),
+  });
+
   return {success: true};
 };

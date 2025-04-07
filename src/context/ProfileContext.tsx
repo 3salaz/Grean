@@ -8,12 +8,13 @@ import {useAuth} from "./AuthContext";
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
-  profilePic?: string | null;
+  profile?: string | null;
   email: string;
   uid: string;
   locations: string[];
   pickups: string[];
   accountType: string;
+  photoURL?: string | null;
 }
 
 // ✅ Define Context Type
@@ -27,6 +28,7 @@ interface ProfileContextValue {
     operation?: "update" | "addToArray" | "removeFromArray"
   ) => Promise<void>;
   deleteProfile: () => Promise<void>;
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
 // ✅ Create Context
@@ -43,7 +45,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
 
   useEffect(() => {
     if (!user) {
-      console.warn("⚠️ No user found, clearing profile.");
+      // console.warn("⚠️ No user found");
       setProfile(null);
       setLoadingProfile(false);
       return;
@@ -55,10 +57,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       const profileSnap = await getDoc(profileRef);
 
       if (!profileSnap.exists()) {
-        console.warn(
-          "⚠️ Profile does not exist in Firestore for user:",
-          user.uid
-        );
+        console.warn("⚠️ Users Profile does not exist in Firestore", user.uid);
         setProfile(null);
         setLoadingProfile(false);
         return;
@@ -97,15 +96,21 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
 
   /** ✅ Create Profile */
   const createProfile = async (profileData: any) => {
+    if (!user) {
+      console.error("❌ Error: user is null");
+      toast.error("User not authenticated. Please try again.");
+      return;
+    }
+
     try {
       const initialData: UserProfile = {
         displayName: `user${Math.floor(Math.random() * 10000)}`,
         email: user.email,
-        profilePic: "",
+        photoURL: "",
         uid: user.uid,
         locations: [],
         pickups: [],
-        accountType: "user"
+        accountType: ""
       };
 
       console.log("🚀 Creating profile with data:", initialData);
@@ -188,6 +193,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       value={{
         profile,
         loadingProfile,
+        setProfile,
         createProfile,
         updateProfile,
         deleteProfile

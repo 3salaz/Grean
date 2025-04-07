@@ -104,7 +104,7 @@ function Navbar() {
           <IonButton fill="clear" slot="end" onClick={handleOpenPopover}>
             <img
               className="h-10 w-10 rounded-full text-white"
-              src={profile?.profilePic || avatar}
+              src={profile?.profileUrl || avatar}
               alt="User Avatar"
             />
           </IonButton>

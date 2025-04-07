@@ -1,66 +1,79 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import {
   createLocation,
-  updateLocation,
+  // updateLocation,
   deleteLocation,
 } from "./locationServices";
-import { authMiddleware } from "../middleware/authMiddleware";
+import {
+  authMiddleware,
+  AuthenticatedRequest,
+} from "../middleware/authMiddleware";
+
 import {
   CreateLocationData,
-  UpdateLocationData,
+  // UpdateLocationData,
   DeleteLocationData,
 } from "./locationTypes";
 
-/** ✅ Create Location Function */
-export const createLocationFunction = onCall<CreateLocationData>(
-  async (request) => {
-    logger.info("🔥 create TRIGGERED with data:", request.data);
+export const createLocationFunction = [
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    logger.info("🔥 createLocationFunction TRIGGERED with data:", req.body);
     try {
-      const uid = await authMiddleware(request); // 🔒 Secure function
+      const uid = req.user?.uid;
+      if (!uid) {
+        throw new Error("User UID is undefined.");
+      }
       logger.info("✅ User authenticated:", uid);
 
-      const result = await createLocation(uid, request.data);
-      return { locationId: result.locationId };
+      const result = await createLocation(uid, req.body as CreateLocationData);
+      res.status(200).send({locationId: result.locationId});
     } catch (error) {
-      logger.error("❌ ERROR:", error);
-      throw new HttpsError("internal", (error as Error).message);
+      logger.error("❌ ERROR in createLocationFunction:", error);
+      res.status(500).send({error: (error as Error).message});
     }
-  }
-);
+  },
+];
 
-/** ✅ Update Location Function */
-export const updateLocationFunction = onCall<UpdateLocationData>(
-  async (request) => {
-    logger.info("🔥 update TRIGGERED with data:", request.data);
+// export const updateLocationFunction = [
+//   authMiddleware,
+//   async (req: AuthenticatedRequest, res: Response) => {
+//     logger.info("🔥 updateLocationFunction TRIGGERED with data:", req.body);
+//     try {
+//       const uid = req.user?.uid;
+//       if (!uid) {
+//         throw new Error("User UID is undefined.");
+//       }
+//       logger.info("✅ User authenticated:", uid);
+
+//       const { locationId, updates } = req.body as UpdateLocationData;
+//       await updateLocation(uid, locationId, updates);
+//       res.status(200).send({ success: true });
+//     } catch (error) {
+//       logger.error("❌ ERROR in updateLocationFunction:", error);
+//       res.status(500).send({ error: (error as Error).message });
+//     }
+//   },
+// ];
+
+export const deleteLocationFunction = [
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    logger.info("🔥 deleteLocationFunction TRIGGERED with data:", req.body);
     try {
-      const uid = await authMiddleware(request); // 🔒 Secure function
+      const uid = req.user?.uid;
+      if (!uid) {
+        throw new Error("User UID is undefined.");
+      }
       logger.info("✅ User authenticated:", uid);
 
-      const { locationId, updates } = request.data;
-      await updateLocation(uid, locationId, updates);
-      return { success: true };
-    } catch (error) {
-      logger.error("❌ ERROR:", error);
-      throw new HttpsError("internal", (error as Error).message);
-    }
-  }
-);
-
-/** ✅ Delete Location Function */
-export const deleteLocationFunction = onCall<DeleteLocationData>(
-  async (request) => {
-    logger.info("🔥 delete TRIGGERED with data:", request.data);
-    try {
-      const uid = await authMiddleware(request); // 🔒 Secure function
-      logger.info("✅ User authenticated:", uid);
-
-      const { locationId } = request.data;
+      const {locationId} = req.body as DeleteLocationData;
       await deleteLocation(uid, locationId);
-      return { success: true };
+      res.status(200).send({success: true});
     } catch (error) {
-      logger.error("❌ ERROR:", error);
-      throw new HttpsError("internal", (error as Error).message);
+      logger.error("❌ ERROR in deleteLocationFunction:", error);
+      res.status(500).send({error: (error as Error).message});
     }
-  }
-);
+  },
+];

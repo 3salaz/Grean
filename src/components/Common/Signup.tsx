@@ -14,14 +14,12 @@ import {
   IonCardTitle,
   IonCardContent,
   IonFabButton,
-  IonIcon,
-  IonContent
+  IonIcon
 } from "@ionic/react";
 import {closeOutline, eyeOutline, eyeOffOutline} from "ionicons/icons";
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {useAuth} from "../../context/AuthContext";
-import {useProfile} from "../../context/ProfileContext"; // Import the Profile contexts
 import {useHistory} from "react-router-dom";
 
 const isValidEmail = (email: string) => {
@@ -54,17 +52,20 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
 
   // Grab signUp from AuthContext
   const {signUp} = useAuth();
-  const {createProfile} = useProfile(); // Get createProfile function
+  // const {createProfile} = useProfile(); // Get createProfile function
 
-  // Handler for text input changes
-  const handleInputChange = (e: any) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleInputChange = (e: CustomEvent<{value: string}>) => {
+    const input = e.target as HTMLInputElement;
+    const {name} = input;
+    const {value} = e.detail;
+
+    if (name) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
-
   // Check if passwords match in real-time
   const passwordsMatch = formData.password === formData.confirmPassword;
 
@@ -86,7 +87,9 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () =>
     setShowConfirmPassword(!showConfirmPassword);
-  const handleSignUp = async () => {
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true); // Start loading state
     try {
       const user = await signUp(formData.email, formData.password);
 
@@ -99,23 +102,17 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
         return;
       }
 
-      await createProfile({
-        displayName: user.displayName || "user",
-        profilePic: user.photoURL || null,
-        email: user.email || "",
-        uid: user.uid,
-        locations: [],
-        pickups: [],
-        accountType: "User"
-      });
+      console.log("✅ User signed up successfully:", user);
 
-      console.log("✅ User Profile signed up successfully:", user);
+      // Create profile immediately after signup
+
       handleClose(); // Close modal after success
       history.push("/account"); // Redirect to account page
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
+      toast.error("Signup failed. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // End loading state
     }
   };
 
@@ -250,7 +247,6 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                     )}
                   </IonCol>
                 </IonRow>
-
                 {/* Already have an account? */}
                 <IonRow className="ion-padding">
                   <IonCol size="12" className="text-center">
@@ -272,7 +268,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                     <IonButton
                       expand="block"
                       color="success"
-                      onClick={handleSignUp}
+                      onClick={handleSubmit}
                       disabled={!isFormValid || isSubmitting}
                       className="text-white"
                     >

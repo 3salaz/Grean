@@ -1,92 +1,121 @@
-import React, {useState} from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  InfoWindow,
-  useLoadScript
-} from "@react-google-maps/api";
-import {IonSpinner} from "@ionic/react";
+import React, {useState, useEffect} from "react";
+import {IonCol, IonGrid, IonRow, IonSpinner} from "@ionic/react";
+import {APIProvider, Map, AdvancedMarker} from "@vis.gl/react-google-maps";
+import {motion, AnimatePresence} from "framer-motion"; // Import Framer Motion
 import businessIcon from "../../assets/icons/business.png";
-import {useBusinessLocations} from "../../hooks/useBusinessLocations";
-import {LocationData} from "../../hooks/useUserLocations";
+import homeIcon from "../../assets/icons/home.png";
+import {useLocations, Location} from "../../context/LocationsContext";
+import {UserProfile} from "../../context/ProfileContext";
 
-// Define the container style for the map.
-const containerStyle = {
-  width: "100%",
-  height: "100%"
+// San Francisco center coordinates
+const sanFranciscoCenter = {
+  lat: 37.7749,
+  lng: -122.4194
 };
 
-// Default center of the map.
-const defaultCenter = {
-  lat: 37.742646,
-  lng: -122.433247
-};
+interface MapContainerProps {
+  profile: UserProfile | null;
+}
 
-const Map: React.FC = () => {
-  const {isLoaded, loadError} = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
-  });
-
-  const {locations: businessLocations, loading} = useBusinessLocations();
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
+const MapContainer: React.FC<MapContainerProps> = ({profile}) => {
+  const {profileLocations, businessLocations, loading} = useLocations();
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [mapCenter, setMapCenter] = useState(sanFranciscoCenter);
   const [mapZoom, setMapZoom] = useState(11);
 
-  const handleMarkerClick = (location: LocationData) => {
+  // Merge profile and business locations while preventing duplicates
+  const allLocations = [...profileLocations, ...businessLocations].reduce(
+    (unique, loc) => {
+      if (!unique.some((existing) => existing.id === loc.id)) {
+        unique.push(loc);
+      }
+      return unique;
+    },
+    [] as Location[]
+  );
+
+  const handleMarkerClick = (location: Location) => {
     setSelectedLocation(location);
     setMapCenter({lat: location.latitude!, lng: location.longitude!});
     setMapZoom(14);
   };
 
-  if (loadError) {
-    console.error("Error loading Google Maps:", loadError);
-    return <div>Error loading map</div>;
-  }
+  useEffect(() => {
+    setMapCenter(sanFranciscoCenter);
+  }, [allLocations]);
 
-  // Show spinner until both the API is loaded and data is fetched.
-  if (!isLoaded || loading) {
-    return <IonSpinner />;
+  const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+  const MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || "";
+
+  if (loading) {
+    return (
+      <IonGrid className="h-full flex items-center justify-center">
+        <IonRow className="container">
+          <IonCol size="auto" className="mx-auto">
+            <IonSpinner />
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+    );
   }
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={mapCenter}
-      zoom={mapZoom}
-    >
-      {businessLocations.map((location) => (
-        <Marker
-          key={location.id}
-          position={{lat: location.latitude!, lng: location.longitude!}}
-          icon={{
-            url: businessIcon,
-            scaledSize: window.google?.maps
-              ? new window.google.maps.Size(40, 40)
-              : undefined
-          }}
-          onClick={() => handleMarkerClick(location)}
-        />
-      ))}
-
-      {selectedLocation && (
-        <InfoWindow
-          position={{
-            lat: selectedLocation.latitude!,
-            lng: selectedLocation.longitude!
-          }}
-          onCloseClick={() => setSelectedLocation(null)}
+    <APIProvider apiKey={API_KEY}>
+      <div className="relative h-full w-full">
+        <Map
+          style={{width: "100%", height: "100%"}}
+          defaultCenter={mapCenter}
+          defaultZoom={mapZoom}
+          mapId={MAP_ID}
+          gestureHandling="greedy"
         >
-          <div>
-            <h3>{selectedLocation.businessName}</h3>
-            <p>{selectedLocation.address}</p>
-          </div>
-        </InfoWindow>
-      )}
-    </GoogleMap>
+          {allLocations.map((location) => {
+            const iconSrc =
+              location.locationType === "Home" ? homeIcon : businessIcon;
+            return (
+              <AdvancedMarker
+                key={location.id}
+                position={{lat: location.latitude, lng: location.longitude}}
+                onClick={() => handleMarkerClick(location)}
+              >
+                <img src={iconSrc} width={32} height={32} />
+              </AdvancedMarker>
+            );
+          })}
+        </Map>
+
+        {/* Bottom Panel with Framer Motion Animation */}
+        <AnimatePresence>
+          {selectedLocation && (
+            <motion.div
+              initial={{y: "100%"}} // Start off-screen
+              animate={{y: 0}} // Slide up into view
+              exit={{y: "100%"}} // Slide down when closed
+              transition={{type: "spring", stiffness: 100, damping: 15}}
+              className="absolute bottom-0 left-0 w-full bg-white shadow-lg p-4 border-t rounded-t-lg h-[50%]"
+            >
+              <button
+                className="absolute top-2 right-4 text-lg"
+                onClick={() => setSelectedLocation(null)}
+              >
+                ✖
+              </button>
+              <h3 className="text-lg font-semibold">
+                {selectedLocation.businessName ||
+                  selectedLocation.homeName ||
+                  "No Name"}
+              </h3>
+              <p className="text-gray-600">
+                {selectedLocation.address || "No address provided"}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </APIProvider>
   );
 };
 
-export default Map;
+export default MapContainer;

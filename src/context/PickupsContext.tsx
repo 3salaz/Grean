@@ -1,9 +1,10 @@
-import {createContext, useContext, useState, ReactNode} from "react";
-import {httpsCallable} from "firebase/functions";
-import {functions} from "../firebase";
+import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
 import {useProfile} from "./ProfileContext";
+import {collection, query, where, getDocs} from "firebase/firestore";
+import {db} from "../firebase";
 
 // Define Pickup Type
 export interface Pickup {
@@ -41,17 +42,124 @@ interface PickupContextType {
       "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
     >
   ) => Promise<string | undefined>;
-  editPickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
+  updatePickup: (
+    pickupId: string,
+    updatedData: Partial<Pickup>
+  ) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
+  fetchAllPickups: () => Promise<void>;
+  fetchUserCreatedPickups: (userId: string) => Promise<void>;
+  acceptPickup: (pickupId: string) => Promise<void>; // ✅ New
+  removePickup: (pickupId: string) => Promise<void>; // ✅ New
 }
 
 // Create Context
 const PickupContext = createContext<PickupContextType | null>(null);
 
 export function PickupsProvider({children}: {children: ReactNode}) {
-  const [pickups, setPickups] = useState<Pickup[]>([]);
   const {user} = useAuth();
   const {profile} = useProfile();
+  const [pickups, setPickups] = useState<Pickup[]>([]);
+  const [userCreatedPickups, setUserCreatedPickups] = useState<Pickup[]>([]);
+  const [userAcceptedPickups, setUserAcceptedPickups] = useState<Pickup[]>([]);
+  const [visiblePickups, setVisiblePickups] = useState<Pickup[]>([]);
+  const [completedPickups, setCompletedPickups] = useState<Pickup[]>([]);
+
+  // Fetch All Pickups
+  const fetchAllPickups = async () => {
+    try {
+      const q = query(
+        collection(db, "pickups"),
+        where("isAccepted", "==", false),
+        where("isCompleted", "==", false)
+      );
+      const querySnapshot = await getDocs(q);
+      let allPickups = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Pickup[];
+
+      if (user) {
+        // Filter out pickups created by the logged-in user
+        allPickups = allPickups.filter(
+          (pickup) => pickup.createdBy.userId !== user.uid
+        );
+      }
+
+      setVisiblePickups(allPickups);
+    } catch (error) {
+      console.error("Error fetching all pickups:", error);
+      toast.error("Failed to fetch pickups.");
+    }
+  };
+
+  // Fetch User Created Pickups
+  const fetchUserCreatedPickups = async (userId: string) => {
+    try {
+      const q = query(
+        collection(db, "pickups"),
+        where("createdBy.userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      const userPickups = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Pickup[];
+      setUserCreatedPickups(userPickups);
+    } catch (error) {
+      console.error("Error fetching user created pickups:", error);
+      toast.error("Failed to fetch user created pickups.");
+    }
+  };
+
+  // Driver Side Functions
+
+  // Accept Pickup
+  const acceptPickup = async (pickupId: string): Promise<void> => {
+    if (!user || !profile) {
+      toast.error("User or profile not found.");
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const updates = {
+        isAccepted: true,
+        acceptedBy: {
+          uid: user.uid,
+          displayName: profile.displayName
+        }
+      };
+
+      await axios.put(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction",
+        {pickupId, updates},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success("Pickup accepted successfully!");
+      fetchAllPickups(); // 🔄 Refresh pickups after accepting
+    } catch (error) {
+      console.error("Error accepting pickup:", error);
+      toast.error("Failed to accept pickup.");
+    }
+  };
+
+  // Remove Pickup (just delete from visible list — optional logic)
+  const removePickup = async (pickupId: string): Promise<void> => {
+    try {
+      // You could add logic to mark as removed, or just filter locally:
+      setVisiblePickups((prev) => prev.filter((p) => p.id !== pickupId));
+      toast.info("Pickup removed from queue.");
+    } catch (error) {
+      console.error("Error removing pickup:", error);
+      toast.error("Failed to remove pickup.");
+    }
+  };
 
   // Create Pickup
   const createPickup = async (
@@ -63,8 +171,27 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     try {
       if (!user || !profile) throw new Error("User or Profile not found");
 
-      const createPickupFn = httpsCallable(functions, "createPickup");
-      const response = await createPickupFn({...pickupData, userId: user.uid});
+      const token = await user.getIdToken();
+      const dataToSend = {
+        ...pickupData,
+        createdBy: {
+          userId: user.uid,
+          displayName: profile.displayName,
+          email: profile.email,
+          photoURL: profile.photoURL
+        }
+      };
+      console.log("🚀 Sending pickup data to backend:", dataToSend); // Added logging
+
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createPickupFunction",
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (
         response.data &&
@@ -82,14 +209,25 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
-  // Edit Pickup
-  const editPickup = async (
+  // Update Pickup
+  const updatePickup = async (
     pickupId: string,
     updatedData: Partial<Pickup>
   ): Promise<void> => {
     try {
-      const editPickupFn = httpsCallable(functions, "editPickup");
-      await editPickupFn({pickupId, updatedData});
+      const token = await user.getIdToken();
+      const dataToSend = {pickupId, updates: updatedData};
+      console.log("🚀 Sending update pickup data to backend:", dataToSend); // Added logging
+
+      await axios.put(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction",
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       toast.success("Pickup updated successfully!");
     } catch (error) {
       console.error("Error updating pickup:", error);
@@ -100,8 +238,18 @@ export function PickupsProvider({children}: {children: ReactNode}) {
   // Delete Pickup
   const deletePickup = async (pickupId: string): Promise<void> => {
     try {
-      const deletePickupFn = httpsCallable(functions, "deletePickup");
-      await deletePickupFn({pickupId});
+      const token = await user.getIdToken();
+      console.log("🚀 Sending delete pickup data to backend:", {pickupId}); // Added logging
+
+      await axios.delete(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deletePickupFunction",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          data: {pickupId}
+        }
+      );
       toast.success("Pickup deleted successfully!");
     } catch (error) {
       console.error("Error deleting pickup:", error);
@@ -109,15 +257,11 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
-  // Filters
-  const userCreatedPickups = pickups.filter(
-    (pickup) => pickup.createdBy?.userId === user?.uid
-  );
-  const userAcceptedPickups = pickups.filter(
-    (pickup) => pickup.acceptedBy?.uid === user?.uid
-  );
-  const visiblePickups = pickups.filter((pickup) => !pickup.isAccepted);
-  const completedPickups = pickups.filter((pickup) => pickup.isCompleted);
+  useEffect(() => {
+    if (user) {
+      fetchUserCreatedPickups(user.uid);
+    }
+  }, [user]);
 
   return (
     <PickupContext.Provider
@@ -128,8 +272,12 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         visiblePickups,
         completedPickups,
         createPickup,
-        editPickup,
-        deletePickup
+        updatePickup,
+        deletePickup,
+        fetchAllPickups,
+        fetchUserCreatedPickups,
+        acceptPickup,
+        removePickup
       }}
     >
       {children}

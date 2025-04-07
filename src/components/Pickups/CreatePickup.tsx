@@ -18,6 +18,7 @@ import {toast, ToastContainer} from "react-toastify";
 import {Pickup, usePickups} from "../../context/PickupsContext";
 import {useUserLocations} from "../../hooks/useUserLocations";
 import {UserProfile} from "../../context/ProfileContext";
+import {updateProfile} from "firebase/auth";
 
 // Define type for local state (matching Pickup type)
 type PickupData = Omit<
@@ -88,6 +89,8 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
         toast.error("You can only have 2 active pickups at a time.");
         return;
       }
+
+      console.log("🚀 Sending pickup data to backend:", pickupData);
 
       await createPickup(pickupData);
       toast.success("Pickup request successfully created.");

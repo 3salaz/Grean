@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from "react";
+import React, {useState, useMemo, useEffect} from "react";
 import {
   IonInput,
   IonItem,
@@ -17,6 +17,7 @@ import {
 } from "@ionic/react";
 import {closeOutline} from "ionicons/icons";
 import {useAuth} from "../../context/AuthContext";
+import {useProfile} from "../../context/ProfileContext";
 import {useHistory} from "react-router-dom";
 
 interface SigninProps {
@@ -38,6 +39,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
   const [loading, setLoading] = useState(false);
   const history = useHistory(); // Initialize history
   const {signIn} = useAuth();
+  const {profile} = useProfile();
 
   // Handles input changes to update state
   const handleInputChange = (e: any) => {

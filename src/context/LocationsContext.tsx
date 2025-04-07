@@ -1,14 +1,23 @@
-import {createContext, useContext, useEffect, useState, ReactNode} from "react";
-import {httpsCallable} from "firebase/functions";
-import {functions} from "../firebase";
+import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  where
+} from "firebase/firestore";
+import {db} from "../firebase";
 
 // Define types for location
-interface Location {
+export interface Location {
   id?: string;
   locationType: string;
-  address: string; // full address stored here
+  address: string;
   latitude?: number;
   longitude?: number;
   homeName?: string;
@@ -17,30 +26,108 @@ interface Location {
   category?: string;
 }
 
-interface LocationContextType {
+export interface LocationContextType {
   locations: Location[];
-  businessLocations: Location[]; // Added business locations
+  businessLocations: Location[];
+  profileLocations: Location[];
   createLocation: (locationData: Location) => Promise<string | undefined>;
   deleteLocation: (locationId: string) => Promise<void>;
   updateLocation: (
     locationId: string,
     updates: Partial<Location>
   ) => Promise<void>;
+  loading: boolean; // Add loading state
 }
 
 // Create Context
 const LocationsContext = createContext<LocationContextType | null>(null);
 
 export function LocationsProvider({children}: {children: ReactNode}) {
+  const {user} = useAuth();
   const [locations, setLocations] = useState<Location[]>([]);
-  const [businessLocations, setBusinessLocations] = useState<Location[]>([]); // Added state for business locations
+  const [businessLocations, setBusinessLocations] = useState<Location[]>([]);
+  const [profileLocations, setProfileLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState<boolean>(true); // Initialize loading state
+
+  useEffect(() => {
+    if (!user) return;
+
+    setLoading(true);
+
+    // Set up a listener for business locations
+    const businessQuery = query(
+      collection(db, "locations"),
+      where("locationType", "==", "Business")
+    );
+
+    const unsubscribeBusiness = onSnapshot(businessQuery, (snapshot) => {
+      const businessLocations: Location[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Location)
+      }));
+      setBusinessLocations(businessLocations);
+      setLoading(false);
+    });
+
+    // Fetch user profile and locations
+    const fetchProfileLocations = async () => {
+      try {
+        const userProfileRef = doc(db, "profiles", user.uid);
+        const userProfileSnap = await getDoc(userProfileRef);
+
+        if (!userProfileSnap.exists()) {
+          console.warn("User profile not found");
+          setProfileLocations([]);
+          return;
+        }
+
+        const userLocationIds: string[] =
+          userProfileSnap.data().locations || [];
+
+        if (userLocationIds.length > 0) {
+          const locationPromises = userLocationIds.map(async (locationId) => {
+            const locationRef = doc(db, "locations", locationId);
+            const locationSnap = await getDoc(locationRef);
+            return locationSnap.exists()
+              ? {id: locationSnap.id, ...(locationSnap.data() as Location)}
+              : null;
+          });
+
+          const resolvedUserLocations: Location[] = (
+            await Promise.all(locationPromises)
+          ).filter(Boolean) as Location[];
+          setProfileLocations(resolvedUserLocations);
+          setLocations(resolvedUserLocations);
+        } else {
+          setProfileLocations([]);
+          setLocations([]);
+        }
+      } catch (error) {
+        console.error("Error fetching user locations:", error);
+      }
+    };
+
+    fetchProfileLocations();
+
+    // Clean up on unmount
+    return () => {
+      unsubscribeBusiness();
+    };
+  }, [user]);
 
   const createLocation = async (
     locationData: Location
   ): Promise<string | undefined> => {
     try {
-      const createLocationFn = httpsCallable(functions, "createLocation");
-      const response = await createLocationFn(locationData);
+      console.log("🚀 Creating location with data:", locationData);
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createLocationFunction",
+        locationData,
+        {
+          headers: {Authorization: `Bearer ${token}`}
+        }
+      );
 
       if (
         response.data &&
@@ -53,15 +140,17 @@ export function LocationsProvider({children}: {children: ReactNode}) {
         throw new Error("Unexpected response format.");
       }
     } catch (error) {
-      console.error("Error creating location:", error);
+      console.error("❌ Error creating location:", error);
       toast.error("Failed to create location.");
     }
   };
 
   const deleteLocation = async (locationId: string): Promise<void> => {
     try {
-      const deleteLocationFn = httpsCallable(functions, "deleteLocation");
-      await deleteLocationFn({locationId});
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteLocationFunction",
+        {locationId}
+      );
       toast.success("Location deleted successfully!");
     } catch (error) {
       console.error("Error deleting location:", error);
@@ -74,8 +163,10 @@ export function LocationsProvider({children}: {children: ReactNode}) {
     updates: Partial<Location>
   ): Promise<void> => {
     try {
-      const updateLocationFn = httpsCallable(functions, "updateLocation");
-      await updateLocationFn({locationId, updates});
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocation",
+        {locationId, updates}
+      );
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);
@@ -88,9 +179,11 @@ export function LocationsProvider({children}: {children: ReactNode}) {
       value={{
         locations,
         businessLocations,
+        profileLocations,
         createLocation,
         deleteLocation,
-        updateLocation
+        updateLocation,
+        loading
       }}
     >
       {children}

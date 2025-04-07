@@ -27,7 +27,18 @@ export const createProfileFunction = [
       }
       logger.info("✅ User authenticated:", uid);
 
-      await createProfile(uid, req.body as CreateProfileData);
+      // Ensure initial data is passed to createProfile
+      const initialData: CreateProfileData = {
+        displayName:
+          req.body.displayName || `user${Math.floor(Math.random() * 10000)}`,
+        email: req.body.email || req.user?.email || "",
+        photoURL: req.body.photoURL || "",
+        locations: req.body.locations || [],
+        pickups: req.body.pickups || [],
+        accountType: req.body.accountType || "user",
+      };
+
+      await createProfile(uid, initialData);
       res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR:", error);

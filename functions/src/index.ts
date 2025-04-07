@@ -10,32 +10,32 @@ import {
 
 import {
   createLocationFunction,
-  updateLocationFunction,
+  // updateLocationFunction,
   deleteLocationFunction,
 } from "./locations/locationFunctions";
 
-// import {
-//   createPickupFunction,
-//   updatePickupFunction,
-//   deletePickupFunction,
-// } from "./pickups/pickupFunctions";
+import {
+  createPickupFunction,
+  updatePickupFunction,
+  deletePickupFunction,
+} from "./pickups/pickupFunctions";
 
 // Initialize Express app
 const app = express();
 
 // Apply CORS middleware
-app.use(cors({ origin: true }));
+app.use(cors({origin: true}));
 
 // Define routes for your functions
 app.post("/createProfileFunction", createProfileFunction);
 app.post("/updateProfileFunction", updateProfileFunction);
 app.post("/deleteProfileFunction", deleteProfileFunction);
 app.post("/createLocationFunction", createLocationFunction);
-app.post("/updateLocationFunction", updateLocationFunction);
 app.post("/deleteLocationFunction", deleteLocationFunction);
-// app.post("/createPickupFunction", createPickupFunction);
-// app.post("/updatePickupFunction", updatePickupFunction);
-// app.post("/deletePickupFunction", deletePickupFunction);
+// app.post("/updateLocationFunction", updateLocationFunction);
+app.post("/createPickupFunction", createPickupFunction);
+app.post("/updatePickupFunction", updatePickupFunction);
+app.post("/deletePickupFunction", deletePickupFunction);
 
 // Export the Express app as a Firebase function
 exports.api = functions.https.onRequest(app);

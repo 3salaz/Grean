@@ -50,7 +50,7 @@ const ViewPickups: React.FC = () => {
   return (
     <>
       <IonList lines="none" className="w-full overflow-auto rounded-md">
-        <IonListHeader>
+        <IonListHeader class="ion-no-padding">
           <IonLabel className="text-2xl pl-4 font-bold text-orange">
             My Pickups: {userCreatedPickups.length}
           </IonLabel>

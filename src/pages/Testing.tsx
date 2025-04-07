@@ -97,7 +97,7 @@ function Testing() {
       setFormData({
         displayName: profile.displayName,
         email: profile.email,
-        profilePic: profile.profilePic,
+        photoURL: profile.photoURL,
         uid: profile.uid,
         locations: profile.locations,
         pickups: profile.pickups,
@@ -228,8 +228,8 @@ function Testing() {
       if (formData.email) {
         await updateProfile("email", formData.email);
       }
-      if (formData.profilePic) {
-        await updateProfile("profilePic", formData.profilePic);
+      if (formData.photoURL) {
+        await updateProfile("photoURL", formData.photoURL);
       }
       toast.success("Profile updated successfully!");
     } catch (error) {
@@ -318,9 +318,9 @@ function Testing() {
                     <IonItem>
                       <IonLabel position="fixed">Profile Picture URL</IonLabel>
                       <IonInput
-                        name="profilePic"
+                        name="photoURL"
                         type="text"
-                        value={formData.profilePic || ""}
+                        value={formData.photoURL || ""}
                         onIonInput={handleChange}
                       />
                     </IonItem>

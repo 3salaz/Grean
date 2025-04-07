@@ -3,26 +3,24 @@ import {
   IonButton,
   IonCol,
   IonGrid,
-  IonIcon,
-  IonItem,
-  IonList,
-  IonListHeader,
-  IonLabel,
   IonRow,
   IonText,
-  IonModal
+  IonModal,
+  IonIcon
 } from "@ionic/react";
 import CreatePickup from "./CreatePickup";
 import {
   calendarNumberOutline,
   checkmarkCircleOutline,
   chevronForward,
-  closeCircleOutline
+  closeCircleOutline,
+  listCircleSharp
 } from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
 import {ToastContainer} from "react-toastify";
 import {usePickups} from "../../context/PickupsContext"; // Import usePickups and Pickup i
 import ViewPickups from "./ViewPickups";
+import PickupsQueue from "./PickupsQueue";
 
 interface PickupsProps {
   profile: UserProfile | null;
@@ -80,24 +78,52 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
       </IonModal>
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md">
-        {profile.accountType === "User" && profile.locations.length === 0 ? (
-          <IonRow className="h-full p-2">
-            <IonCol className="rounded-md ion-justify-content-center ion-align-self-center text-center">
-              <IonText className="text-lg">
-                Please add a location to get started
-              </IonText>
-              <IonButton>Add Location</IonButton>
-            </IonCol>
-          </IonRow>
+        {profile.accountType === "User" ? (
+          <>
+            <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
+              {profile.locations.length > 0 ? (
+                <IonCol className="flex">
+                  <ViewPickups />
+                </IonCol>
+              ) : (
+                <IonCol className="rounded-md flex items-center justify-center text-center bg-amber-50">
+                  <IonText className="text-base">
+                    Please add a location to get started
+                  </IonText>
+                </IonCol>
+              )}
+
+              {profile.locations.length > 0 ? (
+                <IonCol size="auto" className="flex-grow mx-auto p-2">
+                  <IonButton onClick={() => openModal("createPickupOpen")}>
+                    Create Pickup
+                  </IonButton>
+                </IonCol>
+              ) : (
+                <IonCol size="auto" className="flex-grow mx-auto p-2">
+                  <IonButton onClick={() => openModal("createPickupOpen")}>
+                    Add Location
+                  </IonButton>
+                </IonCol>
+              )}
+            </IonRow>
+          </>
         ) : (
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
-            <IonCol className="flex">
-              <ViewPickups />
+            <IonCol>
+              {/*  Pickup Queue */}
+              <PickupsQueue />
             </IonCol>
-
-            <IonCol size="auto" className="flex-grow mx-auto p-2">
+            <IonCol size="auto" className="mx-auto w-full flex gap-2">
               <IonButton onClick={() => openModal("createPickupOpen")}>
-                Create Pickup
+                <IonIcon icon={calendarNumberOutline} slot="start">
+                  dhsd
+                </IonIcon>
+              </IonButton>
+              <IonButton>
+                <IonIcon icon={listCircleSharp} slot="start">
+                  ashddsfh
+                </IonIcon>
               </IonButton>
             </IonCol>
           </IonRow>

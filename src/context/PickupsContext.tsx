@@ -49,6 +49,8 @@ interface PickupContextType {
   deletePickup: (pickupId: string) => Promise<void>;
   fetchAllPickups: () => Promise<void>;
   fetchUserCreatedPickups: (userId: string) => Promise<void>;
+  acceptPickup: (pickupId: string) => Promise<void>; // ✅ New
+  removePickup: (pickupId: string) => Promise<void>; // ✅ New
 }
 
 // Create Context
@@ -72,11 +74,19 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         where("isCompleted", "==", false)
       );
       const querySnapshot = await getDocs(q);
-      const allPickups = querySnapshot.docs.map((doc) => ({
+      let allPickups = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       })) as Pickup[];
-      setPickups(allPickups);
+
+      if (user) {
+        // Filter out pickups created by the logged-in user
+        allPickups = allPickups.filter(
+          (pickup) => pickup.createdBy.userId !== user.uid
+        );
+      }
+
+      setVisiblePickups(allPickups);
     } catch (error) {
       console.error("Error fetching all pickups:", error);
       toast.error("Failed to fetch pickups.");
@@ -99,6 +109,55 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     } catch (error) {
       console.error("Error fetching user created pickups:", error);
       toast.error("Failed to fetch user created pickups.");
+    }
+  };
+
+  // Driver Side Functions
+
+  // Accept Pickup
+  const acceptPickup = async (pickupId: string): Promise<void> => {
+    if (!user || !profile) {
+      toast.error("User or profile not found.");
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const updates = {
+        isAccepted: true,
+        acceptedBy: {
+          uid: user.uid,
+          displayName: profile.displayName
+        }
+      };
+
+      await axios.put(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction",
+        {pickupId, updates},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success("Pickup accepted successfully!");
+      fetchAllPickups(); // 🔄 Refresh pickups after accepting
+    } catch (error) {
+      console.error("Error accepting pickup:", error);
+      toast.error("Failed to accept pickup.");
+    }
+  };
+
+  // Remove Pickup (just delete from visible list — optional logic)
+  const removePickup = async (pickupId: string): Promise<void> => {
+    try {
+      // You could add logic to mark as removed, or just filter locally:
+      setVisiblePickups((prev) => prev.filter((p) => p.id !== pickupId));
+      toast.info("Pickup removed from queue.");
+    } catch (error) {
+      console.error("Error removing pickup:", error);
+      toast.error("Failed to remove pickup.");
     }
   };
 
@@ -216,7 +275,9 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         updatePickup,
         deletePickup,
         fetchAllPickups,
-        fetchUserCreatedPickups
+        fetchUserCreatedPickups,
+        acceptPickup,
+        removePickup
       }}
     >
       {children}

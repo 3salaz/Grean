@@ -8,12 +8,13 @@ import {useAuth} from "./AuthContext";
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
-  profilePic?: string | null;
+  profile?: string | null;
   email: string;
   uid: string;
   locations: string[];
   pickups: string[];
   accountType: string;
+  photoURL?: string | null;
 }
 
 // ✅ Define Context Type
@@ -105,7 +106,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
       const initialData: UserProfile = {
         displayName: `user${Math.floor(Math.random() * 10000)}`,
         email: user.email,
-        profilePic: "",
+        photoURL: "",
         uid: user.uid,
         locations: [],
         pickups: [],

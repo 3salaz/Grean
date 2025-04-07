@@ -16,7 +16,7 @@ import default_img from "../../assets/avatar.svg";
 const ProfileSetup: React.FC = () => {
   const {updateProfile} = useProfile();
   const [accountType, setAccountType] = useState("");
-  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [photoURL, setphotoURL] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>(default_img);
   const [loading, setLoading] = useState(false);
 
@@ -26,11 +26,11 @@ const ProfileSetup: React.FC = () => {
     setLoading(true);
     let imageUrl = preview !== default_img ? preview : null;
 
-    if (profilePic) {
+    if (photoURL) {
       try {
         const storage = getStorage();
-        const storageRef = ref(storage, `profile_pictures/${profilePic.name}`);
-        await uploadBytes(storageRef, profilePic);
+        const storageRef = ref(storage, `profile_pictures/${photoURL.name}`);
+        await uploadBytes(storageRef, photoURL);
         imageUrl = await getDownloadURL(storageRef);
         console.log("✅ Image uploaded successfully:", imageUrl);
       } catch (error) {
@@ -41,7 +41,7 @@ const ProfileSetup: React.FC = () => {
     try {
       await updateProfile("accountType", accountType, "update"); // ✅ Update field separately
       if (imageUrl) {
-        await updateProfile("profilePic", imageUrl, "update"); // ✅ Update profilePic separately
+        await updateProfile("photoURL", imageUrl, "update"); // ✅ Update photoURL separately
       }
       console.log("✅ Profile updated successfully");
     } catch (error) {
@@ -54,7 +54,7 @@ const ProfileSetup: React.FC = () => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setProfilePic(file);
+      setphotoURL(file);
       setPreview(URL.createObjectURL(file));
     }
   };

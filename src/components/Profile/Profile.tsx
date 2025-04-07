@@ -64,7 +64,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
         <ProfileHeader profile={profile} />
         <MyForest />
         <Impact />
-        <MyLocations profile={profile} />
+        {profile?.accountType === "User" && <MyLocations profile={profile} />}
       </main>
 
       {profile?.accountType === "User" && profile.locations.length < 1 && (

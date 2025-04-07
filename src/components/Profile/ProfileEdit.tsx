@@ -41,7 +41,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
       setFormData({
         displayName: profile.displayName,
         email: profile.email,
-        profilePic: profile.profilePic,
+        photoURL: profile.photoURL,
         uid: profile.uid,
         locations: profile.locations,
         pickups: profile.pickups,
@@ -80,8 +80,8 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
       if (formData.email) {
         await updateProfile("email", formData.email);
       }
-      if (formData.profilePic) {
-        await updateProfile("profilePic", formData.profilePic);
+      if (formData.photoURL) {
+        await updateProfile("photoURL", formData.photoURL);
       }
       toast.success("Profile updated successfully!");
       onClose();
@@ -152,9 +152,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
         <IonItem>
           <IonLabel position="fixed">Profile Picture URL</IonLabel>
           <IonInput
-            name="profilePic"
+            name="photoURL"
             type="text"
-            value={formData.profilePic || ""}
+            value={formData.photoURL || ""}
             onIonInput={handleChange}
             disabled={!isEditing}
           />

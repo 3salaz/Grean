@@ -16,8 +16,9 @@ import {
   closeCircleOutline
 } from "ionicons/icons";
 import {usePickups} from "../../context/PickupsContext";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import PickupDetails from "./PickupDetails";
+import {useProfile} from "../../context/ProfileContext";
 
 interface Pickup {
   id: string;
@@ -29,7 +30,16 @@ interface Pickup {
 }
 
 const ViewPickups: React.FC = () => {
-  const {userCreatedPickups} = usePickups();
+  const {profile} = useProfile(); // Assuming you have a user context or similar
+  const {fetchUserOwnedPickups} = usePickups(); // Assuming you have a function to fetch user pickups
+
+  useEffect(() => {
+    if (profile) {
+      fetchUserOwnedPickups(profile.uid);
+    }
+  }, [profile, fetchUserOwnedPickups]);
+
+  const {userOwnedPickups} = usePickups();
 
   // Internal state to manage modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,10 +62,10 @@ const ViewPickups: React.FC = () => {
       <IonList lines="none" className="w-full overflow-auto rounded-md">
         <IonListHeader class="ion-no-padding">
           <IonLabel className="text-2xl pl-4 font-bold text-orange">
-            My Pickups: {userCreatedPickups.length}
+            My Pickups: {userOwnedPickups.length}
           </IonLabel>
         </IonListHeader>
-        {userCreatedPickups.map((pickup) => (
+        {userOwnedPickups.map((pickup) => (
           <IonItem key={pickup.id} className="w-full bg-orange relative">
             <IonRow className="w-full py-2 ion-justify-content-start gap-1 border-b-2 border-[#75b657] m-1">
               <IonCol

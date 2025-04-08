@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {
   IonButton,
   IonCol,
@@ -9,32 +9,33 @@ import {
   IonIcon
 } from "@ionic/react";
 import CreatePickup from "./CreatePickup";
-import {
-  calendarNumberOutline,
-  checkmarkCircleOutline,
-  chevronForward,
-  closeCircleOutline,
-  listCircleSharp
-} from "ionicons/icons";
+import {calendarNumberOutline, listCircleSharp} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
 import {ToastContainer} from "react-toastify";
-import {usePickups} from "../../context/PickupsContext"; // Import usePickups and Pickup i
+import {usePickups} from "../../context/PickupsContext";
 import ViewPickups from "./ViewPickups";
 import PickupsQueue from "./PickupsQueue";
+import CreateLocation from "../Profile/CreateLocation";
 
 interface PickupsProps {
   profile: UserProfile | null;
 }
 
-const Pickups: React.FC<PickupsProps> = ({profile}) => {
-  const [modalState, setModalState] = useState({createPickupOpen: false});
+// All supported modal keys
+type ModalKeys = "createPickupOpen" | "createLocationOpen";
 
-  const openModal = (modalName: "createPickupOpen") => {
-    setModalState((prevState) => ({...prevState, [modalName]: true}));
+const Pickups: React.FC<PickupsProps> = ({profile}) => {
+  const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
+    createPickupOpen: false,
+    createLocationOpen: false
+  });
+
+  const openModal = (modalName: ModalKeys) => {
+    setModalState((prev) => ({...prev, [modalName]: true}));
   };
 
-  const closeModal = (modalName: "createPickupOpen") => {
-    setModalState((prevState) => ({...prevState, [modalName]: false}));
+  const closeModal = (modalName: ModalKeys) => {
+    setModalState((prev) => ({...prev, [modalName]: false}));
   };
 
   if (!profile) {
@@ -43,8 +44,8 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
         <IonRow>
           <IonCol className="text-center">
             <IonButton color="primary" expand="block">
-              Loading Profile...{" "}
-            </IonButton>{" "}
+              Loading Profile...
+            </IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
@@ -54,6 +55,7 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
       <ToastContainer />
+
       {/* Create Pickup Modal */}
       <IonModal
         isOpen={modalState.createPickupOpen}
@@ -64,10 +66,21 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
           handleClose={() => closeModal("createPickupOpen")}
         />
       </IonModal>
+
+      {/* Create Location Modal */}
+      <IonModal
+        isOpen={modalState.createLocationOpen}
+        onDidDismiss={() => closeModal("createLocationOpen")}
+      >
+        <CreateLocation
+          profile={profile}
+          handleClose={() => closeModal("createLocationOpen")}
+        />
+      </IonModal>
+
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md">
         {profile.accountType === "User" ? (
-          // User
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
             {profile.locations.length > 0 ? (
               <IonCol className="flex">
@@ -81,33 +94,31 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
               </IonCol>
             )}
 
-            {profile.locations.length > 0 ? (
-              <IonCol size="auto" className="flex-grow mx-auto p-2">
-                <IonButton onClick={() => openModal("createPickupOpen")}>
-                  Create Pickup
-                </IonButton>
-              </IonCol>
-            ) : (
-              <IonCol size="auto" className="flex-grow mx-auto p-2">
-                <IonButton onClick={() => openModal("createPickupOpen")}>
-                  Add Location
-                </IonButton>
-              </IonCol>
-            )}
+            <IonCol size="auto" className="flex-grow mx-auto p-2">
+              <IonButton
+                onClick={() =>
+                  profile.locations.length > 0
+                    ? openModal("createPickupOpen")
+                    : openModal("createLocationOpen")
+                }
+              >
+                {profile.locations.length > 0
+                  ? "Create Pickup"
+                  : "Add Location"}
+              </IonButton>
+            </IonCol>
           </IonRow>
         ) : (
-          // Driver
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end gap-2">
             <IonCol className="flex">
-              {/*  Pickup Queue */}
               <PickupsQueue />
             </IonCol>
             <IonCol size="auto" className="mx-auto w-full flex gap-2">
               <IonButton onClick={() => openModal("createPickupOpen")}>
-                <IonIcon icon={calendarNumberOutline} slot="start"></IonIcon>
+                <IonIcon icon={calendarNumberOutline} slot="start" />
               </IonButton>
               <IonButton>
-                <IonIcon icon={listCircleSharp} slot="start"></IonIcon>
+                <IonIcon icon={listCircleSharp} slot="start" />
               </IonButton>
             </IonCol>
           </IonRow>

@@ -146,6 +146,14 @@ export function PickupsProvider({children}: {children: ReactNode}) {
       return;
     }
 
+    // Check if the user is a "Driver" from their profile
+    const isDriver = profile.accountType === "Driver";
+
+    if (!isDriver) {
+      toast.error("Only drivers can accept pickups.");
+      return;
+    }
+
     console.log("Accepting pickup with ID:", pickupId);
 
     try {
@@ -154,10 +162,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
 
       const updates = {
         isAccepted: true,
-        acceptedBy: {
-          uid: user.uid,
-          displayName: profile.displayName
-        }
+        acceptedBy: user.uid // Only setting the user.uid here
       };
 
       const apiUrl =

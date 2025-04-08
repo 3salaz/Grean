@@ -96,7 +96,7 @@ export const updatePickupField = async (
     uid: string,
     pickupId: string,
     field: keyof Pickup,
-    value: any,
+    value: Pickup[keyof Pickup],
     operation: PickupUpdateOperation = "update"
 ): Promise<{ success: boolean }> => {
   try {

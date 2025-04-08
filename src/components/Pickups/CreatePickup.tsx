@@ -93,7 +93,6 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
       console.log("🚀 Sending pickup data to backend:", pickupData);
 
       await createPickup(pickupData);
-      toast.success("Pickup request successfully created.");
       handleClose();
     } catch (error) {
       console.error("Error creating pickup:", error);

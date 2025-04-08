@@ -44,7 +44,7 @@ export interface UpdatePickupData {
 export interface UpdatePickupFieldData {
   pickupId: string;
   field: keyof Pickup;
-  value: any; // Use 'any' to accommodate different field types
+  value: Pickup[keyof Pickup]; // Use 'any' to accommodate different field types
   operation?: PickupUpdateOperation;
 }
 

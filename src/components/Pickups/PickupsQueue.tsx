@@ -123,7 +123,7 @@ const PickupsQueue: React.FC = () => {
       <IonModal isOpen={isModalOpen} onDidDismiss={closePickupDetailsModal}>
         {selectedPickup && (
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-2">Pickup Details</h2>
+            <h2 className="text-xl font-bold mb-2">Pickupetails</h2>
             <p>
               <strong>Address:</strong> {selectedPickup.addressData.street},{" "}
               {selectedPickup.addressData.city}

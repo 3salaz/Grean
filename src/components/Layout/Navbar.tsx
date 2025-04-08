@@ -20,7 +20,14 @@ import {
   IonButtons,
   IonMenuButton
 } from "@ionic/react";
-import {logInOutline, logOutOutline, menuOutline} from "ionicons/icons";
+import {
+  logInOutline,
+  logoFacebook,
+  logoInstagram,
+  logoLinkedin,
+  logOutOutline,
+  menuOutline
+} from "ionicons/icons";
 import {useAuth} from "../../context/AuthContext";
 import {useProfile} from "../../context/ProfileContext";
 
@@ -90,34 +97,36 @@ function Navbar() {
             autoHide={false}
           ></IonMenuButton>
         </IonButtons>
-        <IonTitle>
-          <Link to="/" className="bg-blue-400">
-            <img
-              className="aspect-square w-8 rounded-full object-cover"
-              src={logo}
-              alt="Grean Logo"
-            />
-          </Link>
+        <IonTitle class="text-2xl">
+          {/* <img
+            className="aspect-square w-8 rounded-full object-cover"
+            src={logo}
+            alt="Grean Logo"
+          /> */}
+          Grean
         </IonTitle>
+
+        <IonButtons slot="end"></IonButtons>
         {/* If logged in, show avatar & popover */}
         {user ? (
           <IonButton fill="clear" slot="end" onClick={handleOpenPopover}>
             <img
               className="h-10 w-10 rounded-full text-white"
-              src={profile?.profileUrl || avatar}
+              src={profile?.photoURL || avatar}
               alt="User Avatar"
             />
           </IonButton>
         ) : (
           <IonButton
-            className="pr-1 text-xs"
             slot="end"
             onClick={openSignupModal}
+            size="small"
             fill="solid"
             color="light"
+            expand="block"
           >
             Sign Up
-            <IonIcon slot="end" icon={logInOutline}></IonIcon>
+            {/* <IonIcon slot="end" icon={logInOutline}></IonIcon> */}
           </IonButton>
         )}
 
@@ -128,7 +137,7 @@ function Navbar() {
           onDidDismiss={handleCloseRoutesPopover}
         >
           <IonContent>
-            <IonList>
+            <IonList class="ion-padding">
               <IonListHeader>
                 <IonText>
                   <h5>Grean</h5>
@@ -144,6 +153,31 @@ function Navbar() {
                 <Link to="/services">Services</Link>
               </IonItem>
             </IonList>
+            <div className="flex items-center justify-center ion-padding">
+              <IonButtons>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoInstagram}
+                  />
+                </IonButton>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoFacebook}
+                  />
+                </IonButton>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoLinkedin}
+                  />
+                </IonButton>
+              </IonButtons>
+            </div>
           </IonContent>
         </IonPopover>
 

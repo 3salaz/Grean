@@ -15,6 +15,7 @@ import Impact from "./Impact";
 import {addCircleOutline} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
 import {ToastContainer} from "react-toastify";
+import MyRoutes from "./MyRoutes";
 
 // **Define Props Interface**
 interface ProfileProps {
@@ -65,10 +66,11 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
         <MyForest />
         <Impact />
         {profile?.accountType === "User" && <MyLocations profile={profile} />}
+        {profile?.accountType === "Driver" && <MyRoutes profile={profile} />}
       </main>
 
       {profile?.accountType === "User" && profile.locations.length < 1 && (
-        <IonRow className="container max-w-2xl mx-auto w-full bg-white rounded-t-md drop-shadow-xl">
+        <IonRow className="container max-w-2xl mx-auto w-full rounded-t-md">
           <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">
             <IonButton
               fill="outline"
@@ -78,7 +80,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
               onClick={() => setIsModalVisible(true)}
               className="text-sm"
             >
-              Add Location in Profile
+              Add Location
               <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
             </IonButton>
           </IonCol>

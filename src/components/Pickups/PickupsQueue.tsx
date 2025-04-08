@@ -17,9 +17,8 @@ import {
   closeCircleOutline
 } from "ionicons/icons";
 import {usePickups} from "../../context/PickupsContext";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import noPickupIcon from "../../assets/no-pickups.svg";
-import {useAuth} from "../../context/AuthContext";
 
 interface Pickup {
   id: string;
@@ -32,7 +31,8 @@ interface Pickup {
 }
 
 const PickupsQueue: React.FC = () => {
-  const {visiblePickups, acceptPickup, removePickup} = usePickups();
+  const {availablePickups, acceptPickup, removePickup, allPickups} =
+    usePickups();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPickup, setSelectedPickup] = useState<Pickup | null>(null);
 
@@ -45,20 +45,18 @@ const PickupsQueue: React.FC = () => {
     setSelectedPickup(null);
     setIsModalOpen(false);
   };
-
-  console.log(visiblePickups);
-
   return (
     <>
-      <IonList lines="none" className="w-full overflow-auto rounded-md">
-        <IonListHeader className="ion-no-padding">
-          <IonLabel className="text-2xl pl-4 font-bold text-orange">
-            Available Pickups: {visiblePickups?.length || 0}
+      <IonList lines="none" className="w-full overflow-auto rounded-md ">
+        <IonListHeader className="ion-padding flex flex-col">
+          <IonLabel className="text-2xl pl-4 font-bold ">
+            Available Pickups: {availablePickups?.length || 0}
           </IonLabel>
+          <p className="text-xs pl-4">Select a pickup to view details</p>
         </IonListHeader>
 
-        {Array.isArray(visiblePickups) && visiblePickups.length > 0 ? (
-          visiblePickups.map((pickup) => (
+        {availablePickups.length > 0 ? (
+          availablePickups.map((pickup) => (
             <IonItem key={pickup.id} className="w-full bg-white relative">
               <IonRow className="w-full py-2 ion-justify-content-start gap-1 border-b border-gray-200 m-1">
                 <IonCol
@@ -103,20 +101,21 @@ const PickupsQueue: React.FC = () => {
             </IonItem>
           ))
         ) : (
-          <IonItem lines="none">
-            <IonRow className="ion-text-center w-full py-6">
-              <IonCol size="12" className="flex flex-col items-center">
-                <img
-                  src={noPickupIcon}
-                  alt="No pickups to display"
-                  className="w-32 h-32 my-2"
-                />
-                <IonText className="text-base text-gray-500">
-                  No pickups to display
-                </IonText>
-              </IonCol>
-            </IonRow>
-          </IonItem>
+          <IonRow className="ion-text-center ion-justify-content-center w-full bg-orange-300">
+            <IonCol
+              size="12"
+              className="flex flex-col justify-center items-center"
+            >
+              <img
+                src={noPickupIcon}
+                alt="No pickups to display"
+                className="w-32 h-32 my-2"
+              />
+              <IonText className="text-base text-gray-500">
+                No pickups to display
+              </IonText>
+            </IonCol>
+          </IonRow>
         )}
       </IonList>
 

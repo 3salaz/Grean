@@ -21,7 +21,7 @@ export const createProfile = async (
       uid: uid,
       locations: profileData.locations || [],
       pickups: profileData.pickups || [],
-      accountType: profileData.accountType || "user",
+      accountType: profileData.accountType || "User",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 

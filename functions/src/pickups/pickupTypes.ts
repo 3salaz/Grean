@@ -40,7 +40,22 @@ export interface UpdatePickupData {
   updates: Partial<Pickup>;
 }
 
+/** Type for updating a specific field of a pickup */
+export interface UpdatePickupFieldData {
+  pickupId: string;
+  field: keyof Pickup;
+  value: any; // Use 'any' to accommodate different field types
+  operation?: PickupUpdateOperation;
+}
+
 /** Type for deleting a pickup */
 export interface DeletePickupData {
   pickupId: string;
 }
+
+/** Type for update operation */
+export type PickupUpdateOperation =
+  | "update"
+  | "addToArray"
+  | "removeFromArray"
+  | "set";

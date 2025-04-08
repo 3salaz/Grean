@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import {Pickup, CreatePickupData} from "./pickupTypes";
+import {Pickup, CreatePickupData, PickupUpdateOperation} from "./pickupTypes";
 
 // Ensure Firebase Admin is initialized
 if (!admin.apps.length) {
@@ -82,24 +82,74 @@ export const createPickup = async (
 };
 
 /**
- * Update an existing pickup.
+ * Update a single field of a pickup.
+ * @param {string} uid - The user's unique ID.
+ * @param {string} pickupId - The pickup ID to update.
+ * @param {keyof Pickup} field - The field to update.
+ * @param {any} value - The value to update.
+ * @param {PickupUpdateOperation} [operation="update"]
+ * The operation to perform.
+ * @return {Promise<{ success: boolean }>}
+ */
+
+export const updatePickupField = async (
+    uid: string,
+    pickupId: string,
+    field: keyof Pickup,
+    value: any,
+    operation: PickupUpdateOperation = "update"
+): Promise<{ success: boolean }> => {
+  try {
+    const docRef = pickupCollection.doc(pickupId);
+    const doc = await docRef.get();
+
+    if (!doc.exists || doc.data()?.createdBy.userId !== uid) {
+      throw new Error("Unauthorized: You cannot update this pickup.");
+    }
+
+    if (operation === "addToArray") {
+      await docRef.update({
+        [field]: admin.firestore.FieldValue.arrayUnion(value),
+      });
+    } else if (operation === "removeFromArray") {
+      await docRef.update({
+        [field]: admin.firestore.FieldValue.arrayRemove(value),
+      });
+    } else if (operation === "set") {
+      await docRef.set(
+          {
+            [field]: value,
+          },
+          {merge: true}
+      );
+    } else {
+      await docRef.update({
+        [field]: value,
+      });
+    }
+    return {success: true};
+  } catch (error) {
+    console.error(
+        `❌ Error updating pickup field for ID: ${pickupId} - Field: ${field}`,
+        error
+    );
+    throw new Error("Failed to update pickup field.");
+  }
+};
+
+/**
+ * Update multiple fields of a pickup.
  * @param {string} uid - The user's unique ID.
  * @param {string} pickupId - The pickup ID to update.
  * @param {Partial<Pickup>} updates - The updates to apply.
  * @return {Promise<{ success: boolean }>}
  */
-export const updatePickup = async (
+export const updatePickupBulk = async (
     uid: string,
     pickupId: string,
     updates: Partial<Pickup>
 ): Promise<{ success: boolean }> => {
   try {
-    console.log(
-        "🚀 Updating pickup with ID:",
-        pickupId,
-        "and updates:",
-        updates
-    );
     const docRef = pickupCollection.doc(pickupId);
     const doc = await docRef.get();
 
@@ -108,10 +158,10 @@ export const updatePickup = async (
     }
 
     await docRef.update(updates);
-    console.log("✅ Pickup updated successfully with ID:", pickupId);
+    console.log(`✅ Pickup updated successfully for ID: ${pickupId}`);
     return {success: true};
   } catch (error) {
-    console.error("❌ Error updating pickup:", error);
+    console.error(`❌ Error updating pickup for ID: ${pickupId}`, error);
     throw new Error("Failed to update pickup.");
   }
 };

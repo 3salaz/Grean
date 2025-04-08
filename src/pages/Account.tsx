@@ -33,7 +33,7 @@ const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const Account: React.FC = () => {
-  const {profile, createProfile, updateProfile, setProfile} = useProfile(); // Add createProfile
+  const {profile, createProfile, setProfile} = useProfile(); // Add createProfile
   const {user} = useAuth(); // Get currentUser from useAuth
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [loading, setLoading] = useState<boolean>(true);
@@ -75,18 +75,6 @@ const Account: React.FC = () => {
       setShowProfileSetup(true); // ✅ Open modal if accountType is empty
     }
   }, [profile]);
-
-  // ✅ Correctly update displayName and close modal
-  const handleProfileSave = async (displayName: string) => {
-    if (!profile?.uid) return; // Ensure profile exists
-
-    try {
-      await updateProfile("displayName", displayName, "update"); // Save to Firestore
-      setShowProfileSetup(false); // Close modal after successful save
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -138,7 +126,7 @@ const Account: React.FC = () => {
       {/* Profile Setup Modal */}
       <IonModal isOpen={showProfileSetup} backdropDismiss={false}>
         <Suspense fallback={<IonSpinner />}>
-          <ProfileSetup onSave={handleProfileSave} />
+          <ProfileSetup />
         </Suspense>
       </IonModal>
 

@@ -28,13 +28,6 @@ interface PickupsProps {
 
 const Pickups: React.FC<PickupsProps> = ({profile}) => {
   const [modalState, setModalState] = useState({createPickupOpen: false});
-  const {userCreatedPickups, fetchUserCreatedPickups} = usePickups();
-
-  useEffect(() => {
-    if (profile?.uid) {
-      fetchUserCreatedPickups(profile.uid);
-    }
-  }, [profile, fetchUserCreatedPickups]);
 
   const openModal = (modalName: "createPickupOpen") => {
     setModalState((prevState) => ({...prevState, [modalName]: true}));
@@ -47,24 +40,19 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
   if (!profile) {
     return (
       <IonGrid className="h-full flex items-center justify-center">
-        {" "}
         <IonRow>
-          {" "}
           <IonCol className="text-center">
-            {" "}
             <IonButton color="primary" expand="block">
-              {" "}
               Loading Profile...{" "}
             </IonButton>{" "}
-          </IonCol>{" "}
-        </IonRow>{" "}
+          </IonCol>
+        </IonRow>
       </IonGrid>
     );
   }
 
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
-      {" "}
       <ToastContainer />
       {/* Create Pickup Modal */}
       <IonModal
@@ -79,51 +67,47 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md">
         {profile.accountType === "User" ? (
-          <>
-            <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
-              {profile.locations.length > 0 ? (
-                <IonCol className="flex">
-                  <ViewPickups />
-                </IonCol>
-              ) : (
-                <IonCol className="rounded-md flex items-center justify-center text-center bg-amber-50">
-                  <IonText className="text-base">
-                    Please add a location to get started
-                  </IonText>
-                </IonCol>
-              )}
-
-              {profile.locations.length > 0 ? (
-                <IonCol size="auto" className="flex-grow mx-auto p-2">
-                  <IonButton onClick={() => openModal("createPickupOpen")}>
-                    Create Pickup
-                  </IonButton>
-                </IonCol>
-              ) : (
-                <IonCol size="auto" className="flex-grow mx-auto p-2">
-                  <IonButton onClick={() => openModal("createPickupOpen")}>
-                    Add Location
-                  </IonButton>
-                </IonCol>
-              )}
-            </IonRow>
-          </>
-        ) : (
+          // User
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
-            <IonCol>
+            {profile.locations.length > 0 ? (
+              <IonCol className="flex">
+                <ViewPickups />
+              </IonCol>
+            ) : (
+              <IonCol className="rounded-md flex items-center justify-center text-center bg-amber-50">
+                <IonText className="text-base">
+                  Please add a location to get started
+                </IonText>
+              </IonCol>
+            )}
+
+            {profile.locations.length > 0 ? (
+              <IonCol size="auto" className="flex-grow mx-auto p-2">
+                <IonButton onClick={() => openModal("createPickupOpen")}>
+                  Create Pickup
+                </IonButton>
+              </IonCol>
+            ) : (
+              <IonCol size="auto" className="flex-grow mx-auto p-2">
+                <IonButton onClick={() => openModal("createPickupOpen")}>
+                  Add Location
+                </IonButton>
+              </IonCol>
+            )}
+          </IonRow>
+        ) : (
+          // Driver
+          <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end gap-2">
+            <IonCol className="flex">
               {/*  Pickup Queue */}
               <PickupsQueue />
             </IonCol>
             <IonCol size="auto" className="mx-auto w-full flex gap-2">
               <IonButton onClick={() => openModal("createPickupOpen")}>
-                <IonIcon icon={calendarNumberOutline} slot="start">
-                  dhsd
-                </IonIcon>
+                <IonIcon icon={calendarNumberOutline} slot="start"></IonIcon>
               </IonButton>
               <IonButton>
-                <IonIcon icon={listCircleSharp} slot="start">
-                  ashddsfh
-                </IonIcon>
+                <IonIcon icon={listCircleSharp} slot="start"></IonIcon>
               </IonButton>
             </IonCol>
           </IonRow>

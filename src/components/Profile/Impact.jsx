@@ -7,16 +7,16 @@ import {
   IonCol,
   IonIcon,
   IonRow,
-  IonText,
+  IonText
 } from "@ionic/react";
-import { home, informationCircle } from "ionicons/icons";
+import {informationCircle} from "ionicons/icons";
 import ImpactBarGraph from "./ImpactBarGraph";
 
 function Impact() {
   return (
     <IonCard className="max-w-4xl mx-auto shadow-lg mt-2 rounded-lg">
       {/* Card Header */}
-      <IonCardHeader className="bg-slate-100 rounded-t-lg pb-2">
+      <IonCardHeader className="bg-slate-100 rounded-t-lg ion-padding">
         <IonCardTitle className="flex w-full justify-between items-center">
           {/* Title Section */}
           <IonRow className="flex justify-between w-full">

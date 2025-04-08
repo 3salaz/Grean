@@ -104,8 +104,6 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
 
       console.log("✅ User signed up successfully:", user);
 
-      // Create profile immediately after signup
-
       handleClose(); // Close modal after success
       history.push("/account"); // Redirect to account page
     } catch (error) {

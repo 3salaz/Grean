@@ -9,6 +9,7 @@ export interface Pickup {
     displayName: string;
     email: string;
     photoURL: string;
+    accountType?: "User" | "Driver";
   };
   addressData: { address: string };
   pickupDate: string;
@@ -26,6 +27,7 @@ export interface CreatePickupData {
     displayName: string;
     email: string;
     photoURL: string;
+    accountType: "User" | "Driver";
   };
   addressData: { address: string };
   pickupDate: string;
@@ -44,7 +46,7 @@ export interface UpdatePickupData {
 export interface UpdatePickupFieldData {
   pickupId: string;
   field: keyof Pickup;
-  value: Pickup[keyof Pickup]; // Use 'any' to accommodate different field types
+  value: Pickup[keyof Pickup];
   operation?: PickupUpdateOperation;
 }
 

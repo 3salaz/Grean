@@ -24,10 +24,7 @@ export interface Pickup {
     email: string;
     photoURL: string;
   };
-  acceptedBy?: {
-    uid: string;
-    displayName: string;
-  };
+  acceptedBy?: string;
   addressData: {address: string};
   pickupDate: string;
   pickupTime: string;
@@ -55,7 +52,7 @@ interface PickupContextType {
   deletePickup: (pickupId: string) => Promise<void>;
   fetchAllPickups: () => (() => void) | undefined;
   fetchUserOwnedPickups: (userId: string) => Promise<void>;
-  acceptPickup: (pickupId: string) => Promise<void>;
+  // acceptPickup: (pickupId: string) => Promise<void>;
   removePickup: (pickupId: string) => Promise<void>;
 }
 
@@ -140,60 +137,6 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
-  const acceptPickup = async (pickupId: string): Promise<void> => {
-    if (!user || !profile) {
-      toast.error("User or profile not found.");
-      return;
-    }
-
-    // Check if the user is a "Driver" from their profile
-    const isDriver = profile.accountType === "Driver";
-
-    if (!isDriver) {
-      toast.error("Only drivers can accept pickups.");
-      return;
-    }
-
-    console.log("Accepting pickup with ID:", pickupId);
-
-    try {
-      const token = await user.getIdToken();
-      console.log("User token acquired:", token);
-
-      const updates = {
-        isAccepted: true,
-        acceptedBy: user.uid // Only setting the user.uid here
-      };
-
-      const apiUrl =
-        "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction";
-      console.log("Sending update request to URL:", apiUrl);
-      console.log("Request payload:", {pickupId, updates});
-
-      const response = await axios.post(
-        apiUrl,
-        {pickupId, updates},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      console.log("Update response:", response);
-
-      if (response.status === 200) {
-        toast.success("Pickup accepted successfully!");
-        fetchAllPickups(); // Optional; real-time listener already handles this
-      } else {
-        throw new Error(`Unexpected response status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("Error accepting pickup:", error);
-      toast.error("Failed to accept pickup.");
-    }
-  };
-
   const removePickup = async (pickupId: string): Promise<void> => {
     try {
       setAvailablePickups((prev) => prev.filter((p) => p.id !== pickupId));
@@ -252,11 +195,27 @@ export function PickupsProvider({children}: {children: ReactNode}) {
 
   const updatePickup = async (
     pickupId: string,
-    updatedData: Partial<Pickup>
+    fieldOrUpdates: string | Partial<Pickup>,
+    value?: any,
+    operation: "update" | "addToArray" | "removeFromArray" = "update"
   ): Promise<void> => {
     try {
       const token = await user.getIdToken();
-      const dataToSend = {pickupId, updates: updatedData};
+      let dataToSend;
+
+      if (typeof fieldOrUpdates === "string") {
+        dataToSend = {
+          pickupId,
+          field: fieldOrUpdates,
+          value,
+          operation
+        };
+      } else {
+        dataToSend = {
+          pickupId,
+          updates: fieldOrUpdates
+        };
+      }
 
       await axios.post(
         "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction",
@@ -307,7 +266,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         deletePickup,
         fetchAllPickups,
         fetchUserOwnedPickups,
-        acceptPickup,
+        // acceptPickup,
         removePickup
       }}
     >

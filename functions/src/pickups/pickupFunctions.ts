@@ -1,9 +1,9 @@
 import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import {
+  createPickup,
   updatePickupField,
   updatePickupBulk,
-  createPickup,
   deletePickup,
 } from "./pickupServices";
 import {
@@ -17,6 +17,7 @@ import {
   DeletePickupData,
   PickupUpdateOperation,
 } from "./pickupTypes";
+import {db} from "../firebase";
 
 export const createPickupFunction = [
   authMiddleware,
@@ -71,7 +72,25 @@ export const updatePickupFunction = [
         updates,
       } = req.body as UpdatePickupFieldData & UpdatePickupData;
 
+      // Fetch the user profile to check if they are a "Driver"
+      const profileSnap = await db.collection("profiles").doc(uid).get();
+      const profileData = profileSnap.data();
+      const isDriver = profileData?.accountType === "Driver";
+
+      if (!isDriver && !field) {
+        throw new Error(
+            "Unauthorized-Only the pickup creator or a driver can update " +
+            "this pickup."
+        );
+      }
+
+      // Check if the pickup field exists, and call the appropriate function
       if (field && value !== undefined) {
+        if (isDriver && !["isAccepted", "acceptedBy"].includes(field)) {
+          throw new Error(
+              "Unauthorized: Drivers can only update " + "certain fields."
+          );
+        }
         await updatePickupField(
             uid,
             pickupId,
@@ -87,7 +106,7 @@ export const updatePickupFunction = [
 
       res.status(200).send({success: true});
     } catch (error) {
-      logger.error("❌ ERROR:", error);
+      logger.error("❌ ERROR in updatePickupFunction:", error);
       res.status(500).send({error: (error as Error).message});
     }
   },

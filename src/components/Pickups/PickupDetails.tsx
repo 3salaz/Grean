@@ -1,63 +1,142 @@
 import React from "react";
 import {
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonCol,
   IonContent,
+  IonGrid,
   IonHeader,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonListHeader,
   IonPage,
+  IonRow,
   IonTitle,
   IonToolbar
 } from "@ionic/react";
 import {closeOutline} from "ionicons/icons";
-
-interface Pickup {
-  id: string;
-  addressData: {address: string};
-  pickupDate: string;
-  pickupTime: string;
-  pickupNote?: string;
-  isAccepted: boolean;
-}
+import {Pickup, usePickups} from "../../context/PickupsContext";
+import {useProfile} from "../../context/ProfileContext";
 
 interface PickupDetailsProps {
   pickup: Pickup;
-  onClose: () => void;
+  handleClose: () => void;
 }
 
-const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, onClose}) => {
+const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
+  const {updatePickup} = usePickups();
+  const {profile} = useProfile();
+  const [accepting, setAccepting] = React.useState(false);
+
+  const acceptPickup = async () => {
+    try {
+      if (!profile) {
+        console.error("User not logged in");
+        return;
+      }
+
+      await updatePickup(pickup.id, {
+        acceptedBy: profile.uid,
+        isAccepted: true
+      });
+
+      // console.log("✅ Pickup accepted successfully");
+      handleClose(); // Close the modal
+    } catch (error) {
+      console.error("❌ Error accepting pickup:", error);
+    }
+  };
+
+  if (!pickup) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Pickup Details</IonTitle>
+            <IonButton slot="end" fill="clear" onClick={handleClose}>
+              <IonIcon icon={closeOutline} />
+            </IonButton>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <p>No pickup details available.</p>
+          <IonButton expand="block" color="primary" onClick={handleClose}>
+            Close
+          </IonButton>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Pickup Details</IonTitle>
-          <IonButton slot="end" fill="clear" onClick={onClose}>
+          <IonButton slot="end" fill="clear" onClick={handleClose}>
             <IonIcon icon={closeOutline} />
           </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <h2>Pickup Information</h2>
-        <p>
-          <strong>Date:</strong> {pickup.pickupDate}
-        </p>
-        <p>
-          <strong>Time:</strong> {pickup.pickupTime}
-        </p>
-        <p>
-          <strong>Address:</strong> {pickup.addressData.address},{" "}
-        </p>
-        {pickup.pickupNote && (
-          <p>
-            <strong>Note:</strong> {pickup.pickupNote}
-          </p>
-        )}
-        <p>
-          <strong>Status:</strong>{" "}
-          {pickup.isAccepted ? "Accepted" : "Not Accepted"}
-        </p>
-        <IonButton expand="block" color="primary" onClick={onClose}>
-          Close
-        </IonButton>
+        <IonGrid className="h-full flex flex-col gap-8">
+          <IonCard className="ion-padding flex-grow">
+            <IonCardHeader>
+              <IonCardSubtitle>{pickup.id}</IonCardSubtitle>
+              <IonCardTitle>{pickup.pickupDate}</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent className="ion-no-padding">
+              <IonList>
+                <IonItem>
+                  <IonLabel>
+                    Created by: {pickup.createdBy.displayName}
+                  </IonLabel>
+                </IonItem>
+                <IonListHeader>
+                  <IonLabel>Pickup Material</IonLabel>
+                </IonListHeader>
+                {pickup.materials.map((material, index) => (
+                  <IonItem key={index}>
+                    <IonLabel>{material}</IonLabel>
+                  </IonItem>
+                ))}
+                <IonListHeader>
+                  <IonLabel>Pickup Notes</IonLabel>
+                </IonListHeader>
+                <IonItem>{pickup.pickupNote}</IonItem>
+              </IonList>
+              <div></div>
+            </IonCardContent>
+          </IonCard>
+          <IonRow>
+            <IonCol className="flex flex-col gap-2 max-w-md">
+              <IonButton
+                expand="block"
+                color="primary"
+                onClick={acceptPickup}
+                disabled={pickup.isAccepted || accepting}
+              >
+                {accepting
+                  ? "Accepting..."
+                  : pickup.isAccepted
+                  ? "Already Accepted"
+                  : "Accept"}
+              </IonButton>
+              <IonButton expand="block" color="warning">
+                Decline
+              </IonButton>
+              <IonButton expand="block" color="danger" onClick={handleClose}>
+                Close
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

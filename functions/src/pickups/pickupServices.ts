@@ -102,11 +102,24 @@ export const updatePickupField = async (
   try {
     const docRef = pickupCollection.doc(pickupId);
     const doc = await docRef.get();
+    const pickupData = doc.data();
 
-    if (!doc.exists || doc.data()?.createdBy.userId !== uid) {
+    if (!doc.exists) {
+      throw new Error("Pickup not found.");
+    }
+
+    // Check if the user is a driver or the creator
+    const profileSnap = await db.collection("profiles").doc(uid).get();
+    const profileData = profileSnap.data();
+    const isDriver = profileData?.accountType === "Driver";
+
+    const isCreator = pickupData?.createdBy?.userId === uid;
+
+    if (!isCreator && !isDriver) {
       throw new Error("Unauthorized: You cannot update this pickup.");
     }
 
+    // Apply the update operation
     if (operation === "addToArray") {
       await docRef.update({
         [field]: admin.firestore.FieldValue.arrayUnion(value),
@@ -116,17 +129,11 @@ export const updatePickupField = async (
         [field]: admin.firestore.FieldValue.arrayRemove(value),
       });
     } else if (operation === "set") {
-      await docRef.set(
-          {
-            [field]: value,
-          },
-          {merge: true}
-      );
+      await docRef.set({[field]: value}, {merge: true});
     } else {
-      await docRef.update({
-        [field]: value,
-      });
+      await docRef.update({[field]: value});
     }
+
     return {success: true};
   } catch (error) {
     console.error(
@@ -144,6 +151,7 @@ export const updatePickupField = async (
  * @param {Partial<Pickup>} updates - The updates to apply.
  * @return {Promise<{ success: boolean }>}
  */
+
 export const updatePickupBulk = async (
     uid: string,
     pickupId: string,
@@ -152,8 +160,20 @@ export const updatePickupBulk = async (
   try {
     const docRef = pickupCollection.doc(pickupId);
     const doc = await docRef.get();
+    const pickupData = doc.data();
 
-    if (!doc.exists || doc.data()?.createdBy.userId !== uid) {
+    if (!doc.exists) {
+      throw new Error("Pickup not found.");
+    }
+
+    // Check if the user is a driver or the creator
+    const profileSnap = await db.collection("profiles").doc(uid).get();
+    const profileData = profileSnap.data();
+    const isDriver = profileData?.accountType === "Driver";
+
+    const isCreator = pickupData?.createdBy?.userId === uid;
+
+    if (!isCreator && !isDriver) {
       throw new Error("Unauthorized: You cannot update this pickup.");
     }
 

@@ -1,13 +1,5 @@
 import React, {useState} from "react";
-import {
-  IonButton,
-  IonCol,
-  IonGrid,
-  IonRow,
-  IonText,
-  IonModal,
-  IonIcon
-} from "@ionic/react";
+import {IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon} from "@ionic/react";
 import CreatePickup from "./CreatePickup";
 import {calendarNumberOutline, listCircleSharp} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
@@ -16,18 +8,19 @@ import {usePickups} from "../../context/PickupsContext";
 import ViewPickups from "./ViewPickups";
 import PickupsQueue from "./PickupsQueue";
 import CreateLocation from "../Profile/CreateLocation";
+import Schedule from "../Map/Schedule";
 
 interface PickupsProps {
   profile: UserProfile | null;
 }
-
 // All supported modal keys
-type ModalKeys = "createPickupOpen" | "createLocationOpen";
+type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 
 const Pickups: React.FC<PickupsProps> = ({profile}) => {
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
-    createLocationOpen: false
+    createLocationOpen: false,
+    scheduleOpen: false
   });
 
   const openModal = (modalName: ModalKeys) => {
@@ -61,10 +54,7 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
         isOpen={modalState.createPickupOpen}
         onDidDismiss={() => closeModal("createPickupOpen")}
       >
-        <CreatePickup
-          profile={profile}
-          handleClose={() => closeModal("createPickupOpen")}
-        />
+        <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} />
       </IonModal>
 
       {/* Create Location Modal */}
@@ -72,15 +62,17 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
         isOpen={modalState.createLocationOpen}
         onDidDismiss={() => closeModal("createLocationOpen")}
       >
-        <CreateLocation
-          profile={profile}
-          handleClose={() => closeModal("createLocationOpen")}
-        />
+        <CreateLocation profile={profile} handleClose={() => closeModal("createLocationOpen")} />
+      </IonModal>
+
+      <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
+        <Schedule handleClose={() => closeModal("scheduleOpen")} />
       </IonModal>
 
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md">
         {profile.accountType === "User" ? (
+          // User View
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
             {profile.locations.length > 0 ? (
               <IonCol className="flex">
@@ -88,9 +80,7 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
               </IonCol>
             ) : (
               <IonCol className="rounded-md flex items-center justify-center text-center bg-amber-50">
-                <IonText className="text-base">
-                  Please add a location to get started
-                </IonText>
+                <IonText className="text-base">Please add a location to get started</IonText>
               </IonCol>
             )}
 
@@ -102,19 +92,18 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
                     : openModal("createLocationOpen")
                 }
               >
-                {profile.locations.length > 0
-                  ? "Create Pickup"
-                  : "Add Location"}
+                {profile.locations.length > 0 ? "Create Pickup" : "Add Location"}
               </IonButton>
             </IonCol>
           </IonRow>
         ) : (
+          // Driver View
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end gap-2">
             <IonCol className="flex">
               <PickupsQueue />
             </IonCol>
             <IonCol size="auto" className="mx-auto w-full flex gap-2">
-              <IonButton onClick={() => openModal("createPickupOpen")}>
+              <IonButton onClick={() => openModal("scheduleOpen")}>
                 <IonIcon icon={calendarNumberOutline} slot="start" />
               </IonButton>
               <IonButton>

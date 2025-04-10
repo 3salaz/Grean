@@ -94,9 +94,7 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
             <IonCardContent className="ion-no-padding">
               <IonList>
                 <IonItem>
-                  <IonLabel>
-                    Created by: {pickup.createdBy.displayName}
-                  </IonLabel>
+                  <IonLabel>Created by: {pickup.createdBy.displayName}</IonLabel>
                 </IonItem>
                 <IonListHeader>
                   <IonLabel>Pickup Material</IonLabel>
@@ -115,23 +113,20 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
             </IonCardContent>
           </IonCard>
           <IonRow>
-            <IonCol className="flex flex-col gap-2 max-w-md">
+            <IonCol className="flex flex-col gap-2 max-w-xs mx-auto">
               <IonButton
                 expand="block"
                 color="primary"
+                size="small"
                 onClick={acceptPickup}
                 disabled={pickup.isAccepted || accepting}
               >
-                {accepting
-                  ? "Accepting..."
-                  : pickup.isAccepted
-                  ? "Already Accepted"
-                  : "Accept"}
+                {accepting ? "Accepting..." : pickup.isAccepted ? "Already Accepted" : "Accept"}
               </IonButton>
-              <IonButton expand="block" color="warning">
+              <IonButton size="small" expand="block" color="warning">
                 Decline
               </IonButton>
-              <IonButton expand="block" color="danger" onClick={handleClose}>
+              <IonButton size="small" expand="block" color="danger" onClick={handleClose}>
                 Close
               </IonButton>
             </IonCol>

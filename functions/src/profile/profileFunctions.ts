@@ -35,7 +35,7 @@ export const createProfileFunction = [
         photoURL: req.body.photoURL || "",
         locations: req.body.locations || [],
         pickups: req.body.pickups || [],
-        accountType: req.body.accountType || "user",
+        accountType: req.body.accountType || "User",
       };
 
       await createProfile(uid, initialData);

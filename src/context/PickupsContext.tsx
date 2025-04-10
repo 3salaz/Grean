@@ -3,13 +3,7 @@ import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
 import {useProfile} from "./ProfileContext";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  onSnapshot
-} from "firebase/firestore";
+import {collection, query, where, getDocs, onSnapshot} from "firebase/firestore";
 import {db} from "../firebase";
 
 // Define Pickup Type
@@ -40,19 +34,13 @@ interface PickupContextType {
   availablePickups: Pickup[];
   finishedPickups: Pickup[];
   createPickup: (
-    pickupData: Omit<
-      Pickup,
-      "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
-    >
+    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
   ) => Promise<string | undefined>;
-  updatePickup: (
-    pickupId: string,
-    updatedData: Partial<Pickup>
-  ) => Promise<void>;
+  updatePickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
-  fetchAllPickups: () => (() => void) | undefined;
+  fetchAllPickups: () => (() => void) | undefined; // Return type updated
   fetchUserOwnedPickups: (userId: string) => Promise<void>;
-  // acceptPickup: (pickupId: string) => Promise<void>;
+  fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
   removePickup: (pickupId: string) => Promise<void>;
 }
 
@@ -72,7 +60,8 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     let unsubscribe: (() => void) | undefined;
 
     if (user && profile) {
-      unsubscribe = fetchAllPickups();
+      fetchUserAssignedPickups(user.uid); // Fetch pickups assigned to the current user
+      unsubscribe = fetchAllPickups(); // Fetch all pickups
     }
 
     return () => {
@@ -102,9 +91,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         if (profile.accountType === "Driver") {
           // console.log("👷 Driver view: showing all unaccepted pickups.");
         } else {
-          pickups = pickups.filter(
-            (pickup) => pickup.createdBy.userId !== user.uid
-          );
+          pickups = pickups.filter((pickup) => pickup.createdBy.userId !== user.uid);
         }
 
         setAvailablePickups(pickups);
@@ -121,10 +108,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
 
   const fetchUserOwnedPickups = async (userId: string) => {
     try {
-      const q = query(
-        collection(db, "pickups"),
-        where("createdBy.userId", "==", userId)
-      );
+      const q = query(collection(db, "pickups"), where("createdBy.userId", "==", userId));
       const querySnapshot = await getDocs(q);
       const userPickups = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -134,6 +118,29 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     } catch (error) {
       console.error("Error fetching user created pickups:", error);
       toast.error("Failed to fetch user created pickups.");
+    }
+  };
+
+  const fetchUserAssignedPickups = (userId: string): (() => void) | undefined => {
+    try {
+      const q = query(
+        collection(db, "pickups"),
+        where("acceptedBy", "==", userId),
+        where("isCompleted", "==", false)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const assignedPickups = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Pickup[];
+        setUserAssignedPickups(assignedPickups);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error in real-time user assigned pickups listener:", error);
+      toast.error("Failed to load assigned pickups in real-time.");
+      return undefined;
     }
   };
 
@@ -148,10 +155,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
   };
 
   const createPickup = async (
-    pickupData: Omit<
-      Pickup,
-      "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
-    >
+    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
   ): Promise<string | undefined> => {
     try {
       if (!user || !profile) throw new Error("User or Profile not found");
@@ -177,11 +181,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         }
       );
 
-      if (
-        response.data &&
-        typeof response.data === "object" &&
-        "pickupId" in response.data
-      ) {
+      if (response.data && typeof response.data === "object" && "pickupId" in response.data) {
         toast.success("Pickup created successfully!");
         return response.data.pickupId as string;
       } else {
@@ -266,7 +266,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         deletePickup,
         fetchAllPickups,
         fetchUserOwnedPickups,
-        // acceptPickup,
+        fetchUserAssignedPickups,
         removePickup
       }}
     >

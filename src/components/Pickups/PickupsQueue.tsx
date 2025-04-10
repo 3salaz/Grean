@@ -86,7 +86,7 @@ const PickupsQueue: React.FC = () => {
             </IonItem>
           ))
         ) : (
-          <IonRow className="ion-text-center ion-justify-content-center w-full bg-orange-300">
+          <IonRow className="ion-text-center ion-justify-content-center w-full">
             <IonCol size="12" className="flex flex-col justify-center items-center">
               <img src={noPickupIcon} alt="No pickups to display" className="w-32 h-32 my-2" />
               <IonText className="text-base text-gray-500">No pickups to display</IonText>

@@ -82,9 +82,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
         <IonCard className="py-10">
           <IonCardHeader>
             <IonText color="primary">
-              <h3 className="text-center text-[#75B657] mb-4">
-                Sign In To Your Account
-              </h3>
+              <h3 className="text-center text-[#75B657] mb-4">Sign In To Your Account</h3>
             </IonText>
           </IonCardHeader>
           <IonCardContent>
@@ -92,11 +90,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
             <IonRow>
               <IonCol size="12">
                 <IonItem
-                  color={
-                    formData.email && !isValidEmail(formData.email)
-                      ? "danger"
-                      : undefined
-                  }
+                  color={formData.email && !isValidEmail(formData.email) ? "danger" : undefined}
                 >
                   <IonLabel position="stacked">Email</IonLabel>
                   <IonInput
@@ -138,10 +132,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
               <IonCol size="12" className="text-center">
                 <IonText className="text-center text-gray-500">
                   Not a member?{" "}
-                  <span
-                    className="text-[#75B657] cursor-pointer"
-                    onClick={toggleToSignup}
-                  >
+                  <span className="text-[#75B657] cursor-pointer" onClick={toggleToSignup}>
                     Sign Up
                   </span>
                 </IonText>

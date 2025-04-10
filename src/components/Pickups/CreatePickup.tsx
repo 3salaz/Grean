@@ -18,13 +18,9 @@ import {toast, ToastContainer} from "react-toastify";
 import {Pickup, usePickups} from "../../context/PickupsContext";
 import {useUserLocations} from "../../hooks/useUserLocations";
 import {UserProfile} from "../../context/ProfileContext";
-import {updateProfile} from "firebase/auth";
 
 // Define type for local state (matching Pickup type)
-type PickupData = Omit<
-  Pickup,
-  "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy"
->;
+type PickupData = Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">;
 
 interface CreatePickupProps {
   handleClose: () => void;
@@ -32,11 +28,9 @@ interface CreatePickupProps {
 }
 
 const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
-  const locationIds = Array.isArray(profile?.locations)
-    ? profile.locations
-    : [];
+  const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const {locations: userLocations, loading} = useUserLocations(locationIds);
-  const {createPickup, visiblePickups} = usePickups();
+  const {createPickup, availablePickups} = usePickups();
 
   const [pickupData, setPickupData] = useState<PickupData>({
     pickupDate: dayjs().format("YYYY-MM-DD"),
@@ -81,7 +75,7 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
       }
 
       // Limit active pickups to 2
-      const activePickups = (visiblePickups ?? []).filter(
+      const activePickups = (availablePickups ?? []).filter(
         (pickup) => pickup.createdBy?.userId === profile.uid
       );
 
@@ -156,10 +150,7 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
             <IonDatetime
               value={`${pickupData.pickupDate}T${pickupData.pickupTime}`}
               onIonChange={(e) =>
-                handleChange(
-                  "pickupDate",
-                  dayjs(e.detail.value).format("YYYY-MM-DD")
-                )
+                handleChange("pickupDate", dayjs(e.detail.value).format("YYYY-MM-DD"))
               }
               min={dayjs().toISOString()}
               presentation="date-time"

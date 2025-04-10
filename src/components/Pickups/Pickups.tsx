@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon} from "@ionic/react";
 import CreatePickup from "./CreatePickup";
-import {calendarNumberOutline, listCircleSharp} from "ionicons/icons";
+import {arrowDownCircleOutline, calendarNumberOutline, listCircleSharp} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
 import {ToastContainer} from "react-toastify";
 import {usePickups} from "../../context/PickupsContext";
@@ -79,8 +79,11 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
                 <ViewPickups />
               </IonCol>
             ) : (
-              <IonCol className="rounded-md flex items-center justify-center text-center bg-amber-50">
-                <IonText className="text-base">Please add a location to get started</IonText>
+              <IonCol className="rounded-md flex flex-col items-center justify-center text-center gap-8">
+                <IonText className="text-xl font-bold text-slate-600">
+                  (Please add a location to get started)
+                </IonText>
+                <IonIcon size="large" icon={arrowDownCircleOutline} className="text-2xl text-800" />
               </IonCol>
             )}
 

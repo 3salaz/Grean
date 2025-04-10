@@ -1,14 +1,7 @@
 import {useEffect, useState} from "react";
 import CreateLocation from "./CreateLocation";
 import ProfileHeader from "./ProfileHeader";
-import {
-  IonButton,
-  IonCol,
-  IonGrid,
-  IonIcon,
-  IonModal,
-  IonRow
-} from "@ionic/react";
+import {IonButton, IonCol, IonGrid, IonIcon, IonModal, IonRow} from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
@@ -51,14 +44,8 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
       <ToastContainer />
       {/* Modal for Add Location */}
-      <IonModal
-        isOpen={isModalVisible}
-        onDidDismiss={() => setIsModalVisible(false)}
-      >
-        <CreateLocation
-          profile={profile}
-          handleClose={() => setIsModalVisible(false)}
-        />
+      <IonModal isOpen={isModalVisible}>
+        <CreateLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
       </IonModal>
 
       <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
@@ -69,7 +56,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
         {profile?.accountType === "Driver" && <MyRoutes profile={profile} />}
       </main>
 
-      {profile?.accountType === "User" && profile.locations.length < 1 && (
+      {profile?.accountType === "User" && (
         <IonRow className="container max-w-2xl mx-auto w-full rounded-t-md">
           <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">
             <IonButton

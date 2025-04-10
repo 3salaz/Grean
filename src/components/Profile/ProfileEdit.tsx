@@ -169,19 +169,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
             onClick={handleEditSaveButtonClick}
             disabled={isSaving}
           >
-            {isSaving ? (
-              <IonSpinner name="crescent" />
-            ) : isEditing ? (
-              "Save"
-            ) : (
-              "Edit"
-            )}
+            {isSaving ? <IonSpinner name="crescent" /> : isEditing ? "Save" : "Edit"}
           </IonButton>
-          <IonButton
-            expand="block"
-            color="danger"
-            onClick={() => setShowDeleteAlert(true)}
-          >
+          <IonButton expand="block" color="danger" onClick={() => setShowDeleteAlert(true)}>
             Delete
           </IonButton>
           <IonButton expand="block" fill="outline" onClick={onClose}>
@@ -194,9 +184,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
         isOpen={showDeleteAlert}
         onDidDismiss={() => setShowDeleteAlert(false)}
         header={"Delete Profile"}
-        message={
-          "Are you sure you want to delete your profile? This action cannot be undone."
-        }
+        message={"Are you sure you want to delete your profile? This action cannot be undone."}
         buttons={[
           {
             text: "Cancel",

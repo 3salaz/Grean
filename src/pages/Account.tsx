@@ -37,7 +37,7 @@ const Account: React.FC = () => {
   const {user} = useAuth(); // Get currentUser from useAuth
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [loading, setLoading] = useState<boolean>(true);
-  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
+  // const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
 
   useEffect(() => {
     const loadTab = async () => {
@@ -64,17 +64,9 @@ const Account: React.FC = () => {
 
       createProfile(newProfile).then(() => {
         setProfile(newProfile);
-        setShowProfileSetup(true); // ✅ Open modal after profile creation
       });
     }
   }, [user, profile]); // Runs when `user` or `profile` changes
-
-  useEffect(() => {
-    if (profile?.accountType === "") {
-      setLoading(false);
-      setShowProfileSetup(true); // ✅ Open modal if accountType is empty
-    }
-  }, [profile]);
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -123,24 +115,12 @@ const Account: React.FC = () => {
         )}
       </IonContent>
 
-      {/* Profile Setup Modal */}
-      <IonModal isOpen={showProfileSetup} backdropDismiss={false}>
-        <Suspense fallback={<IonSpinner />}>
-          <ProfileSetup />
-        </Suspense>
-      </IonModal>
-
       <IonFooter className="h-[8svh] flex items-center justify-center border-t-green border-t-2">
-        <IonToolbar
-          color="secondary"
-          className="flex items-center justify-center h-full"
-        >
+        <IonToolbar color="secondary" className="flex items-center justify-center h-full">
           <IonSegment
             className="max-w-2xl mx-auto"
             value={activeTab}
-            onIonChange={(e: CustomEvent) =>
-              setActiveTab(e.detail.value as TabOption)
-            }
+            onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
           >
             <IonSegmentButton value="profile">
               <IonLabel className="text-xs">Profile</IonLabel>

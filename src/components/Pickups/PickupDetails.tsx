@@ -114,18 +114,23 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
           </IonCard>
           <IonRow>
             <IonCol className="flex flex-col gap-2 max-w-xs mx-auto">
-              <IonButton
-                expand="block"
-                color="primary"
-                size="small"
-                onClick={acceptPickup}
-                disabled={pickup.isAccepted || accepting}
-              >
-                {accepting ? "Accepting..." : pickup.isAccepted ? "Already Accepted" : "Accept"}
-              </IonButton>
-              <IonButton size="small" expand="block" color="warning">
-                Decline
-              </IonButton>
+              {profile?.accountType === "Driver" && (
+                <>
+                  <IonButton
+                    expand="block"
+                    color="primary"
+                    size="small"
+                    onClick={acceptPickup}
+                    disabled={pickup.isAccepted || accepting}
+                  >
+                    {accepting ? "Accepting..." : pickup.isAccepted ? "Already Accepted" : "Accept"}
+                  </IonButton>
+                  <IonButton size="small" expand="block" color="warning">
+                    Decline
+                  </IonButton>
+                </>
+              )}
+
               <IonButton size="small" expand="block" color="danger" onClick={handleClose}>
                 Close
               </IonButton>

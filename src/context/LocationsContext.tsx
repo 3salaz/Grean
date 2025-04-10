@@ -2,15 +2,7 @@ import {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import axios from "axios";
 import {toast} from "react-toastify";
 import {useAuth} from "./AuthContext";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  where
-} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, onSnapshot, query, where} from "firebase/firestore";
 import {db} from "../firebase";
 
 // Define types for location
@@ -32,10 +24,7 @@ export interface LocationContextType {
   profileLocations: Location[];
   createLocation: (locationData: Location) => Promise<string | undefined>;
   deleteLocation: (locationId: string) => Promise<void>;
-  updateLocation: (
-    locationId: string,
-    updates: Partial<Location>
-  ) => Promise<void>;
+  updateLocation: (locationId: string, updates: Partial<Location>) => Promise<void>;
   loading: boolean; // Add loading state
 }
 
@@ -81,8 +70,7 @@ export function LocationsProvider({children}: {children: ReactNode}) {
           return;
         }
 
-        const userLocationIds: string[] =
-          userProfileSnap.data().locations || [];
+        const userLocationIds: string[] = userProfileSnap.data().locations || [];
 
         if (userLocationIds.length > 0) {
           const locationPromises = userLocationIds.map(async (locationId) => {
@@ -93,9 +81,9 @@ export function LocationsProvider({children}: {children: ReactNode}) {
               : null;
           });
 
-          const resolvedUserLocations: Location[] = (
-            await Promise.all(locationPromises)
-          ).filter(Boolean) as Location[];
+          const resolvedUserLocations: Location[] = (await Promise.all(locationPromises)).filter(
+            Boolean
+          ) as Location[];
           setProfileLocations(resolvedUserLocations);
           setLocations(resolvedUserLocations);
         } else {
@@ -115,9 +103,7 @@ export function LocationsProvider({children}: {children: ReactNode}) {
     };
   }, [user]);
 
-  const createLocation = async (
-    locationData: Location
-  ): Promise<string | undefined> => {
+  const createLocation = async (locationData: Location): Promise<string | undefined> => {
     try {
       console.log("🚀 Creating location with data:", locationData);
       const token = await user.getIdToken();
@@ -129,12 +115,7 @@ export function LocationsProvider({children}: {children: ReactNode}) {
         }
       );
 
-      if (
-        response.data &&
-        typeof response.data === "object" &&
-        "locationId" in response.data
-      ) {
-        toast.success("Location created successfully!");
+      if (response.data && typeof response.data === "object" && "locationId" in response.data) {
         return response.data.locationId as string;
       } else {
         throw new Error("Unexpected response format.");
@@ -158,15 +139,12 @@ export function LocationsProvider({children}: {children: ReactNode}) {
     }
   };
 
-  const updateLocation = async (
-    locationId: string,
-    updates: Partial<Location>
-  ): Promise<void> => {
+  const updateLocation = async (locationId: string, updates: Partial<Location>): Promise<void> => {
     try {
-      await axios.post(
-        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocation",
-        {locationId, updates}
-      );
+      await axios.post("https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocation", {
+        locationId,
+        updates
+      });
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);

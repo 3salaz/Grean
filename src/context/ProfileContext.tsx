@@ -11,6 +11,7 @@ export interface UserProfile {
   profile?: string | null;
   email: string;
   uid: string;
+  inventory: string[];
   locations: string[];
   pickups: string[];
   accountType: string;
@@ -32,13 +33,9 @@ interface ProfileContextValue {
 }
 
 // ✅ Create Context
-const ProfileContext = createContext<ProfileContextValue | undefined>(
-  undefined
-);
+const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
-export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({
-  children
-}) => {
+export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
   const {user} = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);

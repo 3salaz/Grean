@@ -13,16 +13,11 @@ function Home() {
   }, []);
 
   return (
-    <IonPage>
-      <IonContent
-        className="h-full overflow-auto snap-y snap-mandatory hide-scroll no-scroll overscroll-none w-full"
-        scrollEvents={true}
-      >
-        <div className="section relative h-full w-full flex justify-center items-center snap-always snap-center">
+    <IonContent>
+        <div className="relative h-full w-full flex justify-center items-center snap-always snap-center">
           <Landing />
         </div>
       </IonContent>
-    </IonPage>
   );
 }
 

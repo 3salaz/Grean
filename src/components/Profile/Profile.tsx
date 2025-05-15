@@ -55,24 +55,7 @@ const Profile: React.FC<ProfileProps> = ({profile}) => {
         {profile?.accountType === "User" && <MyLocations profile={profile} />}
         {profile?.accountType === "Driver" && <MyRoutes profile={profile} />}
       </main>
-
-      {profile?.accountType === "User" && (
-        <IonRow className="container max-w-2xl mx-auto w-full rounded-t-md">
-          <IonCol size="auto" className="mx-auto ion-padding-horizontal py-2">
-            <IonButton
-              fill="outline"
-              size="small"
-              color="primary"
-              expand="block"
-              onClick={() => setIsModalVisible(true)}
-              className="text-sm"
-            >
-              Add Location
-              <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
-            </IonButton>
-          </IonCol>
-        </IonRow>
-      )}
+      
     </IonGrid>
   );
 };

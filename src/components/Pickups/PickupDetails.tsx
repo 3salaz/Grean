@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   IonButton,
   IonCard,
@@ -23,6 +23,8 @@ import {
 import {closeOutline} from "ionicons/icons";
 import {Pickup, usePickups} from "../../context/PickupsContext";
 import {useProfile} from "../../context/ProfileContext";
+import Navbar from "../Layout/Navbar";
+import {toast} from "react-toastify";
 
 interface PickupDetailsProps {
   pickup: Pickup;
@@ -31,25 +33,40 @@ interface PickupDetailsProps {
 
 const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
   const {updatePickup} = usePickups();
-  const {profile} = useProfile();
-  const [accepting, setAccepting] = React.useState(false);
+  const {profile, updateProfile} = useProfile();
+  const [accepting, setAccepting] = useState(false); // Loading state
 
   const acceptPickup = async () => {
-    try {
-      if (!profile) {
-        console.error("User not logged in");
-        return;
-      }
+    if (!profile) {
+      console.error("User not logged in");
+      toast.error("You must be logged in to accept a pickup.");
+      return;
+    }
 
+    if (!pickup?.id) {
+      console.error("Pickup ID is missing");
+      toast.error("Invalid pickup details.");
+      return;
+    }
+
+    setAccepting(true); // Start loading state
+    try {
+      // Update the pickup
       await updatePickup(pickup.id, {
         acceptedBy: profile.uid,
         isAccepted: true
       });
 
-      // console.log("✅ Pickup accepted successfully");
+      // Update the user's profile
+      await updateProfile("pickups", pickup.id, "addToArray");
+
+      toast.success("Pickup accepted successfully!");
       handleClose(); // Close the modal
     } catch (error) {
       console.error("❌ Error accepting pickup:", error);
+      toast.error("Failed to accept pickup. Please try again.");
+    } finally {
+      setAccepting(false); // End loading state
     }
   };
 
@@ -77,12 +94,13 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <Navbar />
+        {/* <IonToolbar>
           <IonTitle>Pickup Details</IonTitle>
           <IonButton slot="end" fill="clear" onClick={handleClose}>
             <IonIcon icon={closeOutline} />
           </IonButton>
-        </IonToolbar>
+        </IonToolbar> */}
       </IonHeader>
       <IonContent className="ion-padding">
         <IonGrid className="h-full flex flex-col gap-8">

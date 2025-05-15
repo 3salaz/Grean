@@ -1,6 +1,7 @@
 import {
   IonButton,
   IonCard,
+  IonCardContent,
   IonCardHeader,
   IonCardTitle,
   IonCol,
@@ -10,7 +11,7 @@ import {
   IonSpinner,
   IonText
 } from "@ionic/react";
-import {useRef, useState, useEffect} from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   addCircleOutline,
   chevronBackOutline,
@@ -18,14 +19,14 @@ import {
   createOutline
 } from "ionicons/icons";
 import CreateLocation from "./CreateLocation";
-import {UserProfile} from "../../context/ProfileContext";
-import {useUserLocations, LocationData} from "../../hooks/useUserLocations";
+import { UserProfile } from "../../context/ProfileContext";
+import { useUserLocations, LocationData } from "../../hooks/useUserLocations";
 
 interface MyLocationsProps {
   profile: UserProfile | null;
 }
 
-const MyLocations: React.FC<MyLocationsProps> = ({profile}) => {
+const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentAddressIndex, setCurrentAddressIndex] = useState(0);
   const addressRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -40,7 +41,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({profile}) => {
   }
 
   // Fetch full location details based on the location IDs stored in the profile.
-  const {locations: userLocations, loading} = useUserLocations(profile.locations || []);
+  const { locations: userLocations, loading } = useUserLocations(profile.locations || []);
 
   useEffect(() => {
     // console.log("Fetched user locations:", userLocations);
@@ -63,7 +64,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({profile}) => {
           }
         });
       },
-      {root: null, rootMargin: "0px", threshold: 0.5}
+      { root: null, rootMargin: "0px", threshold: 0.5 }
     );
 
     addressRefs.current.forEach((ref) => ref && observer.observe(ref));
@@ -91,36 +92,45 @@ const MyLocations: React.FC<MyLocationsProps> = ({profile}) => {
           </IonRow>
         </IonCardTitle>
       </IonCardHeader>
+      <IonCardContent className="bg-[#75B657]">
+      <IonRow className="flex-grow bg-transparent relative ion-align-items-end pt-4">
+        {/* Locations Container */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none gap-2">
+          {userLocations.map((loc: LocationData, index) => (
+            <IonCol size="auto" className="flex items-center justify-start p-0" key={loc.id}>
+              <div
+                ref={(el) => (addressRefs.current[index] = el)}
+                className="flex-none bg-white w-32 h-32 rounded-2xl snap-center text-base border border-white flex flex-col items-center justify-center drop-shadow-md"
+              >
+                <span className="text-center text-xs">{loc.address}</span>
+                {loc.businessName && <span className="text-center">{loc.businessName}</span>}
+              </div>
+            </IonCol>
+          ))}
+        </div>
+      </IonRow>
 
-      {userLocations.length > 0 ? (
-        <IonRow className="ion-padding flex-grow bg-transparent relative ion-align-items-end">
-          {/* Locations Container */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar overscroll-none gap-2">
-            {userLocations.map((loc: LocationData, index) => (
-              <IonCol size="auto" className="flex items-center justify-start p-0" key={loc.id}>
-                <div
-                  ref={(el) => (addressRefs.current[index] = el)}
-                  className="flex-none w-32 h-32 m-2 rounded-2xl snap-center bg-white border flex flex-col items-center justify-center drop-shadow-md"
-                >
-                  <span className="text-center">{loc.address}</span>
-                  {loc.businessName && <span className="text-center">{loc.businessName}</span>}
-                </div>
-              </IonCol>
-            ))}
-          </div>
-        </IonRow>
-      ) : (
-        <IonRow>
-          <IonCol size="12" className="ion-padding">
-            <div className="text-center py-8 flex flex-col">
-              <IonText className="font-bold text-lg">No locations found</IonText>
-              <IonText color="medium" className="text-sm">
-                (Please Add A Location to get started)
-              </IonText>
-            </div>
-          </IonCol>
-        </IonRow>
-      )}
+      <IonRow className="container max-w-2xl mx-auto w-full rounded-t-md">
+        <IonCol size="auto" className="py-2">
+          <IonButton
+            fill="outline"
+            color="light"
+            expand="block"
+            shape="round"
+            onClick={() => setIsModalVisible(true)}
+            className="text-sm"
+          >
+            <IonIcon size="large" slot="icon-only" icon={addCircleOutline}></IonIcon>
+          </IonButton>
+        </IonCol>
+      </IonRow>
+      </IonCardContent>
+
+
+
+      <IonModal isOpen={isModalVisible}>
+        <CreateLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
+      </IonModal>
     </IonCard>
   );
 };

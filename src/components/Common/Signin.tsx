@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   IonInput,
   IonItem,
@@ -15,10 +15,10 @@ import {
   IonFabButton,
   IonIcon
 } from "@ionic/react";
-import {closeOutline} from "ionicons/icons";
-import {useAuth} from "../../context/AuthContext";
-import {useProfile} from "../../context/ProfileContext";
-import {useHistory} from "react-router-dom";
+import { closeOutline } from "ionicons/icons";
+import { useAuth } from "../../context/AuthContext";
+import { useProfile } from "../../context/ProfileContext";
+import { useHistory } from "react-router-dom";
 
 interface SigninProps {
   handleClose: () => void;
@@ -30,7 +30,7 @@ const isValidEmail = (email: string) => {
   return emailRegex.test(email);
 };
 
-const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
+const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -38,12 +38,12 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
 
   const [loading, setLoading] = useState(false);
   const history = useHistory(); // Initialize history
-  const {signIn} = useAuth();
-  const {profile} = useProfile();
+  const { signIn } = useAuth();
+  const { profile } = useProfile();
 
   // Handles input changes to update state
   const handleInputChange = (e: any) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value
@@ -52,12 +52,12 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
 
   // Check if the form is valid (both fields filled & valid email)
   const isFormValid = useMemo(() => {
-    const {email, password} = formData;
+    const { email, password } = formData;
     return email.trim() !== "" && password.trim() !== "" && isValidEmail(email);
   }, [formData]);
 
   const handleSignIn = async () => {
-    const {email, password} = formData;
+    const { email, password } = formData;
 
     if (!isFormValid) {
       console.error("Invalid email or missing password.");
@@ -79,7 +79,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
   return (
     <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-end justify-center">
       <div className="container m-4 h-[80%]">
-        <IonCard className="py-10">
+        <IonCard className="py-10 shadow-none max-w-sm">
           <IonCardHeader>
             <IonText color="primary">
               <h3 className="text-center text-[#75B657] mb-4">Sign In To Your Account</h3>
@@ -145,6 +145,7 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
                 <IonButton
                   expand="block"
                   color="success"
+                  size="small"
                   onClick={handleSignIn}
                   disabled={!isFormValid || loading}
                 >
@@ -152,16 +153,15 @@ const Signin: React.FC<SigninProps> = ({handleClose, toggleToSignup}) => {
                 </IonButton>
               </IonCol>
             </IonRow>
+            <IonRow>
+              <IonCol size="12" className="flex items-center justify-center pt-2">
+                <IonFabButton size="small" color="danger" onClick={handleClose}>
+                  <IonIcon icon={closeOutline} />
+                </IonFabButton>
+              </IonCol>
+            </IonRow>
           </IonCardContent>
         </IonCard>
-        {/* Close Button */}
-        <IonRow>
-          <IonCol size="12" className="flex items-center justify-center pt-2">
-            <IonFabButton color="danger" onClick={handleClose}>
-              <IonIcon icon={closeOutline} />
-            </IonFabButton>
-          </IonCol>
-        </IonRow>
       </div>
     </IonGrid>
   );

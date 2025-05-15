@@ -89,6 +89,7 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
 
             <IonCol size="auto" className="flex-grow mx-auto p-2">
               <IonButton
+                size="small"
                 onClick={() =>
                   profile.locations.length > 0
                     ? openModal("createPickupOpen")

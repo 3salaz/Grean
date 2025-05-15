@@ -11,17 +11,13 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonModal
+  IonModal,
 } from "@ionic/react";
-import {useEffect, useState, Suspense, lazy} from "react";
-import {useProfile} from "../context/ProfileContext";
-import {
-  leafOutline,
-  navigateCircleOutline,
-  personCircleOutline,
-  statsChartOutline
-} from "ionicons/icons";
-import {useAuth} from "../context/AuthContext"; // Import useAuth
+import { useEffect, useState, Suspense, lazy } from "react";
+import { useProfile } from "../context/ProfileContext";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Layout/Navbar";
+import Footer from "../components/Layout/Footer";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -32,41 +28,48 @@ const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
-const Account: React.FC = () => {
-  const {profile, createProfile, setProfile} = useProfile(); // Add createProfile
-  const {user} = useAuth(); // Get currentUser from useAuth
-  const [activeTab, setActiveTab] = useState<TabOption>("profile");
-  const [loading, setLoading] = useState<boolean>(true);
-  // const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
+interface AccountProps {
+  activeTab: TabOption;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
+}
 
+const Account: React.FC<AccountProps> = ({activeTab, setActiveTab}) => {
+  const { profile, setProfile } = useProfile();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
+
+  // Load tab content on change
   useEffect(() => {
     const loadTab = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setLoading(false);
     };
     loadTab();
   }, [activeTab]);
 
-  // Open modal if displayName is missing
+  // Tab persistence
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab") as TabOption;
+    if (savedTab) setActiveTab(savedTab);
+  }, []);
 
   useEffect(() => {
-    if (user && !profile) {
-      const newProfile = {
-        displayName: `user${Math.floor(Math.random() * 10000)}`,
-        email: user.email || "",
-        photoURL: "",
-        uid: user.uid,
-        locations: [],
-        pickups: [],
-        accountType: "" // Initial empty accountType
-      };
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
-      createProfile(newProfile).then(() => {
-        setProfile(newProfile);
-      });
+  // Open modal if no profile
+  useEffect(() => {
+    if (user && !profile) {
+      setShowProfileSetup(true);
     }
-  }, [user, profile]); // Runs when `user` or `profile` changes
+  }, [user, profile]);
+
+  const handleProfileSetupComplete = () => {
+    setShowProfileSetup(false);
+    // Ideally, re-fetch profile or trigger a refetch in ProfileContext
+  };
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -101,7 +104,8 @@ const Account: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent scroll-y="false" className="flex flex-col h-full">
+      <Navbar />
+      <IonContent>
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">
@@ -115,32 +119,14 @@ const Account: React.FC = () => {
         )}
       </IonContent>
 
-      <IonFooter className="h-[8svh] flex items-center justify-center border-t-green border-t-2">
-        <IonToolbar color="secondary" className="flex items-center justify-center h-full">
-          <IonSegment
-            className="max-w-2xl mx-auto"
-            value={activeTab}
-            onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
-          >
-            <IonSegmentButton value="profile">
-              <IonLabel className="text-xs">Profile</IonLabel>
-              <IonIcon icon={personCircleOutline}></IonIcon>
-            </IonSegmentButton>
-            <IonSegmentButton value="pickups">
-              <IonLabel className="text-xs">Pickups</IonLabel>
-              <IonIcon icon={leafOutline}></IonIcon>
-            </IonSegmentButton>
-            <IonSegmentButton value="map">
-              <IonLabel className="text-xs">Map</IonLabel>
-              <IonIcon icon={navigateCircleOutline}></IonIcon>
-            </IonSegmentButton>
-            <IonSegmentButton value="stats">
-              <IonLabel className="text-xs">Stats</IonLabel>
-              <IonIcon icon={statsChartOutline}></IonIcon>
-            </IonSegmentButton>
-          </IonSegment>
-        </IonToolbar>
-      </IonFooter>
+      {/* Profile Setup Modal */}
+      <IonModal isOpen={showProfileSetup}>
+        <Suspense fallback={<IonSpinner />}>
+          <ProfileSetup onComplete={handleProfileSetupComplete} />
+        </Suspense>
+      </IonModal>
+      <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
+
     </IonPage>
   );
 };

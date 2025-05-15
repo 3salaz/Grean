@@ -111,7 +111,7 @@ function MyForest() {
       <IonRow className="mb-10 pl-2">
         <IonCol
           size="auto"
-          className="bg-[#75B657] px-2 mx-auto text-center rounded-b-md px-4"
+          className="bg-[#75B657] px-2 rounded-b-md px-4"
         >
           <IonText color="secondary" className="font-bold text-white text-xl">
             Your Forest

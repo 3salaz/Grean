@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from "react";
 import {
   IonSelect,
   IonSelectOption,
@@ -8,16 +9,20 @@ import {
   IonRow,
   IonCol,
   IonDatetime,
-  IonFabButton,
-  IonList
+  IonList,
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonContent,
+  IonGrid
 } from "@ionic/react";
 import dayjs from "dayjs";
 import {closeOutline} from "ionicons/icons";
-import {useState} from "react";
 import {toast, ToastContainer} from "react-toastify";
 import {Pickup, usePickups} from "../../context/PickupsContext";
 import {useUserLocations} from "../../hooks/useUserLocations";
 import {UserProfile} from "../../context/ProfileContext";
+import Navbar from "../Layout/Navbar";
 
 // Define type for local state (matching Pickup type)
 type PickupData = Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">;
@@ -29,16 +34,25 @@ interface CreatePickupProps {
 
 const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
-  const {locations: userLocations, loading} = useUserLocations(locationIds);
+  const {locations: userLocations} = useUserLocations(locationIds);
   const {createPickup, availablePickups} = usePickups();
 
-  const [pickupData, setPickupData] = useState<PickupData>({
-    pickupDate: dayjs().format("YYYY-MM-DD"),
-    pickupTime: dayjs().format("HH:mm"),
+  const [creating, setCreating] = useState(false);
+
+  // ✅ Use full ISO time and clean date/time parsing
+  const now = dayjs();
+  const [formData, setFormData] = useState<PickupData>({
+    pickupDate: now.format("YYYY-MM-DD"),
+    pickupTime: now.format("HH:mm"),
     pickupNote: "",
-    addressData: {address: ""}, // ✅ Match the expected format
+    addressData: {address: ""},
     materials: []
   });
+
+  // ✅ Log formData for debugging
+  useEffect(() => {
+    console.log("🔍 formData updated:", formData);
+  }, [formData]);
 
   const handleChange = (name: keyof PickupData, value: any) => {
     if (name === "addressData" && typeof value === "string") {
@@ -46,7 +60,7 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
       return;
     }
 
-    setPickupData((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -59,22 +73,21 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
         return;
       }
 
-      if (!pickupData.addressData.address) {
+      if (!formData.addressData.address) {
         toast.error("Please select a valid address.");
         return;
       }
 
-      if (!pickupData.pickupDate || !pickupData.pickupTime) {
+      if (!formData.pickupDate || !formData.pickupTime) {
         toast.error("Please select a valid pickup date and time.");
         return;
       }
 
-      if (pickupData.materials.length === 0) {
+      if (formData.materials.length === 0) {
         toast.error("Please select at least one material.");
         return;
       }
 
-      // Limit active pickups to 2
       const activePickups = (availablePickups ?? []).filter(
         (pickup) => pickup.createdBy?.userId === profile.uid
       );
@@ -84,9 +97,9 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
         return;
       }
 
-      console.log("🚀 Sending pickup data to backend:", pickupData);
+      console.log("🚀 Sending pickup data to backend:", formData);
 
-      await createPickup(pickupData);
+      await createPickup(formData);
       handleClose();
     } catch (error) {
       console.error("Error creating pickup:", error);
@@ -95,95 +108,107 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose, profile}) => {
   };
 
   return (
-    <main className="w-full h-full pb-6 overflow-auto">
-      <ToastContainer position="top-right" autoClose={5000} />
-      <IonRow className="h-[90%] w-full overflow-auto ion-padding">
-        <IonList className="w-full ion-padding bg-orange rounded-md">
-          {/* Address Selection */}
-          <IonCol size="12">
-            <IonLabel position="stacked">Select Address</IonLabel>
-            <IonSelect
-              value={pickupData.addressData.address || ""}
-              className="w-full px-2 bg-slate-50 text-center rounded-md"
-              onIonChange={(e) => {
-                const selectedLocation = userLocations.find(
-                  (location) => location.address === e.detail.value
-                );
+    <IonPage>
+      <IonHeader>
+        <Navbar />
+      </IonHeader>
+      <IonContent>
+        <IonGrid className="w-full h-full overflow-auto flex flex-col">
+          <IonRow className="flex-grow container w-full h-full overflow-auto ion-padding bg-orange-400">
+            <ToastContainer autoClose={5000} />
+            <IonList className="w-full ion-padding bg-orange rounded-md">
+              {/* Address Selection */}
+              <IonCol size="12">
+                <IonLabel position="stacked">Select Address</IonLabel>
+                <IonSelect
+                  value={formData.addressData.address || ""}
+                  className="w-full px-2 bg-slate-50 text-center rounded-md"
+                  onIonChange={(e) => {
+                    const selectedLocation = userLocations.find(
+                      (location) => location.address === e.detail.value
+                    );
 
-                if (selectedLocation) {
-                  handleChange("addressData", {
-                    address: selectedLocation.address // ✅ Store full address string
-                  });
-                }
-              }}
-              placeholder="Select Address"
-            >
-              {userLocations.map((location, index) => (
-                <IonSelectOption key={index} value={location.address}>
-                  {location.address}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonCol>
+                    if (selectedLocation) {
+                      handleChange("addressData", {
+                        address: selectedLocation.address
+                      });
+                    }
+                  }}
+                  placeholder="Select Address"
+                >
+                  {userLocations.map((location, index) => (
+                    <IonSelectOption key={index} value={location.address}>
+                      {location.address}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </IonCol>
 
-          {/* Materials Selection */}
-          <IonCol>
-            <IonLabel position="stacked">Materials</IonLabel>
-            <IonSelect
-              multiple
-              value={pickupData.materials}
-              onIonChange={(e) => handleChange("materials", e.detail.value)}
-              placeholder="Select materials"
-            >
-              <IonSelectOption value="plastic">Plastic</IonSelectOption>
-              <IonSelectOption value="glass">Glass</IonSelectOption>
-              <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
-              <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
-              <IonSelectOption value="palets">Palets</IonSelectOption>
-              <IonSelectOption value="appliances">Appliances</IonSelectOption>
-            </IonSelect>
-          </IonCol>
+              {/* Materials Selection */}
+              <IonCol>
+                <IonLabel position="stacked">Materials</IonLabel>
+                <IonSelect
+                  multiple
+                  value={formData.materials}
+                  onIonChange={(e) => handleChange("materials", e.detail.value)}
+                  placeholder="Select materials"
+                >
+                  <IonSelectOption value="plastic">Plastic</IonSelectOption>
+                  <IonSelectOption value="glass">Glass</IonSelectOption>
+                  <IonSelectOption value="aluminum">Aluminum</IonSelectOption>
+                  <IonSelectOption value="cardboard">Cardboard</IonSelectOption>
+                  <IonSelectOption value="palets">Palets</IonSelectOption>
+                  <IonSelectOption value="appliances">Appliances</IonSelectOption>
+                </IonSelect>
+              </IonCol>
 
-          {/* Date & Time Selection */}
-          <IonCol>
-            <IonLabel position="stacked">Pickup Date & Time</IonLabel>
-            <IonDatetime
-              value={`${pickupData.pickupDate}T${pickupData.pickupTime}`}
-              onIonChange={(e) =>
-                handleChange("pickupDate", dayjs(e.detail.value).format("YYYY-MM-DD"))
-              }
-              min={dayjs().toISOString()}
-              presentation="date-time"
-              minuteValues="0,15,30,45"
-            />
-          </IonCol>
+              {/* Date & Time Selection */}
+              <IonCol>
+                <IonLabel position="stacked">Pickup Date & Time</IonLabel>
+                <IonDatetime
+                  value={`${formData.pickupDate}T${formData.pickupTime}`}
+                  onIonChange={(e) => {
+                    const value = e.detail.value?.toString();
+                    if (value) {
+                      const parsed = dayjs(value);
+                      handleChange("pickupDate", parsed.format("YYYY-MM-DD"));
+                      handleChange("pickupTime", parsed.format("HH:mm"));
+                    }
+                  }}
+                  min={dayjs().toISOString()}
+                  presentation="date-time"
+                  minuteValues="0,15,30,45"
+                />
+              </IonCol>
 
-          {/* Pickup Notes */}
-          <IonCol>
-            <IonLabel position="stacked">Pickup Notes</IonLabel>
-            <IonTextarea
-              rows={3}
-              value={pickupData.pickupNote}
-              onIonChange={(e) => handleChange("pickupNote", e.detail.value!)}
-            />
-          </IonCol>
-        </IonList>
-      </IonRow>
+              {/* Pickup Notes */}
+              {/* <IonCol>
+                <IonLabel position="stacked">Pickup Notes</IonLabel>
+                <IonTextarea
+                  rows={3}
+                  value={formData.pickupNote ?? ""}
+                  onIonChange={(e) => handleChange("pickupNote", e.detail.value ?? "")}
+                />
+              </IonCol> */}
+            </IonList>
+          </IonRow>
 
-      {/* Buttons Row */}
-      <IonRow className="h-[10%] mx-auto ion-justify-content-center ion-align-items-center">
-        <IonCol size="auto">
-          <IonButton expand="block" color="primary" onClick={handleSubmit}>
-            Submit
-          </IonButton>
-        </IonCol>
-        <IonCol size="auto">
-          <IonFabButton color="danger" onClick={handleClose}>
-            <IonIcon icon={closeOutline} />
-          </IonFabButton>
-        </IonCol>
-      </IonRow>
-    </main>
+          {/* Buttons Row */}
+          <IonRow class="ion-padding border-[#75B657] border-t-2">
+            <IonCol size="auto" className="flex gap-1 mx-auto justify-center items-center">
+              <IonButton size="small" expand="block" color="primary" onClick={handleSubmit}>
+                Create Pickup
+              </IonButton>
+              </IonCol>
+              <IonCol size="auto" className="flex gap-1 mx-auto justify-center items-center">
+              <IonButton size="small" color="danger" onClick={handleClose}>
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </IonPage>
   );
 };
 

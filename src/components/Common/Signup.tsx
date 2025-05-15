@@ -1,4 +1,4 @@
-import {useState, useMemo} from "react";
+import { useState, useMemo } from "react";
 import {
   IonInput,
   IonItem,
@@ -16,11 +16,12 @@ import {
   IonFabButton,
   IonIcon
 } from "@ionic/react";
-import {closeOutline, eyeOutline, eyeOffOutline} from "ionicons/icons";
-import {toast, ToastContainer} from "react-toastify";
+import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {useAuth} from "../../context/AuthContext";
-import {useHistory} from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useHistory } from "react-router-dom";
+import { useProfile } from "../../context/ProfileContext";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,7 +37,7 @@ interface SignupProps {
   toggleToSignin: () => void;
 }
 
-function Signup({handleClose, toggleToSignin}: SignupProps) {
+function Signup({ handleClose, toggleToSignin }: SignupProps) {
   const history = useHistory(); // Initialize history
   const [formData, setFormData] = useState({
     email: "",
@@ -51,13 +52,14 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Grab signUp from AuthContext
-  const {signUp} = useAuth();
+  const { signUp } = useAuth();
+  const { createProfile, setProfile } = useProfile();
   // const {createProfile} = useProfile(); // Get createProfile function
 
-  const handleInputChange = (e: CustomEvent<{value: string}>) => {
+  const handleInputChange = (e: CustomEvent<{ value: string }>) => {
     const input = e.target as HTMLInputElement;
-    const {name} = input;
-    const {value} = e.detail;
+    const { name } = input;
+    const { value } = e.detail;
 
     if (name) {
       setFormData((prev) => ({
@@ -72,7 +74,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
   // Use useMemo or a direct boolean expression
   // isFormValid = fields are non-empty, email is valid, password is valid, and passwords match
   const isFormValid = useMemo(() => {
-    const {email, password, confirmPassword} = formData;
+    const { email, password, confirmPassword } = formData;
     return (
       email &&
       password &&
@@ -85,8 +87,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
 
   // Show/hide password text
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () =>
-    setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   const handleSubmit = async () => {
     setIsSubmitting(true); // Start loading state
@@ -94,15 +95,25 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
       const user = await signUp(formData.email, formData.password);
 
       if (!user || !user.uid) {
-        console.log(
-          "❌ Signup failed, user is undefined or missing UID:",
-          user
-        );
+        console.log("❌ Signup failed, user is undefined or missing UID:", user);
         toast.error("Signup failed. Please try again.");
         return;
       }
 
       console.log("✅ User signed up successfully:", user);
+      const newProfile = {
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: user.email || "",
+        photoURL: "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: "" // Initial empty accountType
+      };
+
+      createProfile(newProfile).then(() => {
+        setProfile(newProfile);
+      });
 
       handleClose(); // Close modal after success
       history.push("/account"); // Redirect to account page
@@ -118,13 +129,11 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
     <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-end justify-center">
       <ToastContainer />
       <div className="container m-4 h-[80%]">
-        <IonCard className="py-10">
+        <IonCard className="py-10 shadow-none">
           <IonCardHeader>
             <IonCardTitle>
               <IonText color="primary">
-                <h3 className="text-center text-[#75B657] mb-4">
-                  Create Your Account
-                </h3>
+                <h3 className="text-center text-[#75B657] mb-4">Create Your Account</h3>
               </IonText>
             </IonCardTitle>
           </IonCardHeader>
@@ -143,11 +152,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                 <IonRow>
                   <IonCol size="12">
                     <IonItem
-                      color={
-                        formData.email && !isValidEmail(formData.email)
-                          ? "danger"
-                          : undefined
-                      }
+                      color={formData.email && !isValidEmail(formData.email) ? "danger" : undefined}
                     >
                       <IonLabel position="stacked">Email</IonLabel>
                       <IonInput
@@ -192,17 +197,14 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                         className="ion-align-self-end"
                         onClick={togglePasswordVisibility}
                       >
-                        <IonIcon
-                          icon={showPassword ? eyeOffOutline : eyeOutline}
-                        />
+                        <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
                       </IonButton>
                     </IonItem>
-                    {formData.password &&
-                      !isValidPassword(formData.password) && (
-                        <IonText color="danger" className="text-sm">
-                          Password must be at least 6 characters.
-                        </IonText>
-                      )}
+                    {formData.password && !isValidPassword(formData.password) && (
+                      <IonText color="danger" className="text-sm">
+                        Password must be at least 6 characters.
+                      </IonText>
+                    )}
                   </IonCol>
                 </IonRow>
 
@@ -210,11 +212,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                 <IonRow>
                   <IonCol size="12">
                     <IonItem
-                      color={
-                        formData.confirmPassword && !passwordsMatch
-                          ? "danger"
-                          : undefined
-                      }
+                      color={formData.confirmPassword && !passwordsMatch ? "danger" : undefined}
                     >
                       <IonLabel position="stacked">Confirm Password</IonLabel>
                       <IonInput
@@ -231,11 +229,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                         className="ion-align-self-end"
                         onClick={toggleConfirmPasswordVisibility}
                       >
-                        <IonIcon
-                          icon={
-                            showConfirmPassword ? eyeOffOutline : eyeOutline
-                          }
-                        />
+                        <IonIcon icon={showConfirmPassword ? eyeOffOutline : eyeOutline} />
                       </IonButton>
                     </IonItem>
                     {formData.confirmPassword && !passwordsMatch && (
@@ -250,10 +244,7 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                   <IonCol size="12" className="text-center">
                     <IonText className="text-center text-gray-500">
                       Already have an account?{" "}
-                      <span
-                        className="text-[#75B657] cursor-pointer"
-                        onClick={toggleToSignin}
-                      >
+                      <span className="text-[#75B657] cursor-pointer" onClick={toggleToSignin}>
                         Sign In
                       </span>
                     </IonText>
@@ -262,10 +253,11 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
 
                 {/* Sign Up Button - Disabled if form invalid */}
                 <IonRow className="ion-justify-content-center max-w-sm mx-auto">
-                  <IonCol size="12">
+                  <IonCol size="auto">
                     <IonButton
                       expand="block"
                       color="success"
+                      size="small"
                       onClick={handleSubmit}
                       disabled={!isFormValid || isSubmitting}
                       className="text-white"
@@ -274,17 +266,18 @@ function Signup({handleClose, toggleToSignin}: SignupProps) {
                     </IonButton>
                   </IonCol>
                 </IonRow>
+
+                <IonRow>
+                  <IonCol size="12" className="flex items-center justify-center pt-2">
+                    <IonFabButton size="small" color="danger" onClick={handleClose}>
+                      <IonIcon icon={closeOutline} />
+                    </IonFabButton>
+                  </IonCol>
+                </IonRow>
               </>
             )}
           </IonCardContent>
         </IonCard>
-        <IonRow>
-          <IonCol size="12" className="flex items-center justify-center pt-2">
-            <IonFabButton color="danger" onClick={handleClose}>
-              <IonIcon icon={closeOutline} />
-            </IonFabButton>
-          </IonCol>
-        </IonRow>
       </div>
     </IonGrid>
   );

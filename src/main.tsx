@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {BrowserRouter} from "react-router-dom";
-import {setupIonicReact} from "@ionic/react";
+import { setupIonicReact } from "@ionic/react";
 import App from "./App";
 
 // Initialize Ionic React
@@ -24,9 +23,7 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <BrowserRouter>
         <App />
-      </BrowserRouter>
     </React.StrictMode>
   );
 } else {

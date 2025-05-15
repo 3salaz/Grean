@@ -26,7 +26,8 @@ import {
   logoInstagram,
   logoLinkedin,
   logOutOutline,
-  menuOutline
+  menuOutline,
+  personCircleOutline
 } from "ionicons/icons";
 import {useAuth} from "../../context/AuthContext";
 import {useProfile} from "../../context/ProfileContext";
@@ -97,7 +98,7 @@ function Navbar() {
             autoHide={false}
           ></IonMenuButton>
         </IonButtons>
-        <IonTitle class="text-2xl">
+        <IonTitle class="text-xl">
           {/* <img
             className="aspect-square w-8 rounded-full object-cover"
             src={logo}
@@ -109,12 +110,13 @@ function Navbar() {
         <IonButtons slot="end"></IonButtons>
         {/* If logged in, show avatar & popover */}
         {user ? (
-          <IonButton fill="clear" slot="end" onClick={handleOpenPopover}>
-            <img
+          <IonButton slot="end" onClick={handleOpenPopover}>
+            <IonIcon size="large" slot="icon-only" icon={personCircleOutline} />
+            {/* <img
               className="h-10 w-10 rounded-full text-white"
               src={profile?.photoURL || avatar}
               alt="User Avatar"
-            />
+            /> */}
           </IonButton>
         ) : (
           <IonButton
@@ -213,7 +215,7 @@ function Navbar() {
           onDidDismiss={closeAuthModal}
           backdropDismiss={true}
         >
-          <IonContent fullscreen>
+          <IonContent>
             {isSignin ? (
               <Signin
                 handleClose={closeAuthModal}

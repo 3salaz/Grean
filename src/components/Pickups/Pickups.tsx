@@ -1,22 +1,27 @@
-import React, {useState} from "react";
-import {IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon} from "@ionic/react";
+import React, { useState } from "react";
+import { IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon, IonContent } from "@ionic/react";
 import CreatePickup from "./CreatePickup";
-import {arrowDownCircleOutline, calendarNumberOutline, listCircleSharp} from "ionicons/icons";
-import {UserProfile} from "../../context/ProfileContext";
-import {ToastContainer} from "react-toastify";
-import {usePickups} from "../../context/PickupsContext";
+import { arrowDownCircleOutline, calendarNumberOutline, listCircleSharp } from "ionicons/icons";
+import { UserProfile } from "../../context/ProfileContext";
+import { ToastContainer } from "react-toastify";
+import { usePickups } from "../../context/PickupsContext";
 import ViewPickups from "./ViewPickups";
 import PickupsQueue from "./PickupsQueue";
 import CreateLocation from "../Profile/CreateLocation";
 import Schedule from "../Map/Schedule";
 
+type TabOption = "profile" | "pickups" | "map" | "stats";
+
 interface PickupsProps {
   profile: UserProfile | null;
+  activeTab: TabOption;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
 }
+
 // All supported modal keys
 type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 
-const Pickups: React.FC<PickupsProps> = ({profile}) => {
+const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) => {
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
     createLocationOpen: false,
@@ -24,11 +29,15 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
   });
 
   const openModal = (modalName: ModalKeys) => {
-    setModalState((prev) => ({...prev, [modalName]: true}));
+    // ✅ Remove focus from any currently focused element
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setModalState((prev) => ({ ...prev, [modalName]: true }));
   };
 
   const closeModal = (modalName: ModalKeys) => {
-    setModalState((prev) => ({...prev, [modalName]: false}));
+    setModalState((prev) => ({ ...prev, [modalName]: false }));
   };
 
   if (!profile) {
@@ -46,15 +55,21 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
   }
 
   return (
-    <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
-      <ToastContainer />
+    <IonContent>
 
+
+    <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
       {/* Create Pickup Modal */}
       <IonModal
         isOpen={modalState.createPickupOpen}
+        backdropDismiss={false}
+        onDidPresent={() => {
+          // Optional: log or do any other setup
+          console.log("Modal presented");
+        }}
         onDidDismiss={() => closeModal("createPickupOpen")}
       >
-        <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} />
+        <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} />
       </IonModal>
 
       {/* Create Location Modal */}
@@ -68,10 +83,12 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
       <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
         <Schedule handleClose={() => closeModal("scheduleOpen")} />
       </IonModal>
+      <ToastContainer />
 
       {/* Main Section */}
-      <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md">
-        {profile.accountType === "User" ? (
+      <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md bg-orange-400">
+        {/* <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} /> */}
+        {/* {profile.accountType === "User" ? (
           // User View
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
             {profile.locations.length > 0 ? (
@@ -115,9 +132,10 @@ const Pickups: React.FC<PickupsProps> = ({profile}) => {
               </IonButton>
             </IonCol>
           </IonRow>
-        )}
+        )} */}
       </main>
     </IonGrid>
+    </IonContent>
   );
 };
 

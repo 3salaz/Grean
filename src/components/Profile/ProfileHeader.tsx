@@ -9,7 +9,7 @@ import {
 } from "@ionic/react";
 import { addCircle, settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
-import { UserProfile } from "../../../context/ProfileContext";
+import { UserProfile } from "../../context/ProfileContext";
 
 // ✅ Define props interface (only optional openModal)
 interface ProfileHeaderProps {
@@ -33,7 +33,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
               {profile?.displayName || "User 1"}
             </IonText>
             <IonText className="text-xs bg-green-50 font-bold rounded-lg">
-              Email: {profile?.email || "No Email"}
+              Current Location: {profile?.locations || "No Email"}
             </IonText>
           </div>
         </IonCol>

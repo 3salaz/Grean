@@ -26,6 +26,58 @@ export interface Pickup {
   materials: string[];
 }
 
+interface MaterialConfig {
+  label: string;
+  requiresPhoto?: boolean;
+  requiresAgreement?: boolean;
+  agreementLabel?: string;
+  min?: number;
+  max?: number;
+  description?: string;
+}
+
+const materialConfig: Record<string, MaterialConfig> = {
+  glass: {
+    label: "Glass",
+    requiresAgreement: true,
+    agreementLabel: "I agree to the Glass Disclaimer",
+    min: 1,
+    max: 10,
+  },
+  cardboard: {
+    label: "Cardboard",
+    requiresPhoto: true,
+    min: 1,
+    max: 10,
+  },
+  appliances: {
+    label: "Appliances",
+    requiresPhoto: true,
+  },
+  "non-ferrous": {
+    label: "Non-Ferrous Metals",
+    requiresPhoto: true,
+    requiresAgreement: true,
+    agreementLabel: "I agree to the Non-Ferrous Metals Disclaimer",
+  },
+  pallets: {
+    label: "Pallets",
+    min: 4,
+    max: 30,
+  },
+  plastic: {
+    label: "Plastic",
+    min: 3,
+    max: 20,
+  },
+  aluminum: {
+    label: "Aluminum",
+    min: 3,
+    max: 20,
+  },
+};
+
+
 // Define PickupContext Type
 interface PickupContextType {
   allPickups: Pickup[];
@@ -43,6 +95,7 @@ interface PickupContextType {
   fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
   removePickup: (pickupId: string) => Promise<void>;
 }
+
 
 // Create Context
 const PickupContext = createContext<PickupContextType | null>(null);

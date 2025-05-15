@@ -30,7 +30,7 @@ type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<TabOption>("profile");
+  const [activeTab, setActiveTab] = useState<TabOption>("pickups");
 
   const hideNavbarRoutes: string[] = [];
 

@@ -1,7 +1,7 @@
-import {useState, useEffect, useRef} from "react";
-import {useLocations} from "../../context/LocationsContext";
-import {useProfile, UserProfile} from "../../context/ProfileContext";
-import {motion} from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { useLocations } from "../../context/LocationsContext";
+import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { motion } from "framer-motion";
 import {
   IonContent,
   IonItem,
@@ -22,12 +22,12 @@ import {
   IonList,
   IonSpinner
 } from "@ionic/react";
-import {toast, ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import homeIcon from "../../assets/icons/home.png";
 import businessIcon from "../../assets/icons/business.png";
 
 // Import APIProvider and useMapsLibrary for autocomplete functionality.
-import {APIProvider, useMapsLibrary} from "@vis.gl/react-google-maps";
+import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 // ---------- PlaceAutocomplete Component ----------
 interface PlaceAutocompleteProps {
@@ -47,7 +47,7 @@ const PlaceAutocomplete: React.FC<PlaceAutocompleteProps> = ({
     const options = {
       fields: ["geometry", "name", "formatted_address"],
       types: ["address"],
-      componentRestrictions: {country: "us"}
+      componentRestrictions: { country: "us" }
     };
     const auto = new places.Autocomplete(inputRef.current, options);
     setAutocomplete(auto);
@@ -79,7 +79,7 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
   profile,
   handleClose
 }) => {
-  const {createLocation} = useLocations();
+  const { createLocation } = useLocations();
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
@@ -133,8 +133,8 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
       );
       const data = await response.json();
       if (data.status === "OK" && data.results.length > 0) {
-        const {lat, lng} = data.results[0].geometry.location;
-        return {latitude: lat, longitude: lng};
+        const { lat, lng } = data.results[0].geometry.location;
+        return { latitude: lat, longitude: lng };
       } else {
         throw new Error(`Geocoding API Error: ${data.status}`);
       }
@@ -161,8 +161,8 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
       case 2:
         return formData.locationType === "Business"
           ? formData.businessName &&
-              formData.businessPhoneNumber &&
-              formData.category
+          formData.businessPhoneNumber &&
+          formData.category
           : formData.homeName;
       default:
         return false;
@@ -209,7 +209,7 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
         address: formData.address,
         latitude: formData.latitude ?? undefined,
         longitude: formData.longitude ?? undefined,
-        ...(formData.locationType === "Home" && {homeName: formData.homeName}),
+        ...(formData.locationType === "Home" && { homeName: formData.homeName }),
         ...(formData.locationType === "Business" && {
           businessName: formData.businessName,
           businessPhoneNumber: formData.businessPhoneNumber,
@@ -246,10 +246,10 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                 <motion.div
                   key={step}
                   className="w-full p-2 flex flex-col"
-                  initial={{opacity: 0, y: 50}}
-                  animate={{opacity: 1, y: 0}}
-                  exit={{opacity: 0, x: -50}}
-                  transition={{duration: 0.3}}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3 }}
                 >
                   {step === 0 && (
                     <div>
@@ -350,41 +350,42 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                   )}
                   {loadingCoordinates && <IonSpinner />}
                 </motion.div>
+                <IonRow className="flex items-center justify-around ion-padding">
+                  {step > 0 && (
+                    <IonCol size="3">
+                      <IonButton expand="block" onClick={prevStep}>
+                        Back
+                      </IonButton>
+                    </IonCol>
+                  )}
+                  <IonCol size="3">
+                    <IonButton expand="block" color="medium" onClick={handleClose}>
+                      Cancel
+                    </IonButton>
+                  </IonCol>
+                  {step < 2 ? (
+                    <IonCol size="3">
+                      <IonButton expand="block" onClick={nextStep}>
+                        Next
+                      </IonButton>
+                    </IonCol>
+                  ) : (
+                    <IonCol size="3">
+                      <IonButton
+                        expand="block"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                      >
+                        {loading ? <IonSpinner name="crescent" /> : "Submit"}
+                      </IonButton>
+                    </IonCol>
+                  )}
+                </IonRow>
               </IonCardContent>
             </IonCard>
           </IonCol>
         </IonRow>
-        <IonRow className="flex items-center justify-around ion-padding">
-          {step > 0 && (
-            <IonCol size="3">
-              <IonButton expand="block" onClick={prevStep}>
-                Back
-              </IonButton>
-            </IonCol>
-          )}
-          <IonCol size="3">
-            <IonButton expand="block" color="medium" onClick={handleClose}>
-              Cancel
-            </IonButton>
-          </IonCol>
-          {step < 2 ? (
-            <IonCol size="3">
-              <IonButton expand="block" onClick={nextStep}>
-                Next
-              </IonButton>
-            </IonCol>
-          ) : (
-            <IonCol size="3">
-              <IonButton
-                expand="block"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? <IonSpinner name="crescent" /> : "Submit"}
-              </IonButton>
-            </IonCol>
-          )}
-        </IonRow>
+
       </IonGrid>
     </IonContent>
   );

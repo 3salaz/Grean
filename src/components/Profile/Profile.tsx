@@ -18,37 +18,15 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({profile}) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fixTouchEvent = (event: TouchEvent) => {};
-
-    document.addEventListener("touchstart", fixTouchEvent, {passive: true});
-    document.addEventListener("touchmove", fixTouchEvent, {passive: true});
-
-    return () => {
-      document.removeEventListener("touchstart", fixTouchEvent);
-      document.removeEventListener("touchmove", fixTouchEvent);
-    };
-  }, []);
-
-  if (!profile) {
-    return (
-      <IonGrid className="h-full flex items-center justify-center">
-        <IonRow>
-          <IonCol className="text-center">Loading Profile...</IonCol>
-        </IonRow>
-      </IonGrid>
-    );
-  }
 
   return (
     <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
-      <ToastContainer />
       {/* Modal for Add Location */}
       <IonModal isOpen={isModalVisible}>
         <CreateLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
       </IonModal>
 
-      <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
+      <main className="container max-w-lg mx-auto flex-grow overflow-auto ion-padding">
         <ProfileHeader profile={profile} />
         <MyForest />
         <Impact />

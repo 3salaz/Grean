@@ -2,7 +2,7 @@ import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import {
   createLocation,
-  // updateLocation,
+  updateLocation,
   deleteLocation,
 } from "./locationServices";
 import {
@@ -12,7 +12,7 @@ import {
 
 import {
   CreateLocationData,
-  // UpdateLocationData,
+  UpdateLocationData,
   DeleteLocationData,
 } from "./locationTypes";
 
@@ -36,26 +36,26 @@ export const createLocationFunction = [
   },
 ];
 
-// export const updateLocationFunction = [
-//   authMiddleware,
-//   async (req: AuthenticatedRequest, res: Response) => {
-//     logger.info("🔥 updateLocationFunction TRIGGERED with data:", req.body);
-//     try {
-//       const uid = req.user?.uid;
-//       if (!uid) {
-//         throw new Error("User UID is undefined.");
-//       }
-//       logger.info("✅ User authenticated:", uid);
+export const updateLocationFunction = [
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    logger.info("🔥 updateLocationFunction TRIGGERED with data:", req.body);
+    try {
+      const uid = req.user?.uid;
+      if (!uid) {
+        throw new Error("User UID is undefined.");
+      }
+      logger.info("✅ User authenticated:", uid);
 
-//       const { locationId, updates } = req.body as UpdateLocationData;
-//       await updateLocation(uid, locationId, updates);
-//       res.status(200).send({ success: true });
-//     } catch (error) {
-//       logger.error("❌ ERROR in updateLocationFunction:", error);
-//       res.status(500).send({ error: (error as Error).message });
-//     }
-//   },
-// ];
+      const {locationId, updates} = req.body as UpdateLocationData;
+      await updateLocation(uid, locationId, updates);
+      res.status(200).send({success: true});
+    } catch (error) {
+      logger.error("❌ ERROR in updateLocationFunction:", error);
+      res.status(500).send({error: (error as Error).message});
+    }
+  },
+];
 
 export const deleteLocationFunction = [
   authMiddleware,

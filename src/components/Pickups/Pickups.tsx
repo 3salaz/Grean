@@ -86,7 +86,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
       <ToastContainer />
 
       {/* Main Section */}
-      <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl rounded-t-md bg-orange-400">
+      <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl bg-orange-100">
         {/* <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} /> */}
         {/* {profile.accountType === "User" ? (
           // User View

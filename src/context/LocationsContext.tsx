@@ -22,6 +22,8 @@ export interface LocationContextType {
   locations: Location[];
   businessLocations: Location[];
   profileLocations: Location[];
+  currentLocation: Location | null;
+  setCurrentLocation: (location: Location | null) => void;
   createLocation: (locationData: Location) => Promise<string | undefined>;
   deleteLocation: (locationId: string) => Promise<void>;
   updateLocation: (locationId: string, updates: Partial<Location>) => Promise<void>;
@@ -37,6 +39,8 @@ export function LocationsProvider({children}: {children: ReactNode}) {
   const [businessLocations, setBusinessLocations] = useState<Location[]>([]);
   const [profileLocations, setProfileLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // Initialize loading state
+  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
+
 
   useEffect(() => {
     if (!user) return;
@@ -141,7 +145,7 @@ export function LocationsProvider({children}: {children: ReactNode}) {
 
   const updateLocation = async (locationId: string, updates: Partial<Location>): Promise<void> => {
     try {
-      await axios.post("https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocation", {
+      await axios.post("https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocationFunction", {
         locationId,
         updates
       });
@@ -158,6 +162,8 @@ export function LocationsProvider({children}: {children: ReactNode}) {
         locations,
         businessLocations,
         profileLocations,
+        currentLocation,
+        setCurrentLocation,
         createLocation,
         deleteLocation,
         updateLocation,

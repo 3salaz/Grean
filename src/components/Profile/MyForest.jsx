@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { IonRow, IonCol, IonText } from "@ionic/react";
 import { motion, AnimatePresence } from "framer-motion";
-import forestBg from "../../assets/forestbg.webp";
 
 import sprout from "../../assets/icons/sprout.png";
 import glassTree from "../../assets/icons/glassTree.png";
@@ -54,7 +53,7 @@ function Tree({ type, recycledWeight, thresholds, isSelected, onSelect }) {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" className="flex items-center w-full">
       <motion.div
         key={currentStage.stage}
         className="tree-wrapper flex flex-col items-center justify-center text-center h-24"
@@ -76,7 +75,7 @@ function Tree({ type, recycledWeight, thresholds, isSelected, onSelect }) {
           }}
           onClick={() => onSelect(type)} // Handle selection on click
         />
-        <IonText className="text-white text-sm text-center">{type}</IonText>
+        <IonText className="text-sm text-center">{type}</IonText>
       </motion.div>
     </AnimatePresence>
   );
@@ -96,39 +95,36 @@ function MyForest() {
   };
 
   const [recyclingProgress, setRecyclingProgress] = useState(initialRecycling);
-  const [selectedTree, setSelectedTree] = useState(null); // Track selected tree
+  const [selectedTree, setSelectedTree] = useState(null);
 
   return (
-    <div
-      // style={{backgroundImage: `url(${forestBg})`}}
-      className="bg-[#75B657] bg-opacity-10 bg-center w-full drop-shadow-lg rounded-b-xl"
-    >
-      <IonRow className="pl-2">
-        <IonCol
-          size="auto"
-          className="bg-white px-2 rounded-b-md px-4"
-        >
-          <IonText color="secondary" className="font-bold text-[#75B657] text-xl">
-            Your Forest
-          </IonText>
-        </IonCol>
-      </IonRow>
-
-      <IonRow className="flex justify-center items-center gap-2">
+    <IonRow className="gap-2 ion-padding border-b border-slate-200">
+      <IonCol size="12" className="flex items-center justify-center">
+        <IonText className="text-lg bg-white text-center font-semibold text-[#3a6833] tracking-wide rounded-md px-2 mx-auto">
+          Your Forest
+        </IonText>
+      </IonCol>
+      {/* Header */}
+      {/* Tree Display */}
+      <IonCol size="12" className="flex items-center justify-center gap-4">
         {Object.keys(recyclingProgress).map((type) => (
-            <Tree
-              key={type}
-              type={type}
-              recycledWeight={recyclingProgress[type]}
-              thresholds={thresholds}
-              isSelected={selectedTree === type} // Check if this tree is selected
-              onSelect={setSelectedTree} // Set selected tree on click
-            />
+          <Tree
+            key={type}
+            type={type}
+            recycledWeight={recyclingProgress[type]}
+            thresholds={thresholds}
+            isSelected={selectedTree === type}
+            onSelect={setSelectedTree}
+          />
         ))}
-      </IonRow>
+      </IonCol>
+    </IonRow>
 
-      {/* Material Weight Controls */}
-      {/* <IonRow className="mt-4 bg-white">
+  );
+}
+
+{/* Material Weight Controls */ }
+{/* <IonRow className="mt-4 bg-white">
         {Object.keys(recyclingProgress).map((material) => (
           <IonCol key={material} className="flex flex-col items-center">
             <IonText className="font-bold text-sm capitalize">
@@ -151,8 +147,5 @@ function MyForest() {
           </IonCol>
         ))}
       </IonRow> */}
-    </div>
-  );
-}
 
 export default MyForest;

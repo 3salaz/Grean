@@ -119,7 +119,7 @@ const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
             </IonText>
           </IonGrid>
         )}
-
+        
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">

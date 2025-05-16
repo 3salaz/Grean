@@ -90,33 +90,28 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border ion-no-padding">
-      <IonToolbar color="primary" className="h-full">
+    <IonHeader className="ion-no-border ion-no-padding bg-[#75b657]">
+      <IonToolbar color="primary"  className="h-full max-w-2xl mx-auto">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton
             onClick={handleOpenRoutesPopover}
             autoHide={false}
           ></IonMenuButton>
         </IonButtons>
-        <IonTitle class="text-xl">
-          {/* <img
-            className="aspect-square w-8 rounded-full object-cover"
+        <div className="flex items-center justify-center w-full">
+          <img
+            className="h-10 rounded-full"
             src={logo}
             alt="Grean Logo"
-          /> */}
-          Grean
-        </IonTitle>
+          />
+        </div>
 
-        <IonButtons slot="end"></IonButtons>
+        <IonButtons slot="end">
         {/* If logged in, show avatar & popover */}
         {user ? (
-          <IonButton slot="end" onClick={handleOpenPopover}>
-            <IonIcon size="large" slot="icon-only" icon={personCircleOutline} />
-            {/* <img
-              className="h-10 w-10 rounded-full text-white"
-              src={profile?.photoURL || avatar}
-              alt="User Avatar"
-            /> */}
+          
+          <IonButton shape="round" onClick={handleOpenPopover}>
+            <IonIcon slot="icon-only" icon={personCircleOutline} />
           </IonButton>
         ) : (
           <IonButton
@@ -131,6 +126,7 @@ function Navbar() {
             {/* <IonIcon slot="end" icon={logInOutline}></IonIcon> */}
           </IonButton>
         )}
+        </IonButtons>
 
         {/* Mobile Routes Popover */}
         <IonPopover

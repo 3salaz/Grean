@@ -1,5 +1,5 @@
-import { db, admin } from "../firebase";
-import { UserProfile } from "./profileTypes";
+import {db, admin} from "../firebase";
+import {UserProfile} from "./profileTypes";
 import * as logger from "firebase-functions/logger";
 
 /**
@@ -9,8 +9,8 @@ import * as logger from "firebase-functions/logger";
  * @return {Promise<void>}
  */
 export const createProfile = async (
-  uid: string,
-  profileData: Partial<UserProfile>
+    uid: string,
+    profileData: Partial<UserProfile>
 ): Promise<void> => {
   try {
     const initialData: UserProfile = {
@@ -44,10 +44,10 @@ export const createProfile = async (
  * @return {Promise<void>}
  */
 export const updateProfileField = async (
-  uid: string,
-  field: string,
-  value: string | number | string[] | number[],
-  operation: "update" | "addToArray" | "removeFromArray" | "set" = "update"
+    uid: string,
+    field: string,
+    value: string | number | string[] | number[],
+    operation: "update" | "addToArray" | "removeFromArray" | "set" = "update"
 ): Promise<void> => {
   try {
     const profileRef = db.collection("profiles").doc(uid);
@@ -63,10 +63,10 @@ export const updateProfileField = async (
       });
     } else if (operation === "set") {
       await profileRef.set(
-        {
-          [field]: value,
-        },
-        { merge: true }
+          {
+            [field]: value,
+          },
+          {merge: true}
       );
     } else {
       await profileRef.update({
@@ -76,8 +76,8 @@ export const updateProfileField = async (
     logger.info(`Profile updated for UID: ${uid} - Field: ${field}`);
   } catch (error) {
     logger.error(
-      `Error updating profile for UID: ${uid} - Field: ${field}`,
-      error
+        `Error updating profile for UID: ${uid} - Field: ${field}`,
+        error
     );
     throw new Error("Failed to update profile.");
   }
@@ -106,8 +106,8 @@ export const deleteProfile = async (uid: string): Promise<void> => {
  * @return {Promise<void>}
  */
 export const updateProfileBulk = async (
-  uid: string,
-  updates: Partial<UserProfile>
+    uid: string,
+    updates: Partial<UserProfile>
 ): Promise<void> => {
   try {
     const profileRef = db.collection("profiles").doc(uid);

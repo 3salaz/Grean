@@ -10,7 +10,7 @@ import {
 
 import {
   createLocationFunction,
-  // updateLocationFunction,
+  updateLocationFunction,
   deleteLocationFunction,
 } from "./locations/locationFunctions";
 
@@ -32,7 +32,7 @@ app.post("/updateProfileFunction", updateProfileFunction);
 app.post("/deleteProfileFunction", deleteProfileFunction);
 app.post("/createLocationFunction", createLocationFunction);
 app.post("/deleteLocationFunction", deleteLocationFunction);
-// app.post("/updateLocationFunction", updateLocationFunction);
+app.post("/updateLocationFunction", updateLocationFunction);
 app.post("/createPickupFunction", createPickupFunction);
 app.post("/updatePickupFunction", updatePickupFunction);
 app.post("/deletePickupFunction", deletePickupFunction);

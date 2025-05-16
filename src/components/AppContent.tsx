@@ -17,14 +17,8 @@ import Home from "../pages/Home";
 import Account from "../pages/Account";
 import Testing from "../pages/Testing";
 import ProtectedRoute from "../pages/ProtectedRoute";
-
-import {
-  leafOutline,
-  navigateCircleOutline,
-  personCircleOutline,
-  statsChartOutline,
-} from "ionicons/icons";
 import Footer from "./Layout/Footer";
+import { ToastContainer } from "react-toastify";
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
@@ -39,6 +33,7 @@ const AppContent: React.FC = () => {
   return (
     <IonPage className="flex flex-col">
       {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
+      <ToastContainer />
 
         <IonRouterOutlet>
           <Route exact path="/" render={() => <Redirect to="/home" />} />

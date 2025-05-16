@@ -10,13 +10,12 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "./styles/index.css";
 
 import { Redirect, Route } from "react-router-dom";
-import { IonApp, IonContent, IonFooter, IonIcon, IonLabel, IonRouterOutlet, IonSegment, IonSegmentButton, IonToolbar } from "@ionic/react";
+import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 import { AuthProvider } from "./context/AuthContext";
@@ -25,6 +24,7 @@ import { PickupsProvider } from "./context/PickupsContext";
 import { LocationsProvider } from "./context/LocationsContext";
 
 import AppContent from "./components/AppContent";
+import AppInitializer from "./utils/AppInitializer";
 
 function App() {
 
@@ -35,6 +35,7 @@ function App() {
         <ProfileProvider>
           <LocationsProvider>
             <PickupsProvider>
+              <AppInitializer /> 
               <AppContent/>
             </PickupsProvider>
           </LocationsProvider>

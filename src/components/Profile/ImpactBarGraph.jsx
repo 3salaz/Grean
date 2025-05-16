@@ -1,6 +1,10 @@
 import { IonCardContent, IonCol, IonRow, IonText } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import cubicFeetIcon from "../../assets/icons/GreanIcons/CubicFeet.png";
+import milesIcon from "../../assets/icons/GreanIcons/Miles.png";
+import energyIcon from "../../assets/icons/GreanIcons/HomePowered.png";
+
 
 function ImpactBarGraph({ totalWeight = 0 }) { // Default to 0 if totalWeight is not provided
   // Conversion factors
@@ -52,56 +56,61 @@ function ImpactBarGraph({ totalWeight = 0 }) { // Default to 0 if totalWeight is
       value: energySaved,
       threshold: thresholds.energy,
       color: "bg-orange",
+      icon: energyIcon,
     },
     {
       label: "Miles Driven",
       value: milesDriven,
       threshold: thresholds.miles,
       color: "bg-blue-500",
+      icon: milesIcon,
     },
     {
       label: "Cubic Feet Saved",
       value: cubicFeetSaved,
       threshold: thresholds.cubicFeet,
       color: "bg-yellow-500",
+      icon: cubicFeetIcon,
     },
   ];
 
   return (
-    <IonCardContent className="p-4">
-      <div className="space-y-6">
-        {data.map((item, index) => (
-          <IonRow key={index} className="items-center">
-            {/* Label */}
-            <IonCol size="3">
-              <IonText className="text-sm font-medium text-gray-700">
+    <IonCol size="12" className="ion-padding-vertical">
+      {data.map((item, index) => (
+        <IonRow key={index} className="">
+          {/* Label */}
+          <IonCol size="2" className="flex items-center justify-end">
+            <div className="flex items-center justify-center aspect-square">
+              <img src={item.icon} alt={item.label} className="" />
+            </div>
+
+          </IonCol>
+          {/* Bar */}
+          <IonCol size="10" className="flex flex-col gap-1">
+            {/* Value and Threshold */}
+            <IonText className="text-sm font-medium text-gray-700">
                 {item.label}
               </IonText>
-            </IonCol>
-            {/* Bar */}
-            <IonCol size="9">
-              <div className="w-full bg-gray-200 rounded-full h-4">
-                <motion.div
-                  className={`h-4 rounded-full ${item.color}`}
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${Math.min(
-                      (item.value / (item.threshold || 1)) * 100,
-                      100
-                    )}%`,
-                  }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                ></motion.div>
-              </div>
-              {/* Value and Threshold */}
-              <IonText className="text-xs text-gray-600 mt-1 block">
-                {item.value.toFixed(1)} / {item.threshold} {item.label.split(" ")[0].toLowerCase()}
-              </IonText>
-            </IonCol>
-          </IonRow>
-        ))}
-      </div>
-    </IonCardContent>
+            <IonText className="text-xs text-gray-600 mt-1 block">
+              {item.value.toFixed(1)} / {item.threshold} {item.label.split(" ")[0].toLowerCase()}
+            </IonText>
+            <div className="w-full bg-gray-100 rounded-full">
+              <motion.div
+                className={`h-4 rounded-full ${item.color}`}
+                initial={{ width: 0 }}
+                animate={{
+                  width: `${Math.min(
+                    (item.value / (item.threshold || 1)) * 100,
+                    100
+                  )}%`,
+                }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+              ></motion.div>
+            </div>
+          </IonCol>
+        </IonRow>
+      ))}
+    </IonCol>
   );
 }
 

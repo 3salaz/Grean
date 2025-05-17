@@ -13,13 +13,13 @@ import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
+import { ToastContainer } from "react-toastify";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
 const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
-const ProfileSetup = lazy(() => import("../components/Profile/ProfileSetup"));
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
@@ -111,6 +111,7 @@ const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
     <IonPage>
       <Navbar />
       <IonContent className="relative">
+        <ToastContainer />
         {/* One-time welcome overlay */}
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
@@ -133,12 +134,12 @@ const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
         )}
       </IonContent>
 
-      {/* Profile Setup Modal */}
+      {/* Profile Setup Modal
       <IonModal isOpen={showProfileSetup}>
         <Suspense fallback={<IonSpinner />}>
           <ProfileSetup onComplete={handleProfileSetupComplete} />
         </Suspense>
-      </IonModal>
+      </IonModal> */}
 
       <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
     </IonPage>

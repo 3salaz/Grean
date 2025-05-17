@@ -115,15 +115,13 @@ function Navbar() {
           </IonButton>
         ) : (
           <IonButton
-            slot="end"
             onClick={openSignupModal}
-            size="small"
-            fill="solid"
+            shape="round"
             color="light"
             expand="block"
           >
-            Sign Up
-            {/* <IonIcon slot="end" icon={logInOutline}></IonIcon> */}
+            {/* Sign Up */}
+            <IonIcon slot="icon-only" icon={logInOutline}></IonIcon>
           </IonButton>
         )}
         </IonButtons>

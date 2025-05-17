@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   IonButton,
-  IonCard,
   IonCol,
   IonContent,
   IonGrid,
@@ -10,22 +9,18 @@ import {
   IonModal,
   IonPage,
   IonRow,
-  IonText
 } from "@ionic/react";
 import AnimatedTextWord from "../../Common/AnimatedTextWord";
 import Background from "../../../assets/pexels-melissa-sombrerero-12605435.jpg";
 import Signin from "../../Common/Signin";
 import Signup from "../../Common/Signup";
 import { useAuth } from "../../../context/AuthContext";
-import { useProfile } from "../../../context/ProfileContext";
 import { useHistory } from "react-router-dom";
-import { logoGoogle } from "ionicons/icons";
 import { toast, ToastContainer } from "react-toastify";
 import Navbar from "../Navbar";
 
 function Landing() {
   const { user } = useAuth();
-  const { profile } = useProfile();
   const history = useHistory();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSignin, setIsSignin] = useState(true); // default to SignIn
@@ -43,7 +38,6 @@ function Landing() {
 
   return (
     <IonPage>
-      <Navbar />
       <IonContent className="h-full w-full">
         <IonGrid className="h-full w-full">
           <IonImg

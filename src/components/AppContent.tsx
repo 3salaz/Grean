@@ -33,7 +33,6 @@ const AppContent: React.FC = () => {
   return (
     <IonPage className="flex flex-col">
       {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
-      <ToastContainer />
 
         <IonRouterOutlet>
           <Route exact path="/" render={() => <Redirect to="/home" />} />
@@ -48,7 +47,7 @@ const AppContent: React.FC = () => {
             )}
           />
         </IonRouterOutlet>
-
+        
       {showFooterRoutes.includes(location.pathname) && (
         <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
       )}

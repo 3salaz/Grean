@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, {useState, useEffect, createContext, useContext} from "react";
 import {
   getAuth,
   onAuthStateChanged,
@@ -7,9 +7,11 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithPopup
 } from "firebase/auth";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
+
+import { createProfileIfMissing } from "../utils/createProfileIfMissing";
 
 interface AuthContextValue {
   user: any; // or a custom Firebase user type
@@ -22,7 +24,9 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
+  children
+}) => {
   const [user, setUser] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
@@ -41,28 +45,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Shows a success toast if created,
    * or an error toast if something fails (e.g., email in use).
    */
+  const handleSignUpError = (error: any) => {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        toast.error(
+          "That email is already in use. Please sign in or use a different email."
+        );
+        break;
+      case "auth/weak-password":
+        toast.error("Your password is too weak. Try a stronger one!");
+        break;
+      case "auth/invalid-email":
+        toast.error("Invalid email address. Please check your email format.");
+        break;
+      default:
+        toast.error("Failed to sign up. Please try again.");
+        break;
+    }
+  };
+
   const signUp = async (email: string, password: string) => {
     const auth = getAuth();
     try {
-      const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("Account created successfully!");
+      const userCreds = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await createProfileIfMissing(userCreds.user);
       return userCreds.user;
     } catch (error: any) {
       console.error("Sign Up Error:", error);
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          toast.error("That email is already in use. Please sign in or use a different email.");
-          break;
-        case "auth/weak-password":
-          toast.error("Your password is too weak. Try a stronger one!");
-          break;
-        case "auth/invalid-email":
-          toast.error("Invalid email address. Please check your email format.");
-          break;
-        default:
-          toast.error("Failed to sign up. Please try again.");
-          break;
-      }
+      handleSignUpError(error);
       throw error;
     }
   };
@@ -75,8 +89,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     const auth = getAuth();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       toast.success("Welcome back!");
+      await createProfileIfMissing(userCredential.user);
       return userCredential.user;
     } catch (error: any) {
       console.error("Sign In Error:", error);
@@ -85,7 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           toast.error("Incorrect password. Please try again.");
           break;
         case "auth/user-not-found":
-          toast.error("No user found with that email. Please check or sign up first.");
+          toast.error(
+            "No user found with that email. Please check or sign up first."
+          );
           break;
         case "auth/too-many-requests":
           toast.error("Too many attempts. Please wait a moment and try again.");
@@ -109,6 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await signInWithPopup(auth, provider);
       toast.success("Signed in with Google!");
+      await createProfileIfMissing(result.user);
       return result.user;
     } catch (error: any) {
       console.error("Google Sign In Error:", error);
@@ -141,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signIn,
     googleSignIn,
-    logOut,
+    logOut
   };
 
   return (

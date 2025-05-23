@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",  // Use "esnext" for better modern JS compatibility
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -13,9 +13,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "sourceMap": true, // Ensure source maps are enabled
-    "noEmit": false,   // Ensure TypeScript emits output files
-    "jsx": "react-jsx"
+    "sourceMap": true,
+    "noEmit": true, // Prevents emitting compiled JS files (Vite handles this)
+    "jsx": "react-jsx",
+    "types": ["vite/client"] // Ensures Vite types are recognized
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

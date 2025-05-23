@@ -1,143 +1,204 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../firebase";
-import { toast } from "react-toastify";
-import { useAuth } from "./AuthContext";
-import { useLocation } from "react-router-dom";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import React, {createContext, useContext, useState, useEffect} from "react";
+import {doc, onSnapshot, getDoc} from "firebase/firestore";
+import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
+import {toast} from "react-toastify";
+import axios from "axios";
+import {useAuth} from "./AuthContext";
 
-// Define Profile Interface
+// ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
-  profilePic?: string | null;
+  profile?: string | null;
   email: string;
   uid: string;
+  inventory: string[];
   locations: string[];
   pickups: string[];
   accountType: string;
+  photoURL?: string | null;
 }
 
-// Define Context Type
+// ✅ Define Context Type
 interface ProfileContextValue {
   profile: UserProfile | null;
   loadingProfile: boolean;
   createProfile: (data: Partial<UserProfile>) => Promise<void>;
-  readProfile: () => Promise<UserProfile | null>;
-  updateProfile: (field: string, value: any, operation?: "update" | "addToArray" | "removeFromArray") => Promise<void>;
+  updateProfile: (
+    field: string,
+    value: any,
+    operation?: "update" | "addToArray" | "removeFromArray"
+  ) => Promise<void>;
   deleteProfile: () => Promise<void>;
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
+// ✅ Create Context
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
-export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const location = useLocation();
+export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
+  const {user} = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!user || location.pathname !== "/account") {
+    if (!user) {
+      // console.warn("⚠️ No user found");
       setProfile(null);
       setLoadingProfile(false);
       return;
     }
-    const fetchProfile = async () => {
-      setLoadingProfile(true);
-      try {
-        const readProfileFn = httpsCallable(functions, "readProfile");
-        const response = await readProfileFn({});
-        if (response.data) {
-          setProfile(response.data as UserProfile);
-        } else {
-          await createProfile({
-            displayName: user.displayName || "",
-            profilePic: user.photoURL || null,
-            email: user.email || "",
-            uid: user.uid,
-            locations: [],
-            pickups: [],
-            accountType: "User",
-          });
-        }
-      } catch (error) {
-        console.error("[ProfileContext] Error fetching profile:", error);
-      } finally {
+
+    // ✅ First, check if profile exists
+    const checkProfileExists = async () => {
+      const profileRef = doc(db, "profiles", user.uid);
+      const profileSnap = await getDoc(profileRef);
+
+      if (!profileSnap.exists()) {
+        console.warn("⚠️ Users Profile does not exist in Firestore", user.uid);
+        setProfile(null);
         setLoadingProfile(false);
+        return;
       }
     };
 
-    fetchProfile();
-  }, [user, location.pathname]);
-  const createProfile = async (data: Partial<UserProfile>) => {
-    try {
-      if (!data.uid) {
-        console.error("❌ Missing UID in createProfile call!", data);
-        throw new Error("User UID is required!");
+    checkProfileExists().catch((err) => {
+      console.error("🔥 Error checking profile existence:", err);
+      setProfile(null);
+      setLoadingProfile(false);
+    });
+
+    // ✅ Firestore real-time listener (auto-updates when data changes)
+    const profileRef = doc(db, "profiles", user.uid);
+    const unsubscribe = onSnapshot(
+      profileRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          setProfile(docSnap.data() as UserProfile);
+        } else {
+          console.warn("⚠️ Profile does not exist in Firestore!");
+          setProfile(null);
+        }
+        setLoadingProfile(false);
+      },
+      (error) => {
+        console.error("❌ Firestore error:", error);
+        toast.error("Permission denied: Unable to access profile.");
+        setProfile(null);
+        setLoadingProfile(false);
       }
-  
-      console.log("🔥 Attempting to create profile in Firestore for UID:", data.uid);
-  
-      const profileData = {
-        displayName: data.displayName || "New User",
-        profilePic: data.profilePic || null,
-        email: data.email || "",
-        uid: data.uid,
-        locations: data.locations || [],
-        pickups: data.pickups || [],
-        accountType: data.accountType || "User",
-        createdAt: serverTimestamp(),
+    );
+
+    return () => unsubscribe(); // ✅ Cleanup listener
+  }, [user]);
+
+  /** ✅ Create Profile */
+  const createProfile = async (profileData: any) => {
+    if (!user) {
+      console.error("❌ Error: user is null");
+      toast.error("User not authenticated. Please try again.");
+      return;
+    }
+
+    try {
+      const initialData: UserProfile = {
+        displayName: `user${Math.floor(Math.random() * 10000)}`,
+        email: user.email,
+        photoURL: "",
+        uid: user.uid,
+        locations: [],
+        pickups: [],
+        accountType: ""
       };
-  
-      console.log("📌 Profile Data to Write:", profileData);
-  
-      await setDoc(doc(db, "profiles", data.uid), profileData);
-  
-      setProfile(profileData); // Update local state
+
+      console.log("🚀 Creating profile with data:", initialData);
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/createProfileFunction",
+        initialData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log("✅ Profile created successfully:", response.data);
       toast.success("Profile created successfully!");
-      console.log("✅ Profile successfully written to Firestore!");
     } catch (error) {
       console.error("❌ Error creating profile:", error);
       toast.error("Failed to create profile.");
     }
   };
-  
-  
-  
-  
 
-  const readProfile = async (): Promise<UserProfile | null> => {
+  // Updated updateProfile function with toast notifications
+  const updateProfile = async (
+    fieldOrUpdates: string | Partial<UserProfile>,
+    value?: any,
+    operation: "update" | "addToArray" | "removeFromArray" = "update"
+  ): Promise<void> => {
+    let data;
+    if (typeof fieldOrUpdates === "string") {
+      // Single field update: construct the payload accordingly.
+      data = {field: fieldOrUpdates, value, operation};
+    } else {
+      // Bulk update: send the entire object.
+      data = {updates: fieldOrUpdates};
+    }
     try {
-      const readProfileFn = httpsCallable(functions, "readProfile");
-      const response = await readProfileFn({});
-      return response.data as UserProfile;
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateProfileFunction",
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (!response.data.success) {
+        throw new Error("Profile update failed.");
+      }
+      console.log("✅ Profile updated successfully:", response.data);
     } catch (error) {
-      console.error("Error reading profile:", error);
-      return null;
+      console.error("❌ Error updating profile:", error);
+      throw error;
     }
   };
 
-  const updateProfile = async (field: string, value: any, operation: "update" | "addToArray" | "removeFromArray" = "update") => {
-    try {
-      const updateProfileFn = httpsCallable(functions, "updateProfile");
-      await updateProfileFn({ field, value, operation });
-      toast.success("Profile updated!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
-
+  /** ✅ Delete Profile */
   const deleteProfile = async () => {
     try {
-      const deleteProfileFn = httpsCallable(functions, "deleteProfile");
-      await deleteProfileFn({});
+      const token = await user.getIdToken();
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteProfileFunction",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       setProfile(null);
       toast.warn("Profile deleted!");
     } catch (error) {
-      console.error("Error deleting profile:", error);
+      console.error("❌ Error deleting profile:", error);
+      toast.error("Failed to delete profile.");
     }
   };
 
-  return <ProfileContext.Provider value={{ profile, loadingProfile, createProfile, readProfile, updateProfile, deleteProfile }}>{!loadingProfile && children}</ProfileContext.Provider>;
+  return (
+    <ProfileContext.Provider
+      value={{
+        profile,
+        loadingProfile,
+        setProfile,
+        createProfile,
+        updateProfile,
+        deleteProfile
+      }}
+    >
+      {!loadingProfile && children}
+    </ProfileContext.Provider>
+  );
 };
 
 export const useProfile = () => {

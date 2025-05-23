@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   IonInput,
   IonItem,
@@ -14,10 +14,14 @@ import {
   IonCardContent,
   IonFabButton,
   IonIcon,
+  IonContent,
+  IonPage
 } from "@ionic/react";
-import { InputChangeEventDetail } from "@ionic/core";
 import { closeOutline } from "ionicons/icons";
 import { useAuth } from "../../context/AuthContext";
+import { useProfile } from "../../context/ProfileContext";
+import { useHistory } from "react-router-dom";
+import Navbar from "../Layout/Navbar";
 
 interface SigninProps {
   handleClose: () => void;
@@ -32,18 +36,20 @@ const isValidEmail = (email: string) => {
 const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
   const [loading, setLoading] = useState(false);
+  const history = useHistory(); // Initialize history
   const { signIn } = useAuth();
+  const { profile } = useProfile();
 
   // Handles input changes to update state
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -65,6 +71,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
       setLoading(true);
       await signIn(email, password);
       handleClose();
+      history.push("/account"); // Redirect to account page
     } catch (error) {
       console.error("Error signing in. Please check your credentials.");
     } finally {
@@ -73,22 +80,22 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
   };
 
   return (
-    <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300">
-      <IonRow className="h-full">
-        <IonCol size="12" className="ion-align-self-center">
-          <IonCard>
+    <IonPage>
+      <IonContent>
+        <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-center justify-center ion-padding">
+          <IonCard className="w-full ion-padding-vertical shadow-none max-w-sm">
             <IonCardHeader>
               <IonText color="primary">
-                <h3 className="text-center text-[#75B657] mb-4">
-                  Sign In To Your Account
-                </h3>
+                <h3 className="text-center text-[#75B657] mb-4">Sign In To Your Account</h3>
               </IonText>
             </IonCardHeader>
             <IonCardContent>
               {/* Email Field */}
               <IonRow>
                 <IonCol size="12">
-                  <IonItem color={formData.email && !isValidEmail(formData.email) ? "danger" : undefined}>
+                  <IonItem
+                    color={formData.email && !isValidEmail(formData.email) ? "danger" : undefined}
+                  >
                     <IonLabel position="stacked">Email</IonLabel>
                     <IonInput
                       name="email"
@@ -129,10 +136,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
                 <IonCol size="12" className="text-center">
                   <IonText className="text-center text-gray-500">
                     Not a member?{" "}
-                    <span
-                      className="text-[#75B657] cursor-pointer"
-                      onClick={toggleToSignup}
-                    >
+                    <span className="text-[#75B657] cursor-pointer" onClick={toggleToSignup}>
                       Sign Up
                     </span>
                   </IonText>
@@ -145,6 +149,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
                   <IonButton
                     expand="block"
                     color="success"
+                    size="small"
                     onClick={handleSignIn}
                     disabled={!isFormValid || loading}
                   >
@@ -153,26 +158,19 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
                 </IonCol>
               </IonRow>
 
-              {/* Close Button */}
-              <IonRow>
-                <IonCol
-                  size="12"
-                  className="flex items-center justify-center pt-10"
-                >
-                  <IonFabButton
-                    color="danger"
-                    size="small"
-                    onClick={handleClose}
-                  >
-                    <IonIcon icon={closeOutline} />
-                  </IonFabButton>
+              <IonRow className="ion-padding-top">
+                <IonCol size="auto" className="mx-auto">
+                  <IonButton shape="round" size="small" color="danger" onClick={handleClose}>
+                    <IonIcon slot="icon-only" icon={closeOutline}></IonIcon>
+                  </IonButton>
                 </IonCol>
               </IonRow>
+
             </IonCardContent>
           </IonCard>
-        </IonCol>
-      </IonRow>
-    </IonGrid>
+        </IonGrid>
+      </IonContent>
+    </IonPage>
   );
 };
 

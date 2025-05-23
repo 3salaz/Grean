@@ -26,7 +26,6 @@ import {
   IonModal
 } from "@ionic/react";
 import {useProfile} from "../context/ProfileContext";
-import {ToastContainer} from "react-toastify";
 import noPickupIcon from "../assets/no-pickups.svg";
 import {Pickup, usePickups} from "../context/PickupsContext";
 import {
@@ -60,7 +59,7 @@ function Testing() {
 
   return (
     <IonPage>
-      <ToastContainer />
+
       {/* Create Pickup Modal */}
       <IonModal
         isOpen={modalState.createPickupOpen}

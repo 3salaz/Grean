@@ -1,8 +1,8 @@
 import { IonFooter, IonIcon, IonLabel, IonSegment, IonSegmentButton, IonToolbar } from '@ionic/react'
 import { leafOutline, navigateCircleOutline, personCircleOutline, statsChartOutline } from 'ionicons/icons'
+import { TabOption } from '../../types/tabs';
 import React from 'react'
 
-type TabOption = "profile" | "pickups" | "map" | "stats";
 
 interface FooterProps {
     activeTab: TabOption;

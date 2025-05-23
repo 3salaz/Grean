@@ -27,7 +27,7 @@ import {
   IonSelect,
   IonPage
 } from "@ionic/react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import homeIcon from "../../assets/icons/home.png";
 import businessIcon from "../../assets/icons/business.png";
 
@@ -247,7 +247,6 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
     <IonPage>
       <IonContent className="flex items-center justify-center">
         <IonGrid className="h-full flex flex-col items-center justify-center ion-padding">
-          {/* <ToastContainer autoClose={3000} position="top-center" /> */}
           <IonCard color="primary" className="w-full shadow-none flex flex-col items-center justify-center">
             <IonCardHeader className="ion-padding w-full">
               <IonCardSubtitle className="text-xs font-light">{step === 0 ? "Select the type of location you want to add." : step === 1 ? "Enter the address of the location." : "Enter the name of the location."}</IonCardSubtitle>

@@ -11,9 +11,7 @@ import {
 import { useEffect, useState, Suspense, lazy } from "react";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Layout/Navbar";
-import Footer from "../components/Layout/Footer";
-import { ToastContainer } from "react-toastify";
+import { useTab } from "../context/TabContext";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -21,15 +19,11 @@ const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
-type TabOption = "profile" | "pickups" | "map" | "stats";
 
-interface AccountProps {
-  activeTab: TabOption;
-  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
-}
 
-const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
+const Account = () => {
   const { profile } = useProfile();
+  const { activeTab, setActiveTab } = useTab();
   const { user } = useAuth();
   const [loading, setLoading] = useState<boolean>(true);
   const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
@@ -108,10 +102,8 @@ const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
   };
 
   return (
-    <IonPage>
-      <Navbar />
+
       <IonContent className="relative">
-        <ToastContainer />
         {/* One-time welcome overlay */}
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
@@ -133,16 +125,6 @@ const Account: React.FC<AccountProps> = ({ activeTab, setActiveTab }) => {
           renderActiveTab()
         )}
       </IonContent>
-
-      {/* Profile Setup Modal
-      <IonModal isOpen={showProfileSetup}>
-        <Suspense fallback={<IonSpinner />}>
-          <ProfileSetup onComplete={handleProfileSetupComplete} />
-        </Suspense>
-      </IonModal> */}
-
-      <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
-    </IonPage>
   );
 };
 

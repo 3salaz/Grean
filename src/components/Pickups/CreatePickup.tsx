@@ -20,7 +20,7 @@ import {
 } from "@ionic/react";
 import { closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons";
 import dayjs from "dayjs";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
 import { UserProfile } from "../../context/ProfileContext";
@@ -106,8 +106,6 @@ const CreatePickup: React.FC<CreatePickupProps> = ({
   };
 
   return (
-    <>
-      <ToastContainer />
       <IonGrid className="ion-padding">
         <IonCard className="p-4">
           <IonList>
@@ -228,7 +226,6 @@ const CreatePickup: React.FC<CreatePickupProps> = ({
           </IonRow>
         </IonCard>
       </IonGrid>
-    </>
   );
 };
 

@@ -16,6 +16,30 @@ import {
   ProfileUpdateOperation,
 } from "./profileTypes";
 
+import * as functions from 'firebase-functions';
+
+import { UserRecord } from "firebase-admin/auth";
+
+
+export const autoCreateProfile = functions.auth.user().onCreate(async (user: UserRecord) => {
+  const uid = user.uid;
+  const profileData: CreateProfileData = {
+    displayName: user.displayName || `user${Math.floor(Math.random() * 10000)}`,
+    email: user.email || "",
+    photoURL: user.photoURL || "",
+    locations: [],
+    pickups: [],
+    accountType: "User",
+  };
+
+  try {
+    await createProfile(uid, profileData);
+    console.log(`✅ Profile auto-created for user: ${uid}`);
+  } catch (error) {
+    console.error(`❌ Failed to auto-create profile for user ${uid}:`, error);
+  }
+});
+
 export const createProfileFunction = [
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response) => {

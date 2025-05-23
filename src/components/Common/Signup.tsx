@@ -19,12 +19,14 @@ import {
   IonContent
 } from "@ionic/react";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { useProfile } from "../../context/ProfileContext";
 import Navbar from "../Layout/Navbar";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase"; // Adjust path as needed
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,7 +43,7 @@ interface SignupProps {
 }
 
 function Signup({ handleClose, toggleToSignin }: SignupProps) {
-  const history = useHistory(); // Initialize history
+  const history = useHistory();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -49,15 +51,11 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Toggles for show/hide password fields
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Grab signUp from AuthContext
   const { signUp } = useAuth();
-  const { createProfile, setProfile } = useProfile();
-  // const {createProfile} = useProfile(); // Get createProfile function
+  const { setProfile } = useProfile();
 
   const handleInputChange = (e: CustomEvent<{ value: string }>) => {
     const input = e.target as HTMLInputElement;
@@ -71,11 +69,9 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       }));
     }
   };
-  // Check if passwords match in real-time
+
   const passwordsMatch = formData.password === formData.confirmPassword;
 
-  // Use useMemo or a direct boolean expression
-  // isFormValid = fields are non-empty, email is valid, password is valid, and passwords match
   const isFormValid = useMemo(() => {
     const { email, password, confirmPassword } = formData;
     return (
@@ -88,12 +84,11 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
     );
   }, [formData, passwordsMatch]);
 
-  // Show/hide password text
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   const handleSubmit = async () => {
-    setIsSubmitting(true); // Start loading state
+    setIsSubmitting(true);
     try {
       const user = await signUp(formData.email, formData.password);
 
@@ -104,27 +99,31 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       }
 
       console.log("✅ User signed up successfully:", user);
-      const newProfile = {
-        displayName: `user${Math.floor(Math.random() * 10000)}`,
-        email: user.email || "",
-        photoURL: "",
-        uid: user.uid,
-        locations: [],
-        pickups: [],
-        accountType: "" // Initial empty accountType
-      };
 
-      createProfile(newProfile).then(() => {
-        setProfile(newProfile);
-      });
+      // Poll for backend-created profile
+      const profileRef = doc(db, "users", user.uid);
+      let retries = 0;
+      const maxRetries = 5;
 
-      handleClose(); // Close modal after success
-      history.push("/account"); // Redirect to account page
+      while (retries < maxRetries) {
+        const snap = await getDoc(profileRef);
+        if (snap.exists()) {
+          const profileData = snap.data();
+          setProfile(profileData);
+          handleClose();
+          history.push("/account");
+          return;
+        }
+        retries++;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
+      toast.error("Profile creation took too long. Try again later.");
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
       toast.error("Signup failed. Please try again.");
     } finally {
-      setIsSubmitting(false); // End loading state
+      setIsSubmitting(false);
     }
   };
 
@@ -133,7 +132,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       <Navbar />
       <IonContent>
         <IonGrid className="h-full w-full bg-gradient-to-t from-grean to-blue-300 flex items-end justify-center">
-          <ToastContainer />
           <div className="container m-4 h-[80%]">
             <IonCard className="py-10 shadow-none">
               <IonCardHeader>
@@ -149,7 +147,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                   <IonRow className="ion-justify-content-center ion-padding">
                     <IonCol size="12" className="ion-text-center">
                       <IonSpinner />
-                      <IonText>Creating user account...</IonText>
+                      <IonText>Creating your account and profile...</IonText>
                     </IonCol>
                   </IonRow>
                 ) : (
@@ -245,6 +243,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                         )}
                       </IonCol>
                     </IonRow>
+
                     {/* Already have an account? */}
                     <IonRow className="ion-padding">
                       <IonCol size="12" className="text-center">
@@ -257,7 +256,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                       </IonCol>
                     </IonRow>
 
-                    {/* Sign Up Button - Disabled if form invalid */}
+                    {/* Sign Up Button */}
                     <IonRow className="ion-justify-content-center max-w-sm mx-auto">
                       <IonCol size="auto">
                         <IonButton

@@ -1,58 +1,38 @@
-import React, { useState } from "react";
-import {
-  IonContent,
-  IonPage,
-  IonRouterOutlet,
-  IonFooter,
-  IonToolbar,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonIcon,
-} from "@ionic/react";
-import { Redirect, Route, useLocation } from "react-router-dom";
+import { IonRouterOutlet } from "@ionic/react";
+import { Route } from "react-router-dom";
+import { appRoutes } from "../routes/routes";
+import { useMemo } from "react";
+import { useTab } from "../context/TabContext";
+import Layout from "../layouts/Layout";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-import Navbar from "./Layout/Navbar";
-import Home from "../pages/Home";
-import Account from "../pages/Account";
-import Testing from "../pages/Testing";
-import ProtectedRoute from "../pages/ProtectedRoute";
-import Footer from "./Layout/Footer";
-import { ToastContainer } from "react-toastify";
-
-type TabOption = "profile" | "pickups" | "map" | "stats";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<TabOption>("pickups");
 
-  const hideNavbarRoutes: string[] = [];
-
-  const showFooterRoutes = ["/account"];
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, [location]);
+  const { activeTab, setActiveTab } = useTab();
+  const routes = useMemo(() => appRoutes(activeTab, setActiveTab), [activeTab]);
 
   return (
-    <IonPage className="flex flex-col">
-      {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
-
-        <IonRouterOutlet>
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
-          <Route exact path="/home" component={Home} />
-          <Route path="/testing" component={Testing} />
-          <Route
-            path="/account"
-            render={() => (
-              <ProtectedRoute>
-                <Account activeTab={activeTab} setActiveTab={setActiveTab} />
-              </ProtectedRoute>
-            )}
-          />
-        </IonRouterOutlet>
-        
-      {showFooterRoutes.includes(location.pathname) && (
-        <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
-    </IonPage>
+    <IonRouterOutlet>
+      {routes.map(({ path, element }, i) => (
+        <Route
+          key={i}
+          path={path}
+          render={() => (
+            <>{element}</>
+          )}
+        />
+      ))}
+    </IonRouterOutlet>
   );
 };
 
 export default AppContent;
+

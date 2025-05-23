@@ -11,36 +11,20 @@ import "@ionic/react/css/display.css";
 import "react-toastify/dist/ReactToastify.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import "./styles/index.css";
-
 import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { AuthProvider } from "./context/AuthContext";
-import { ProfileProvider } from "./context/ProfileContext";
-import { PickupsProvider } from "./context/PickupsContext";
-import { LocationsProvider } from "./context/LocationsContext";
 
 import AppContent from "./components/AppContent";
-import AppInitializer from "./utils/AppInitializer";
 
 function App() {
-
   return (
     <IonApp>
       <IonReactRouter>
-      <AuthProvider>
-        <ProfileProvider>
-          <LocationsProvider>
-            <PickupsProvider>
-              <AppInitializer /> 
-              <AppContent/>
-            </PickupsProvider>
-          </LocationsProvider>
-        </ProfileProvider>
-      </AuthProvider>
+          <AppContent />
       </IonReactRouter>
     </IonApp>
   );
 }
+
 
 export default App;

@@ -3,7 +3,6 @@ import { IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon, IonCont
 import CreatePickup from "./CreatePickup";
 import { arrowDownCircleOutline, calendarNumberOutline, listCircleSharp } from "ionicons/icons";
 import { UserProfile } from "../../context/ProfileContext";
-import { ToastContainer } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import ViewPickups from "./ViewPickups";
 import PickupsQueue from "./PickupsQueue";
@@ -83,7 +82,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
       <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
         <Schedule handleClose={() => closeModal("scheduleOpen")} />
       </IonModal>
-      <ToastContainer />
 
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl bg-orange-100">

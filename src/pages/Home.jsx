@@ -13,11 +13,9 @@ function Home() {
   }, []);
 
   return (
-    <IonContent>
         <div className="relative h-full w-full flex justify-center items-center snap-always snap-center">
           <Landing />
         </div>
-      </IonContent>
   );
 }
 

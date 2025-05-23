@@ -1,13 +1,11 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import CreateLocation from "./CreateLocation";
 import ProfileHeader from "./ProfileHeader";
-import {IonButton, IonCol, IonGrid, IonIcon, IonModal, IonRow} from "@ionic/react";
+import {IonGrid, IonModal} from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
-import {addCircleOutline} from "ionicons/icons";
 import {UserProfile} from "../../context/ProfileContext";
-import {ToastContainer} from "react-toastify";
 import MyRoutes from "./MyRoutes";
 
 // **Define Props Interface**

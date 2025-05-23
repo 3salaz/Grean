@@ -1,7 +1,6 @@
-import {useState} from "react";
-import {IonRow, IonCol, IonText} from "@ionic/react";
-import {motion, AnimatePresence} from "framer-motion";
-import forestBg from "../../assets/forestbg.webp";
+import { useState } from "react";
+import { IonRow, IonCol, IonText } from "@ionic/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import sprout from "../../assets/icons/sprout.png";
 import glassTree from "../../assets/icons/glassTree.png";
@@ -13,28 +12,28 @@ import mediumTree from "../../assets/icons/mediumTree.png";
 const treeData = {
   plastic: {
     stages: [
-      {stage: "sprout", src: sprout, width: 60, height: 60},
-      {stage: "young", src: mediumTree, width: 60, height: 100},
-      {stage: "mature", src: plasticTree, width: 120, height: 200}
+      { stage: "sprout", src: sprout, width: 60, height: 60 },
+      { stage: "young", src: mediumTree, width: 60, height: 100 },
+      { stage: "mature", src: plasticTree, width: 120, height: 200 }
     ]
   },
   aluminum: {
     stages: [
-      {stage: "sprout", src: sprout, width: 60, height: 60},
-      {stage: "young", src: mediumTree, width: 60, height: 100},
-      {stage: "mature", src: aluminumTree, width: 120, height: 200}
+      { stage: "sprout", src: sprout, width: 60, height: 60 },
+      { stage: "young", src: mediumTree, width: 60, height: 100 },
+      { stage: "mature", src: aluminumTree, width: 120, height: 200 }
     ]
   },
   glass: {
     stages: [
-      {stage: "sprout", src: sprout, width: 60, height: 60},
-      {stage: "young", src: mediumTree, width: 60, height: 100},
-      {stage: "mature", src: glassTree, width: 120, height: 160}
+      { stage: "sprout", src: sprout, width: 60, height: 60 },
+      { stage: "young", src: mediumTree, width: 60, height: 100 },
+      { stage: "mature", src: glassTree, width: 120, height: 160 }
     ]
   }
 };
 
-function Tree({type, recycledWeight, thresholds, isSelected, onSelect}) {
+function Tree({ type, recycledWeight, thresholds, isSelected, onSelect }) {
   const treeStages = treeData[type].stages;
   const threshold = thresholds[type];
 
@@ -48,27 +47,21 @@ function Tree({type, recycledWeight, thresholds, isSelected, onSelect}) {
 
   // Animation variants for popping and fading
   const variants = {
-    hidden: {opacity: 0, scale: 0},
-    visible: {opacity: 1, scale: 1},
-    exit: {opacity: 0, scale: 0.8}
+    hidden: { opacity: 0, scale: 0 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.8 }
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" className="flex items-center w-full">
       <motion.div
         key={currentStage.stage}
-        className="tree-wrapper"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-end", // Anchor trees to the bottom
-          height: "150px" // Set consistent height for the container
-        }}
+        className="tree-wrapper flex flex-col items-center justify-center text-center h-24"
         initial="hidden"
         animate="visible"
         exit="exit"
         variants={variants}
-        transition={{duration: 0.5}}
+        transition={{ duration: 0.5 }}
       >
         <img
           src={currentStage.src}
@@ -82,6 +75,7 @@ function Tree({type, recycledWeight, thresholds, isSelected, onSelect}) {
           }}
           onClick={() => onSelect(type)} // Handle selection on click
         />
+        <IonText className="text-sm text-center">{type}</IonText>
       </motion.div>
     </AnimatePresence>
   );
@@ -101,39 +95,36 @@ function MyForest() {
   };
 
   const [recyclingProgress, setRecyclingProgress] = useState(initialRecycling);
-  const [selectedTree, setSelectedTree] = useState(null); // Track selected tree
+  const [selectedTree, setSelectedTree] = useState(null);
 
   return (
-    <div
-      style={{backgroundImage: `url(${forestBg})`}}
-      className="bg-cover bg-center w-full drop-shadow-lg rounded-b-xl"
-    >
-      <IonRow className="mb-10 pl-2">
-        <IonCol
-          size="auto"
-          className="bg-[#75B657] px-2 mx-auto text-center rounded-b-md px-4"
-        >
-          <IonText color="secondary" className="font-bold text-white text-xl">
-            Your Forest
-          </IonText>
-        </IonCol>
-      </IonRow>
-
-      <IonRow className="flex justify-center space-x-4">
+    <IonRow className="gap-2 ion-padding border-b border-slate-200">
+      <IonCol size="12" className="flex items-center justify-center">
+        <IonText className="text-lg bg-white text-center font-semibold text-[#3a6833] tracking-wide rounded-md px-2 mx-auto">
+          Your Forest
+        </IonText>
+      </IonCol>
+      {/* Header */}
+      {/* Tree Display */}
+      <IonCol size="12" className="flex items-center justify-center gap-4">
         {Object.keys(recyclingProgress).map((type) => (
           <Tree
             key={type}
             type={type}
             recycledWeight={recyclingProgress[type]}
             thresholds={thresholds}
-            isSelected={selectedTree === type} // Check if this tree is selected
-            onSelect={setSelectedTree} // Set selected tree on click
+            isSelected={selectedTree === type}
+            onSelect={setSelectedTree}
           />
         ))}
-      </IonRow>
+      </IonCol>
+    </IonRow>
 
-      {/* Material Weight Controls */}
-      {/* <IonRow className="mt-4 bg-white">
+  );
+}
+
+{/* Material Weight Controls */ }
+{/* <IonRow className="mt-4 bg-white">
         {Object.keys(recyclingProgress).map((material) => (
           <IonCol key={material} className="flex flex-col items-center">
             <IonText className="font-bold text-sm capitalize">
@@ -156,8 +147,5 @@ function MyForest() {
           </IonCol>
         ))}
       </IonRow> */}
-    </div>
-  );
-}
 
 export default MyForest;

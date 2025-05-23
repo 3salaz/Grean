@@ -12,9 +12,15 @@ import {useState} from "react";
 import {useProfile} from "../../context/ProfileContext";
 import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
 import default_img from "../../assets/avatar.svg";
+import { useAuth } from "../../context/AuthContext";
 
-const ProfileSetup: React.FC = () => {
+interface ProfileSetupProps {
+  onComplete: () => void;
+}
+
+const ProfileSetup: React.FC = ({ onComplete }) => {
   const {updateProfile} = useProfile();
+  const {user} = useAuth();
   const [accountType, setAccountType] = useState("");
   const [photoURL, setphotoURL] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>(default_img);
@@ -29,7 +35,7 @@ const ProfileSetup: React.FC = () => {
     if (photoURL) {
       try {
         const storage = getStorage();
-        const storageRef = ref(storage, `profile_pictures/${photoURL.name}`);
+        const storageRef = ref(storage, `profiles/${user.uid}/${photoURL.name}`);
         await uploadBytes(storageRef, photoURL);
         imageUrl = await getDownloadURL(storageRef);
         console.log("✅ Image uploaded successfully:", imageUrl);
@@ -49,6 +55,7 @@ const ProfileSetup: React.FC = () => {
     }
 
     setLoading(false);
+    onComplete();
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

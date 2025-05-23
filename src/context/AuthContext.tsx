@@ -11,6 +11,8 @@ import {
 } from "firebase/auth";
 import {toast} from "react-toastify";
 
+import { createProfileIfMissing } from "../utils/createProfileIfMissing";
+
 interface AuthContextValue {
   user: any; // or a custom Firebase user type
   loadingAuth: boolean;
@@ -70,6 +72,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         email,
         password
       );
+      await createProfileIfMissing(userCreds.user);
       return userCreds.user;
     } catch (error: any) {
       console.error("Sign Up Error:", error);
@@ -92,6 +95,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         password
       );
       toast.success("Welcome back!");
+      await createProfileIfMissing(userCredential.user);
       return userCredential.user;
     } catch (error: any) {
       console.error("Sign In Error:", error);
@@ -126,6 +130,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     try {
       const result = await signInWithPopup(auth, provider);
       toast.success("Signed in with Google!");
+      await createProfileIfMissing(result.user);
       return result.user;
     } catch (error: any) {
       console.error("Google Sign In Error:", error);

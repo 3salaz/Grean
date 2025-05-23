@@ -15,7 +15,7 @@ import {usePickups} from "../../context/PickupsContext";
 import dayjs from "dayjs";
 import {closeOutline} from "ionicons/icons";
 import {useEffect, useState} from "react";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 
 function RequestPickup({handleClose, profile}) {
   const {createPickup, visiblePickups} = usePickups();
@@ -104,7 +104,6 @@ function RequestPickup({handleClose, profile}) {
 
   return (
     <main className="w-full h-full pb-6  overflow-auto">
-      <ToastContainer position="top-right" autoClose={5000} />
       <IonRow className="h-[90%] w-full overflow-auto ion-padding">
         <IonList className="w-full ion-padding bg-orange rounded-md">
           <IonCol size="12">

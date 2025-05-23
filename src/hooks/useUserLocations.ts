@@ -59,7 +59,7 @@ export const useUserLocations = (locationIds: string[]) => {
     if (locationIds.length) {
       fetchLocations();
     } else {
-      console.log("No location IDs provided.");
+      // console.log("No location IDs provided.");
       setLocations([]);
       setLoading(false);
     }

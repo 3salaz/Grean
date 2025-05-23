@@ -20,7 +20,15 @@ import {
   IonButtons,
   IonMenuButton
 } from "@ionic/react";
-import {logInOutline, logOutOutline, menuOutline} from "ionicons/icons";
+import {
+  logInOutline,
+  logoFacebook,
+  logoInstagram,
+  logoLinkedin,
+  logOutOutline,
+  menuOutline,
+  personCircleOutline
+} from "ionicons/icons";
 import {useAuth} from "../../context/AuthContext";
 import {useProfile} from "../../context/ProfileContext";
 
@@ -82,44 +90,41 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border ion-no-padding">
-      <IonToolbar color="primary" className="h-full">
+    <IonHeader className="ion-no-border ion-no-padding bg-[#75b657]">
+      <IonToolbar color="primary"  className="h-full max-w-2xl mx-auto">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton
             onClick={handleOpenRoutesPopover}
             autoHide={false}
           ></IonMenuButton>
         </IonButtons>
-        <IonTitle>
-          <Link to="/" className="bg-blue-400">
-            <img
-              className="aspect-square w-8 rounded-full object-cover"
-              src={logo}
-              alt="Grean Logo"
-            />
-          </Link>
-        </IonTitle>
+        <div className="flex items-center justify-center w-full">
+          <img
+            className="h-10 rounded-full"
+            src={logo}
+            alt="Grean Logo"
+          />
+        </div>
+
+        <IonButtons slot="end">
         {/* If logged in, show avatar & popover */}
         {user ? (
-          <IonButton fill="clear" slot="end" onClick={handleOpenPopover}>
-            <img
-              className="h-10 w-10 rounded-full text-white"
-              src={profile?.profileUrl || avatar}
-              alt="User Avatar"
-            />
+          
+          <IonButton shape="round" onClick={handleOpenPopover}>
+            <IonIcon slot="icon-only" icon={personCircleOutline} />
           </IonButton>
         ) : (
           <IonButton
-            className="pr-1 text-xs"
-            slot="end"
             onClick={openSignupModal}
-            fill="solid"
+            shape="round"
             color="light"
+            expand="block"
           >
-            Sign Up
-            <IonIcon slot="end" icon={logInOutline}></IonIcon>
+            {/* Sign Up */}
+            <IonIcon slot="icon-only" icon={logInOutline}></IonIcon>
           </IonButton>
         )}
+        </IonButtons>
 
         {/* Mobile Routes Popover */}
         <IonPopover
@@ -128,7 +133,7 @@ function Navbar() {
           onDidDismiss={handleCloseRoutesPopover}
         >
           <IonContent>
-            <IonList>
+            <IonList class="ion-padding">
               <IonListHeader>
                 <IonText>
                   <h5>Grean</h5>
@@ -144,6 +149,31 @@ function Navbar() {
                 <Link to="/services">Services</Link>
               </IonItem>
             </IonList>
+            <div className="flex items-center justify-center ion-padding">
+              <IonButtons>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoInstagram}
+                  />
+                </IonButton>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoFacebook}
+                  />
+                </IonButton>
+                <IonButton>
+                  <IonIcon
+                    color="primary"
+                    slot="icon-only"
+                    icon={logoLinkedin}
+                  />
+                </IonButton>
+              </IonButtons>
+            </div>
           </IonContent>
         </IonPopover>
 
@@ -179,7 +209,7 @@ function Navbar() {
           onDidDismiss={closeAuthModal}
           backdropDismiss={true}
         >
-          <IonContent fullscreen>
+          <IonContent>
             {isSignin ? (
               <Signin
                 handleClose={closeAuthModal}

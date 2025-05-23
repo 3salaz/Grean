@@ -1,33 +1,65 @@
 @import "tailwindcss";
 
-/* === IONIC VARIABLES === */
 :root {
-    /* Primary Color (Green) */
-    --ion-color-primary: #75b657;
+    /* === CUSTOM IONIC COLORS === */
+
+    /* Forest Fern */
+    --ion-color-forest: #1F7334;
+    --ion-color-forest-rgb: 31, 115, 52;
+    --ion-color-forest-contrast: #ffffff;
+    --ion-color-forest-contrast-rgb: 255, 255, 255;
+    --ion-color-forest-shade: #1b652e;
+    --ion-color-forest-tint: #358a47;
+
+    /* Evergreen Depths */
+    --ion-color-evergreen: #115923;
+    --ion-color-evergreen-rgb: 17, 89, 35;
+    --ion-color-evergreen-contrast: #ffffff;
+    --ion-color-evergreen-contrast-rgb: 255, 255, 255;
+    --ion-color-evergreen-shade: #0f4f1f;
+    --ion-color-evergreen-tint: #2f713d;
+
+    /* Meadow Grass */
+    --ion-color-meadow: #2B8C44;
+    --ion-color-meadow-rgb: 43, 140, 68;
+    --ion-color-meadow-contrast: #ffffff;
+    --ion-color-meadow-contrast-rgb: 255, 255, 255;
+    --ion-color-meadow-shade: #257b3c;
+    --ion-color-meadow-tint: #429e5b;
+
+    /* Sagebrush Mist */
+    --ion-color-sage: #658C6F;
+    --ion-color-sage-rgb: 101, 140, 111;
+    --ion-color-sage-contrast: #ffffff;
+    --ion-color-sage-contrast-rgb: 255, 255, 255;
+    --ion-color-sage-shade: #597d63;
+    --ion-color-sage-tint: #769b80;
+
+    /* Pale Eucalyptus */
+    --ion-color-eucalyptus: #A8BFAA;
+    --ion-color-eucalyptus-rgb: 168, 191, 170;
+    --ion-color-eucalyptus-contrast: #000000;
+    --ion-color-eucalyptus-contrast-rgb: 0, 0, 0;
+    --ion-color-eucalyptus-shade: #94a896;
+    --ion-color-eucalyptus-tint: #b6c9b8;
+
+    /* === ORIGINAL IONIC COLORS === */
+
+    --ion-color-primary: #75b657;                  /* Leaf Green */
     --ion-color-primary-rgb: 117, 182, 87;
     --ion-color-primary-contrast: #ffffff;
     --ion-color-primary-contrast-rgb: 255, 255, 255;
-    --ion-color-primary-shade: #669b4f;
-    --ion-color-primary-tint: #85c169;
+    --ion-color-primary-shade: #669b4f;            /* Garden Green */
+    --ion-color-primary-tint: #85c169;             /* Sprout Green */
 
-    /* Secondary Color (Dark Green) */
-    --ion-color-secondary: #4a8c42;
+    --ion-color-secondary: #4a8c42;                /* Vine Green */
     --ion-color-secondary-rgb: 74, 140, 66;
     --ion-color-secondary-contrast: #ffffff;
     --ion-color-secondary-contrast-rgb: 255, 255, 255;
-    --ion-color-secondary-shade: #427b3a;
-    --ion-color-secondary-tint: #5fb559;
+    --ion-color-secondary-shade: #427b3a;          /* Moss Green */
+    --ion-color-secondary-tint: #5fb559;           /* Fresh Sprout */
 }
 
-/* === GENERAL STYLING === */
-
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
 
 /* Prevent Scroll */
 .no-scroll {

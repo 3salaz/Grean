@@ -1,15 +1,23 @@
 import {Response} from "express";
 import * as logger from "firebase-functions/logger";
-import {createPickup, updatePickup, deletePickup} from "./pickupServices";
+import {
+  createPickup,
+  updatePickupField,
+  updatePickupBulk,
+  deletePickup,
+} from "./pickupServices";
 import {
   authMiddleware,
   AuthenticatedRequest,
 } from "../middleware/authMiddleware";
 import {
-  CreatePickupData,
   UpdatePickupData,
+  UpdatePickupFieldData,
+  CreatePickupData,
   DeletePickupData,
+  PickupUpdateOperation,
 } from "./pickupTypes";
+import {db} from "../firebase";
 
 export const createPickupFunction = [
   authMiddleware,
@@ -49,7 +57,6 @@ export const createPickupFunction = [
 export const updatePickupFunction = [
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response) => {
-    logger.info("🔥 updatePickupFunction TRIGGERED with data:", req.body);
     try {
       const uid = req.user?.uid;
       if (!uid) {
@@ -57,22 +64,49 @@ export const updatePickupFunction = [
       }
       logger.info("✅ User authenticated:", uid);
 
-      // Validate request body
-      const {pickupId, updates} = req.body as UpdatePickupData;
-      logger.info("📥 Received update pickup data:", {pickupId, updates});
-      if (!pickupId || !updates) {
-        throw new Error("Pickup ID and updates are required.");
+      const {
+        pickupId,
+        field,
+        value,
+        operation = "update",
+        updates,
+      } = req.body as UpdatePickupFieldData & UpdatePickupData;
+
+      // Fetch the user profile to check if they are a "Driver"
+      const profileSnap = await db.collection("profiles").doc(uid).get();
+      const profileData = profileSnap.data();
+      const isDriver = profileData?.accountType === "Driver";
+
+      if (!isDriver && !field) {
+        throw new Error(
+            "Unauthorized-Only the pickup creator or a driver can update " +
+            "this pickup."
+        );
       }
 
-      await updatePickup(uid, pickupId, updates);
-      logger.info("✅ Pickup updated successfully.");
+      // Check if the pickup field exists, and call the appropriate function
+      if (field && value !== undefined) {
+        if (isDriver && !["isAccepted", "acceptedBy"].includes(field)) {
+          throw new Error(
+              "Unauthorized: Drivers can only update " + "certain fields."
+          );
+        }
+        await updatePickupField(
+            uid,
+            pickupId,
+            field,
+            value,
+          operation as PickupUpdateOperation
+        );
+      } else if (updates) {
+        await updatePickupBulk(uid, pickupId, updates);
+      } else {
+        throw new Error("Invalid update data.");
+      }
+
       res.status(200).send({success: true});
     } catch (error) {
-      logger.error(
-          "❌ ERROR in updatePickupFunction:",
-          (error as Error).message,
-          (error as Error).stack
-      );
+      logger.error("❌ ERROR in updatePickupFunction:", error);
       res.status(500).send({error: (error as Error).message});
     }
   },

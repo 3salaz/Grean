@@ -1,5 +1,9 @@
 import {
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonCol,
   IonIcon,
   IonItem,
@@ -16,8 +20,9 @@ import {
   closeCircleOutline
 } from "ionicons/icons";
 import {usePickups} from "../../context/PickupsContext";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import PickupDetails from "./PickupDetails";
+import {useProfile} from "../../context/ProfileContext";
 
 interface Pickup {
   id: string;
@@ -29,7 +34,16 @@ interface Pickup {
 }
 
 const ViewPickups: React.FC = () => {
-  const {userCreatedPickups} = usePickups();
+  const {profile} = useProfile(); // Assuming you have a user context or similar
+  const {fetchUserOwnedPickups} = usePickups(); // Assuming you have a function to fetch user pickups
+
+  useEffect(() => {
+    if (profile) {
+      fetchUserOwnedPickups(profile.uid);
+    }
+  }, [profile, fetchUserOwnedPickups]);
+
+  const {userOwnedPickups} = usePickups();
 
   // Internal state to manage modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,63 +62,53 @@ const ViewPickups: React.FC = () => {
   };
 
   return (
-    <>
-      <IonList lines="none" className="w-full overflow-auto rounded-md">
-        <IonListHeader class="ion-no-padding">
-          <IonLabel className="text-2xl pl-4 font-bold text-orange">
-            My Pickups: {userCreatedPickups.length}
-          </IonLabel>
-        </IonListHeader>
-        {userCreatedPickups.map((pickup) => (
-          <IonItem key={pickup.id} className="w-full bg-orange relative">
-            <IonRow className="w-full py-2 ion-justify-content-start gap-1 border-b-2 border-[#75b657] m-1">
-              <IonCol
-                size="1"
-                className="flex flex-col items-end justify-center"
-              >
-                <IonIcon
-                  icon={
-                    pickup.isAccepted
-                      ? checkmarkCircleOutline
-                      : closeCircleOutline
-                  }
-                />
-              </IonCol>
-              <IonCol size="1" className="flex items-center justify-center">
-                <IonIcon size="large" icon={calendarNumberOutline} />
-              </IonCol>
-              <IonCol size="8" className="pl-2 ion-align-self-center">
-                <div className="text-xs">
-                  <strong>Date:</strong> {pickup.pickupDate}
-                </div>
-                <div className="text-xs">
-                  <strong>Time:</strong> {pickup.pickupTime}
-                </div>
-              </IonCol>
-              <IonCol size="1" className="flex items-center">
-                <IonButton
-                  fill="clear"
-                  color="primary"
-                  onClick={() => openPickupDetailsModal(pickup)}
-                >
-                  <IonIcon color="primary" icon={chevronForward} />
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </IonItem>
-        ))}
-      </IonList>
-
+    <IonCard className="w-full">
       {/* Pickup Details Modal (Managed Internally) */}
       <IonModal isOpen={isModalOpen} onDidDismiss={closePickupDetailsModal}>
         {selectedPickup && (
-          <PickupDetails
-            pickup={selectedPickup}
-            onClose={closePickupDetailsModal}
-          />
+          <PickupDetails pickup={selectedPickup} handleClose={closePickupDetailsModal} />
         )}
       </IonModal>
-    </>
+      <IonCardHeader>
+        <IonCardTitle color="sage" className="text-2xl font-bold text-orange ion-padding">
+          My Pickups: {userOwnedPickups.length}
+        </IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
+        <IonList lines="none" className="w-full overflow-auto rounded-md ion-no-padding">
+          <IonListHeader class="">
+            <IonLabel className="text-2xl font-bold text-orange"></IonLabel>
+          </IonListHeader>
+          {userOwnedPickups.map((pickup) => (
+            <IonItem key={pickup.id} className="w-full flex flex-col">
+              <IonRow className="w-full py-2 ion-justify-content-start border-b-2 border-[#75b657] m-1">
+                <IonCol size="1" className="flex items-center justify-center">
+                  <IonIcon size="large" icon={calendarNumberOutline} />
+                </IonCol>
+                <IonCol size="10" className="pl-2 ion-align-self-center">
+                  <div className="text-xs">
+                    <strong>Date:</strong> {pickup.pickupDate}
+                  </div>
+                  <div className="text-xs">
+                    <strong>Time:</strong> {pickup.pickupTime}
+                  </div>
+                </IonCol>
+
+                <IonCol size="1" className="flex items-center">
+                  <IonButton
+                    fill="clear"
+                    color="primary"
+                    onClick={() => openPickupDetailsModal(pickup)}
+                  >
+                    <IonIcon color="primary" icon={chevronForward} />
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonItem>
+          ))}
+        </IonList>
+      </IonCardContent>
+    </IonCard>
   );
 };
 

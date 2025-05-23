@@ -159,22 +159,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
             disabled={!isEditing}
           />
         </IonItem>
-        <div className="w-full bg-orange-100 text-center text-xs">
-          <IonButton
-            className="max-w-xs mx-auto"
-            expand="block"
-            color="danger"
-            onClick={() => setShowDeleteAlert(true)}
-          >
-            Delete Profile
-          </IonButton>
-          <IonText>
-            Once you delete your profile, you will not be able to recover it.
-          </IonText>
-        </div>
       </IonContent>
 
-      <IonFooter className="ion-padding">
+      <IonFooter className="ion-padding drop-shadow-none shadow-none">
         <div className="gap-2 flex flex-col max-w-xs mx-auto">
           <IonButton
             expand="block"
@@ -182,13 +169,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
             onClick={handleEditSaveButtonClick}
             disabled={isSaving}
           >
-            {isSaving ? (
-              <IonSpinner name="crescent" />
-            ) : isEditing ? (
-              "Save"
-            ) : (
-              "Edit"
-            )}
+            {isSaving ? <IonSpinner name="crescent" /> : isEditing ? "Save" : "Edit"}
+          </IonButton>
+          <IonButton expand="block" color="danger" onClick={() => setShowDeleteAlert(true)}>
+            Delete
           </IonButton>
           <IonButton expand="block" fill="outline" onClick={onClose}>
             Cancel
@@ -200,9 +184,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
         isOpen={showDeleteAlert}
         onDidDismiss={() => setShowDeleteAlert(false)}
         header={"Delete Profile"}
-        message={
-          "Are you sure you want to delete your profile? This action cannot be undone."
-        }
+        message={"Are you sure you want to delete your profile? This action cannot be undone."}
         buttons={[
           {
             text: "Cancel",

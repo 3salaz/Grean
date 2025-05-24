@@ -2,7 +2,6 @@ import {
   IonPage,
   IonContent,
   IonSpinner,
-  IonModal,
   IonGrid,
   IonRow,
   IonCol,
@@ -12,6 +11,7 @@ import { useEffect, useState, Suspense, lazy } from "react";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
+import { TabOption } from "../types/tabs";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -19,17 +19,30 @@ const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
-
-
 const Account = () => {
   const { profile } = useProfile();
   const { activeTab, setActiveTab } = useTab();
   const { user } = useAuth();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
-  const [showWelcome, setShowWelcome] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
-  // Load tab content
+  // 🔍 Debug logs
+  console.log("activeTab:", activeTab);
+  console.log("profile:", profile);
+  console.log("user:", user);
+
+  // Restore tab from localStorage or set default
+  useEffect(() => {
+    const savedTab = (localStorage.getItem("activeTab") as TabOption) || "profile";
+    setActiveTab(savedTab);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab) localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
+  // Load tab content on tab change
   useEffect(() => {
     const loadTab = async () => {
       setLoading(true);
@@ -39,24 +52,14 @@ const Account = () => {
     loadTab();
   }, [activeTab]);
 
-  // Restore tab from localStorage
-  useEffect(() => {
-    const savedTab = localStorage.getItem("activeTab") as TabOption;
-    if (savedTab) setActiveTab(savedTab);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
-
-  // Profile setup modal logic
+  // Show profile setup modal
   useEffect(() => {
     if (user && !profile) {
       setShowProfileSetup(true);
     }
   }, [user, profile]);
 
-  // One-time welcome animation
+  // One-time welcome overlay
   useEffect(() => {
     const hasWelcomed = sessionStorage.getItem("hasWelcomedUser");
     if (user && !hasWelcomed) {
@@ -97,14 +100,13 @@ const Account = () => {
           </Suspense>
         );
       default:
-        return <div>Invalid tab selected.</div>;
+        return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
     }
   };
 
   return (
-
+    <IonPage>
       <IonContent className="relative">
-        {/* One-time welcome overlay */}
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <IonText className="text-2xl font-bold animate-fade-in-out">
@@ -112,7 +114,7 @@ const Account = () => {
             </IonText>
           </IonGrid>
         )}
-        
+
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">
@@ -125,6 +127,7 @@ const Account = () => {
           renderActiveTab()
         )}
       </IonContent>
+    </IonPage>
   );
 };
 

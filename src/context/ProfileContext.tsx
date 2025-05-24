@@ -5,13 +5,20 @@ import {toast} from "react-toastify";
 import axios from "axios";
 import {useAuth} from "./AuthContext";
 
+export const useProfile = () => {
+  const context = useContext(ProfileContext);
+  if (!context) {
+    throw new Error("useProfile must be used within a ProfileProvider");
+  }
+  return context;
+};
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
   profile?: string | null;
   email: string;
   uid: string;
-  inventory: string[];
+  inventory: string[]; 
   locations: string[];
   pickups: string[];
   accountType: string;
@@ -107,6 +114,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
         uid: user.uid,
         locations: [],
         pickups: [],
+        inventory: [],
         accountType: ""
       };
 
@@ -199,12 +207,4 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
       {!loadingProfile && children}
     </ProfileContext.Provider>
   );
-};
-
-export const useProfile = () => {
-  const context = useContext(ProfileContext);
-  if (!context) {
-    throw new Error("useProfile must be used within a ProfileProvider");
-  }
-  return context;
 };

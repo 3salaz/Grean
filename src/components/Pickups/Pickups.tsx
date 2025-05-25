@@ -85,6 +85,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
 
       {/* Main Section */}
       <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl bg-orange-100">
+        SOmething is herekdsfjsdfjdsfj
         {/* <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} /> */}
         {/* {profile.accountType === "User" ? (
           // User View

@@ -24,16 +24,12 @@ import { toast } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
 import { UserProfile } from "../../context/ProfileContext";
-import Navbar from "../Layout/Navbar";
-import Footer from "../Layout/Footer";
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 interface CreatePickupProps {
   handleClose: () => void;
   profile: UserProfile | null;
-  activeTab: TabOption;
-  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
 }
 
 const disclaimers = {
@@ -43,19 +39,13 @@ const disclaimers = {
   "non-ferrous": `Accepted: copper, aluminum, brass, etc. Must be clean, sorted. No ferrous (iron/steel). Photo required.`,
 };
 
-const CreatePickup: React.FC<CreatePickupProps> = ({
-  handleClose,
-  profile,
-  activeTab,
-  setActiveTab,
-}) => {
+const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
   const { createPickup, availablePickups } = usePickups();
-
   const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
   const [formData, setFormData] = useState({
-    pickupAt: tomorrow7am.toISOString(),
+    pickupTime: tomorrow7am.toISOString(),
     pickupNote: "",
     addressData: { address: "" },
     materials: [],

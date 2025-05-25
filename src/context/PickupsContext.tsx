@@ -85,9 +85,9 @@ interface PickupContextType {
   userAssignedPickups: Pickup[];
   availablePickups: Pickup[];
   finishedPickups: Pickup[];
-  createPickup: (
-    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
-  ) => Promise<string | undefined>;
+  pickupFormData: any;
+  setPickupFormData: React.Dispatch<React.SetStateAction<any>>;
+  createPickup: (pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">) => Promise<string | undefined>;
   updatePickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
   fetchAllPickups: () => (() => void) | undefined; // Return type updated
@@ -95,7 +95,6 @@ interface PickupContextType {
   fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
   removePickup: (pickupId: string) => Promise<void>;
 }
-
 
 // Create Context
 const PickupContext = createContext<PickupContextType | null>(null);

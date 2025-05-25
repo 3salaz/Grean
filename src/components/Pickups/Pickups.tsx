@@ -1,31 +1,43 @@
-import React, { useState } from "react";
-import { IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon, IonContent } from "@ionic/react";
+import React, { useEffect, useState } from "react";
+import { IonButton, IonCol, IonGrid, IonRow, IonText, IonModal, IonIcon, IonContent, IonHeader, IonButtons, IonLabel, IonSelect, IonSelectOption } from "@ionic/react";
 import CreatePickup from "./CreatePickup";
-import { arrowDownCircleOutline, calendarNumberOutline, listCircleSharp } from "ionicons/icons";
+import { arrowDown, arrowDownCircleOutline, calendarNumberOutline, list, listCircleSharp } from "ionicons/icons";
 import { UserProfile } from "../../context/ProfileContext";
 import { usePickups } from "../../context/PickupsContext";
 import ViewPickups from "./ViewPickups";
 import PickupsQueue from "./PickupsQueue";
 import CreateLocation from "../Profile/CreateLocation";
 import Schedule from "../Map/Schedule";
-
-type TabOption = "profile" | "pickups" | "map" | "stats";
+import dayjs from "dayjs";
+import { useUserLocations } from "../../hooks/useUserLocations";
 
 interface PickupsProps {
   profile: UserProfile | null;
-  activeTab: TabOption;
-  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
 }
 
 // All supported modal keys
 type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 
-const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) => {
+const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
     createLocationOpen: false,
     scheduleOpen: false
   });
+
+  const [formData, setFormData] = useState({
+    pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
+    pickupNote: "",
+    addressData: { address: "" },
+    materials: [],
+  })
+
+  useEffect(() => {
+    console.log("🔍 formData updated:", formData);
+  }, [formData]);
+
+  const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
+  const { locations: userLocations } = useUserLocations(locationIds);
 
   const openModal = (modalName: ModalKeys) => {
     // ✅ Remove focus from any currently focused element
@@ -38,6 +50,13 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
   const closeModal = (modalName: ModalKeys) => {
     setModalState((prev) => ({ ...prev, [modalName]: false }));
   };
+
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleChange = (key: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
 
   if (!profile) {
     return (
@@ -54,11 +73,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
   }
 
   return (
-    <IonContent>
-
-
-    <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
-      {/* Create Pickup Modal */}
+    <main className="container h-full max-w-2xl mx-auto flex flex-col overflow-auto drop-shadow-xl md:py-4 md:rounded-md ion-padding">
       <IonModal
         isOpen={modalState.createPickupOpen}
         backdropDismiss={false}
@@ -68,26 +83,93 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
         }}
         onDidDismiss={() => closeModal("createPickupOpen")}
       >
-        <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} />
-      </IonModal>
+        <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} />
+      </IonModal >
 
-      {/* Create Location Modal */}
       <IonModal
         isOpen={modalState.createLocationOpen}
         onDidDismiss={() => closeModal("createLocationOpen")}
       >
         <CreateLocation profile={profile} handleClose={() => closeModal("createLocationOpen")} />
-      </IonModal>
+      </IonModal >
 
       <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
         <Schedule handleClose={() => closeModal("scheduleOpen")} />
       </IonModal>
 
-      {/* Main Section */}
-      <main className="container h-full max-w-2xl mx-auto flex justify-end flex-col overflow-auto drop-shadow-xl bg-orange-100">
-        SOmething is herekdsfjsdfjdsfj
-        {/* <CreatePickup activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} handleClose={() => closeModal("createPickupOpen")} /> */}
-        {/* {profile.accountType === "User" ? (
+      <IonHeader class="ion-padding-horizontal pt-4">
+        <IonText class="text-xl font-bold">
+          Hi  There, {profile.displayName}
+        </IonText>
+      </IonHeader>
+      <section className="flex-grow">
+        <IonRow className="px-2 pb-2">
+          <IonCol size="12">
+            <IonSelect
+              value={formData.addressData.address || ""}
+              label=""
+              placeholder="Select address"
+              onIonChange={(e) => {
+                const selected = userLocations.find((l) => l.address === e.detail.value);
+                if (selected) {
+                  handleChange("addressData", { address: selected.address });
+                }
+              }}
+            >
+              {userLocations.map((loc, idx) => (
+                <IonSelectOption key={idx} value={loc.address}>
+                  {loc.address}
+                </IonSelectOption>
+              ))}
+            </IonSelect>
+          </IonCol>
+        </IonRow>
+        <IonRow className={`bg-white rounded-lg ion-padding-horizontal justify-between ${showDropdown ? 'rounded-b-none' : ''}`}>
+          <IonCol>
+            <div className="text-sm py-2">What material are you recycling?</div>
+          </IonCol>
+          <IonCol size="auto">
+            <IonButton size="small" onClick={() => setShowDropdown(!showDropdown)}>
+              <IonIcon icon={arrowDown} />
+            </IonButton>
+          </IonCol>
+          {/* DropDown Content Here */}
+        </IonRow>
+
+        {showDropdown && (
+          <div className="w-full bg-green-50 rounded-b-lg py-2 animate-slide-down">
+            <IonButton fill="clear" expand="block" onClick={() => console.log("Glass")}>
+              Glass
+            </IonButton>
+            <IonButton fill="clear" expand="block" onClick={() => console.log("Cardboard")}>
+              Cardboard
+            </IonButton>
+          </div>
+        )}
+      </section>
+      <IonRow className="pt-2 flex mx-auto gap-2">
+
+        <IonCol size="auto">
+          <IonButton size="small" onClick={() => openModal("createPickupOpen")}>
+            Pickup Request
+          </IonButton>
+        </IonCol>
+
+        <IonCol size="auto">
+          <IonButton size="small">
+            <IonIcon icon={list}></IonIcon>
+          </IonButton>
+        </IonCol>
+
+      </IonRow>
+    </main >
+  );
+};
+
+export default Pickups;
+
+{/* <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} /> */ }
+{/* {profile.accountType === "User" ? (
           // User View
           <IonRow className="ion-no-margin ion-padding overflow-y-auto flex-grow flex flex-col justify-end">
             {profile.locations.length > 0 ? (
@@ -132,10 +214,3 @@ const Pickups: React.FC<PickupsProps> = ({ profile, activeTab, setActiveTab }) =
             </IonCol>
           </IonRow>
         )} */}
-      </main>
-    </IonGrid>
-    </IonContent>
-  );
-};
-
-export default Pickups;

@@ -12,6 +12,8 @@ import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
+import Navbar from "../components/Layout/Navbar";
+import Footer from "../components/Layout/Footer";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -28,7 +30,6 @@ const Account = () => {
   const [showWelcome, setShowWelcome] = useState(false);
 
   // 🔍 Debug logs
-  console.log("activeTab:", activeTab);
   console.log("profile:", profile);
   console.log("user:", user);
 
@@ -84,7 +85,7 @@ const Account = () => {
       case "pickups":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Pickups activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} />
+            <Pickups profile={profile} />
           </Suspense>
         );
       case "map":
@@ -106,7 +107,8 @@ const Account = () => {
 
   return (
     <IonPage>
-      <IonContent className="relative">
+      <Navbar />
+      <IonContent className="relative bg-gradient-to-t from-grean to-blue-300">
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <IonText className="text-2xl font-bold animate-fade-in-out">
@@ -124,9 +126,12 @@ const Account = () => {
             </IonRow>
           </IonGrid>
         ) : (
-          renderActiveTab()
+          <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
+              {renderActiveTab()}
+          </IonGrid>
         )}
       </IonContent>
+      <Footer />
     </IonPage>
   );
 };

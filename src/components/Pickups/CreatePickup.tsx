@@ -70,7 +70,7 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
   const handleSubmit = async () => {
     if (!profile) return toast.error("User profile not found.");
     if (!formData.addressData.address) return toast.error("Select a valid address.");
-    if (!formData.pickupAt) return toast.error("Select a pickup date & time.");
+    if (!formData.pickupTime) return toast.error("Select a pickup date & time.");
     if (formData.materials.length === 0) return toast.error("Select at least one material.");
 
     const activePickups = (availablePickups ?? []).filter(
@@ -138,16 +138,17 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
             </IonCol>
 
             {/* DateTime */}
-            <IonCol>
-              <IonLabel position="stacked">Pickup Date & Time</IonLabel>
-              <IonDatetime
-                value={formData.pickupAt}
-                min={tomorrow7am.toISOString()}
-                presentation="date-time"
-                onIonChange={(e) => handleChange("pickupAt", e.detail.value?.toString() || "")}
-                minuteValues="0,15,30,45"
-              />
-            </IonCol>
+          <IonCol size="12" >
+            <IonLabel className="text-xs font-bold" position="stacked">Pickup Date & Time</IonLabel>
+            <IonDatetime
+              value={formData.pickupTime}
+              min={tomorrow7am.toISOString()}
+              presentation="date-time"
+              className="rounded-sm"
+              onIonChange={(e) => handleChange("pickupAt", e.detail.value?.toString() || "")}
+              minuteValues="0,15,30,45"
+            />
+          </IonCol>
 
             {/* Disclaimers */}
             {formData.materials.map((material) => (

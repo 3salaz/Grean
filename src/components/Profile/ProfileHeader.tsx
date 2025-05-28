@@ -21,10 +21,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { currentLocation } = useLocations();
   const shortAddress = currentLocation?.address
-  ?.split(",")
-  .slice(0, 2) // keep street and city
-  .join(",")
-  .trim();
+    ?.split(",")
+    .slice(0, 2) // keep street and city
+    .join(",")
+    .trim();
 
   return (
     <IonRow className="ion-padding flex items-center justify-between border-b border-slate-200">

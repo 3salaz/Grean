@@ -14,6 +14,7 @@ import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
 import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
+import { ToastContainer } from "react-toastify";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -29,9 +30,6 @@ const Account = () => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
-  // 🔍 Debug logs
-  console.log("profile:", profile);
-  console.log("user:", user);
 
   // Restore tab from localStorage or set default
   useEffect(() => {
@@ -66,7 +64,7 @@ const Account = () => {
     if (user && !hasWelcomed) {
       setShowWelcome(true);
       sessionStorage.setItem("hasWelcomedUser", "true");
-      setTimeout(() => setShowWelcome(false), 3000);
+      setTimeout(() => setShowWelcome(false), 1000);
     }
   }, [user]);
 
@@ -107,6 +105,7 @@ const Account = () => {
 
   return (
     <IonPage>
+                  <ToastContainer />
       <Navbar />
       <IonContent className="relative bg-gradient-to-t from-grean to-blue-300">
         {showWelcome && (
@@ -127,7 +126,7 @@ const Account = () => {
           </IonGrid>
         ) : (
           <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
-              {renderActiveTab()}
+            {renderActiveTab()}
           </IonGrid>
         )}
       </IonContent>

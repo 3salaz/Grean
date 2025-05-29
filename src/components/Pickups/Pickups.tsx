@@ -67,8 +67,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     }
   }, [profile?.uid]);
 
-  console.log(userOwnedPickups)
-
   const handleSubmit = async () => {
     if (!formData.addressData.address) {
       toast.error("Select a valid address.");
@@ -176,7 +174,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
 
       <section className="flex-grow ion-padding-vertical overflow-auto">
         <IonRow className="ion-padding-bottom justify-end">
-          <IonCol size="auto" className="bg-white rounded-md ion-padding-horizontal">
+          <IonCol size="auto" className="text-base font-bold">
             <IonSelect
               label=""
               value={formData.addressData.address || ""}

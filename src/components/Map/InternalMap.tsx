@@ -35,17 +35,6 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
     const panelRef = useRef<HTMLDivElement | null>(null);
     const filterRowRef = useRef<HTMLIonRowElement | null>(null);
 
-    const scrollFilterToStart = () => {
-        const el = filterRowRef.current;
-        if (!el) return;
-
-        // Wait until Ionic is ready
-        el.componentOnReady().then(() => {
-            const scrollable = el.shadowRoot?.querySelector("div") || el.querySelector("div");
-            scrollable?.scrollTo({ left: 0, behavior: "smooth" });
-        });
-    };
-
 
 
 
@@ -113,10 +102,10 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
     return (
         <main className="relative container max-w-2xl mx-auto flex-grow overflow-auto">
             {/* Overlay: Category Filter */}
-            <IonGrid className="absolute top-0 left-0 w-full z-10 p-2">
+            <IonGrid className="absolute top-0 left-0 w-full z-10 px-2">
                 <IonRow
                     ref={filterRowRef}
-                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white/90 p-2 rounded-xl shadow-md text-xs gap-2"
+                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white/90 p-2 rounded-b-xl shadow-md text-xs gap-2"
                     style={{ WebkitOverflowScrolling: "touch" }}
                 >
                     <IonCol
@@ -126,7 +115,6 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                     >
                         <button onClick={() => {
                             setSelectedCategory(null);
-                            scrollFilterToStart();
                         }}>All</button>
                     </IonCol>
                     {BUSINESS_CATEGORIES.map((category) => (
@@ -177,15 +165,14 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
                         className="absolute bottom-0 left-0 w-full z-20 p-2 flex justify-center"
                     >
-                        <IonGrid className="w-full max-w-xl flex-col gap-2 bg-white/90 p-2 rounded-xl shadow-md">
+                        <IonGrid className="w-full max-w-xl flex-col gap-2 p-2 rounded-xl">
                             <IonRow>
-                                <IonCol size="12" className="bg-white">
+                                <IonCol size="12" className="shadow-lg">
                                     <input
                                         type="text"
                                         placeholder="Search by name or address"
                                         onFocus={() => {
                                             setSelectedCategory(null);
-                                            scrollFilterToStart();
                                         }}
                                         value={searchQuery}
                                         onChange={(e) => {
@@ -203,7 +190,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                 setSearchResults(results);
                                             }
                                         }}
-                                        className="w-full p-2 border border-2 border-[#75B657] rounded-lg"
+                                        className="w-full p-2 border border-2 border-[#75B657] bg-white rounded-lg"
                                     />
                                 </IonCol>
                             </IonRow>
@@ -220,6 +207,10 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                     setMapZoom(14);
                                                     setSearchQuery("");
                                                     setSearchResults([]);
+                                                    if (loc.latitude && loc.longitude) {
+                                                        map?.panTo({ lat: loc.latitude, lng: loc.longitude });
+                                                        map?.setZoom(14);
+                                                    }
                                                 }}
                                             >
                                                 <div className="font-semibold">

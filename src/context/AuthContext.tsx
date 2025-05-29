@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         email,
         password
       );
-      toast.success("Welcome back!");
+
       await createProfileIfMissing(userCredential.user);
       return userCredential.user;
     } catch (error: any) {

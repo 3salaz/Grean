@@ -16,7 +16,6 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({profile}) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-
   return (
     // <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
 

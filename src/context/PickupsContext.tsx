@@ -280,7 +280,6 @@ export function PickupsProvider({children}: {children: ReactNode}) {
           }
         }
       );
-      toast.success("Pickup updated successfully!");
     } catch (error) {
       console.error("Error updating pickup:", error);
       toast.error("Failed to update pickup.");

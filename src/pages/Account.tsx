@@ -2,7 +2,6 @@ import {
   IonPage,
   IonContent,
   IonSpinner,
-  IonModal,
   IonGrid,
   IonRow,
   IonCol,
@@ -12,6 +11,10 @@ import { useEffect, useState, Suspense, lazy } from "react";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
+import { TabOption } from "../types/tabs";
+import Navbar from "../components/Layout/Navbar";
+import Footer from "../components/Layout/Footer";
+import { ToastContainer } from "react-toastify";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -19,17 +22,26 @@ const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
-
-
 const Account = () => {
   const { profile } = useProfile();
   const { activeTab, setActiveTab } = useTab();
   const { user } = useAuth();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
-  const [showWelcome, setShowWelcome] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
-  // Load tab content
+
+  // Restore tab from localStorage or set default
+  useEffect(() => {
+    const savedTab = (localStorage.getItem("activeTab") as TabOption) || "profile";
+    setActiveTab(savedTab);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab) localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
+  // Load tab content on tab change
   useEffect(() => {
     const loadTab = async () => {
       setLoading(true);
@@ -39,30 +51,20 @@ const Account = () => {
     loadTab();
   }, [activeTab]);
 
-  // Restore tab from localStorage
-  useEffect(() => {
-    const savedTab = localStorage.getItem("activeTab") as TabOption;
-    if (savedTab) setActiveTab(savedTab);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
-
-  // Profile setup modal logic
+  // Show profile setup modal
   useEffect(() => {
     if (user && !profile) {
       setShowProfileSetup(true);
     }
   }, [user, profile]);
 
-  // One-time welcome animation
+  // One-time welcome overlay
   useEffect(() => {
     const hasWelcomed = sessionStorage.getItem("hasWelcomedUser");
     if (user && !hasWelcomed) {
       setShowWelcome(true);
       sessionStorage.setItem("hasWelcomedUser", "true");
-      setTimeout(() => setShowWelcome(false), 3000);
+      setTimeout(() => setShowWelcome(false), 1000);
     }
   }, [user]);
 
@@ -81,7 +83,7 @@ const Account = () => {
       case "pickups":
         return (
           <Suspense fallback={<IonSpinner />}>
-            <Pickups activeTab={activeTab} setActiveTab={setActiveTab} profile={profile} />
+            <Pickups profile={profile} />
           </Suspense>
         );
       case "map":
@@ -97,14 +99,15 @@ const Account = () => {
           </Suspense>
         );
       default:
-        return <div>Invalid tab selected.</div>;
+        return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
     }
   };
 
   return (
-
-      <IonContent className="relative">
-        {/* One-time welcome overlay */}
+    <IonPage>
+                  <ToastContainer />
+      <Navbar />
+      <IonContent className="relative bg-gradient-to-t from-grean to-blue-300">
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <IonText className="text-2xl font-bold animate-fade-in-out">
@@ -112,7 +115,7 @@ const Account = () => {
             </IonText>
           </IonGrid>
         )}
-        
+
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
             <IonRow className="h-full">
@@ -122,9 +125,13 @@ const Account = () => {
             </IonRow>
           </IonGrid>
         ) : (
-          renderActiveTab()
+          <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300">
+            {renderActiveTab()}
+          </IonGrid>
         )}
       </IonContent>
+      <Footer />
+    </IonPage>
   );
 };
 

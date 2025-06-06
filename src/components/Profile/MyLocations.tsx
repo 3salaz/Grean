@@ -54,6 +54,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
       <IonCol size="12">
         <IonText className="text-lg font-semibold text-[#3a6833]">My Locations</IonText>
       </IonCol>
+
       <IonCol size="12" className="ion-padding-vertical">
         {userLocations.length === 0 ? (
           <div className="text-center font-medium italic ion-padding bg-white bg-opacity-40 rounded-md">
@@ -62,53 +63,60 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
             </IonText>
           </div>
         ) : (
-          userLocations.map((loc: LocationData, index) => (
-            <div className="flex items-center justify-start p-0" key={loc.id}>
-              <div
-                onClick={() => setCurrentLocation(loc)}
-                ref={(el) => (addressRefs.current[index] = el)}
-                className={`flex-none w-32 h-32 rounded-xl snap-center text-sm flex flex-col items-center justify-center cursor-pointer transition 
-    ${currentLocation?.id === loc.id
-                    ? "border-2 border-orange-500 bg-white"
-                    : "border border-slate-200 bg-white/80 backdrop-blur"}`}
-              >
-                <span className="text-center text-xs text-gray-800">{loc.address}</span>
-                {loc.businessName && (
-                  <span className="text-center text-sm text-gray-600">{loc.businessName}</span>
-                )}
+          <div className="flex overflow-x-auto space-x-4 snap-x snap-mandatory pb-2">
+            {userLocations.map((loc: LocationData, index) => (
+              <div className="flex-none w-32 h-32 snap-center" key={loc.id}>
+                <div
+                  onClick={() => setCurrentLocation(loc)}
+                  ref={(el) => (addressRefs.current[index] = el)}
+                  className={`rounded-xl text-sm flex flex-col items-center justify-center cursor-pointer transition aspect-square 
+              ${currentLocation?.id === loc.id
+                      ? "border-2 border-orange-500 bg-white"
+                      : "border border-slate-200 bg-white/80 backdrop-blur"}`}
+                >
+                  <span className="text-center text-xs text-gray-800">{loc.address}</span>
+                  {loc.businessName && (
+                    <span className="text-center text-sm text-gray-600">{loc.businessName}</span>
+                  )}
+
+                  {loc.locationType === "Business" ? (
+                    <div className="">Business</div>
+                  ) : (<div>Home</div>)}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </IonCol>
+
       <div className="flex items-center justify-center gap-1">
-      <IonCol size="auto">
-        <IonButton
-          fill="outline"
-          color="primary"
-          shape="round"
-          size="small"
-          onClick={() => setShowCreateModal(true)} // for addCircle
-          className="bg-white rounded-full"
-        >
-          <IonIcon slot="icon-only" icon={addCircle} />
-        </IonButton>
-      </IonCol>
-      {currentLocation && (
         <IonCol size="auto">
           <IonButton
             fill="outline"
             color="primary"
             shape="round"
             size="small"
-            onClick={() => setShowEditModal(true)} // for addCircle}
+            onClick={() => setShowCreateModal(true)} // for addCircle
             className="bg-white rounded-full"
           >
-            <IonIcon slot="icon-only" icon={settings} />
+            <IonIcon slot="icon-only" icon={addCircle} />
           </IonButton>
         </IonCol>
-      )}
-            </div>
+        {currentLocation && (
+          <IonCol size="auto">
+            <IonButton
+              fill="outline"
+              color="primary"
+              shape="round"
+              size="small"
+              onClick={() => setShowEditModal(true)} // for addCircle}
+              className="bg-white rounded-full"
+            >
+              <IonIcon slot="icon-only" icon={settings} />
+            </IonButton>
+          </IonCol>
+        )}
+      </div>
       <IonModal
         isOpen={showCreateModal}
         presentingElement={presentingElement.current ?? undefined}

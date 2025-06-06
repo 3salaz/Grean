@@ -24,16 +24,12 @@ import { toast } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
 import { UserProfile } from "../../context/ProfileContext";
-import Navbar from "../Layout/Navbar";
-import Footer from "../Layout/Footer";
 
 type TabOption = "profile" | "pickups" | "map" | "stats";
 
 interface CreatePickupProps {
   handleClose: () => void;
   profile: UserProfile | null;
-  activeTab: TabOption;
-  setActiveTab: React.Dispatch<React.SetStateAction<TabOption>>;
 }
 
 const disclaimers = {
@@ -43,19 +39,13 @@ const disclaimers = {
   "non-ferrous": `Accepted: copper, aluminum, brass, etc. Must be clean, sorted. No ferrous (iron/steel). Photo required.`,
 };
 
-const CreatePickup: React.FC<CreatePickupProps> = ({
-  handleClose,
-  profile,
-  activeTab,
-  setActiveTab,
-}) => {
+const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
   const { createPickup, availablePickups } = usePickups();
-
   const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
   const [formData, setFormData] = useState({
-    pickupAt: tomorrow7am.toISOString(),
+    pickupTime: tomorrow7am.toISOString(),
     pickupNote: "",
     addressData: { address: "" },
     materials: [],
@@ -80,7 +70,7 @@ const CreatePickup: React.FC<CreatePickupProps> = ({
   const handleSubmit = async () => {
     if (!profile) return toast.error("User profile not found.");
     if (!formData.addressData.address) return toast.error("Select a valid address.");
-    if (!formData.pickupAt) return toast.error("Select a pickup date & time.");
+    if (!formData.pickupTime) return toast.error("Select a pickup date & time.");
     if (formData.materials.length === 0) return toast.error("Select at least one material.");
 
     const activePickups = (availablePickups ?? []).filter(
@@ -148,16 +138,17 @@ const CreatePickup: React.FC<CreatePickupProps> = ({
             </IonCol>
 
             {/* DateTime */}
-            <IonCol>
-              <IonLabel position="stacked">Pickup Date & Time</IonLabel>
-              <IonDatetime
-                value={formData.pickupAt}
-                min={tomorrow7am.toISOString()}
-                presentation="date-time"
-                onIonChange={(e) => handleChange("pickupAt", e.detail.value?.toString() || "")}
-                minuteValues="0,15,30,45"
-              />
-            </IonCol>
+          <IonCol size="12" >
+            <IonLabel className="text-xs font-bold" position="stacked">Pickup Date & Time</IonLabel>
+            <IonDatetime
+              value={formData.pickupTime}
+              min={tomorrow7am.toISOString()}
+              presentation="date-time"
+              className="rounded-sm"
+              onIonChange={(e) => handleChange("pickupAt", e.detail.value?.toString() || "")}
+              minuteValues="0,15,30,45"
+            />
+          </IonCol>
 
             {/* Disclaimers */}
             {formData.materials.map((material) => (

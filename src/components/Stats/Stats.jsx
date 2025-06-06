@@ -1,10 +1,10 @@
-import {useState, useEffect} from "react";
-import {IonGrid} from "@ionic/react";
+import { useState, useEffect } from "react";
+import { IonGrid } from "@ionic/react";
 import History from "./History";
 import RecyclingStats from "./RecyclingStats";
 import Metrics from "./Metrics";
 
-const Stats = ({profile}) => {
+const Stats = ({ profile }) => {
   const [pounds, setPounds] = useState(0); // Current pounds recycled
   const [level, setLevel] = useState(1); // Current user level
   const [progress, setProgress] = useState(0); // Progress for circle animation
@@ -42,19 +42,12 @@ const Stats = ({profile}) => {
   }, [profile]); // This useEffect runs whenever the profile changes
 
   return (
-    <IonGrid
-      color="light"
-      className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8"
-    >
-      {/* <IonHeader className="mx-auto container h-auto max-w-4xl bg-white p-2">
-        <ProfileHeader />
-      </IonHeader> */}
-      <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
-        <RecyclingStats />
-        <Metrics />
-        <History />
-      </main>
-    </IonGrid>
+    <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
+      <RecyclingStats />
+      <Metrics />
+      <History />
+
+    </main>
   );
 };
 

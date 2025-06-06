@@ -5,9 +5,11 @@ import {useAuth} from "./AuthContext";
 import {useProfile} from "./ProfileContext";
 import {collection, query, where, getDocs, onSnapshot} from "firebase/firestore";
 import {db} from "../firebase";
+import type { PickupData } from "../types/pickups";
+
 
 // Define Pickup Type
-export interface Pickup {
+export interface Pickup extends PickupData {
   id: string;
   createdAt: string;
   isAccepted: boolean;
@@ -25,6 +27,7 @@ export interface Pickup {
   pickupNote?: string;
   materials: string[];
 }
+
 
 interface MaterialConfig {
   label: string;
@@ -85,9 +88,9 @@ interface PickupContextType {
   userAssignedPickups: Pickup[];
   availablePickups: Pickup[];
   finishedPickups: Pickup[];
-  createPickup: (
-    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
-  ) => Promise<string | undefined>;
+  pickupFormData: any;
+  setPickupFormData: React.Dispatch<React.SetStateAction<any>>;
+  createPickup: (pickupData: PickupData) => Promise<string | undefined>;
   updatePickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
   fetchAllPickups: () => (() => void) | undefined; // Return type updated
@@ -95,7 +98,6 @@ interface PickupContextType {
   fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
   removePickup: (pickupId: string) => Promise<void>;
 }
-
 
 // Create Context
 const PickupContext = createContext<PickupContextType | null>(null);
@@ -223,7 +225,6 @@ export function PickupsProvider({children}: {children: ReactNode}) {
           photoURL: profile.photoURL
         }
       };
-
       const response = await axios.post(
         "https://us-central1-grean-de04f.cloudfunctions.net/api/createPickupFunction",
         dataToSend,

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IonGrid, IonRow, IonCol, IonSpinner } from "@ionic/react";
+import { IonGrid, IonRow, IonCol, IonSpinner, IonCard, IonButton, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle, IonIcon } from "@ionic/react";
 import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocations, Location } from "../../context/LocationsContext";
 import { UserProfile } from "../../context/ProfileContext";
 import businessIcon from "../../assets/icons/business.png";
 import homeIcon from "../../assets/icons/home.png";
+import { close } from "ionicons/icons";
 
 // San Francisco center
 const sanFranciscoCenter = { lat: 37.7749, lng: -122.4194 };
@@ -34,6 +35,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
     const [searchResults, setSearchResults] = useState<Location[]>([]);
     const panelRef = useRef<HTMLDivElement | null>(null);
     const filterRowRef = useRef<HTMLIonRowElement | null>(null);
+    const [showFullDescription, setShowFullDescription] = useState(false);
 
 
 
@@ -100,12 +102,12 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
     }
 
     return (
-        <main className="relative container max-w-2xl mx-auto flex-grow overflow-auto">
+        <main className="relative w-full flex-grow overflow-auto">
             {/* Overlay: Category Filter */}
             <IonGrid className="absolute top-0 left-0 w-full z-10 px-2">
                 <IonRow
                     ref={filterRowRef}
-                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white/90 p-2 rounded-b-xl shadow-md text-xs gap-2"
+                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white p-2 rounded-b-xl shadow-md text-xs gap-2"
                     style={{ WebkitOverflowScrolling: "touch" }}
                 >
                     <IonCol
@@ -163,7 +165,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "100%", opacity: 0 }}
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bottom-0 left-0 w-full z-20 p-2 flex justify-center"
+                        className="absolute bottom-0 left-0 w-full z-20 flex justify-center"
                     >
                         <IonGrid className="w-full max-w-xl flex-col gap-2 p-2 rounded-xl">
                             <IonRow>
@@ -227,10 +229,6 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                 )}
             </AnimatePresence>
 
-
-
-
-
             {/* Bottom Panel */}
             <AnimatePresence>
                 {selectedLocation && (
@@ -240,22 +238,101 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full"
+                        className="absolute bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
                     >
-                        <div className="bg-white max-w-xl mx-auto border-2 border-[#75B657] border-b-0 h-full relative ion-padding rounded-md">
-                            <button
-                                className="absolute top-2 right-4 text-lg"
-                                onClick={() => setSelectedLocation(null)}
-                            >
-                                ✖
-                            </button>
-                            <h3 className="text-lg font-semibold">
-                                {selectedLocation.businessName || selectedLocation.homeName || "No Name"}
-                            </h3>
-                            <p className="text-gray-600">
-                                {selectedLocation.address || "No address provided"}
-                            </p>
-                        </div>
+                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] border-b-0 h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
+                            <IonCardHeader color="light" className="ion-padding">
+                                <IonCardTitle>
+                                    {selectedLocation.businessName || "Unnamed Business"}
+                                </IonCardTitle>
+                                <IonCardSubtitle className="text-xs">
+                                    {selectedLocation.address || "No address provided"}
+                                </IonCardSubtitle>
+                            </IonCardHeader>
+
+                            {selectedLocation.locationType === "Business" ? (
+                                <IonCardContent className="ion-no-padding">
+                                    <span className="absolute top-1 right-2 text-lg">
+                                        <img
+                                            src={selectedLocation.logoUrl || 'https://via.placeholder.com/150'}
+                                            alt="Business Logo"
+                                            className="w-16 h-16 rounded-full object-cover border border-gray-300"
+                                        />
+                                    </span>
+                                    <IonRow className="ion-padding-horizontal">
+                                        <IonCol size="12">
+                                            <p className="text-gray-600">Category: {selectedLocation.category || "N/A"}</p>
+                                        </IonCol>
+                                        <IonCol size="12">
+
+                                            <p className="text-gray-600">Phone: {selectedLocation.businessPhoneNumber || "N/A"}</p>
+                                        </IonCol>
+                                        <IonCol size="12">
+                                            <p className={`${showFullDescription ? "" : "line-clamp-3"} text-sm text-gray-700`}>
+                                                {selectedLocation.description || "No description available yet."}
+                                            </p>
+                                            {selectedLocation.description?.length > 100 && (
+                                                <button
+                                                    onClick={() => setShowFullDescription(!showFullDescription)}
+                                                    className="text-green-500 text-sm mt-1 self-start"
+                                                >
+                                                    {showFullDescription ? "Show Less" : "Read More"}
+                                                </button>
+                                            )}
+                                        </IonCol>
+                                    </IonRow>
+                                    <IonRow class="flex items-center align-items ion-padding gap-2 mx-auto">
+                                        <IonCol size="auto">
+                                            <a
+                                                href={selectedLocation.website || "https://google.com"}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-green-600 font-medium underline"
+                                            >
+                                                Visit Website
+                                            </a>
+                                        </IonCol>
+
+                                        <IonCol size="auto">
+                                            <a
+                                                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.latitude},${selectedLocation.longitude}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline"
+                                            >
+                                                Get Directions
+                                            </a>
+                                        </IonCol>
+                                    </IonRow>
+                                    <IonRow className="ion-padding-horizontal flex justify-between items-end">
+                                        <IonCol size="auto">
+                                            <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
+                                                Request Pickup
+                                            </IonButton>
+                                        </IonCol>
+                                        <IonCol size="auto" className="flex aspect-square">
+                                            <IonButton
+                                                shape="round"
+                                                color="danger"
+                                                size="small"
+                                                className=""
+                                                onClick={() => setSelectedLocation(null)}
+                                            >
+                                                <IonIcon slot="icon-only" icon={close} />
+                                            </IonButton>
+                                        </IonCol>
+                                    </IonRow>
+                                </IonCardContent>
+                            ) : (
+                                <>
+                                    <h3 className="text-lg font-semibold">
+                                        {selectedLocation.homeName || "Unnamed Home"}
+                                    </h3>
+                                    <p className="text-gray-600">{selectedLocation.address || "No address provided"}</p>
+                                </>
+                            )}
+                        </IonCard>
+
                     </motion.section>
                 )}
             </AnimatePresence>

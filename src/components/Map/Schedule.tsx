@@ -35,7 +35,7 @@ interface ScheduleProps {
 }
 
 function Schedule({ handleClose }: ScheduleProps) {
-  const { userAssignedPickups, updatePickup } = usePickups();
+  const { userAssignedPickups, updatePickup, userOwnedPickups } = usePickups();
   const { profile } = useProfile();
   const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState<{ [pickupId: string]: { [key: string]: string } }>({});
@@ -49,6 +49,11 @@ function Schedule({ handleClose }: ScheduleProps) {
       }
     }));
   };
+
+  const relevantPickups = profile?.accountType === "User"
+    ? userOwnedPickups
+    : userAssignedPickups;
+
 
   const handleCompletePickup = async (pickupId: string) => {
     if (!profile) {
@@ -72,35 +77,35 @@ function Schedule({ handleClose }: ScheduleProps) {
         <IonGrid className="h-full flex flex-col items-center justify-center ion-padding">
           <IonCard className="w-full shadow-none  items-center justify-center">
             <IonCardHeader className="ion-padding">
-              <IonCardTitle>
-                {userAssignedPickups.length === 0
+              <IonCardTitle className="text-[#75B657]">
+                {relevantPickups.length === 0
                   ? "No Pickups"
-                  : `Pickups (${userAssignedPickups.length})`}
+                  : `Pickups (${relevantPickups.length})`}
               </IonCardTitle>
               <IonCardSubtitle>
-                sadhs
+                {profile?.accountType === "User" ? "Your  pickup requests" : "Your assigned pickups"}
               </IonCardSubtitle>
             </IonCardHeader>
-            <IonCardContent>
+            <IonCardContent className="ion-no-padding">
               <IonList>
                 <IonAccordionGroup className="p-2 flex-grow">
-                  {userAssignedPickups.length > 0 ? (
-                    userAssignedPickups.map((pickup) => {
-                      const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupDate);
+                  {relevantPickups.length > 0 ? (
+                    relevantPickups.map((pickup) => {
+                      const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupTime);
 
                       return (
                         <IonAccordion className="p-2" key={pickup.id} value={pickup.id}>
-                          <IonItem slot="header">
-                            <IonLabel>
+                          <IonItem color="orimary" slot="header" className="ml-0 pl-0 bg-blue-300">
+                            <IonLabel className="m-0">
                               <IonText>
                                 <h2>{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</h2>
                               </IonText>
-                              <IonText>{pickup.addressData.address || "Unknown Address"}</IonText>
+                              <IonText className="text-xs">{pickup.addressData.address || "Unknown Address"}</IonText>
                             </IonLabel>
                           </IonItem>
-                          <div className="ion-padding" slot="content">
+                          <div slot="content" className="border-t-2 border-[#75B657]">
                             <IonGrid>
-                              <IonRow>
+                              {/* <IonRow>
                                 <IonCol>
                                   <IonText>Pickup Notes: {pickup.pickupNote || "No Notes"}</IonText>
                                 </IonCol>
@@ -122,9 +127,9 @@ function Schedule({ handleClose }: ScheduleProps) {
                                     />
                                   </IonCol>
                                 ))}
-                              </IonRow>
+                              </IonRow> */}
 
-                              {error && (
+                              {/* {error && (
                                 <IonRow>
                                   <IonCol>
                                     <IonText color="danger">
@@ -132,16 +137,27 @@ function Schedule({ handleClose }: ScheduleProps) {
                                     </IonText>
                                   </IonCol>
                                 </IonRow>
-                              )}
+                              )} */}
 
-                              <IonRow>
-                                <IonCol>
+                              <IonRow className="ion-padding-vertical gap-2">
+                                <IonCol size="auto">
                                   <IonButton
                                     expand="block"
                                     color="primary"
-                                    onClick={() => handleCompletePickup(pickup.id)}
+                                    size="small"
+                                    // onClick={() => handleCompletePickup(pickup.id)}
                                   >
-                                    Complete Pickup
+                                    Begin Pickup
+                                  </IonButton>
+                                </IonCol>
+                                <IonCol size="auto">
+                                  <IonButton
+                                    expand="block"
+                                    color="danger"
+                                    size="small"
+                                    // onClick={() => handleCompletePickup(pickup.id)}
+                                  >
+                                    Cancel Pickup
                                   </IonButton>
                                 </IonCol>
                               </IonRow>
@@ -167,18 +183,18 @@ function Schedule({ handleClose }: ScheduleProps) {
                 </IonAccordionGroup>
               </IonList>
               <IonRow className="ion-justify-content-center p-0 m-0">
-            <IonCol size="auto" className="p-0 m-0">
-              <IonButton
-                color="danger"
-                shape="round"
-                size="small"
-                fill="solid"
-                onClick={handleClose}
-              >
-                Close
-              </IonButton>
-            </IonCol>
-          </IonRow>
+                <IonCol size="auto" className="p-0 m-0">
+                  <IonButton
+                    color="danger"
+                    shape="round"
+                    size="small"
+                    fill="solid"
+                    onClick={handleClose}
+                  >
+                    Close
+                  </IonButton>
+                </IonCol>
+              </IonRow>
             </IonCardContent>
 
 

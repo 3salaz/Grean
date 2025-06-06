@@ -87,7 +87,12 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
         setSelectedLocation(location);
         setMapCenter({ lat: location.latitude!, lng: location.longitude! });
         setMapZoom(14);
+        if (location.latitude && location.longitude) {
+            map?.panTo({ lat: location.latitude, lng: location.longitude });
+            map?.setZoom(14);
+        }
     };
+    
 
     if (loading) {
         return (
@@ -107,7 +112,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
             <IonGrid className="absolute top-0 left-0 w-full z-10 px-2">
                 <IonRow
                     ref={filterRowRef}
-                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white p-2 rounded-b-xl shadow-md text-xs gap-2"
+                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white p-2 rounded-b-xl shadow-md text-xs gap-2 max-w-lg mx-auto"
                     style={{ WebkitOverflowScrolling: "touch" }}
                 >
                     <IonCol
@@ -245,7 +250,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                 <IonCardTitle>
                                     {selectedLocation.businessName || "Unnamed Business"}
                                 </IonCardTitle>
-                                <IonCardSubtitle className="text-xs">
+                                <IonCardSubtitle className="text-xs font-base">
                                     {selectedLocation.address || "No address provided"}
                                 </IonCardSubtitle>
                             </IonCardHeader>

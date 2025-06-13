@@ -54,7 +54,6 @@ function Schedule({ handleClose }: ScheduleProps) {
     ? userOwnedPickups
     : userAssignedPickups;
 
-
   const handleCompletePickup = async (pickupId: string) => {
     if (!profile) {
       setError("User not logged in");
@@ -75,7 +74,7 @@ function Schedule({ handleClose }: ScheduleProps) {
     <IonPage>
       <IonContent color="light" className="flex items-center justify-center">
         <IonGrid className="h-full flex flex-col items-center justify-center ion-padding">
-          <IonCard className="w-full shadow-none  items-center justify-center">
+          <IonCard className="w-full h-full shadow-none  items-center justify-center">
             <IonCardHeader className="ion-padding">
               <IonCardTitle className="text-[#75B657]">
                 {relevantPickups.length === 0
@@ -86,8 +85,8 @@ function Schedule({ handleClose }: ScheduleProps) {
                 {profile?.accountType === "User" ? "Your  pickup requests" : "Your assigned pickups"}
               </IonCardSubtitle>
             </IonCardHeader>
-            <IonCardContent className="ion-no-padding">
-              <IonList>
+            <IonCardContent className="ion-no-padding bg-orange-400 h-full">
+              <IonList className="bg-blue-400 m-2">
                 <IonAccordionGroup className="p-2 flex-grow">
                   {relevantPickups.length > 0 ? (
                     relevantPickups.map((pickup) => {
@@ -167,7 +166,7 @@ function Schedule({ handleClose }: ScheduleProps) {
                       );
                     })
                   ) : (
-                    <IonItem lines="none" className="h-full flex items-center justify-center">
+                    <IonItem lines="none" className="h-full flex items-center justify-center bg-blue-300">
                       <IonRow className="ion-text-center ion-justify-content-center w-full">
                         <IonCol size="12" className="flex flex-col justify-center items-center">
                           <img
@@ -182,6 +181,7 @@ function Schedule({ handleClose }: ScheduleProps) {
                   )}
                 </IonAccordionGroup>
               </IonList>
+
               <IonRow className="ion-justify-content-center p-0 m-0">
                 <IonCol size="auto" className="p-0 m-0">
                   <IonButton

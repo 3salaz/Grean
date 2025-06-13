@@ -1,19 +1,18 @@
-import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import axios from "axios";
-import {toast} from "react-toastify";
-import {useAuth} from "./AuthContext";
-import {useProfile} from "./ProfileContext";
-import {collection, query, where, getDocs, onSnapshot} from "firebase/firestore";
-import {db} from "../firebase";
+import { toast } from "react-toastify";
+import { useAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext";
+import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 import type { PickupData } from "../types/pickups";
 
 
 // Define Pickup Type
-export interface Pickup extends PickupData {
+export interface Pickup extends Omit<PickupData, "materials"> {
   id: string;
   createdAt: string;
-  isAccepted: boolean;
-  isCompleted: boolean;
+  status: "pending" | "accepted" | "inProgress" | "completed" | "cancelled",
   createdBy: {
     userId: string;
     displayName: string;
@@ -21,7 +20,7 @@ export interface Pickup extends PickupData {
     photoURL: string;
   };
   acceptedBy?: string;
-  addressData: {address: string};
+  addressData: { address: string };
   pickupDate: string;
   pickupTime: string;
   pickupNote?: string;
@@ -88,28 +87,32 @@ interface PickupContextType {
   userAssignedPickups: Pickup[];
   availablePickups: Pickup[];
   finishedPickups: Pickup[];
-  pickupFormData: any;
-  setPickupFormData: React.Dispatch<React.SetStateAction<any>>;
   createPickup: (pickupData: PickupData) => Promise<string | undefined>;
   updatePickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
-  fetchAllPickups: () => (() => void) | undefined; // Return type updated
+  fetchAllPickups: () => (() => void) | undefined;
   fetchUserOwnedPickups: (userId: string) => Promise<void>;
-  fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
+  fetchUserAssignedPickups: (userId: string) => (() => void) | undefined;
   removePickup: (pickupId: string) => Promise<void>;
+  startPickup: (pickupId: string) => Promise<void>;
+  completePickup: (pickupId: string) => Promise<void>;
+  cancelPickup: (pickupId: string) => Promise<void>;
+  cancelUserPickup: (pickupId: string) => Promise<void>;
 }
+
 
 // Create Context
 const PickupContext = createContext<PickupContextType | null>(null);
 
-export function PickupsProvider({children}: {children: ReactNode}) {
-  const {user} = useAuth();
-  const {profile} = useProfile();
+export function PickupsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const { profile } = useProfile();
   const [allPickups, setAllPickups] = useState<Pickup[]>([]);
   const [userOwnedPickups, setUserOwnedPickups] = useState<Pickup[]>([]);
   const [userAssignedPickups, setUserAssignedPickups] = useState<Pickup[]>([]);
   const [availablePickups, setAvailablePickups] = useState<Pickup[]>([]);
   const [finishedPickups, setFinishedPickups] = useState<Pickup[]>([]);
+
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -131,9 +134,9 @@ export function PickupsProvider({children}: {children: ReactNode}) {
 
     const q = query(
       collection(db, "pickups"),
-      where("isAccepted", "==", false),
-      where("isCompleted", "==", false)
+      where("status", "==", "pending")
     );
+
 
     const unsubscribe = onSnapshot(
       q,
@@ -208,16 +211,20 @@ export function PickupsProvider({children}: {children: ReactNode}) {
       toast.error("Failed to remove pickup.");
     }
   };
+  // Create
 
   const createPickup = async (
-    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
+    pickupData: PickupData
   ): Promise<string | undefined> => {
     try {
       if (!user || !profile) throw new Error("User or Profile not found");
 
       const token = await user.getIdToken();
+
       const dataToSend = {
         ...pickupData,
+        status: "pending", // default status
+        pickupDate: pickupData.pickupTime.split("T")[0], // derive this if needed
         createdBy: {
           userId: user.uid,
           displayName: profile.displayName,
@@ -225,6 +232,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
           photoURL: profile.photoURL
         }
       };
+
       const response = await axios.post(
         "https://us-central1-grean-de04f.cloudfunctions.net/api/createPickupFunction",
         dataToSend,
@@ -246,6 +254,8 @@ export function PickupsProvider({children}: {children: ReactNode}) {
       toast.error("Failed to create pickup.");
     }
   };
+
+  // Update
 
   const updatePickup = async (
     pickupId: string,
@@ -286,6 +296,17 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
+  const startPickup = (pickupId: string) => updatePickup(pickupId, { status: "inProgress" });
+
+  const completePickup = (pickupId: string) => updatePickup(pickupId, { status: "completed" });
+
+  const cancelPickup = (pickupId: string) =>
+    updatePickup(pickupId, { status: "pending" });
+
+  const cancelUserPickup = (pickupId: string) =>
+    updatePickup(pickupId, { status: "cancelled" });
+
+  // Delete
   const deletePickup = async (pickupId: string): Promise<void> => {
     try {
       const token = await user.getIdToken();
@@ -296,7 +317,7 @@ export function PickupsProvider({children}: {children: ReactNode}) {
           headers: {
             Authorization: `Bearer ${token}`
           },
-          data: {pickupId}
+          data: { pickupId }
         }
       );
       toast.success("Pickup deleted successfully!");
@@ -320,7 +341,11 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         fetchAllPickups,
         fetchUserOwnedPickups,
         fetchUserAssignedPickups,
-        removePickup
+        removePickup,
+        startPickup,
+        completePickup,
+        cancelPickup,
+        cancelUserPickup
       }}
     >
       {children}

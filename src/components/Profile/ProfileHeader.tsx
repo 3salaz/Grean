@@ -34,9 +34,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
           <IonText className="text-2xl font-semibold text-gray-900">
             {profile?.displayName || "User 1"}
           </IonText>
-          <IonText className="text-xs text-gray-700">
-            Location: {shortAddress || "None selected"}
-          </IonText>
+          {profile?.accountType === "User" ?
+            <IonText className="text-xs text-gray-700">
+              Location: {shortAddress || "None selected"}
+            </IonText> : <IonText className="">
+              {profile?.accountType}
+            </IonText>
+          }
+
+
         </div>
       </IonCol>
 

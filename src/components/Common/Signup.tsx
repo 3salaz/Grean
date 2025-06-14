@@ -16,7 +16,7 @@ import {
 
 import { motion } from "framer-motion";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { useProfile } from "../../context/ProfileContext";
@@ -77,7 +77,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
       history.push("/");
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
-      toast.error("Signup failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -86,6 +85,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   return (
     <IonPage>
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
+      <ToastContainer/>
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">

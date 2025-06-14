@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     switch (error.code) {
       case "auth/email-already-in-use":
         toast.error(
-          "That email is already in use. Please sign in or use a different email."
+          "Email is already in use! Please sign in or use a different email."
         );
         break;
       case "auth/weak-password":

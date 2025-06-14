@@ -4,11 +4,15 @@ import {
   IonCol,
   IonText,
   IonButton,
-  IonSpinner
+  IonSpinner,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle
 } from "@ionic/react";
 import { usePickups } from "../../context/PickupsContext";
 import { useProfile } from "../../context/ProfileContext";
 import dayjs from "dayjs";
+import noPickupIcon from "../../assets/no-pickups.svg";
 
 const DriverPickups: React.FC = () => {
   const { profile } = useProfile();
@@ -32,11 +36,16 @@ const DriverPickups: React.FC = () => {
 
   return (
     <section className="flex-grow ion-padding-vertical overflow-auto flex flex-col justify-end">
-      <IonRow className="ion-padding-bottom">
-        <IonCol>
-          <IonText className="text-xl font-semibold text-gray-800">Available Pickups</IonText>
-        </IonCol>
-      </IonRow>
+      <IonCardHeader className="ion-padding bg-[#75b657]">
+        <IonCardTitle className="">
+          {availablePickups.length === 0
+            ? "No Pickups"
+            : `Pickups (${availablePickups.length})`}
+        </IonCardTitle>
+        <IonCardSubtitle className="text-white">
+          Current Pickups Available
+        </IonCardSubtitle>
+      </IonCardHeader>
 
       {acceptingPickupId ? (
         <IonRow className="w-full h-full justify-center items-center">
@@ -72,8 +81,13 @@ const DriverPickups: React.FC = () => {
         ))
       ) : (
         <IonRow className="flex-grow">
-          <IonCol className="flex items-center justify-center">
-            <IonText className="text-gray-500 font-bold">No pickups available right now.</IonText>
+          <IonCol className="flex flex-col items-center justify-center bg-slate-50 rounded-md">
+            <img
+              src={noPickupIcon}
+              alt="No pickups to display"
+              className="w-32 h-32 my-2 ion-padding"
+            />
+            <IonText className="text-base text-gray-500 font-bold">No pickups to display</IonText>
           </IonCol>
         </IonRow>
       )}

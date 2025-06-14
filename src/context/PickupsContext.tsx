@@ -147,10 +147,13 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
         })) as Pickup[];
 
         if (profile.accountType === "Driver") {
-          // console.log("👷 Driver view: showing all unaccepted pickups.");
+          // 🚫 Filter out already accepted pickups for drivers
+          pickups = pickups.filter((pickup) => !pickup.acceptedBy);
         } else {
+          // 🚫 Filter out pickups created by the user (for non-drivers)
           pickups = pickups.filter((pickup) => pickup.createdBy.userId !== user.uid);
         }
+        
 
         setAvailablePickups(pickups);
         // console.log("📦 Real-time availablePickups updated:", pickups);

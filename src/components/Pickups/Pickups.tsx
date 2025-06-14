@@ -65,7 +65,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     try {
       await updatePickup(pickupId, {
         acceptedBy: profile.uid,
-        isAccepted: true,
+        status: "accepted",
       });
 
       await updateProfile(profile.uid, {
@@ -207,31 +207,35 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
       </IonRow>
 
       {profile?.accountType === "User"
-        ? <UserPickups/>
-        : <DriverPickups/>
+        ? <UserPickups
+          formData={formData}
+          handleChange={handleChange}
+          userLocations={userLocations}
+        />
+        : <DriverPickups />
       }
 
-      {profile?.accountType === "User" 
-      ? <IonRow className="pt-2 flex mx-auto gap-2">
-        <IonCol size="auto">
-          <IonButton size="small" onClick={handleSubmit}>uest</IonButton>
-        </IonCol>
-        <IonCol size="auto">
-          <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
-            <IonIcon icon={list}></IonIcon>
-          </IonButton>
-        </IonCol>
-      </IonRow> 
-      : <IonRow className="pt-2 flex mx-auto gap-2">
-      <IonCol size="auto">
-        <IonButton size="small" onClick={handleSubmit}>View Routes</IonButton>
-      </IonCol>
-      <IonCol size="auto">
-        <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
-          <IonIcon icon={list}></IonIcon>
-        </IonButton>
-      </IonCol>
-    </IonRow> }
+      {profile?.accountType === "User"
+        ? <IonRow className="pt-2 flex mx-auto gap-2">
+          <IonCol size="auto">
+            <IonButton size="small" onClick={handleSubmit}>Request</IonButton>
+          </IonCol>
+          <IonCol size="auto">
+            <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+              <IonIcon icon={list}></IonIcon>
+            </IonButton>
+          </IonCol>
+        </IonRow>
+        : <IonRow className="pt-2 flex mx-auto gap-2">
+          <IonCol size="auto">
+            <IonButton size="small" onClick={handleSubmit}>View Routes</IonButton>
+          </IonCol>
+          <IonCol size="auto">
+            <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+              <IonIcon icon={list}></IonIcon>
+            </IonButton>
+          </IonCol>
+        </IonRow>}
 
     </main>
   );

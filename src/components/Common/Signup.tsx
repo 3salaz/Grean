@@ -22,6 +22,7 @@ import { useHistory } from "react-router-dom";
 import { useProfile } from "../../context/ProfileContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { sendEmailVerification } from "firebase/auth"; // add this import
 
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPassword = (password: string) => password.length >= 6;
@@ -68,19 +69,30 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
     );
   }, [formData, passwordsMatch]);
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      const user = await signUp(formData.email, formData.password);
-      if (!user?.uid) throw new Error("No user UID");
-      handleClose();
-      history.push("/");
-    } catch (error) {
-      console.error("❌ Sign Up Error:", error);
-    } finally {
-      setIsSubmitting(false);
+
+
+const handleSubmit = async () => {
+  setIsSubmitting(true);
+  try {
+    const user = await signUp(formData.email, formData.password);
+    if (!user?.uid) throw new Error("No user UID");
+
+    // 🔐 Send verification email
+    if (user && user.emailVerified === false) {
+      await sendEmailVerification(user);
+      toast.info("A verification email has been sent. Please verify your email soon.");
     }
-  };
+
+    handleClose();
+    history.push("/");
+  } catch (error) {
+    console.error("❌ Sign Up Error:", error);
+    toast.error("There was a problem creating your account.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <IonPage>

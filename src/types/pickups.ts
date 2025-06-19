@@ -1,4 +1,14 @@
 // types/pickups.ts
+export const materialTypes: MaterialType[] = [
+  "glass",
+  "cardboard",
+  "appliances",
+  "non-ferrous",
+  "pallets",
+  "plastic",
+  "aluminum",
+];
+
 export type MaterialType =
   | "glass"
   | "cardboard"
@@ -64,6 +74,8 @@ export const materialConfig: Record<MaterialType, MaterialConfig> = {
   cardboard: {
     label: "Cardboard",
     requiresPhoto: true,
+    requiresAgreement: true, // ✅ now requires agreement
+    agreementLabel: "I agree to the Cardboard Disclaimer",
     min: 1,
     max: 10,
   },
@@ -93,3 +105,4 @@ export const materialConfig: Record<MaterialType, MaterialConfig> = {
     max: 20,
   },
 };
+

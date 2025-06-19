@@ -7,7 +7,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  sendEmailVerification
 } from "firebase/auth";
 import {toast} from "react-toastify";
 
@@ -67,11 +68,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   const signUp = async (email: string, password: string) => {
     const auth = getAuth();
     try {
-      const userCreds = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCreds = await createUserWithEmailAndPassword(auth, email, password);
       await createProfileIfMissing(userCreds.user);
       setUser(userCreds.user);
       return userCreds.user;

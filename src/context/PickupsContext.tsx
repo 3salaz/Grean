@@ -38,28 +38,30 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
   const [finishedPickups, setFinishedPickups] = useState<Pickup[]>([]);
 
   useEffect(() => {
-    let unsubscribeOwned: (() => void) | undefined;
-    let unsubscribeAll: (() => void) | undefined;
-    let unsubscribeAssigned: (() => void) | undefined;
-
-    if (user && profile) {
-      unsubscribeOwned = fetchUserOwnedPickups(user.uid);
-      unsubscribeAssigned = fetchUserAssignedPickups(user.uid);
-      unsubscribeAll = fetchAllPickups();
+    if (!user || !profile || !profile.accountType) {
+      console.log("⏳ Waiting on profile/accountType to initialize");
+      return;
     }
-
+  
+    console.log("✅ Initializing pickups listeners");
+    const unsubscribeOwned = fetchUserOwnedPickups(user.uid);
+    const unsubscribeAssigned = fetchUserAssignedPickups(user.uid);
+    const unsubscribeAll = fetchAllPickups();
+  
     return () => {
       unsubscribeOwned?.();
       unsubscribeAssigned?.();
       unsubscribeAll?.();
     };
-  }, [user, profile]);
+  }, [user, profile?.accountType]);
+  
+  
 
   const fetchAllPickups = (): (() => void) | undefined => {
-    if (!user || !profile) return;
-
+    if (!user || !profile || !profile.accountType) return;
+  
     const q = query(collection(db, "pickups"), where("status", "==", "pending"));
-
+  
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
@@ -67,22 +69,24 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
           id: doc.id,
           ...doc.data(),
         })) as Pickup[];
-
+  
         if (profile.accountType === "Driver") {
           pickups = pickups.filter((pickup) => !pickup.acceptedBy);
         } else {
           pickups = pickups.filter((pickup) => pickup.createdBy.userId !== user.uid);
         }
-
+  
         setAvailablePickups(pickups);
       },
       (error) => {
         console.error("❌ Error in real-time pickup listener:", error);
       }
     );
-
+  
     return unsubscribe;
   };
+  
+  
 
   const fetchUserOwnedPickups = (userId: string): (() => void) | undefined => {
     try {

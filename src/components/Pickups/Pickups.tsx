@@ -50,6 +50,7 @@ type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   const [presentLoading, dismissLoading] = useIonLoading();
   const [driverView, setDriverView] = useState<"default" | "routes">("default");
+  const [userView, setUserView] = useState<"form" | "list">("form");
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
     createLocationOpen: false,
@@ -57,9 +58,10 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   });
 
   const [formData, setFormData] = useState<PickupData>({
-    pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
+    pickupTime: "",
     addressData: { address: "" },
-    materials: []
+    materials: [],
+    disclaimerAccepted: false,
   });
 
   const handleAcceptPickup = async (pickupId: string) => {
@@ -134,6 +136,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
         pickupTime: formData.pickupTime,
         addressData: formData.addressData,
         materials: formData.materials,
+        disclaimerAccepted: formData.disclaimerAccepted,
       };
 
       const result = await createPickup(pickupData);
@@ -149,6 +152,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
             .toISOString(),
           addressData: { address: "" },
           materials: [],
+          disclaimerAccepted: false
         });
         setShowDropdown(false);
       }
@@ -202,8 +206,12 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     return;
   }
 
-  const handleToggle = () => {
+  const handleDriverToggle = () => {
     setDriverView(prev => (prev === "default" ? "routes" : "default"));
+  };
+
+  const handleUserToggle = () => {
+    setUserView(prev => (prev === "form" ? "list" : "form"));
   };
 
   return (
@@ -218,6 +226,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
 
       <IonModal
         isOpen={modalState.createLocationOpen}
+        backdropDismiss={false}
         onDidDismiss={() => closeModal("createLocationOpen")}
       >
         <CreateLocation profile={profile} handleClose={() => closeModal("createLocationOpen")} />
@@ -238,19 +247,24 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
         </IonCol>
       </IonRow>
 
-      {profile?.accountType === "User"
-        ? <UserPickups
-          formData={formData}
-          handleChange={handleChange}
-          userLocations={userLocations}
-        />
+
+        {profile?.accountType === "User"
+          ? <UserPickups
+              formData={formData}
+              handleChange={handleChange}
+              userLocations={userLocations}
+              handleSubmit={handleSubmit}
+              viewMode={userView}
+            />
         : <DriverPickups viewMode={driverView} />
       }
 
       {profile?.accountType === "User"
         ? <IonRow className="pt-2 flex mx-auto gap-2">
           <IonCol size="auto">
-            <IonButton size="small" onClick={handleSubmit}>Request Pickup</IonButton>
+            <IonButton size="small" onClick={handleUserToggle}>
+              {userView === "form" ? "View Pickups" : "Request Pickup"}
+            </IonButton>
           </IonCol>
           <IonCol size="auto">
             <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
@@ -260,7 +274,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
         </IonRow>
         : <IonRow className="pt-2 flex mx-auto gap-2">
           <IonCol size="auto">
-            <IonButton size="small" onClick={handleToggle}>
+            <IonButton size="small" onClick={handleDriverToggle}>
               {driverView === "default" ? "View Routes" : "View Pickups"}
             </IonButton>
           </IonCol>

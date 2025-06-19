@@ -103,6 +103,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   }, [profile?.uid]);
 
   const handleSubmit = async () => {
+    console.log("handleSubmit triggered", formData)
     await presentLoading({ message: "Requesting pickup…", spinner: "crescent" });
 
     try {

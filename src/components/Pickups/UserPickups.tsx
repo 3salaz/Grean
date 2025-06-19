@@ -141,296 +141,301 @@ const UserPickups: React.FC<Props> = ({
 
 
   return (
-    <section className="flex-grow flex flex-col overflow-auto">
-      <IonRow className="ion-padding-horizontal w-full">
-        <IonCol size="12" className="text-base font-bold w-full">
-          <IonSelect
-            className="w-full flex justify-end align-end"
-            value={formData.addressData.address || ""}
-            placeholder="Select Address for Pickup"
-            onIonChange={(e) => {
-              const selected = userLocations.find((l) => l.address === e.detail.value);
-              if (selected) {
-                handleChange("addressData", { address: selected.address });
-              }
-            }}
-          >
-            {userLocations.map((loc, idx) => {
-              const parts = loc.address.split(",");
-              const shortAddress = parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : loc.address;
-              return (
-                <IonSelectOption key={idx} value={loc.address}>
-                  {shortAddress}
-                </IonSelectOption>
-              );
-            })}
-          </IonSelect>
-        </IonCol>
-      </IonRow>
+    <AnimatePresence mode="wait">
+      <motion.section initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        transition={{ duration: 0.3 }} className="flex-grow flex flex-col overflow-auto">
+        <IonRow className="ion-padding-horizontal w-full">
+          <IonCol size="12" className="text-base font-bold w-full">
+            <IonSelect
+              className="w-full flex justify-end align-end"
+              value={formData.addressData.address || ""}
+              placeholder="Select Address for Pickup"
+              onIonChange={(e) => {
+                const selected = userLocations.find((l) => l.address === e.detail.value);
+                if (selected) {
+                  handleChange("addressData", { address: selected.address });
+                }
+              }}
+            >
+              {userLocations.map((loc, idx) => {
+                const parts = loc.address.split(",");
+                const shortAddress = parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : loc.address;
+                return (
+                  <IonSelectOption key={idx} value={loc.address}>
+                    {shortAddress}
+                  </IonSelectOption>
+                );
+              })}
+            </IonSelect>
+          </IonCol>
+        </IonRow>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="material-card-dropdown"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-          className="w-full ion-padding-horizontal"
-        >
-          <IonRow
-            onClick={() => setShowDropdown(!showDropdown)}
-            className={`bg-white rounded-lg ion-padding-horizontal justify-between items-center cursor-pointer transition-all duration-200 border-white border hover:border-[#75B657] ${showDropdown ? "rounded-b-none" : ""
-              }`}
-          >
-            <IonCol size="auto">
-              <div className="text-sm py-2">What material are you recycling?</div>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton
-                size="small"
-                fill="clear"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDropdown(!showDropdown);
-                }}
-              >
-                <IonIcon icon={arrowDown} />
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </motion.div>
-      </AnimatePresence>
-
-      <AnimatePresence mode="wait">
-        {showDropdown && (
+        <AnimatePresence mode="wait">
           <motion.div
-            key="material-dropdown"
+            key="material-card-dropdown"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
             className="w-full ion-padding-horizontal"
           >
-            <IonRow className="rounded-b-lg ion-padding bg-white">
-              <IonCol size="12" className="rounded-md">
-                {["glass", "cardboard", "appliances", "non-ferrous"].map((material) => (
-                  <IonItem key={material} lines="none">
-                    <IonCheckbox
-                      slot="start"
-                      checked={tempMaterials.some((m) => m.type === material)}
-                      onIonChange={(e) => {
-                        const selected = e.detail.checked;
-                        const updated = selected
-                          ? [...tempMaterials, { type: material as MaterialType, weight: 0 }]
-                          : tempMaterials.filter((m) => m.type !== material);
-                        setTempMaterials(updated);
-                      }}
-
-                    />
-                    <IonLabel className="text-sm bg-slate-[#75B657] p-2">
-                      {material.charAt(0).toUpperCase() + material.slice(1).replace("-", " ")}
-                    </IonLabel>
-                  </IonItem>
-                ))}
-                <IonItem className="flex">
-                  <div className="flex gap-2">
-                    <IonButton
-                      size="small"
-                      color="danger"
-                      onClick={() => {
-                        handleChange("materials", [])
-                        setShowDropdown(false);
-                      }}
-                    >
-                      Clear
-                    </IonButton>
-                    <IonButton
-                      size="small"
-                      color="primary"
-                      onClick={() => {
-                        handleChange("materials", tempMaterials);
-                        setShowDropdown(false);
-                      }}>
-                      Confirm
-                    </IonButton>
-                  </div>
-                </IonItem>
+            <IonRow
+              onClick={() => setShowDropdown(!showDropdown)}
+              className={`bg-white rounded-lg ion-padding-horizontal justify-between items-center cursor-pointer transition-all duration-200 border-white border hover:border-[#75B657] ${showDropdown ? "rounded-b-none" : ""
+                }`}
+            >
+              <IonCol size="auto">
+                <div className="text-sm py-2">What material are you recycling?</div>
               </IonCol>
-            </IonRow>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {formData.materials.length > 0 && (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key="material-list"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.8 }}
-            className="w-full ion-padding"
-          >
-            <IonRow className="bg-orange-50 rounded-md">
-              <IonCol size="12" className="flex flex-col ion-padding border-b-orange-200 border-b-1">
-                <IonText className="font-medium text-green-800">Material(s)</IonText>
-              </IonCol>
-
-              <IonCol size="12">
-                {formData.disclaimerAccepted ? (
-                  <div className="px-3 py-2 text-gray-800 text-sm rounded-md">
-                    {formData.materials
-                      .map((m) =>
-                        m.type
-                          .split("-")
-                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                          .join(" ")
-                      )
-                      .join(", ")}
-                  </div>
-                ) : (
-                  <div className="flex flex-col flex-wrap rounded-md bg-orange-50">
-                    {formData.materials.map((m, i) => {
-                      const formattedName = m.type
-                        .split("-")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ");
-                      const disclaimer = materialDisclaimers[m.type] || "No disclaimer available.";
-                      return (
-                        <div key={i} className="px-3 py-2 text-gray-800 text-sm rounded-md">
-                          <strong>{formattedName}</strong>
-                          <p className="mt-1 text-gray-600 text-xs">{disclaimer}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </IonCol>
-
-              {requiresDisclaimer && (
-                <motion.div
-                  key="disclaimer-checkbox"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.4 }}
-                  className="w-full"
+              <IonCol size="auto">
+                <IonButton
+                  size="small"
+                  fill="clear"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDropdown(!showDropdown);
+                  }}
                 >
-                  <div className="bg-yellow-50 border-t-orange-200 border-t-1 rounded-b-md">
-                    <IonItem lines="none" className="rounded-b-md">
-                      <IonCheckbox
-                        checked={formData.disclaimerAccepted}
-                        onIonChange={(e) => handleChange("disclaimerAccepted", e.detail.checked)}
-                        slot="start"
-                      />
-                      <IonText className="text-xs text-gray-800 pl-4 ion-padding-vertical">
-                        I have read and agree to the material handling policies.
-                      </IonText>
-                    </IonItem>
-                  </div>
-                </motion.div>
-              )}
+                  <IonIcon icon={arrowDown} />
+                </IonButton>
+              </IonCol>
             </IonRow>
           </motion.div>
         </AnimatePresence>
-      )}
+
+        <AnimatePresence mode="wait">
+          {showDropdown && (
+            <motion.div
+              key="material-dropdown"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="w-full ion-padding-horizontal"
+            >
+              <IonRow className="rounded-b-lg ion-padding bg-white">
+                <IonCol size="12" className="rounded-md">
+                  {["glass", "cardboard", "appliances", "non-ferrous"].map((material) => (
+                    <IonItem key={material} lines="none">
+                      <IonCheckbox
+                        slot="start"
+                        checked={tempMaterials.some((m) => m.type === material)}
+                        onIonChange={(e) => {
+                          const selected = e.detail.checked;
+                          const updated = selected
+                            ? [...tempMaterials, { type: material as MaterialType, weight: 0 }]
+                            : tempMaterials.filter((m) => m.type !== material);
+                          setTempMaterials(updated);
+                        }}
+
+                      />
+                      <IonLabel className="text-sm bg-slate-[#75B657] p-2">
+                        {material.charAt(0).toUpperCase() + material.slice(1).replace("-", " ")}
+                      </IonLabel>
+                    </IonItem>
+                  ))}
+                  <IonItem className="flex">
+                    <div className="flex gap-2">
+                      <IonButton
+                        size="small"
+                        color="danger"
+                        onClick={() => {
+                          handleChange("materials", [])
+                          setShowDropdown(false);
+                        }}
+                      >
+                        Clear
+                      </IonButton>
+                      <IonButton
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          handleChange("materials", tempMaterials);
+                          setShowDropdown(false);
+                        }}>
+                        Confirm
+                      </IonButton>
+                    </div>
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {formData.materials.length > 0 && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="material-list"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.8 }}
+              className="w-full ion-padding"
+            >
+              <IonRow className="bg-orange-50 rounded-md">
+                <IonCol size="12" className="flex flex-col ion-padding border-b-orange-200 border-b-1">
+                  <IonText className="font-medium text-green-800">Material(s)</IonText>
+                </IonCol>
+
+                <IonCol size="12">
+                  {formData.disclaimerAccepted ? (
+                    <div className="px-3 py-2 text-gray-800 text-sm rounded-md">
+                      {formData.materials
+                        .map((m) =>
+                          m.type
+                            .split("-")
+                            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                            .join(" ")
+                        )
+                        .join(", ")}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-wrap rounded-md bg-orange-50">
+                      {formData.materials.map((m, i) => {
+                        const formattedName = m.type
+                          .split("-")
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ");
+                        const disclaimer = materialDisclaimers[m.type] || "No disclaimer available.";
+                        return (
+                          <div key={i} className="px-3 py-2 text-gray-800 text-sm rounded-md">
+                            <strong>{formattedName}</strong>
+                            <p className="mt-1 text-gray-600 text-xs">{disclaimer}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </IonCol>
+
+                {requiresDisclaimer && (
+                  <motion.div
+                    key="disclaimer-checkbox"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full"
+                  >
+                    <div className="bg-yellow-50 border-t-orange-200 border-t-1 rounded-b-md">
+                      <IonItem lines="none" className="rounded-b-md">
+                        <IonCheckbox
+                          checked={formData.disclaimerAccepted}
+                          onIonChange={(e) => handleChange("disclaimerAccepted", e.detail.checked)}
+                          slot="start"
+                        />
+                        <IonText className="text-xs text-gray-800 pl-4 ion-padding-vertical">
+                          I have read and agree to the material handling policies.
+                        </IonText>
+                      </IonItem>
+                    </div>
+                  </motion.div>
+                )}
+              </IonRow>
+            </motion.div>
+          </AnimatePresence>
+        )}
 
 
 
-      {/* Pickup Date & Time (only if at least one material is selected) */}
-      <AnimatePresence mode="wait">
-        {formData.materials.length > 0 && formData.disclaimerAccepted && (
-          <motion.div
-            key="pickup-date"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.4 }}
-            className="w-full ion-padding"
-          >
-            <IonRow className="ion-padding bg-orange-50 rounded-md">
-              <IonCol size="12" className="text-center">
-                <IonText className="text-sm font-bold w-full">Pickup Date & Time</IonText>
-              </IonCol>
-              <IonCol>
-                {!pickupTimeConfirmed ? (
-                  <>
-                    <IonDatetime
-                      presentation="date-time"
-                      value={tempPickupTime}
-                      className="rounded-md w-full"
-                      onIonChange={(e) => {
-                        const iso = e.detail.value?.toString();
-                        if (iso) setTempPickupTime(iso);
-                      }}
-                      min={tomorrow7am.toISOString()}
-                      minuteValues="0,15,30,45"
-                    />
-                    <div className="mt-2 flex flex-col gap-2">
+        {/* Pickup Date & Time (only if at least one material is selected) */}
+        <AnimatePresence mode="wait">
+          {formData.materials.length > 0 && formData.disclaimerAccepted && (
+            <motion.div
+              key="pickup-date"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.4 }}
+              className="w-full ion-padding"
+            >
+              <IonRow className="ion-padding bg-orange-50 rounded-md">
+                <IonCol size="12" className="text-center">
+                  <IonText className="text-sm font-bold w-full">Pickup Date & Time</IonText>
+                </IonCol>
+                <IonCol>
+                  {!pickupTimeConfirmed ? (
+                    <>
+                      <IonDatetime
+                        presentation="date-time"
+                        value={tempPickupTime}
+                        className="rounded-md w-full"
+                        onIonChange={(e) => {
+                          const iso = e.detail.value?.toString();
+                          if (iso) setTempPickupTime(iso);
+                        }}
+                        min={tomorrow7am.toISOString()}
+                        minuteValues="0,15,30,45"
+                      />
+                      <div className="mt-2 flex flex-col gap-2">
+                        <IonText className="text-sm">
+                          Selected: {dayjs(tempPickupTime).format("dddd, MMM D • h:mm A")}
+                        </IonText>
+                        <IonButton
+                          size="small"
+                          color="success"
+                          onClick={() => {
+                            handleChange("pickupTime", tempPickupTime);
+                            setPickupTimeConfirmed(true);
+                          }}
+                        >
+                          Confirm Pickup Time
+                        </IonButton>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col gap-2 ion-padding">
                       <IonText className="text-sm">
-                        Selected: {dayjs(tempPickupTime).format("dddd, MMM D • h:mm A")}
+                        Confirmed: {dayjs(formData.pickupTime).format("dddd, MMM D • h:mm A")}
                       </IonText>
                       <IonButton
                         size="small"
-                        color="success"
-                        onClick={() => {
-                          handleChange("pickupTime", tempPickupTime);
-                          setPickupTimeConfirmed(true);
-                        }}
+                        color="light"
+                        fill="solid"
+                        onClick={() => setPickupTimeConfirmed(false)}
                       >
-                        Confirm Pickup Time
+                        Edit Pickup Time
                       </IonButton>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col gap-2 ion-padding">
-                    <IonText className="text-sm">
-                      Confirmed: {dayjs(formData.pickupTime).format("dddd, MMM D • h:mm A")}
-                    </IonText>
-                    <IonButton
-                      size="small"
-                      color="light"
-                      fill="solid"
-                      onClick={() => setPickupTimeConfirmed(false)}
-                    >
-                      Edit Pickup Time
-                    </IonButton>
-                  </div>
-                )}
-              </IonCol>
-            </IonRow>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-
-      <AnimatePresence mode="wait">
-        {formData.materials.length > 0 && formData.pickupTime && (
-          <motion.div
-            key="disclaimer-and-submit"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.4 }}
-            className="w-full"
-          >
-            {/* Show submit only if disclaimer accepted or not required */}
-            {(formData.disclaimerAccepted || !requiresDisclaimer) && (
-              <IonRow className="gap-2 w-full ion-padding">
-                <IonCol size="auto" className="mx-auto">
-                  <IonButton size="small" onClick={handleSubmit}>
-                    Submit Pickup
-                  </IonButton>
+                  )}
                 </IonCol>
               </IonRow>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+
+        <AnimatePresence mode="wait">
+          {formData.materials.length > 0 && formData.pickupTime && (
+            <motion.div
+              key="disclaimer-and-submit"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.4 }}
+              className="w-full"
+            >
+              {/* Show submit only if disclaimer accepted or not required */}
+              {(formData.disclaimerAccepted || !requiresDisclaimer) && (
+                <IonRow className="gap-2 w-full ion-padding">
+                  <IonCol size="auto" className="mx-auto">
+                    <IonButton size="small" onClick={handleSubmit}>
+                      Submit Pickup
+                    </IonButton>
+                  </IonCol>
+                </IonRow>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
 
-    </section>
+      </motion.section>
+    </AnimatePresence>
   );
 };
 

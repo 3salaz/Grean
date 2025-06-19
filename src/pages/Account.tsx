@@ -107,7 +107,7 @@ const Account = () => {
     <IonPage>
                   <ToastContainer />
       <Navbar />
-      <IonContent className="relative bg-gradient-to-t from-grean to-blue-300">
+      <IonContent scrollY={false} className="relative bg-gradient-to-t from-grean to-blue-300">
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <IonText className="text-2xl font-bold animate-fade-in-out">

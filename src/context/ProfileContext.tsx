@@ -58,6 +58,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
     // ✅ First, check if profile exists
     const checkProfileExists = async () => {
       const profileRef = doc(db, "profiles", user.uid);
+      if (!user?.uid) return;
       const profileSnap = await getDoc(profileRef);
 
       if (!profileSnap.exists()) {

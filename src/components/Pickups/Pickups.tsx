@@ -38,6 +38,8 @@ import { toast } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
 import UserPickups from "./UserPickups";
 import DriverPickups from "./DriverPickups";
+import { useIonLoading } from "@ionic/react";
+
 
 interface PickupsProps {
   profile: UserProfile | null;
@@ -46,6 +48,8 @@ interface PickupsProps {
 type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 
 const Pickups: React.FC<PickupsProps> = ({ profile }) => {
+  const [presentLoading, dismissLoading] = useIonLoading();
+  const [driverView, setDriverView] = useState<"default" | "routes">("default");
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
     createLocationOpen: false,
@@ -56,7 +60,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
     addressData: { address: "" },
     materials: []
-
   });
 
   const handleAcceptPickup = async (pickupId: string) => {
@@ -98,36 +101,62 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   }, [profile?.uid]);
 
   const handleSubmit = async () => {
-    if (!formData.addressData.address) {
-      toast.error("Select a valid address.");
-      return;
-    }
-    if (!formData.pickupTime) {
-      toast.error("Select a pickup date & time.");
-      return;
-    }
-    if (formData.materials.length === 0) {
-      toast.error("Select at least one material.");
-      return;
-    }
+    await presentLoading({ message: "Requesting pickup…", spinner: "crescent" });
 
+    try {
+      // Check if user has more than 2 active pickups
+      const activePickups = userOwnedPickups.filter(
+        (pickup) =>
+          pickup.status === "pending" || pickup.status === "accepted"
+      );
 
-    const pickupData: PickupData = {
-      pickupTime: formData.pickupTime,
-      addressData: formData.addressData,
-      materials: formData.materials
-    };
+      if (activePickups.length >= 2) {
+        toast.error("You can only have 2 active pickups at a time.");
+        return;
+      }
 
-    console.log("📤 Submitting PickupData:", pickupData);
-    const result = await createPickup(pickupData);
+      if (!formData.addressData.address) {
+        toast.error("Select a valid address.");
+        return;
+      }
 
-    if (result) {
-      setFormData({
-        pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
-        addressData: { address: "" },
-        materials: []
-      });
-      setShowDropdown(false);
+      if (!formData.pickupTime) {
+        toast.error("Select a pickup date & time.");
+        return;
+      }
+
+      if (formData.materials.length === 0) {
+        toast.error("Select at least one material.");
+        return;
+      }
+
+      const pickupData = {
+        pickupTime: formData.pickupTime,
+        addressData: formData.addressData,
+        materials: formData.materials,
+      };
+
+      const result = await createPickup(pickupData);
+
+      if (result) {
+        toast.success("Pickup requested!");
+        setFormData({
+          pickupTime: dayjs()
+            .add(1, "day")
+            .hour(7)
+            .minute(0)
+            .second(0)
+            .toISOString(),
+          addressData: { address: "" },
+          materials: [],
+        });
+        setShowDropdown(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit pickup.");
+    } finally {
+      await dismissLoading();
     }
   };
 
@@ -145,7 +174,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [acceptingPickupId, setAcceptingPickupId] = useState<string | null>(null);
-
 
   const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -173,6 +201,10 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     toast.error("Only 2 active pickups allowed.");
     return;
   }
+
+  const handleToggle = () => {
+    setDriverView(prev => (prev === "default" ? "routes" : "default"));
+  };
 
   return (
     <main className="container h-full max-w-2xl mx-auto flex flex-col overflow-auto drop-shadow-xl md:py-4 md:rounded-md ion-padding">
@@ -212,13 +244,13 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
           handleChange={handleChange}
           userLocations={userLocations}
         />
-        : <DriverPickups />
+        : <DriverPickups viewMode={driverView} />
       }
 
       {profile?.accountType === "User"
         ? <IonRow className="pt-2 flex mx-auto gap-2">
           <IonCol size="auto">
-            <IonButton size="small" onClick={handleSubmit}>Request</IonButton>
+            <IonButton size="small" onClick={handleSubmit}>Request Pickup</IonButton>
           </IonCol>
           <IonCol size="auto">
             <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
@@ -228,7 +260,9 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
         </IonRow>
         : <IonRow className="pt-2 flex mx-auto gap-2">
           <IonCol size="auto">
-            <IonButton size="small" onClick={handleSubmit}>View Routes</IonButton>
+            <IonButton size="small" onClick={handleToggle}>
+              {driverView === "default" ? "View Routes" : "View Pickups"}
+            </IonButton>
           </IonCol>
           <IonCol size="auto">
             <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
@@ -236,7 +270,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
             </IonButton>
           </IonCol>
         </IonRow>}
-
     </main>
   );
 };

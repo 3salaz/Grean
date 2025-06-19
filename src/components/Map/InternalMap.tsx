@@ -243,9 +243,9 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
+                        className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
                     >
-                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] border-b-0 h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
+                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
                             <IonCardHeader color="light" className="ion-padding">
                                 <IonCardTitle>
                                     {selectedLocation.businessName || "Unnamed Business"}

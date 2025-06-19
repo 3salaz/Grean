@@ -11,7 +11,7 @@ export const db = admin.firestore();
 const pickupCollection = db.collection("pickups");
 
 /**
- * Fetch all pickups for a given user.
+ * Fetch all pickups for a given user.1
  * @param {string} userId - The user ID
  * @return {Promise<Pickup[]>}
  */

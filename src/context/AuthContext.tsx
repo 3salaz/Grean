@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       const userCreds = await createUserWithEmailAndPassword(auth, email, password);
       await createProfileIfMissing(userCreds.user);
       setUser(userCreds.user);
-      return userCreds.user;
+      return userCreds.user;  
     } catch (error: any) {
       console.error("Sign Up Error:", error);
       handleSignUpError(error);

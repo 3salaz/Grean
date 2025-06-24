@@ -295,6 +295,21 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                             </a>
                                         </IonCol>
 
+                                    </IonRow>
+                                    <IonRow className="ion-padding-horizontal flex flex-col justify-between items-end gap-2">
+                                        {/* <IonCol size="auto">
+                                            <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
+                                                Request Pickup
+                                            </IonButton>
+                                        </IonCol> */}
+                                        <IonCol size="auto">
+                                            <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
+                                                <IonButton size="small" expand="block" color="primary">
+                                                    Call
+                                                </IonButton>
+                                            </a>
+                                        </IonCol>
+
                                         <IonCol size="auto">
                                             <a
                                                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.latitude},${selectedLocation.longitude}`}
@@ -302,21 +317,10 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                 rel="noopener noreferrer"
                                                 className="text-blue-600 underline"
                                             >
-                                                Get Directions
-                                            </a>
-                                        </IonCol>
-                                    </IonRow>
-                                    <IonRow className="ion-padding-horizontal flex justify-between items-end">
-                                        <IonCol size="auto">
-                                            <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
-                                                Request Pickup
-                                            </IonButton>
-                                        </IonCol>
-                                        <IonCol size="auto">
-                                            <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
                                                 <IonButton size="small" expand="block" color="primary">
-                                                    Call
+                                                Directions
                                                 </IonButton>
+
                                             </a>
                                         </IonCol>
 

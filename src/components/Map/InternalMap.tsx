@@ -92,7 +92,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
             map?.setZoom(14);
         }
     };
-    
+
 
     if (loading) {
         return (
@@ -259,7 +259,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                 <IonCardContent className="ion-no-padding">
                                     <span className="absolute top-1 right-2 text-lg">
                                         <img
-                                            src={selectedLocation.logoUrl || 'https://via.placeholder.com/150'}
+                                            src={selectedLocation.businessLogo || 'https://via.placeholder.com/150'}
                                             alt="Business Logo"
                                             className="w-16 h-16 rounded-full object-cover border border-gray-300"
                                         />
@@ -269,21 +269,18 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                             <p className="text-gray-600">Category: {selectedLocation.category || "N/A"}</p>
                                         </IonCol>
                                         <IonCol size="12">
-
-                                            <p className="text-gray-600">Phone: {selectedLocation.businessPhoneNumber || "N/A"}</p>
-                                        </IonCol>
-                                        <IonCol size="12">
                                             <p className={`${showFullDescription ? "" : "line-clamp-3"} text-sm text-gray-700`}>
-                                                {selectedLocation.description || "No description available yet."}
+                                                {selectedLocation.businessBio || "No description available yet."}
                                             </p>
-                                            {selectedLocation.description?.length > 100 && (
-                                                <button
-                                                    onClick={() => setShowFullDescription(!showFullDescription)}
-                                                    className="text-green-500 text-sm mt-1 self-start"
-                                                >
-                                                    {showFullDescription ? "Show Less" : "Read More"}
-                                                </button>
-                                            )}
+                                            {(selectedLocation.businessBio || "").length
+                                                > 100 && (
+                                                    <button
+                                                        onClick={() => setShowFullDescription(!showFullDescription)}
+                                                        className="text-green-500 text-sm mt-1 self-start"
+                                                    >
+                                                        {showFullDescription ? "Show Less" : "Read More"}
+                                                    </button>
+                                                )}
                                         </IonCol>
                                     </IonRow>
                                     <IonRow class="flex items-center align-items ion-padding gap-2 mx-auto">
@@ -315,6 +312,14 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                 Request Pickup
                                             </IonButton>
                                         </IonCol>
+                                        <IonCol size="auto">
+                                            <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
+                                                <IonButton size="small" expand="block" color="primary">
+                                                    Call
+                                                </IonButton>
+                                            </a>
+                                        </IonCol>
+
                                         <IonCol size="auto" className="flex aspect-square">
                                             <IonButton
                                                 shape="round"

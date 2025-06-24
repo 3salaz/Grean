@@ -69,11 +69,7 @@ export const createPickup = async (
     await profileRef.update({
       pickups: admin.firestore.FieldValue.arrayUnion(pickupId),
     });
-
-    console.log(
-        "✅ Pickup created successfully and added to user profile:",
-        pickupId
-    );
+    
     return {pickupId};
   } catch (error) {
     console.error("❌ Error creating pickup:", error);

@@ -42,8 +42,7 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
       console.log("⏳ Waiting on profile/accountType to initialize");
       return;
     }
-  
-    console.log("✅ Initializing pickups listeners");
+    
     const unsubscribeOwned = fetchUserOwnedPickups(user.uid);
     const unsubscribeAssigned = fetchUserAssignedPickups(user.uid);
     const unsubscribeAll = fetchAllPickups();

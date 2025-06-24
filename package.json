@@ -28,6 +28,7 @@
     "nth-check": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-easy-crop": "^5.4.2",
     "react-map-gl": "^7.0.25",
     "react-router-dom": "^5.3.4",
     "react-toastify": "^10.0.5",

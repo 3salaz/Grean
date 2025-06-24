@@ -17,7 +17,10 @@ import {
   IonCheckbox,
   IonToast,
   IonHeader,
-  IonSpinner
+  IonSpinner,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle
 } from "@ionic/react";
 import CreatePickup from "./CreatePickup";
 import {
@@ -40,14 +43,9 @@ import UserPickups from "./UserPickups";
 import DriverPickups from "./DriverPickups";
 import { useIonLoading } from "@ionic/react";
 
-
-interface PickupsProps {
-  profile: UserProfile | null;
-}
-
 type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 
-const Pickups: React.FC<PickupsProps> = ({ profile }) => {
+const Pickups: React.FC = () => {
   const [presentLoading, dismissLoading] = useIonLoading();
   const [driverView, setDriverView] = useState<"default" | "routes">("default");
   const [userView, setUserView] = useState<"form" | "list">("form");
@@ -87,11 +85,12 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   };
 
 
-  const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
-  const { locations: userLocations } = useUserLocations(locationIds);
+
   const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
   const { createPickup, updatePickup, availablePickups, fetchUserOwnedPickups, userOwnedPickups } = usePickups();
-  const { updateProfile } = useProfile();
+  const { updateProfile, profile } = useProfile();
+  const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
+  const { locations: userLocations } = useUserLocations(locationIds);
   const upcomingPickups = (userOwnedPickups ?? []).filter((pickup) =>
     dayjs(pickup.pickupTime).isAfter(dayjs())
   );
@@ -143,7 +142,6 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
       const result = await createPickup(pickupData);
 
       if (result) {
-        toast.success("Pickup requested!");
         setFormData({
           pickupTime: dayjs()
             .add(1, "day")
@@ -216,7 +214,7 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
   };
 
   return (
-    <main className="container h-full max-w-2xl mx-auto flex flex-col overflow-auto drop-shadow-xl md:py-4 md:rounded-md ion-padding">
+    <div className="container h-full  max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
       <IonModal
         isOpen={modalState.createPickupOpen}
         backdropDismiss={false}
@@ -237,55 +235,62 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
         <Schedule handleClose={() => closeModal("scheduleOpen")} />
       </IonModal>
 
-      <IonRow className="ion-padding-vertical flex items-center justify-between border-b border-slate-200">
-        <IonCol size="9">
-          <div className="flex flex-col items-start justify-end space-y-1">
-            <IonText className="text-2xl font-semibold text-gray-900">
-              Hello there, {profile.displayName}
-            </IonText>
-            <IonText></IonText>
-          </div>
-        </IonCol>
-      </IonRow>
+      {/* Main rendered content */}
+      <main className="ion-padding-horizontal flex flex-col items-center h-[92%]">
 
-
-        {profile?.accountType === "User"
-          ? <UserPickups
-              formData={formData}
-              handleChange={handleChange}
-              userLocations={userLocations}
-              handleSubmit={handleSubmit}
-              viewMode={userView}
-            />
-        : <DriverPickups viewMode={driverView} />
-      }
-
-      {profile?.accountType === "User"
-        ? <IonRow className="pt-2 flex mx-auto gap-2">
-          <IonCol size="auto">
-            <IonButton size="small" onClick={handleUserToggle}>
-              {userView === "form" ? "View Pickups" : "Request Pickup"}
-            </IonButton>
-          </IonCol>
-          <IonCol size="auto">
-            <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
-              <IonIcon icon={list}></IonIcon>
-            </IonButton>
+        {/* Header */}
+        <IonRow className="border-b border-slate-200 w-full flex ion-padding">
+          <IonCol size="12" className="ion-padding-horizontal">
+            <IonCardHeader>
+              <IonCardTitle>Hello there, {profile.displayName}</IonCardTitle>
+              <IonCardSubtitle></IonCardSubtitle>
+            </IonCardHeader>
           </IonCol>
         </IonRow>
-        : <IonRow className="pt-2 flex mx-auto gap-2">
-          <IonCol size="auto">
-            <IonButton size="small" onClick={handleDriverToggle}>
-              {driverView === "default" ? "View Routes" : "View Pickups"}
-            </IonButton>
-          </IonCol>
-          <IonCol size="auto">
-            <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
-              <IonIcon icon={list}></IonIcon>
-            </IonButton>
-          </IonCol>
-        </IonRow>}
-    </main>
+
+        {/* User Section For Pickups */}
+        {profile?.accountType === "User"
+          ? <UserPickups
+            formData={formData}
+            handleChange={handleChange}
+            userLocations={userLocations}
+            handleSubmit={handleSubmit}
+            viewMode={userView}
+          />
+          // Driver Section For Pickups
+          : <DriverPickups viewMode={driverView} />
+        }
+      </main>
+
+      {/* Footer Navigation  */}
+      <div className="ion-padding w-full bg-orange-50 h-[8%]">
+        {profile?.accountType === "User"
+          ? <IonRow className="gap-2 ion-justify-content-center ion-align-items-center">
+            <IonCol size="auto">
+              <IonButton size="small" onClick={handleUserToggle}>
+                {userView === "form" ? "View Pickups" : "Request Pickup"}
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+                <IonIcon icon={list}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          : <IonRow className="pt-2 flex mx-auto gap-2">
+            <IonCol size="auto">
+              <IonButton size="small" onClick={handleDriverToggle}>
+                {driverView === "default" ? "View Routes" : "View Pickups"}
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+                <IonIcon icon={list}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>}
+      </div>
+    </div>
   );
 };
 

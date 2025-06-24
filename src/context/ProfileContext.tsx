@@ -4,6 +4,7 @@ import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
 import axios from "axios";
 import {useAuth} from "./AuthContext";
+import { MaterialType } from "../types/pickups";
 
 export const useProfile = () => {
   const context = useContext(ProfileContext);
@@ -12,6 +13,18 @@ export const useProfile = () => {
   }
   return context;
 };
+
+interface UserStats {
+  completedPickups?: number;
+  totalWeight?: number;
+  weight?: {
+    aluminum?: number;
+    glass?: number;
+    plastic?: number;
+  };
+  materials?: Partial<Record<MaterialType, number>>;
+}
+
 // ✅ Define Profile Interface
 export interface UserProfile {
   displayName: string;
@@ -20,6 +33,7 @@ export interface UserProfile {
   uid: string;
   inventory: string[]; 
   locations: string[];
+  stats?: UserStats;
   pickups: string[];
   accountType: string;
   photoURL?: string | null;

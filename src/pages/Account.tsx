@@ -8,7 +8,7 @@ import {
   IonText,
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useProfile } from "../context/ProfileContext";
+import { useProfile, UserProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
@@ -22,10 +22,11 @@ const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
-const Account = () => {
-  const { profile } = useProfile();
+const Account: React.FC = () => {
+
   const { activeTab, setActiveTab } = useTab();
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -73,35 +74,45 @@ const Account = () => {
   };
 
   const renderActiveTab = () => {
+    const fallback = <IonSpinner name="crescent" color="primary" />;
+    if (!profile) return null;
+  
     switch (activeTab) {
       case "profile":
-        return (
-          <Suspense fallback={<IonSpinner />}>
-            <Profile profile={profile} />
-          </Suspense>
-        );
+        return <Suspense fallback={fallback}><Profile /></Suspense>;
+  
       case "pickups":
+        if (Array.isArray(profile.locations) && profile.locations.length > 0) {
+          return <Suspense fallback={fallback}><Pickups /></Suspense>;
+        }
         return (
-          <Suspense fallback={<IonSpinner />}>
-            <Pickups profile={profile} />
-          </Suspense>
+          <IonText className="text-center w-full p-4">
+            📍 Please add at least one location to request pickups.
+          </IonText>
         );
+  
       case "map":
-        return (
-          <Suspense fallback={<IonSpinner />}>
-            <Map profile={profile} />
-          </Suspense>
-        );
+        return <Suspense fallback={fallback}><Map /></Suspense>;
+  
       case "stats":
+        if (profile.stats) {
+          return <Suspense fallback={fallback}><Stats /></Suspense>;
+        }
         return (
-          <Suspense fallback={<IonSpinner />}>
-            <Stats profile={profile} />
-          </Suspense>
+          <IonText className="text-center w-full p-4">
+            📊 No stats available yet. Complete a pickup to get started!
+          </IonText>
         );
+  
       default:
-        return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
+        return (
+          <IonText className="text-center w-full p-4">
+            Invalid tab selected.
+          </IonText>
+        );
     }
   };
+  
 
   return (
     <IonPage>

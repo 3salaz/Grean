@@ -118,7 +118,7 @@ const DriverPickups: React.FC<DriverPickupsProps> = ({ viewMode }) => {
 
   return (
     <section className="h-full w-full ion-padding flex flex-col justify-end">
-      <IonHeader className="">
+      <IonCardHeader className="drop-shadow-none">
         <IonCardTitle className="">
           {availablePickups.length === 0
             ? "No Pickups"
@@ -127,7 +127,7 @@ const DriverPickups: React.FC<DriverPickupsProps> = ({ viewMode }) => {
         <IonCardSubtitle>
           Current Pickups Available
         </IonCardSubtitle>
-      </IonHeader>
+      </IonCardHeader>
       <main className="flex-grow flex flex-col overflow-auto gap-2 ion-padding-vertical">
         {viewMode === "default" ? (
           acceptingPickupId ? (

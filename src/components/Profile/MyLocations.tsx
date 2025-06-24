@@ -43,10 +43,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
     );
   }
 
-  const { locations: userLocations, loading } = useUserLocations(profile.locations || []);
-
-  const handleOpenModal = () => setIsModalVisible(true);
-  const handleCloseModal = () => setIsModalVisible(false);
+  const { locations: userLocations } = useUserLocations(profile.locations || []);
 
 
   return (
@@ -102,6 +99,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
             <IonIcon slot="icon-only" icon={addCircle} />
           </IonButton>
         </IonCol>
+
         {currentLocation && (
           <IonCol size="auto">
             <IonButton

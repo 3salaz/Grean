@@ -15,6 +15,8 @@ export interface Location {
   homeName?: string;
   businessName?: string;
   businessPhoneNumber?: string;
+  businessBio?: string;
+  businessLogo?: string,
   category?: string;
 }
 

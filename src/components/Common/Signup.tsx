@@ -124,7 +124,7 @@ const handleSubmit = async () => {
 
             {isSubmitting ? (
               <IonRow className="ion-justify-content-center ion-padding">
-                <IonCol size="12" className="ion-text-center">
+                <IonCol size="12" className="ion-text-center flex flex-col">
                   <IonSpinner />
                   <IonText>Creating your account and profile...</IonText>
                 </IonCol>

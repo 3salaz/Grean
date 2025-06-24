@@ -150,16 +150,23 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
 
   const updateLocation = async (locationId: string, updates: Partial<Location>): Promise<void> => {
     try {
-      await axios.post("https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocationFunction", {
-        locationId,
-        updates
-      });
+      const token = await user.getIdToken(); // ✅ Get the user's Firebase ID token
+  
+      await axios.post(
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocationFunction",
+        { locationId, updates },
+        {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Pass it in headers
+        }
+      );
+  
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);
       toast.error("Failed to update location.");
     }
   };
+  
 
   return (
     <LocationsContext.Provider

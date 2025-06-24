@@ -325,8 +325,8 @@ const UserPickups: React.FC<Props> = ({
             transition={{ duration: 0.4 }}
             className="w-full"
           >
-            <IonRow className="rounded-md">
-              <IonCol size="12" className="">
+            <IonRow className="rounded-md bg-orange-50 ion-padding-vertical">
+              <IonCol size="12" className="ion-padding">
                 <IonText className="font-bold w-full">Pickup Date & Time</IonText>
               </IonCol>
               {!pickupTimeConfirmed ? (
@@ -343,28 +343,29 @@ const UserPickups: React.FC<Props> = ({
                       min={tomorrow7am.toISOString()}
                       minuteValues="0,15,30,45"
                     />
+                    <div className="bg-white ion-padding">
+                      <IonButton
+                        size="small"
+                        color="light"
+                        onClick={() => {
+                          handleChange("pickupTime", tempPickupTime);
+                          setPickupTimeConfirmed(true);
+                        }}
+                      >
+                        Confirm Pickup Time
+                      </IonButton>
+                    </div>
                   </IonCol>
-                  <IonCol size="auto">
-                    <IonButton
-                      size="small"
-                      color="light"
-                      onClick={() => {
-                        handleChange("pickupTime", tempPickupTime);
-                        setPickupTimeConfirmed(true);
-                      }}
-                    >
-                      Confirm Pickup Time
-                    </IonButton>
-                  </IonCol>
+
                 </>
               ) : (
                 <>
-                  <IonCol size="12" className="ion-padding-vertical">
-                    <IonText className="text-lg font-medium rounded-md">
+                  <IonCol size="12" className="ion-padding">
+                    <IonText className="text-lg font-medium rounded-md bg-white ion-padding">
                       {dayjs(formData.pickupTime).format("dddd, MMM D • h:mm A")}
                     </IonText>
                   </IonCol>
-                  <IonCol>
+                  <IonCol className="ion-padding">
                     <IonButton
                       size="small"
                       color="light"
@@ -436,13 +437,13 @@ const UserPickups: React.FC<Props> = ({
             className="w-full"
           >
             {/* Show submit only if disclaimer accepted or not required */}
-              <IonRow className="gap-2 w-full ion-padding">
-                <IonCol size="auto" className="mx-auto">
-                  <IonButton color="primary" fill="outline" size="small" onClick={handleSubmit}>
-                    Submit Pickup
-                  </IonButton>
-                </IonCol>
-              </IonRow>
+            <IonRow className="gap-2 w-full ion-padding">
+              <IonCol size="auto" className="mx-auto">
+                <IonButton color="primary" fill="outline" size="small" onClick={handleSubmit}>
+                  Submit Pickup
+                </IonButton>
+              </IonCol>
+            </IonRow>
           </motion.div>
         )}
 

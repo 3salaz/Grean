@@ -8,5 +8,10 @@
     "cordovaSwiftVersion": "5.0",
     "useLegacyBridge": false,
     "allowMixedContent": false
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "none"
+    }
   }
 }

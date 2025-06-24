@@ -76,11 +76,11 @@ const Account: React.FC = () => {
   const renderActiveTab = () => {
     const fallback = <IonSpinner name="crescent" color="primary" />;
     if (!profile) return null;
-  
+
     switch (activeTab) {
       case "profile":
         return <Suspense fallback={fallback}><Profile /></Suspense>;
-  
+
       case "pickups":
         if (Array.isArray(profile.locations) && profile.locations.length > 0) {
           return <Suspense fallback={fallback}><Pickups /></Suspense>;
@@ -90,10 +90,10 @@ const Account: React.FC = () => {
             📍 Please add at least one location to request pickups.
           </IonText>
         );
-  
+
       case "map":
         return <Suspense fallback={fallback}><Map /></Suspense>;
-  
+
       case "stats":
         if (profile.stats) {
           return <Suspense fallback={fallback}><Stats /></Suspense>;
@@ -103,7 +103,7 @@ const Account: React.FC = () => {
             📊 No stats available yet. Complete a pickup to get started!
           </IonText>
         );
-  
+
       default:
         return (
           <IonText className="text-center w-full p-4">
@@ -112,13 +112,26 @@ const Account: React.FC = () => {
         );
     }
   };
-  
+
 
   return (
     <IonPage>
-                  <ToastContainer />
+
       <Navbar />
+
       <IonContent scrollY={false} className="relative bg-gradient-to-t from-grean to-blue-300">
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          toastClassName="!z-[999] mt-[50px]" // Adjust the margin-top based on your navbar height
+        />
         {showWelcome && (
           <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <IonText className="text-2xl font-bold animate-fade-in-out">

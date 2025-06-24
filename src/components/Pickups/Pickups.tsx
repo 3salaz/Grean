@@ -236,11 +236,11 @@ const Pickups: React.FC = () => {
       </IonModal>
 
       {/* Main rendered content */}
-      <main className="ion-padding-horizontal flex flex-col items-center h-[92%]">
+      <main className="ion-padding flex flex-col items-center h-[92%]">
 
         {/* Header */}
         <IonRow className="border-b border-slate-200 w-full flex ion-padding">
-          <IonCol size="12" className="ion-padding-horizontal">
+          <IonCol size="12">
             <IonCardHeader>
               <IonCardTitle>Hello there, {profile.displayName}</IonCardTitle>
               <IonCardSubtitle></IonCardSubtitle>
@@ -262,10 +262,10 @@ const Pickups: React.FC = () => {
         }
       </main>
 
-      {/* Footer Navigation  */}
-      <div className="ion-padding w-full bg-orange-50 h-[8%]">
-        {profile?.accountType === "User"
-          ? <IonRow className="gap-2 ion-justify-content-center ion-align-items-center">
+      {/* Footer Navigation */}
+      <div className="ion-padding w-full bg-orange-50">
+        {profile?.accountType === "User" ? (
+          <IonRow className="gap-2 justify-center">
             <IonCol size="auto">
               <IonButton size="small" onClick={handleUserToggle}>
                 {userView === "form" ? "View Pickups" : "Request Pickup"}
@@ -277,7 +277,8 @@ const Pickups: React.FC = () => {
               </IonButton>
             </IonCol>
           </IonRow>
-          : <IonRow className="pt-2 flex mx-auto gap-2">
+        ) : (
+          <IonRow className="gap-2 justify-center">
             <IonCol size="auto">
               <IonButton size="small" onClick={handleDriverToggle}>
                 {driverView === "default" ? "View Routes" : "View Pickups"}
@@ -288,8 +289,10 @@ const Pickups: React.FC = () => {
                 <IonIcon icon={list}></IonIcon>
               </IonButton>
             </IonCol>
-          </IonRow>}
+          </IonRow>
+        )}
       </div>
+
     </div>
   );
 };

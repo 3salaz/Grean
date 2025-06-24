@@ -34,6 +34,8 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
   const { currentLocation, setCurrentLocation } = useLocations();
   const modalRef = useRef<HTMLIonModalElement>(null);
   const presentingElement = useRef<HTMLElement | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
 
   if (!profile) {
     return (
@@ -60,13 +62,17 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
             </IonText>
           </div>
         ) : (
-          <div className="flex overflow-x-auto space-x-4 snap-x snap-mandatory pb-2">
+          <div className="flex md:flex-wrap overflow-x-auto md:overflow-visible space-x-4 md:space-x-0 snap-x md:snap-none snap-mandatory pb-2">
+
             {userLocations.map((loc: LocationData, index) => (
-              <div className="flex-none w-32 h-32 snap-center" key={loc.id}>
+              <div className="flex-none md:flex-initial w-full snap-center md:snap-none" key={loc.id}>
                 <div
-                  onClick={() => setCurrentLocation(loc)}
+                  onClick={() => {
+                    setCurrentLocation(loc);
+                    setSelectedIndex(index);
+                  }}
                   ref={(el) => (addressRefs.current[index] = el)}
-                  className={`rounded-xl text-sm flex flex-col items-center justify-center cursor-pointer transition aspect-square 
+                  className={`w-full ion-padding-vertical rounded-xl text-sm flex flex-col items-center justify-center cursor-pointer transition 
               ${currentLocation?.id === loc.id
                       ? "border-2 border-orange-500 bg-white"
                       : "border border-slate-200 bg-white/80 backdrop-blur"}`}
@@ -82,7 +88,21 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
                 </div>
               </div>
             ))}
+            <div className="flex justify-center mt-2 space-x-2">
+              {userLocations.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    setCurrentLocation(userLocations[index]);
+                    addressRefs.current[index]?.scrollIntoView({ behavior: "smooth", inline: "center" });
+                  }}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${selectedIndex === index ? "bg-orange-500 scale-110" : "bg-gray-300"}`}
+                />
+              ))}
+            </div>
           </div>
+
         )}
       </IonCol>
 

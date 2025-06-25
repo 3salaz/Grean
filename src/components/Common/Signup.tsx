@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import type { InputCustomEvent } from "@ionic/core";
 import {
   IonInput,
   IonItem,
@@ -11,7 +12,9 @@ import {
   IonSpinner,
   IonIcon,
   IonPage,
-  IonContent
+  IonContent,
+  IonSelect,
+  IonSelectOption
 } from "@ionic/react";
 
 import { motion } from "framer-motion";
@@ -37,67 +40,66 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    accountType: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { signUp } = useAuth();
-  const { setProfile } = useProfile();
 
-  const handleInputChange = (e: CustomEvent<{ value: string }>) => {
-    const input = e.target as HTMLInputElement;
-    const { name } = input;
-    const { value } = e.detail;
-    if (name) {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+  const handleInputChange = (name: string, value: string | null | undefined) => {
+    setFormData((prev) => ({ ...prev, [name]: value ?? "" }));
   };
+
+
 
   const passwordsMatch = formData.password === formData.confirmPassword;
 
   const isFormValid = useMemo(() => {
-    const { email, password, confirmPassword } = formData;
+    const { email, password, confirmPassword, accountType } = formData;
     return (
       email &&
       password &&
       confirmPassword &&
       isValidEmail(email) &&
       isValidPassword(password) &&
-      passwordsMatch
+      passwordsMatch &&
+      accountType
     );
   }, [formData, passwordsMatch]);
 
 
 
-const handleSubmit = async () => {
-  setIsSubmitting(true);
-  try {
-    const user = await signUp(formData.email, formData.password);
-    if (!user?.uid) throw new Error("No user UID");
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const user = await signUp(formData.email, formData.password, formData.accountType);
 
-    // 🔐 Send verification email
-    if (user && user.emailVerified === false) {
-      await sendEmailVerification(user);
-      toast.info("A verification email has been sent. Please verify your email soon.");
+      if (!user?.uid) throw new Error("No user UID");
+
+      // 🔐 Send verification email
+      if (user && user.emailVerified === false) {
+        await sendEmailVerification(user);
+        toast.info("A verification email has been sent. Please verify your email soon.");
+      }
+
+      handleClose();
+      history.push("/");
+    } catch (error) {
+      console.error("❌ Sign Up Error:", error);
+      toast.error("There was a problem creating your account.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    handleClose();
-    history.push("/");
-  } catch (error) {
-    console.error("❌ Sign Up Error:", error);
-    toast.error("There was a problem creating your account.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
 
   return (
     <IonPage>
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
-      <ToastContainer/>
+        <ToastContainer />
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">
@@ -139,7 +141,7 @@ const handleSubmit = async () => {
                       <IonInput
                         name="email"
                         value={formData.email}
-                        onIonChange={handleInputChange}
+                        onIonChange={(e) => handleInputChange("email", e.detail.value)}
                         type="email"
                         placeholder="Enter your email"
                       />
@@ -158,7 +160,7 @@ const handleSubmit = async () => {
                       <IonInput
                         name="password"
                         value={formData.password}
-                        onIonChange={handleInputChange}
+                        onIonChange={(e) => handleInputChange("password", e.detail.value)}
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                       />
@@ -184,13 +186,6 @@ const handleSubmit = async () => {
                   <IonCol size="12">
                     <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2">
                       <IonLabel position="stacked">Confirm Password</IonLabel>
-                      <IonInput
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onIonChange={handleInputChange}
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Re-enter your password"
-                      />
                       <IonButton
                         fill="clear"
                         slot="end"
@@ -199,6 +194,13 @@ const handleSubmit = async () => {
                       >
                         <IonIcon icon={showConfirmPassword ? eyeOffOutline : eyeOutline} />
                       </IonButton>
+                      <IonInput
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onIonChange={(e) => handleInputChange("confirmPassword", e.detail.value)}
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Re-enter your password"
+                      />
                     </IonItem>
                     {formData.confirmPassword && !passwordsMatch && (
                       <IonText color="danger" className="text-sm">
@@ -207,6 +209,28 @@ const handleSubmit = async () => {
                     )}
                   </IonCol>
                 </IonRow>
+
+                <IonRow>
+                  <IonCol size="12">
+                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2">
+                      <IonLabel position="stacked">Account Type</IonLabel>
+                      <IonSelect
+                        value={formData.accountType}
+                        placeholder="Select one"
+                        onIonChange={(e) => handleInputChange("accountType", e.detail.value)}
+                      >
+                        <IonSelectOption value="User">User</IonSelectOption>
+                        <IonSelectOption value="Driver">Driver</IonSelectOption>
+                      </IonSelect>
+                    </IonItem>
+                    {!formData.accountType && (
+                      <IonText color="danger" className="text-sm ion-padding-horizontal">
+                        Please select an account type.
+                      </IonText>
+                    )}
+                  </IonCol>
+                </IonRow>
+
 
                 {/* Submit */}
                 <IonRow className="mt-2 ion-padding-horizontal">

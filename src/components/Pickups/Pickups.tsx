@@ -48,7 +48,8 @@ type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
 const Pickups: React.FC = () => {
   const [presentLoading, dismissLoading] = useIonLoading();
   const [driverView, setDriverView] = useState<"default" | "routes">("default");
-  const [userView, setUserView] = useState<"form" | "list">("form");
+  const [userView, setUserView] = useState<"form" | "list" | "schedule">("form");
+
   const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
     createPickupOpen: false,
     createLocationOpen: false,
@@ -249,17 +250,21 @@ const Pickups: React.FC = () => {
         </IonRow>
 
         {/* User Section For Pickups */}
-        {profile?.accountType === "User"
-          ? <UserPickups
-            formData={formData}
-            handleChange={handleChange}
-            userLocations={userLocations}
-            handleSubmit={handleSubmit}
-            viewMode={userView}
-          />
-          // Driver Section For Pickups
-          : <DriverPickups viewMode={driverView} />
-        }
+        {profile?.accountType === "User" ? (
+          userView === "schedule" ? (
+            <Schedule handleClose={() => setUserView("form")} />
+          ) : (
+            <UserPickups
+              formData={formData}
+              handleChange={handleChange}
+              userLocations={userLocations}
+              handleSubmit={handleSubmit}
+              viewMode={userView}
+            />
+          )
+        ) : (
+          <DriverPickups viewMode={driverView} />
+        )}
       </main>
 
       {/* Footer Navigation */}
@@ -272,7 +277,7 @@ const Pickups: React.FC = () => {
               </IonButton>
             </IonCol>
             <IonCol size="auto">
-              <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+              <IonButton size="small" onClick={() => setUserView("schedule")}>
                 <IonIcon icon={list}></IonIcon>
               </IonButton>
             </IonCol>
@@ -285,7 +290,7 @@ const Pickups: React.FC = () => {
               </IonButton>
             </IonCol>
             <IonCol size="auto">
-              <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
+              <IonButton size="small" onClick={() => setUserView("schedule")}>
                 <IonIcon icon={list}></IonIcon>
               </IonButton>
             </IonCol>

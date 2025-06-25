@@ -8,6 +8,7 @@ import { useProfile } from '../../../context/ProfileContext';
 import { usePickups } from '../../../context/PickupsContext';
 import { formatDateInfo } from '../../../utils/dateUtils';
 import noPickupsIcon from '../../../assets/no-pickups.svg';
+import { toast } from 'react-toastify';
 
 const statuses = ["pending", "accepted", "inProgress", "cancelled", "completed"] as const;
 
@@ -49,6 +50,19 @@ function ScheduleCard() {
       ...prev,
       [pickupId]: { ...(prev[pickupId] || {}), [name]: value }
     }));
+  };
+
+  const handleCancelPickup = async (pickupId: string) => {
+    try {
+      await updatePickup(pickupId, {
+        acceptedBy: "",
+        status: "pending",
+      });
+      toast.success("Pickup has been reset to pending.");
+    } catch (error) {
+      console.error("Cancel error:", error);
+      toast.error("Failed to cancel the pickup.");
+    }
   };
 
 
@@ -121,7 +135,10 @@ function ScheduleCard() {
         <div slot="content" className="border-t-2 border-[#75B657]">
           <IonGrid className="ion-padding">
             <IonRow><IonCol><IonText>Notes: {pickup.pickupNote || "No Notes"}</IonText></IonCol></IonRow>
-            <IonRow><IonCol><IonText>Materials: {pickup.materials.join(", ")}</IonText></IonCol></IonRow>
+            <IonRow><IonCol><IonText>
+              Materials:{" "}
+              {pickup.materials.map((mat: { type: string; weight: number }) => `${mat.type} (${mat.weight} lbs)`).join(", ")}
+            </IonText></IonCol></IonRow>
             <IonRow className="gap-2 ion-padding-top">
               <IonCol size="auto">
                 {pickup.status !== "inProgress" && (
@@ -137,7 +154,7 @@ function ScheduleCard() {
 
               </IonCol>
               <IonCol size="auto">
-                <IonButton expand="block" color="danger" size="small">Cancel Pickup</IonButton>
+                <IonButton expand="block" color="danger" size="small" onClick={() => handleCancelPickup(pickup.id)}>Cancel Pickup</IonButton>
               </IonCol>
             </IonRow>
           </IonGrid>

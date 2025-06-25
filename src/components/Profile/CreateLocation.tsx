@@ -428,7 +428,6 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                         </IonList>
                       )}
                     </IonCol>
-
                   </IonRow>
                 )}
 

@@ -49,7 +49,12 @@ const DriverPickups: React.FC<DriverPickupsProps> = ({ viewMode }) => {
     try {
       // 1. Update the pickup itself
       await updatePickup(pickupId, {
-        acceptedBy: profile.uid,
+        acceptedBy: {
+          uid: profile.uid,
+          displayName: profile.displayName,
+          email: profile.email,
+          photoURL: profile.photoURL,
+        },
         status: "accepted"
       });
 

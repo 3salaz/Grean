@@ -15,6 +15,7 @@ import { TabOption } from "../types/tabs";
 import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
 import { ToastContainer } from "react-toastify";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -81,15 +82,19 @@ const Account: React.FC = () => {
       case "profile":
         return <Suspense fallback={fallback}><Profile /></Suspense>;
 
-      case "pickups":
-        if (Array.isArray(profile.locations) && profile.locations.length > 0) {
-          return <Suspense fallback={fallback}><Pickups /></Suspense>;
-        }
-        return (
-          <IonText className="text-center w-full p-4">
-            📍 Please add at least one location to request pickups.
-          </IonText>
-        );
+        case "pickups":
+          if (
+            (Array.isArray(profile.locations) && profile.locations.length > 0) ||
+            profile.accountType === "Driver"
+          ) {
+            return <Suspense fallback={fallback}><Pickups /></Suspense>;
+          }
+          return (
+            <IonText className="text-center w-full p-4">
+              📍 Please add at least one location to request pickups.
+            </IonText>
+          );
+        
 
       case "map":
         return <Suspense fallback={fallback}><Map /></Suspense>;
@@ -132,13 +137,26 @@ const Account: React.FC = () => {
           pauseOnHover
           toastClassName="!z-[999] mt-[50px]" // Adjust the margin-top based on your navbar height
         />
-        {showWelcome && (
-          <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-            <IonText className="text-2xl font-bold animate-fade-in-out">
-              👋 Hello, {profile?.displayName || "there"}!
-            </IonText>
-          </IonGrid>
-        )}
+        <AnimatePresence>
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
+              onAnimationComplete={() => {
+                // Ensure we hide the welcome overlay from React after animation ends
+                setShowWelcome(false);
+              }}
+            >
+              <IonText className="text-2xl font-bold animate-fade-in-out">
+                👋 Hello, {profile?.displayName || "there"}!
+              </IonText>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">

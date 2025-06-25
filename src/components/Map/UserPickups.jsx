@@ -49,7 +49,7 @@ function UserPickups({ handleClose }) {
                     <div className="accepted-status">
                       {pickup.accepted ? (
                         <span className="accepted">
-                          Accepted by : {pickup.acceptedBy}
+                          Accepted by : {pickup.acceptedBy?.uid === user.uid}
                         </span>
                       ) : (
                         <span className="not-accepted">Not Accepted</span>
@@ -61,7 +61,7 @@ function UserPickups({ handleClose }) {
                       {pickup.isCompleted ? (
                         <div>
                           <span className="completed">
-                            Completed by : {pickup.acceptedBy}
+                            Completed by : {pickup.acceptedBy?.uid === user.uid}
                           </span>
                           <ion-icon name="checkmark-circle-outline"></ion-icon>
                         </div>

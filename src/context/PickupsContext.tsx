@@ -70,7 +70,7 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
         })) as Pickup[];
   
         if (profile.accountType === "Driver") {
-          pickups = pickups.filter((pickup) => !pickup.acceptedBy);
+          pickups = pickups.filter((pickup) => !pickup.acceptedBy?.uid);
         } else {
           pickups = pickups.filter((pickup) => pickup.createdBy.userId !== user.uid);
         }
@@ -107,7 +107,7 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
 
   const fetchUserAssignedPickups = (userId: string): (() => void) | undefined => {
     try {
-      const q = query(collection(db, "pickups"), where("acceptedBy", "==", userId));
+      const q = query(collection(db, "pickups"), where("acceptedBy.uid", "==", userId));
 
       const unsubscribe = onSnapshot(q, (snap) => {
         const activeStatuses = ["accepted", "inProgress", "pending"];

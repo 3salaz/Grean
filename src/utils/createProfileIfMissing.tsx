@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import { getIdToken } from "firebase/auth";
 import axios from "axios";
 
-export const createProfileIfMissing = async (user: any) => {
+export const createProfileIfMissing = async (user: any, accountType: string) => {
   if (!user) return;
 
   const profileRef = doc(db, "profiles", user.uid);
@@ -17,8 +17,8 @@ export const createProfileIfMissing = async (user: any) => {
       uid: user.uid,
       locations: [],
       pickups: [],
-      accountType: "",
-      photoURL: ""
+      accountType,
+      photoURL: "",
     };
 
     await axios.post(

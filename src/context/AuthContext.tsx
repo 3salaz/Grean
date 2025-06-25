@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import React, {useState, useEffect, createContext, useContext} from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import {
   getAuth,
   onAuthStateChanged,
@@ -10,22 +10,22 @@ import {
   signInWithPopup,
   sendEmailVerification
 } from "firebase/auth";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 import { createProfileIfMissing } from "../utils/createProfileIfMissing";
 
 interface AuthContextValue {
   user: any; // or a custom Firebase user type
   loadingAuth: boolean;
-  signUp: (email: string, password: string) => Promise<any>;
-  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, accountType: string) => Promise<any>;
+  signIn: (email: string, password: string, accountType: string) => Promise<any>;
   googleSignIn: () => Promise<any>;
   logOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const [user, setUser] = useState<any>(null);
@@ -65,19 +65,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, accountType: string) => {
     const auth = getAuth();
     try {
       const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-      await createProfileIfMissing(userCreds.user);
+      await createProfileIfMissing(userCreds.user, accountType);
       setUser(userCreds.user);
-      return userCreds.user;  
+      return userCreds.user;
     } catch (error: any) {
       console.error("Sign Up Error:", error);
       handleSignUpError(error);
       throw error;
     }
   };
+
 
   /**
    * Sign in with email/password.

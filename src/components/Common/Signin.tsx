@@ -23,11 +23,12 @@ import { ToastContainer } from "react-toastify";
 interface SigninProps {
   handleClose: () => void;
   toggleToSignup: () => void;
+  triggerForgotPassword: () => void;
 }
 
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
+const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerForgotPassword }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -129,6 +130,18 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
                 </IonButton>
               </IonCol>
             </IonRow>
+
+            <IonRow className="mt-2">
+                  <IonCol size="12" className="text-center text-sm text-gray-600">
+                    Forgot your password?{" "}
+                    <span
+                      className="text-[#75B657] font-medium cursor-pointer"
+                      onClick={triggerForgotPassword}
+                    >
+                      Reset it here
+                    </span>
+                  </IonCol>
+                </IonRow>
 
             <IonRow className="mt-4">
               <IonCol size="12" className="text-center text-sm text-gray-600">

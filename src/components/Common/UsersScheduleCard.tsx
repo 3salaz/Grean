@@ -12,7 +12,6 @@ import Calendar from "./Calendar";
 import dayjs from "dayjs";
 
 export default function UserScheduleCard() {
-    const { profile } = useProfile();
     const { userOwnedPickups } = usePickups();
     const [formData, setFormData] = useState<Record<string, Record<string, string>>>({});
     const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -36,8 +35,7 @@ export default function UserScheduleCard() {
     };
 
     return (
-        <div className="h-full flex flex-col w-full">
-            <div className="w-full flex flex-col flex-grow">
+            <section className="h-full w-full ion-padding flex flex-col justify-end">
                 <IonCardHeader className="ion-padding">
                     <IonCardTitle className="font-bold">
                         {relevantPickups.length === 0
@@ -49,7 +47,7 @@ export default function UserScheduleCard() {
                     </IonCardSubtitle>
                 </IonCardHeader>
 
-                <main className="flex flex-col bg-white flex-grow justify-start items-center overflow-auto rounded-md shadow-md">
+                <main className="flex-grow flex flex-col overflow-auto gap-2 ion-padding-vertical">
                     <div className="h-full w-full flex flex-col overflow-auto">
                         {relevantPickups.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center ion-padding">
@@ -101,9 +99,8 @@ export default function UserScheduleCard() {
                         )}
                     </div>
                 </main>
+                <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+            </section>
 
-            </div>
-            <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
-        </div>
     );
 }

@@ -1,4 +1,4 @@
-// Full updated Pickups component with form validation, reset, and toast feedback
+// Full updated Pickups component with simplified layout and unified view control
 
 import React, { useEffect, useState } from "react";
 import {
@@ -6,55 +6,33 @@ import {
   IonCol,
   IonGrid,
   IonRow,
-  IonText,
-  IonModal,
   IonIcon,
-  IonLabel,
-  IonSelect,
-  IonSelectOption,
-  IonDatetime,
-  IonItem,
-  IonCheckbox,
-  IonToast,
-  IonHeader,
-  IonSpinner,
   IonCardHeader,
   IonCardTitle,
   IonCardSubtitle
 } from "@ionic/react";
+import { calendar, compassOutline, list } from "ionicons/icons";
 import CreatePickup from "./CreatePickup";
-import {
-  arrowDown,
-  closeOutline,
-  list
-} from "ionicons/icons";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
-import { usePickups } from "../../context/PickupsContext";
-import ViewPickups from "./ViewPickups";
-import PickupsQueue from "./PickupsQueue";
-import CreateLocation from "../Profile/CreateLocation";
 import Schedule from "../Map/Schedule";
-import dayjs from "dayjs";
+import { useProfile } from "../../context/ProfileContext";
+import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
-import type { PickupData, MaterialType } from "../../types/pickups";
-import { toast } from "react-toastify";
-import { AnimatePresence, motion } from "framer-motion";
 import UserPickups from "./UserPickups";
 import DriverPickups from "./DriverPickups";
+import DriverRoutes from "./DriverRoutes";
+import dayjs from "dayjs";
+import { toast } from "react-toastify";
 import { useIonLoading } from "@ionic/react";
-
-type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
+import type { PickupData } from "../../types/pickups";
+import UserScheduleCard from "../Common/UsersScheduleCard";
+import DriversScheduleCard from "../Common/DriversScheduleCard";
 
 const Pickups: React.FC = () => {
   const [presentLoading, dismissLoading] = useIonLoading();
-  const [driverView, setDriverView] = useState<"default" | "routes">("default");
-  const [userView, setUserView] = useState<"form" | "list" | "schedule">("form");
+  const [mainView, setMainView] = useState<
+    "UserPickupForm" | "UsersScheduleCard" | "DriversScheduleCard" | "DriverPickups" | "DriverRoutes" | null
+  >(null);
 
-  const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
-    createPickupOpen: false,
-    createLocationOpen: false,
-    scheduleOpen: false
-  });
 
   const [formData, setFormData] = useState<PickupData>({
     pickupTime: "",
@@ -63,38 +41,10 @@ const Pickups: React.FC = () => {
     disclaimerAccepted: false,
   });
 
-  const handleAcceptPickup = async (pickupId: string) => {
-    if (!profile?.uid) return;
-    setAcceptingPickupId(pickupId);
-    try {
-      await updatePickup(pickupId, {
-        acceptedBy: profile.uid,
-        status: "accepted",
-      });
-
-      await updateProfile(profile.uid, {
-        pickups: [...(profile.pickups || []), pickupId],
-      });
-
-      toast.success("Pickup accepted!");
-    } catch (err) {
-      console.error("Error accepting pickup", err);
-      toast.error("Failed to accept pickup.");
-    } finally {
-      setAcceptingPickupId(null);
-    }
-  };
-
-
-
-  const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
-  const { createPickup, updatePickup, availablePickups, fetchUserOwnedPickups, userOwnedPickups } = usePickups();
-  const { updateProfile, profile } = useProfile();
+  const { createPickup, fetchUserOwnedPickups, userOwnedPickups } = usePickups();
+  const { profile } = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
-  const upcomingPickups = (userOwnedPickups ?? []).filter((pickup) =>
-    dayjs(pickup.pickupTime).isAfter(dayjs())
-  );
 
   useEffect(() => {
     if (profile?.uid) {
@@ -102,85 +52,43 @@ const Pickups: React.FC = () => {
     }
   }, [profile?.uid]);
 
+  useEffect(() => {
+    if (profile?.accountType) {
+      setMainView(profile.accountType === "User" ? "UserPickupForm" : "DriverPickups");
+    }
+  }, [profile?.accountType]);
+
+
   const handleSubmit = async () => {
-    console.log("handleSubmit triggered", formData)
     await presentLoading({ message: "Requesting pickup…", spinner: "crescent" });
-
     try {
-      // Check if user has more than 2 active pickups
-      const activePickups = userOwnedPickups.filter(
-        (pickup) =>
-          pickup.status === "pending" || pickup.status === "accepted"
-      );
-
+      const activePickups = userOwnedPickups.filter(p => p.status === "pending" || p.status === "accepted");
       if (activePickups.length >= 2) {
         toast.error("You can only have 2 active pickups at a time.");
         return;
       }
-
-      if (!formData.addressData.address) {
-        toast.error("Select a valid address.");
+      if (!formData.addressData.address || !formData.pickupTime || formData.materials.length === 0) {
+        toast.error("Complete all required fields.");
         return;
       }
-
-      if (!formData.pickupTime) {
-        toast.error("Select a pickup date & time.");
-        return;
-      }
-
-      if (formData.materials.length === 0) {
-        toast.error("Select at least one material.");
-        return;
-      }
-
-      const pickupData = {
-        pickupTime: formData.pickupTime,
-        addressData: formData.addressData,
-        materials: formData.materials,
-        disclaimerAccepted: formData.disclaimerAccepted,
-      };
-
-      const result = await createPickup(pickupData);
-
+      const result = await createPickup(formData);
       if (result) {
         setFormData({
-          pickupTime: dayjs()
-            .add(1, "day")
-            .hour(7)
-            .minute(0)
-            .second(0)
-            .toISOString(),
+          pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
           addressData: { address: "" },
           materials: [],
           disclaimerAccepted: false
         });
-        setShowDropdown(false);
       }
     } catch (err) {
-      console.error(err);
       toast.error("Failed to submit pickup.");
     } finally {
       await dismissLoading();
     }
   };
 
-  const openModal = (modalName: ModalKeys) => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    setModalState((prev) => ({ ...prev, [modalName]: true }));
-  };
-
-  const closeModal = (modalName: ModalKeys) => {
-    setModalState((prev) => ({ ...prev, [modalName]: false }));
-  };
-
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const [acceptingPickupId, setAcceptingPickupId] = useState<string | null>(null);
-
   const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData(prev => ({ ...prev, [key]: value }));
   };
 
   if (!profile) {
@@ -188,117 +96,111 @@ const Pickups: React.FC = () => {
       <IonGrid className="h-full flex items-center justify-center">
         <IonRow>
           <IonCol className="text-center">
-            <IonButton color="primary" expand="block">
-              Loading Profile...
-            </IonButton>
+            <IonButton color="primary" expand="block">Loading Profile...</IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
     );
   }
 
-  const activePickups = (availablePickups ?? []).filter(
-    (pickup) => pickup.createdBy?.userId === profile.uid
-  );
-
-  if (activePickups.length >= 2) {
-    toast.error("Only 2 active pickups allowed.");
-    return;
-  }
-
-  const handleDriverToggle = () => {
-    setDriverView(prev => (prev === "default" ? "routes" : "default"));
+  const renderMainView = () => {
+    switch (mainView) {
+      case "UsersScheduleCard":
+        return <UserScheduleCard />;
+      case "DriversScheduleCard":
+        return <DriversScheduleCard />;
+      case "DriverRoutes":
+        return <DriverRoutes />;
+      case "DriverPickups":
+        return <DriverPickups />;
+      case "UserPickupForm":
+      default:
+        return (
+          <UserPickups
+            formData={formData}
+            handleChange={handleChange}
+            userLocations={userLocations}
+            handleSubmit={handleSubmit}
+            viewMode="form"
+          />
+        );
+    }
   };
 
-  const handleUserToggle = () => {
-    setUserView(prev => (prev === "form" ? "list" : "form"));
-  };
+
 
   return (
-    <div className="container h-full  max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
-      <IonModal
-        isOpen={modalState.createPickupOpen}
-        backdropDismiss={false}
-        onDidDismiss={() => closeModal("createPickupOpen")}
-      >
-        <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} />
-      </IonModal>
-
-      <IonModal
-        isOpen={modalState.createLocationOpen}
-        backdropDismiss={false}
-        onDidDismiss={() => closeModal("createLocationOpen")}
-      >
-        <CreateLocation profile={profile} handleClose={() => closeModal("createLocationOpen")} />
-      </IonModal>
-
-      <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
-        <Schedule handleClose={() => closeModal("scheduleOpen")} />
-      </IonModal>
-
-      {/* Main rendered content */}
-      <main className="ion-padding flex flex-col items-center h-[92%]">
-
-        {/* Header */}
-        <IonRow className="border-b border-slate-200 w-full flex ion-padding">
-          <IonCol size="12">
-            <IonCardHeader>
-              <IonCardTitle>Hello there, {profile.displayName}</IonCardTitle>
-              <IonCardSubtitle></IonCardSubtitle>
-            </IonCardHeader>
-          </IonCol>
-        </IonRow>
-
-        {/* User Section For Pickups */}
-        {profile?.accountType === "User" ? (
-          userView === "schedule" ? (
-            <Schedule handleClose={() => setUserView("form")} />
-          ) : (
-            <UserPickups
-              formData={formData}
-              handleChange={handleChange}
-              userLocations={userLocations}
-              handleSubmit={handleSubmit}
-              viewMode={userView}
-            />
-          )
-        ) : (
-          <DriverPickups viewMode={driverView} />
-        )}
-      </main>
-
-      {/* Footer Navigation */}
-      <div className="ion-padding w-full bg-orange-50">
-        {profile?.accountType === "User" ? (
-          <IonRow className="gap-2 justify-center">
-            <IonCol size="auto">
-              <IonButton size="small" onClick={handleUserToggle}>
-                {userView === "form" ? "View Pickups" : "Request Pickup"}
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton size="small" onClick={() => setUserView("schedule")}>
-                <IonIcon icon={list}></IonIcon>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        ) : (
-          <IonRow className="gap-2 justify-center">
-            <IonCol size="auto">
-              <IonButton size="small" onClick={handleDriverToggle}>
-                {driverView === "default" ? "View Routes" : "View Pickups"}
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton size="small" onClick={() => setUserView("schedule")}>
-                <IonIcon icon={list}></IonIcon>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        )}
+    <IonGrid className="container h-full max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
+      <IonRow className="border-b border-slate-200 w-full flex ion-padding">
+        <IonCol size="12">
+          <IonCardHeader>
+            <IonCardTitle>Hello there, {profile.displayName}</IonCardTitle>
+            <IonCardSubtitle></IonCardSubtitle>
+          </IonCardHeader>
+        </IonCol>
+      </IonRow>
+      <div className="ion-padding flex flex-col items-center flex-grow">
+        {renderMainView()}
       </div>
 
-    </div>
+      <IonRow className="gap-2 justify-center ion-padding">
+        {profile.accountType === "User" ? (
+          <>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "UserPickupForm" ? "solid" : "outline"}
+                onClick={() => setMainView("UserPickupForm")}
+              >
+                Request Pickup
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "UsersScheduleCard" ? "solid" : "clear"}
+                onClick={() => setMainView("UsersScheduleCard")}
+              >
+                <IonIcon icon={calendar}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </>
+        ) : (
+          <>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "DriverRoutes" ? "solid" : "clear"}
+                onClick={() => setMainView("DriverRoutes")}
+              >
+                <IonIcon icon={compassOutline}></IonIcon>
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "DriverPickups" ? "solid" : "clear"}
+                onClick={() => setMainView("DriverPickups")}
+              >
+                View Pickups
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "DriversScheduleCard" ? "solid" : "clear"}
+                onClick={() => setMainView("DriversScheduleCard")}
+              >
+                <IonIcon icon={calendar}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </>
+        )}
+      </IonRow>
+
+
+
+    </IonGrid>
   );
 };
 

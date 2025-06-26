@@ -23,14 +23,9 @@ import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
-import { UserProfile } from "../../context/ProfileContext";
+import { useProfile, UserProfile } from "../../context/ProfileContext";
 
-type TabOption = "profile" | "pickups" | "map" | "stats";
 
-interface CreatePickupProps {
-  handleClose: () => void;
-  profile: UserProfile | null;
-}
 
 const disclaimers = {
   glass: `Glass must be in rigid, puncture-resistant bins. No plastic or paper bags. Unsafe containers will be declined.`,
@@ -39,7 +34,8 @@ const disclaimers = {
   "non-ferrous": `Accepted: copper, aluminum, brass, etc. Must be clean, sorted. No ferrous (iron/steel). Photo required.`,
 };
 
-const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
+const CreatePickup: React.FC = () => {
+  const { profile } = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
   const { createPickup, availablePickups } = usePickups();
@@ -92,7 +88,6 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
 
     console.log("🚀 Creating pickup with data:", formData);
     await createPickup(formData);
-    handleClose();
   };
 
   return (
@@ -209,9 +204,6 @@ const CreatePickup: React.FC<CreatePickupProps> = ({handleClose,profile}) => {
             <IonCol className="flex gap-2 justify-center">
               <IonButton size="small" onClick={handleSubmit}>
                 Create Pickup
-              </IonButton>
-              <IonButton size="small" color="danger" onClick={handleClose}>
-                <IonIcon icon={closeOutline} />
               </IonButton>
             </IonCol>
           </IonRow>

@@ -8,7 +8,8 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  sendEmailVerification
+  sendEmailVerification,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { toast } from "react-toastify";
 
@@ -18,9 +19,10 @@ interface AuthContextValue {
   user: any; // or a custom Firebase user type
   loadingAuth: boolean;
   signUp: (email: string, password: string, accountType: string) => Promise<any>;
-  signIn: (email: string, password: string, accountType: string) => Promise<any>;
+  signIn: (email: string, password: string) => Promise<any>;
   googleSignIn: () => Promise<any>;
   logOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -46,6 +48,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
    * Shows a success toast if created,
    * or an error toast if something fails (e.g., email in use).
    */
+
+
+  // Inside AuthProvider:
+const resetPassword = async (email: string) => {
+  const auth = getAuth();
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast.success("Password reset email sent.");
+  } catch (error: any) {
+    console.error("Reset password error:", error);
+    switch (error.code) {
+      case "auth/user-not-found":
+        toast.error("No user found with that email.");
+        break;
+      case "auth/invalid-email":
+        toast.error("Invalid email address.");
+        break;
+      default:
+        toast.error("Could not send password reset email.");
+        break;
+    }
+    throw error;
+  }
+};
+
   const handleSignUpError = (error: any) => {
     switch (error.code) {
       case "auth/email-already-in-use":
@@ -94,7 +121,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         password
       );
 
-      await createProfileIfMissing(userCredential.user);
       return userCredential.user;
     } catch (error: any) {
       console.error("Sign In Error:", error);
@@ -162,7 +188,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signUp,
     signIn,
     googleSignIn,
-    logOut
+    logOut,
+    resetPassword
   };
 
   return (

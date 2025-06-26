@@ -9,6 +9,13 @@ export const materialTypes: MaterialType[] = [
   "aluminum",
 ];
 
+export interface UserMeta {
+  uid: string;
+  displayName: string;
+  email: string;
+  photoURL: string;
+}
+
 export type MaterialType =
   | "glass"
   | "cardboard"
@@ -40,13 +47,9 @@ export interface Pickup extends Omit<PickupData, "materials"> {
   id: string;
   createdAt: string;
   status: "pending" | "accepted" | "inProgress" | "completed" | "cancelled";
-  createdBy: {
-    userId: string;
-    displayName: string;
-    email: string;
-    photoURL: string;
-  };
-  acceptedBy?: string;
+  createdBy: UserMeta;
+  acceptedBy?: UserMeta | import("firebase/firestore").FieldValue;
+
   addressData: AddressData;
   pickupDate: string;
   pickupNote?: string;

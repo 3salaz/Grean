@@ -5,19 +5,15 @@ import {
 } from "@ionic/react";
 import { usePickups } from "../../context/PickupsContext";
 import { useProfile } from "../../context/ProfileContext";
-import { toast } from "react-toastify";
 import UsersScheduleCard from "../Common/UsersScheduleCard";
 import DriversScheduleCard from "../Common/DriversScheduleCard";
 
-interface ScheduleProps {
-  handleClose: () => void;
-}
 
 const statuses = ["pending", "inProgress", "completed", "cancelled"] as const;
 const userStatuses = ["pending", "accepted", "inProgress", "completed"];
 
 
-function Schedule({ handleClose }: ScheduleProps) {
+function Schedule() {
   const { userAssignedPickups, userOwnedPickups, fetchUserOwnedPickups, fetchUserAssignedPickups, updatePickup } = usePickups();
   const { profile } = useProfile();
   const [formData, setFormData] = useState<Record<string, Record<string, string>>>({});
@@ -55,13 +51,13 @@ function Schedule({ handleClose }: ScheduleProps) {
 
   return (
 
-    <IonGrid className="h-full w-full flex flex-col items-center justify-center gap-2 overflow-auto">
+    <>
       {profile?.accountType === "User" ? (
         <UsersScheduleCard />
       ) : (
         <DriversScheduleCard />
       )}
-    </IonGrid>
+    </>
   );
 }
 

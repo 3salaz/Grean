@@ -33,9 +33,10 @@ const isValidPassword = (password: string) => password.length >= 6;
 interface SignupProps {
   handleClose: () => void;
   toggleToSignin: () => void;
+  triggerForgotPassword: () => void;
 }
 
-function Signup({ handleClose, toggleToSignin }: SignupProps) {
+function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupProps) {
   const history = useHistory();
   const [formData, setFormData] = useState({
     email: "",
@@ -52,8 +53,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
   const handleInputChange = (name: string, value: string | null | undefined) => {
     setFormData((prev) => ({ ...prev, [name]: value ?? "" }));
   };
-
-
 
   const passwordsMatch = formData.password === formData.confirmPassword;
 
@@ -112,7 +111,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
           </header>
 
           <motion.main
-            className="ion-padding max-w-lg w-full mx-auto"
+            className="ion-padding max-w-lg w-full mx-auto rounded-md p-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -212,12 +211,13 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
 
                 <IonRow>
                   <IonCol size="12">
-                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2">
+                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2 w-full">
                       <IonLabel position="stacked">Account Type</IonLabel>
                       <IonSelect
                         value={formData.accountType}
-                        placeholder="Select one"
+                        placeholder="Accoount Type"
                         onIonChange={(e) => handleInputChange("accountType", e.detail.value)}
+                        className="w-full"
                       >
                         <IonSelectOption value="User">User</IonSelectOption>
                         <IonSelectOption value="Driver">Driver</IonSelectOption>
@@ -248,7 +248,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                 </IonRow>
 
                 {/* Switch to Signin */}
-                <IonRow className="mt-4">
+                <IonRow className="mt-4 ion-padding">
                   <IonCol size="12" className="text-center text-sm text-gray-600">
                     Already have an account?{" "}
                     <span className="text-[#75B657] font-medium cursor-pointer" onClick={toggleToSignin}>

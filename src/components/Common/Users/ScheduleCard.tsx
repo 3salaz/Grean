@@ -83,41 +83,7 @@ function ScheduleCard() {
   const renderUserPickupItem = (pickup: any) => {
     const { dayOfWeek, monthName, day, year } = formatDateInfo(pickup.pickupTime);
     return (
-      <IonAccordion key={pickup.id} value={pickup.id} className="rounded-md my-1">
-        <IonItem color="primary" slot="header" className="ml-0 pl-0">
-          <IonLabel className="m-0">
-            <IonText><h2>{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</h2></IonText>
-            <IonText className="text-xs">{pickup.addressData.address || "Unknown Address"}</IonText>
-          </IonLabel>
-        </IonItem>
-        <div slot="content" className="border-t-2 border-[#75B657]">
-          <IonGrid className="ion-padding">
-            <IonRow><IonCol><IonText>Pickup Notes: {pickup.pickupNote || "No Notes"}</IonText></IonCol></IonRow>
-            <IonRow>
-              {pickup.materials.map((m: { type: string; weight: number }) => (
-                <IonCol size="12" sizeMd="6" key={m.type}>
-                  <IonInput
-                    label={`${m.type.charAt(0).toUpperCase() + m.type.slice(1)} (lbs)`}
-                    value={formData[pickup.id]?.[`${m.type}Weight`] || ""}
-                    onIonChange={(e) =>
-                      handleInputChange(pickup.id, `${m.type}Weight`, e.detail.value!)
-                    }
-                  />
-                </IonCol>
-              ))}
 
-            </IonRow>
-            <IonRow className="gap-2 ion-padding-top">
-              <IonCol size="auto">
-                <IonButton expand="block" color="primary" size="small">Edit Pickup</IonButton>
-              </IonCol>
-              <IonCol size="auto">
-                <IonButton expand="block" color="danger" size="small">Delete Pickup</IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </div>
-      </IonAccordion>
     );
   };
   // Driver-view pickup item
@@ -174,7 +140,7 @@ function ScheduleCard() {
         <IonCardSubtitle className="text-white">
           {profile?.accountType === "User"
             ? "View or edit your pickups below"
-            : "Your assigned pickups"}
+            : "Your assigned pickupssdjsdjs"}
         </IonCardSubtitle>
       </IonCardHeader>
 

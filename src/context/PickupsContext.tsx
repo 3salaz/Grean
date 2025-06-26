@@ -38,21 +38,19 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
   const [finishedPickups, setFinishedPickups] = useState<Pickup[]>([]);
 
   useEffect(() => {
-    if (!user || !profile || !profile.accountType) {
-      console.log("⏳ Waiting on profile/accountType to initialize");
-      return;
-    }
-    
-    const unsubscribeOwned = fetchUserOwnedPickups(user.uid);
-    const unsubscribeAssigned = fetchUserAssignedPickups(user.uid);
-    const unsubscribeAll = fetchAllPickups();
+    if (!user || !profile?.accountType) return;
+  
+    const unsubOwned = fetchUserOwnedPickups(user.uid);
+    const unsubAssigned = fetchUserAssignedPickups(user.uid);
+    const unsubAll = fetchAllPickups();
   
     return () => {
-      unsubscribeOwned?.();
-      unsubscribeAssigned?.();
-      unsubscribeAll?.();
+      unsubOwned?.();
+      unsubAssigned?.();
+      unsubAll?.();
     };
-  }, [user, profile?.accountType]);
+  }, [user?.uid, profile?.accountType]);
+  
   
   
 

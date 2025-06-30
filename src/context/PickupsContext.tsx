@@ -203,7 +203,17 @@ export function PickupsProvider({ children }: { children: ReactNode }) {
 
   const startPickup = (pickupId: string) => updatePickup(pickupId, { status: "inProgress" });
 
-  const completePickup = (pickupId: string) => updatePickup(pickupId, { status: "completed" });
+  
+
+  const completePickup = async (pickupId: string, materials: any[]) => {
+    const token = await user.getIdToken();
+    await axios.post(
+      "https://us-central1-grean-de04f.cloudfunctions.net/api/completePickupFunction",
+      { pickupId, materials },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  };
+  
 
   const cancelPickup = (pickupId: string) => updatePickup(pickupId, { status: "pending" });
 

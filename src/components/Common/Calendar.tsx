@@ -44,7 +44,7 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
   };
 
   return (
-    <div className="w-full drop-shadow-lg">
+    <div className="w-full drop-shadow-lg ion-padding">
       <IonRow className="w-full">
         <IonCol size="auto">
           <IonText className="text-xl font-bold">Calendar</IonText>

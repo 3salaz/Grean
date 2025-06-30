@@ -18,9 +18,9 @@ import { useProfile } from "../../context/ProfileContext";
 import dayjs from "dayjs";
 import noPickupIcon from "../../assets/no-pickups.svg";
 import { useAuth } from "../../context/AuthContext";
+import PickupInProgress from "./PickupInProgress";
 
 const DriverPickups: React.FC = () => {
-  const { user } = useAuth();
   const { profile, updateProfile } = useProfile();
   const { availablePickups, updatePickup } = usePickups();
   const [acceptingPickupId, setAcceptingPickupId] = React.useState<string | null>(null);
@@ -65,34 +65,36 @@ const DriverPickups: React.FC = () => {
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header */}
-      <div className="flex-none ion-padding">
+      <header className="flex-none ion-padding">
         <IonCardHeader className="drop-shadow-none">
           <IonCardTitle>
             {availablePickups.length === 0
               ? "No Pickups"
               : `Pickups (${availablePickups.length})`}
           </IonCardTitle>
-          <IonCardSubtitle>Current Pickups Available</IonCardSubtitle>
+          <IonCardSubtitle className="text-white">Current Pickups Available</IonCardSubtitle>
         </IonCardHeader>
-      </div>
+      </header>
 
       {/* Scrollable main content */}
-      <div className="flex-grow overflow-auto ion-padding-vertical">
+      <main className="flex-grow overflow-auto ion-padding-vertical flex flex-col justify-between gap-2">
         {acceptingPickupId ? (
           <div className="flex h-full items-center justify-center bg-white rounded-md">
             <IonText className="text-base font-medium text-gray-700 mr-2">Accepting...</IonText>
             <IonSpinner name="crescent" color="primary" />
           </div>
         ) : availablePickups.length > 0 ? (
-          <IonAccordionGroup className="bg-white rounded-md" expand="compact">
+          <IonAccordionGroup className="flex flex-col gap-1 justify-end h-full bg-white/40 rounded-md p-2" expand="compact">
             {availablePickups.map((pickup) => (
-              <IonAccordion key={pickup.id} value={pickup.id}>
-                <IonItem slot="header" className="bg-red-400">
+              <IonAccordion className="rounded-md" key={pickup.id} value={pickup.id}>
+                <IonItem slot="header">
                   <IonCol>
                     <IonText className="text-sm font-medium block">
                       {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
                     </IonText>
-                    <div className="text-xs text-slate-200">{pickup.addressData.address}</div>
+                    <p className="text-xs text-gray-500">
+                      {pickup.addressData?.address?.split(",").slice(0, 2).join(", ") || "Unknown Address"}
+                    </p>
                   </IonCol>
                 </IonItem>
                 <div slot="content" className="ion-padding bg-slate-50 border-t border-gray-300">
@@ -111,12 +113,14 @@ const DriverPickups: React.FC = () => {
             ))}
           </IonAccordionGroup>
         ) : (
-          <div className="flex flex-col h-full items-center justify-center bg-white rounded-md p-4">
+          <IonAccordionGroup className="flex flex-col gap-1 justify-center items-center w-full h-full bg-white/40 rounded-md p-2">
             <img src={noPickupIcon} alt="No pickups" className="w-16 h-16" />
             <IonText className="text-base text-gray-500 font-bold">No pickups to display</IonText>
-          </div>
+          </IonAccordionGroup>
         )}
-      </div>
+
+        <PickupInProgress />
+      </main>
     </div>
   );
 };

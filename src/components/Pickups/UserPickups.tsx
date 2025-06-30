@@ -12,6 +12,7 @@ import {
   IonDatetime,
   IonText,
   IonHeader,
+  useIonLoading,
 } from "@ionic/react";
 import { arrowDown } from "ionicons/icons";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,26 +20,59 @@ import dayjs from "dayjs";
 import { usePickups } from "../../context/PickupsContext";
 import { materialConfig, MaterialEntry, type MaterialType, type PickupData } from "../../types/pickups";
 import { useLocations } from "../../context/LocationsContext";
+import { toast } from "react-toastify";
 
 interface Props {
-  formData: PickupData;
-  handleChange: <K extends keyof PickupData>(key: K, value: PickupData[K]) => void;
   userLocations: { address: string }[];
-  handleSubmit: () => void;
-  viewMode: "form" | "list";
 }
 
 const UserPickups: React.FC<Props> = ({
-  formData,
-  handleChange,
   userLocations,
-  handleSubmit,
-  viewMode
 }) => {
-  const { userOwnedPickups } = usePickups();
+  const { userOwnedPickups, createPickup } = usePickups();
   const { currentLocation } = useLocations();
   const [showDropdown, setShowDropdown] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [presentLoading, dismissLoading] = useIonLoading();
+
+  const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const [formData, setFormData] = useState<PickupData>({
+    pickupTime: "",
+    addressData: { address: "" },
+    materials: [],
+    disclaimerAccepted: false,
+  });
+
+  const handleSubmit = async () => {
+    await presentLoading({ message: "Requesting pickup…", spinner: "crescent" });
+    try {
+      const activePickups = userOwnedPickups.filter(p => p.status === "pending" || p.status === "accepted");
+      if (activePickups.length >= 2) {
+        toast.error("You can only have 2 active pickups at a time.");
+        return;
+      }
+      if (!formData.addressData.address || !formData.pickupTime || formData.materials.length === 0) {
+        toast.error("Complete all required fields.");
+        return;
+      }
+      const result = await createPickup(formData);
+      if (result) {
+        setFormData({
+          pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
+          addressData: { address: "" },
+          materials: [],
+          disclaimerAccepted: false
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to submit pickup.");
+    } finally {
+      await dismissLoading();
+    }
+  };
 
   const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
   const materialDisclaimers: Record<string, string> = {
@@ -60,14 +94,6 @@ const UserPickups: React.FC<Props> = ({
     (a, b) => dayjs(b.pickupTime).valueOf() - dayjs(a.pickupTime).valueOf()
   );
 
-  useEffect(() => {
-    if (viewMode === "list" && scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth"
-      });
-    }
-  }, [viewMode, sortedPickups.length]);
 
   const requiresDisclaimer = formData.materials.some(
     (m) => materialConfig[m.type]?.requiresAgreement
@@ -78,66 +104,6 @@ const UserPickups: React.FC<Props> = ({
       handleChange("addressData", { address: currentLocation.address });
     }
   }, [currentLocation]);
-
-  if (viewMode === "list") {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.section
-          key="active-pickups"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col flex-grow ion-padding"
-        >
-          <div className="h-full flex flex-col justify-end">
-            <IonHeader className="shadow-none ion-padding-vertical">Pickup History</IonHeader>
-            <div className="border-1 border-dotted rounded-md ion-padding">
-              <IonRow>
-                <IonCol>
-                  <div ref={scrollRef} className="overflow-y-auto max-h-110">
-                    {sortedPickups.length > 0 ? (
-                      sortedPickups.map((pickup) => (
-                        <div key={pickup.id} className="mb-3 p-2 rounded-md border border-slate-200 bg-white">
-                          <div className="flex justify-between items-center">
-                            <IonText className="text-sm font-medium">
-                              {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
-                            </IonText>
-                            <div className={`text-xs px-2 py-1 rounded-full ${pickup.status === "completed"
-                              ? "bg-[#75B657] text-[#75B657]"
-                              : pickup.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : pickup.status === "inProgress"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-gray-100 text-gray-800"}`}>
-                              {pickup.status}
-                            </div>
-                          </div>
-                          <div className="text-xs text-slate-500 mt-1">{pickup.addressData.address}</div>
-                          <div className="text-xs mt-1 text-slate-600">
-                            {pickup.materials
-                              .map((m) =>
-                                m.type
-                                  .split("-")
-                                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                                  .join(" ")
-                              )
-                              .join(", ")}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <IonText className="text-xs text-gray-500">No upcoming pickups.</IonText>
-                    )}
-                  </div>
-                </IonCol>
-              </IonRow>
-            </div>
-          </div>
-        </motion.section>
-      </AnimatePresence>
-    );
-  }
 
 
   return (
@@ -238,9 +204,8 @@ const UserPickups: React.FC<Props> = ({
               </IonRow>
             </motion.div>
           )}
+
         </motion.div>
-
-
 
         {/* Materials Selected w/ disclaimer */}
         {formData.materials.length > 0 && (

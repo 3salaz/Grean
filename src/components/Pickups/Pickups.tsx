@@ -7,11 +7,8 @@ import {
   IonGrid,
   IonRow,
   IonIcon,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle
 } from "@ionic/react";
-import { calendar, compassOutline, list } from "ionicons/icons";
+import { calendar, compassOutline, settings } from "ionicons/icons";
 import CreatePickup from "./CreatePickup";
 import Schedule from "../Map/Schedule";
 import { useProfile } from "../../context/ProfileContext";
@@ -23,7 +20,6 @@ import DriverRoutes from "./DriverRoutes";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import { useIonLoading } from "@ionic/react";
-import type { PickupData } from "../../types/pickups";
 import UserScheduleCard from "../Common/UsersScheduleCard";
 import DriversScheduleCard from "../Common/DriversScheduleCard";
 
@@ -34,14 +30,9 @@ const Pickups: React.FC = () => {
   >(null);
 
 
-  const [formData, setFormData] = useState<PickupData>({
-    pickupTime: "",
-    addressData: { address: "" },
-    materials: [],
-    disclaimerAccepted: false,
-  });
 
-  const { createPickup, fetchUserOwnedPickups, userOwnedPickups } = usePickups();
+
+  const { createPickup, fetchUserOwnedPickups, userOwnedPickups, availablePickups } = usePickups();
   const { profile } = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
@@ -58,38 +49,6 @@ const Pickups: React.FC = () => {
     }
   }, [profile?.accountType]);
 
-
-  const handleSubmit = async () => {
-    await presentLoading({ message: "Requesting pickup…", spinner: "crescent" });
-    try {
-      const activePickups = userOwnedPickups.filter(p => p.status === "pending" || p.status === "accepted");
-      if (activePickups.length >= 2) {
-        toast.error("You can only have 2 active pickups at a time.");
-        return;
-      }
-      if (!formData.addressData.address || !formData.pickupTime || formData.materials.length === 0) {
-        toast.error("Complete all required fields.");
-        return;
-      }
-      const result = await createPickup(formData);
-      if (result) {
-        setFormData({
-          pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
-          addressData: { address: "" },
-          materials: [],
-          disclaimerAccepted: false
-        });
-      }
-    } catch (err) {
-      toast.error("Failed to submit pickup.");
-    } finally {
-      await dismissLoading();
-    }
-  };
-
-  const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
-  };
 
   if (!profile) {
     return (
@@ -117,11 +76,7 @@ const Pickups: React.FC = () => {
       default:
         return (
           <UserPickups
-            formData={formData}
-            handleChange={handleChange}
             userLocations={userLocations}
-            handleSubmit={handleSubmit}
-            viewMode="form"
           />
         );
     }
@@ -131,25 +86,27 @@ const Pickups: React.FC = () => {
 
   return (
     <IonGrid className="container h-full max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
-      <IonRow className="border-b border-slate-200 w-full flex ion-padding">
-        <IonCol size="12">
-          <IonCardHeader>
-            <IonCardTitle>Hello there, {profile.displayName}</IonCardTitle>
-            <IonCardSubtitle></IonCardSubtitle>
-          </IonCardHeader>
-        </IonCol>
-      </IonRow>
-      <div className="ion-padding flex flex-col items-center flex-grow">
-        {renderMainView()}
-      </div>
+      <header>
+        <IonRow id="pickups-header" className="border-b border-slate-200 w-full flex ion-padding">
+          <IonCol size="12">
+            <IonButton slot="icon-only" size="small"><IonIcon icon={settings} />
+            </IonButton>
+            <div className="text-sm">Hello there, {profile.displayName}</div>
+          </IonCol>
+        </IonRow>
+      </header>
 
-      <IonRow className="gap-2 justify-center ion-padding">
+      <main id="pickups-mainView" className="ion-padding flex flex-col items-center flex-grow">
+        {renderMainView()}
+      </main>
+
+      <footer id="pickups-footer">
         {profile.accountType === "User" ? (
-          <>
+          <IonRow className="gap-2 justify-center ion-padding">
             <IonCol size="auto">
               <IonButton
                 size="small"
-                fill={mainView === "UserPickupForm" ? "solid" : "outline"}
+                fill={mainView === "UserPickupForm" ? "solid" : "clear"}
                 onClick={() => setMainView("UserPickupForm")}
               >
                 Request Pickup
@@ -164,9 +121,9 @@ const Pickups: React.FC = () => {
                 <IonIcon icon={calendar}></IonIcon>
               </IonButton>
             </IonCol>
-          </>
+          </IonRow>
         ) : (
-          <>
+          <IonRow className="gap-2 justify-center ion-padding">
             <IonCol size="auto">
               <IonButton
                 size="small"
@@ -176,7 +133,18 @@ const Pickups: React.FC = () => {
                 <IonIcon icon={compassOutline}></IonIcon>
               </IonButton>
             </IonCol>
-            <IonCol size="auto">
+            <IonCol size="auto" class="relative">
+              {mainView === "DriverPickups" ?
+                <span className="absolute top-[-25px] right-[0] w-full">
+                  <div className="bg-white w-4 h-4 text-center rounded-full ion-padding flex items-center justify-center border-[#75B657] border-2 shadow-lg text-sm">
+                    <div className="font-bold text-[#75B657]">
+                      {availablePickups.length}
+                    </div>
+
+                  </div>
+                </span>
+                : <></>
+              }
               <IonButton
                 size="small"
                 fill={mainView === "DriverPickups" ? "solid" : "clear"}
@@ -194,9 +162,10 @@ const Pickups: React.FC = () => {
                 <IonIcon icon={calendar}></IonIcon>
               </IonButton>
             </IonCol>
-          </>
+          </IonRow>
         )}
-      </IonRow>
+
+      </footer>
 
 
 

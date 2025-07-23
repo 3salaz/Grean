@@ -16,6 +16,7 @@ import Signin from "../../Common/Signin";
 import Signup from "../../Common/Signup";
 import { useAuth } from "../../../context/AuthContext";
 import { useHistory } from "react-router-dom";
+import ForgotPassword from "../../Common/ForgotPassword";
 
 function Landing() {
   const { user } = useAuth();
@@ -33,6 +34,8 @@ function Landing() {
     setIsSignin(false);
     setIsAuthModalOpen(true);
   };
+
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   return (
 
@@ -78,23 +81,35 @@ function Landing() {
         </IonRow>
       </section>
 
-      <IonModal
-        isOpen={isAuthModalOpen}
-        onDidDismiss={closeAuthModal}
-        backdropDismiss={true}
-      >
-        {isSignin ? (
+      <IonModal isOpen={isAuthModalOpen} onDidDismiss={closeAuthModal} backdropDismiss={true}>
+        {showForgotPassword ? (
+          <ForgotPassword
+            handleClose={closeAuthModal}
+            toggleToSignin={() => {
+              setShowForgotPassword(false);
+              openSigninModal();
+            }}
+            toggleToSignup={() => {
+              setShowForgotPassword(false);
+              openSignupModal();
+            }}
+          />
+        ) : isSignin ? (
           <Signin
             handleClose={closeAuthModal}
             toggleToSignup={openSignupModal}
+            triggerForgotPassword={() => setShowForgotPassword(true)}
           />
         ) : (
           <Signup
             handleClose={closeAuthModal}
             toggleToSignin={openSigninModal}
+            triggerForgotPassword={() => setShowForgotPassword(true)}
           />
         )}
       </IonModal>
+
+
     </IonGrid>
   );
 }

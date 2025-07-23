@@ -18,15 +18,17 @@ import { useAuth } from "../../context/AuthContext";
 import { useProfile } from "../../context/ProfileContext";
 import { useHistory } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ToastContainer } from "react-toastify";
 
 interface SigninProps {
   handleClose: () => void;
   toggleToSignup: () => void;
+  triggerForgotPassword: () => void;
 }
 
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
+const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerForgotPassword }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -60,6 +62,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
 
   return (
     <IonPage>
+      <ToastContainer/>
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
@@ -127,6 +130,18 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup }) => {
                 </IonButton>
               </IonCol>
             </IonRow>
+
+            <IonRow className="mt-2">
+                  <IonCol size="12" className="text-center text-sm text-gray-600">
+                    Forgot your password?{" "}
+                    <span
+                      className="text-[#75B657] font-medium cursor-pointer"
+                      onClick={triggerForgotPassword}
+                    >
+                      Reset it here
+                    </span>
+                  </IonCol>
+                </IonRow>
 
             <IonRow className="mt-4">
               <IonCol size="12" className="text-center text-sm text-gray-600">

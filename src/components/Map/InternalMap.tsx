@@ -92,7 +92,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
             map?.setZoom(14);
         }
     };
-    
+
 
     if (loading) {
         return (
@@ -243,9 +243,9 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
+                        className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
                     >
-                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] border-b-0 h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
+                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
                             <IonCardHeader color="light" className="ion-padding">
                                 <IonCardTitle>
                                     {selectedLocation.businessName || "Unnamed Business"}
@@ -259,7 +259,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                 <IonCardContent className="ion-no-padding">
                                     <span className="absolute top-1 right-2 text-lg">
                                         <img
-                                            src={selectedLocation.logoUrl || 'https://via.placeholder.com/150'}
+                                            src={selectedLocation.businessLogo || 'https://via.placeholder.com/150'}
                                             alt="Business Logo"
                                             className="w-16 h-16 rounded-full object-cover border border-gray-300"
                                         />
@@ -269,21 +269,18 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                             <p className="text-gray-600">Category: {selectedLocation.category || "N/A"}</p>
                                         </IonCol>
                                         <IonCol size="12">
-
-                                            <p className="text-gray-600">Phone: {selectedLocation.businessPhoneNumber || "N/A"}</p>
-                                        </IonCol>
-                                        <IonCol size="12">
                                             <p className={`${showFullDescription ? "" : "line-clamp-3"} text-sm text-gray-700`}>
-                                                {selectedLocation.description || "No description available yet."}
+                                                {selectedLocation.businessBio || "No description available yet."}
                                             </p>
-                                            {selectedLocation.description?.length > 100 && (
-                                                <button
-                                                    onClick={() => setShowFullDescription(!showFullDescription)}
-                                                    className="text-green-500 text-sm mt-1 self-start"
-                                                >
-                                                    {showFullDescription ? "Show Less" : "Read More"}
-                                                </button>
-                                            )}
+                                            {(selectedLocation.businessBio || "").length
+                                                > 100 && (
+                                                    <button
+                                                        onClick={() => setShowFullDescription(!showFullDescription)}
+                                                        className="text-green-500 text-sm mt-1 self-start"
+                                                    >
+                                                        {showFullDescription ? "Show Less" : "Read More"}
+                                                    </button>
+                                                )}
                                         </IonCol>
                                     </IonRow>
                                     <IonRow class="flex items-center align-items ion-padding gap-2 mx-auto">
@@ -298,6 +295,21 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                             </a>
                                         </IonCol>
 
+                                    </IonRow>
+                                    <IonRow className="ion-padding-horizontal flex flex-col justify-between items-end gap-2">
+                                        {/* <IonCol size="auto">
+                                            <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
+                                                Request Pickup
+                                            </IonButton>
+                                        </IonCol> */}
+                                        <IonCol size="auto">
+                                            <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
+                                                <IonButton size="small" expand="block" color="primary">
+                                                    Call
+                                                </IonButton>
+                                            </a>
+                                        </IonCol>
+
                                         <IonCol size="auto">
                                             <a
                                                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.latitude},${selectedLocation.longitude}`}
@@ -305,16 +317,13 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                 rel="noopener noreferrer"
                                                 className="text-blue-600 underline"
                                             >
-                                                Get Directions
+                                                <IonButton size="small" expand="block" color="primary">
+                                                Directions
+                                                </IonButton>
+
                                             </a>
                                         </IonCol>
-                                    </IonRow>
-                                    <IonRow className="ion-padding-horizontal flex justify-between items-end">
-                                        <IonCol size="auto">
-                                            <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
-                                                Request Pickup
-                                            </IonButton>
-                                        </IonCol>
+
                                         <IonCol size="auto" className="flex aspect-square">
                                             <IonButton
                                                 shape="round"

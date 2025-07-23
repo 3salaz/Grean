@@ -8,13 +8,14 @@ import {
   IonText,
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useProfile } from "../context/ProfileContext";
+import { useProfile, UserProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
 import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
 import { ToastContainer } from "react-toastify";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -22,10 +23,11 @@ const Pickups = lazy(() => import("../components/Pickups/Pickups"));
 const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
-const Account = () => {
-  const { profile } = useProfile();
+const Account: React.FC = () => {
+
   const { activeTab, setActiveTab } = useTab();
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -73,48 +75,88 @@ const Account = () => {
   };
 
   const renderActiveTab = () => {
+    const fallback = <IonSpinner name="crescent" color="primary" />;
+    if (!profile) return null;
+
     switch (activeTab) {
       case "profile":
-        return (
-          <Suspense fallback={<IonSpinner />}>
-            <Profile profile={profile} />
-          </Suspense>
-        );
-      case "pickups":
-        return (
-          <Suspense fallback={<IonSpinner />}>
-            <Pickups profile={profile} />
-          </Suspense>
-        );
+        return <Suspense fallback={fallback}><Profile /></Suspense>;
+
+        case "pickups":
+          if (
+            (Array.isArray(profile.locations) && profile.locations.length > 0) ||
+            profile.accountType === "Driver"
+          ) {
+            return <Suspense fallback={fallback}><Pickups /></Suspense>;
+          }
+          return (
+            <IonText className="text-center w-full p-4">
+              📍 Please add at least one location to request pickups.
+            </IonText>
+          );
+        
+
       case "map":
-        return (
-          <Suspense fallback={<IonSpinner />}>
-            <Map profile={profile} />
-          </Suspense>
-        );
+        return <Suspense fallback={fallback}><Map /></Suspense>;
+
       case "stats":
+        if (profile.stats) {
+          return <Suspense fallback={fallback}><Stats /></Suspense>;
+        }
         return (
-          <Suspense fallback={<IonSpinner />}>
-            <Stats profile={profile} />
-          </Suspense>
+          <IonText className="text-center w-full p-4">
+            📊 No stats available yet. Complete a pickup to get started!
+          </IonText>
         );
+
       default:
-        return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
+        return (
+          <IonText className="text-center w-full p-4">
+            Invalid tab selected.
+          </IonText>
+        );
     }
   };
 
+
   return (
     <IonPage>
-                  <ToastContainer />
+
       <Navbar />
-      <IonContent className="relative bg-gradient-to-t from-grean to-blue-300">
-        {showWelcome && (
-          <IonGrid className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-            <IonText className="text-2xl font-bold animate-fade-in-out">
-              👋 Hello, {profile?.displayName || "there"}!
-            </IonText>
-          </IonGrid>
-        )}
+
+      <IonContent scrollY={false} className="relative bg-gradient-to-t from-grean to-blue-300">
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          toastClassName="!z-[999] mt-[50px]" // Adjust the margin-top based on your navbar height
+        />
+        <AnimatePresence>
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
+              onAnimationComplete={() => {
+                // Ensure we hide the welcome overlay from React after animation ends
+                setShowWelcome(false);
+              }}
+            >
+              <IonText className="text-2xl font-bold animate-fade-in-out">
+                👋 Hello, {profile?.displayName || "there"}!
+              </IonText>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">

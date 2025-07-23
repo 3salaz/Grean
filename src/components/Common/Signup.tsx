@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import type { InputCustomEvent } from "@ionic/core";
 import {
   IonInput,
   IonItem,
@@ -11,17 +12,20 @@ import {
   IonSpinner,
   IonIcon,
   IonPage,
-  IonContent
+  IonContent,
+  IonSelect,
+  IonSelectOption
 } from "@ionic/react";
 
 import { motion } from "framer-motion";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { useProfile } from "../../context/ProfileContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { sendEmailVerification } from "firebase/auth"; // add this import
 
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPassword = (password: string) => password.length >= 6;
@@ -29,63 +33,72 @@ const isValidPassword = (password: string) => password.length >= 6;
 interface SignupProps {
   handleClose: () => void;
   toggleToSignin: () => void;
+  triggerForgotPassword: () => void;
 }
 
-function Signup({ handleClose, toggleToSignin }: SignupProps) {
+function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupProps) {
   const history = useHistory();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    accountType: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { signUp } = useAuth();
-  const { setProfile } = useProfile();
 
-  const handleInputChange = (e: CustomEvent<{ value: string }>) => {
-    const input = e.target as HTMLInputElement;
-    const { name } = input;
-    const { value } = e.detail;
-    if (name) {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+  const handleInputChange = (name: string, value: string | null | undefined) => {
+    setFormData((prev) => ({ ...prev, [name]: value ?? "" }));
   };
 
   const passwordsMatch = formData.password === formData.confirmPassword;
 
   const isFormValid = useMemo(() => {
-    const { email, password, confirmPassword } = formData;
+    const { email, password, confirmPassword, accountType } = formData;
     return (
       email &&
       password &&
       confirmPassword &&
       isValidEmail(email) &&
       isValidPassword(password) &&
-      passwordsMatch
+      passwordsMatch &&
+      accountType
     );
   }, [formData, passwordsMatch]);
+
+
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const user = await signUp(formData.email, formData.password);
+      const user = await signUp(formData.email, formData.password, formData.accountType);
+
       if (!user?.uid) throw new Error("No user UID");
+
+      // 🔐 Send verification email
+      if (user && user.emailVerified === false) {
+        await sendEmailVerification(user);
+        toast.info("A verification email has been sent. Please verify your email soon.");
+      }
+
       handleClose();
       history.push("/");
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
-      toast.error("Signup failed. Please try again.");
+      toast.error("There was a problem creating your account.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+
   return (
     <IonPage>
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
+        <ToastContainer />
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">
@@ -98,7 +111,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
           </header>
 
           <motion.main
-            className="ion-padding max-w-lg w-full mx-auto"
+            className="ion-padding max-w-lg w-full mx-auto rounded-md p-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -112,7 +125,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
 
             {isSubmitting ? (
               <IonRow className="ion-justify-content-center ion-padding">
-                <IonCol size="12" className="ion-text-center">
+                <IonCol size="12" className="ion-text-center flex flex-col">
                   <IonSpinner />
                   <IonText>Creating your account and profile...</IonText>
                 </IonCol>
@@ -127,7 +140,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                       <IonInput
                         name="email"
                         value={formData.email}
-                        onIonChange={handleInputChange}
+                        onIonChange={(e) => handleInputChange("email", e.detail.value)}
                         type="email"
                         placeholder="Enter your email"
                       />
@@ -146,7 +159,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                       <IonInput
                         name="password"
                         value={formData.password}
-                        onIonChange={handleInputChange}
+                        onIonChange={(e) => handleInputChange("password", e.detail.value)}
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                       />
@@ -172,13 +185,6 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                   <IonCol size="12">
                     <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2">
                       <IonLabel position="stacked">Confirm Password</IonLabel>
-                      <IonInput
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onIonChange={handleInputChange}
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Re-enter your password"
-                      />
                       <IonButton
                         fill="clear"
                         slot="end"
@@ -187,6 +193,13 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                       >
                         <IonIcon icon={showConfirmPassword ? eyeOffOutline : eyeOutline} />
                       </IonButton>
+                      <IonInput
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onIonChange={(e) => handleInputChange("confirmPassword", e.detail.value)}
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Re-enter your password"
+                      />
                     </IonItem>
                     {formData.confirmPassword && !passwordsMatch && (
                       <IonText color="danger" className="text-sm">
@@ -195,6 +208,29 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                     )}
                   </IonCol>
                 </IonRow>
+
+                <IonRow>
+                  <IonCol size="12">
+                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2 w-full">
+                      <IonLabel position="stacked">Account Type</IonLabel>
+                      <IonSelect
+                        value={formData.accountType}
+                        placeholder="Accoount Type"
+                        onIonChange={(e) => handleInputChange("accountType", e.detail.value)}
+                        className="w-full"
+                      >
+                        <IonSelectOption value="User">User</IonSelectOption>
+                        <IonSelectOption value="Driver">Driver</IonSelectOption>
+                      </IonSelect>
+                    </IonItem>
+                    {!formData.accountType && (
+                      <IonText color="danger" className="text-sm ion-padding-horizontal">
+                        Please select an account type.
+                      </IonText>
+                    )}
+                  </IonCol>
+                </IonRow>
+
 
                 {/* Submit */}
                 <IonRow className="mt-2 ion-padding-horizontal">
@@ -212,7 +248,7 @@ function Signup({ handleClose, toggleToSignin }: SignupProps) {
                 </IonRow>
 
                 {/* Switch to Signin */}
-                <IonRow className="mt-4">
+                <IonRow className="mt-4 ion-padding">
                   <IonCol size="12" className="text-center text-sm text-gray-600">
                     Already have an account?{" "}
                     <span className="text-[#75B657] font-medium cursor-pointer" onClick={toggleToSignin}>

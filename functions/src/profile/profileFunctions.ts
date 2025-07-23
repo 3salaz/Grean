@@ -17,6 +17,8 @@ import {
   ProfileUpdateOperation,
 } from "./profileTypes";
 import {UserRecord} from "firebase-admin/auth";
+import {db} from "../firebase";
+import {FieldValue} from "firebase-admin/firestore";
 
 
 export const autoCreateProfile =
@@ -79,7 +81,6 @@ export const updateProfileFunction = [
       if (!uid) {
         throw new Error("User UID is undefined.");
       }
-      logger.info("✅ User authenticated:", uid);
 
       const {
         field,
@@ -87,13 +88,18 @@ export const updateProfileFunction = [
         operation = "update",
       } = req.body as UpdateProfileData;
 
-      if (operation === "update" || operation === "set") {
-        await updateProfileField(
-            uid,
-            field,
-            value,
-          operation as ProfileUpdateOperation
-        );
+      const profileRef = db.collection("profiles").doc(uid);
+
+      if (operation === "addToArray") {
+        await profileRef.update({
+          [field]: FieldValue.arrayUnion(value),
+        });
+      } else if (operation === "removeFromArray") {
+        await profileRef.update({
+          [field]: FieldValue.arrayRemove(value),
+        });
+      } else if (operation === "update" || operation === "set") {
+        await updateProfileField(uid, field, value, operation as ProfileUpdateOperation);
       } else {
         await updateProfileBulk(uid, {[field]: value});
       }

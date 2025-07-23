@@ -131,9 +131,9 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
             </IonCardContent>
           </IonCard>
           <IonRow>
-            <IonCol className="flex flex-col gap-2 max-w-xs mx-auto">
+            <IonCol size="12" className="flex flex-col gap-2 max-w-xs mx-auto">
               {profile?.accountType === "Driver" && (
-                <>
+                <div className="bg-white">
                   <IonButton
                     expand="block"
                     color="primary"
@@ -146,7 +146,7 @@ const PickupDetails: React.FC<PickupDetailsProps> = ({pickup, handleClose}) => {
                   <IonButton size="small" expand="block" color="warning">
                     Decline
                   </IonButton>
-                </>
+                </div>
               )}
 
               <IonButton size="small" expand="block" color="danger" onClick={handleClose}>

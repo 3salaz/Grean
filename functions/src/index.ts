@@ -16,6 +16,7 @@ import {
 
 import {
   createPickupFunction,
+  completePickupFunction,
   updatePickupFunction,
   deletePickupFunction,
 } from "./pickups/pickupFunctions";
@@ -34,6 +35,7 @@ app.post("/createLocationFunction", createLocationFunction);
 app.post("/deleteLocationFunction", deleteLocationFunction);
 app.post("/updateLocationFunction", updateLocationFunction);
 app.post("/createPickupFunction", createPickupFunction);
+app.post("/completePickupFunction", completePickupFunction);
 app.post("/updatePickupFunction", updatePickupFunction);
 app.post("/deletePickupFunction", deletePickupFunction);
 

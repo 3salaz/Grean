@@ -1,35 +1,38 @@
-import {useState} from "react";
-import CreateLocation from "./CreateLocation";
+
 import ProfileHeader from "./ProfileHeader";
-import {IonGrid, IonModal} from "@ionic/react";
 import MyForest from "./MyForest";
 import MyLocations from "./MyLocations";
 import Impact from "./Impact";
-import { UserProfile } from "../../context/ProfileContext";
+import { useProfile } from "../../context/ProfileContext";
 import MyRoutes from "./MyRoutes";
 
-// **Define Props Interface**
-interface ProfileProps {
-  profile: UserProfile | null;
-}
-
-const Profile: React.FC<ProfileProps> = ({profile}) => {
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+const Profile: React.FC = () => {
+  const { profile } = useProfile();
 
   return (
-    // <IonGrid className="h-full overflow-auto flex flex-col justify-end ion-no-padding bg-gradient-to-t from-grean to-blue-300 sm:px-8">
 
-      <main className="container max-w-2xl mx-auto flex-grow overflow-auto ion-padding">
-        <IonModal isOpen={isModalVisible}>
-          <CreateLocation profile={profile} handleClose={() => setIsModalVisible(false)} />
-        </IonModal>
+    <main className="container max-w-2xl mx-auto flex-grow overflow-auto snap-y snap-mandatory h-screen">
+      <div className="snap-start">
         <ProfileHeader profile={profile} />
+      </div>
+      <div className="snap-start">
         <MyForest />
+      </div>
+      <div className="snap-start">
         <Impact />
-        {profile?.accountType === "User" && <MyLocations profile={profile} />}
-        {profile?.accountType === "Driver" && <MyRoutes profile={profile} />}
-      </main>
-    // </IonGrid>
+      </div>
+      {profile?.accountType === "User" && (
+        <div className="snap-start">
+          <MyLocations profile={profile} />
+        </div>
+      )}
+      {profile?.accountType === "Driver" && (
+        <div className="snap-start">
+          <MyRoutes profile={profile} />
+        </div>
+      )}
+
+    </main>
   );
 };
 

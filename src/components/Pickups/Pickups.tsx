@@ -1,4 +1,4 @@
-// Full updated Pickups component with form validation, reset, and toast feedback
+// Full updated Pickups component with simplified layout and unified view control
 
 import React, { useEffect, useState } from "react";
 import {
@@ -6,86 +6,36 @@ import {
   IonCol,
   IonGrid,
   IonRow,
-  IonText,
-  IonModal,
   IonIcon,
-  IonLabel,
-  IonSelect,
-  IonSelectOption,
-  IonDatetime,
-  IonItem,
-  IonCheckbox,
-  IonToast,
-  IonHeader,
-  IonSpinner
 } from "@ionic/react";
+import { calendar, compassOutline, settings } from "ionicons/icons";
 import CreatePickup from "./CreatePickup";
-import {
-  arrowDown,
-  list
-} from "ionicons/icons";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
-import { usePickups } from "../../context/PickupsContext";
-import ViewPickups from "./ViewPickups";
-import PickupsQueue from "./PickupsQueue";
-import CreateLocation from "../Profile/CreateLocation";
 import Schedule from "../Map/Schedule";
-import dayjs from "dayjs";
+import { useProfile } from "../../context/ProfileContext";
+import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
-import type { PickupData, MaterialType } from "../../types/pickups";
+import UserPickups from "./UserPickups";
+import DriverPickups from "./DriverPickups";
+import DriverRoutes from "./DriverRoutes";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import { AnimatePresence, motion } from "framer-motion";
+import { useIonLoading } from "@ionic/react";
+import UserScheduleCard from "../Common/UsersScheduleCard";
+import DriversScheduleCard from "../Common/DriversScheduleCard";
 
-interface PickupsProps {
-  profile: UserProfile | null;
-}
-
-type ModalKeys = "createPickupOpen" | "createLocationOpen" | "scheduleOpen";
-
-const Pickups: React.FC<PickupsProps> = ({ profile }) => {
-  const [modalState, setModalState] = useState<Record<ModalKeys, boolean>>({
-    createPickupOpen: false,
-    createLocationOpen: false,
-    scheduleOpen: false
-  });
-
-  const [formData, setFormData] = useState<PickupData>({
-    pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
-    addressData: { address: "" },
-    materials: []
-  });
-
-  const handleAcceptPickup = async (pickupId: string) => {
-    if (!profile?.uid) return;
-    setAcceptingPickupId(pickupId);
-    try {
-      await updatePickup(pickupId, {
-        acceptedBy: profile.uid,
-        isAccepted: true,
-      });
-
-      await updateProfile(profile.uid, {
-        pickups: [...(profile.pickups || []), pickupId],
-      });
-
-      toast.success("Pickup accepted!");
-    } catch (err) {
-      console.error("Error accepting pickup", err);
-      toast.error("Failed to accept pickup.");
-    } finally {
-      setAcceptingPickupId(null);
-    }
-  };
+const Pickups: React.FC = () => {
+  const [presentLoading, dismissLoading] = useIonLoading();
+  const [mainView, setMainView] = useState<
+    "UserPickupForm" | "UsersScheduleCard" | "DriversScheduleCard" | "DriverPickups" | "DriverRoutes" | null
+  >(null);
 
 
+
+
+  const { createPickup, fetchUserOwnedPickups, userOwnedPickups, availablePickups } = usePickups();
+  const { profile } = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
-  const tomorrow7am = dayjs().add(1, "day").hour(7).minute(0).second(0);
-  const { createPickup, updatePickup, availablePickups, fetchUserOwnedPickups, userOwnedPickups } = usePickups();
-  const { updateProfile } = useProfile();
-  const upcomingPickups = (userOwnedPickups ?? []).filter((pickup) =>
-    dayjs(pickup.pickupTime).isAfter(dayjs())
-  );
 
   useEffect(() => {
     if (profile?.uid) {
@@ -93,302 +43,133 @@ const Pickups: React.FC<PickupsProps> = ({ profile }) => {
     }
   }, [profile?.uid]);
 
-  const handleSubmit = async () => {
-    if (!formData.addressData.address) {
-      toast.error("Select a valid address.");
-      return;
+  useEffect(() => {
+    if (profile?.accountType) {
+      setMainView(profile.accountType === "User" ? "UserPickupForm" : "DriverPickups");
     }
-    if (!formData.pickupTime) {
-      toast.error("Select a pickup date & time.");
-      return;
-    }
-    if (formData.materials.length === 0) {
-      toast.error("Select at least one material.");
-      return;
-    }
+  }, [profile?.accountType]);
 
-
-    const pickupData: PickupData = {
-      pickupTime: formData.pickupTime,
-      addressData: formData.addressData,
-      materials: formData.materials
-    };
-
-    console.log("📤 Submitting PickupData:", pickupData);
-    const result = await createPickup(pickupData);
-
-    if (result) {
-      setFormData({
-        pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
-        addressData: { address: "" },
-        materials: []
-      });
-      setShowDropdown(false);
-    }
-  };
-
-  const openModal = (modalName: ModalKeys) => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    setModalState((prev) => ({ ...prev, [modalName]: true }));
-  };
-
-  const closeModal = (modalName: ModalKeys) => {
-    setModalState((prev) => ({ ...prev, [modalName]: false }));
-  };
-
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const [acceptingPickupId, setAcceptingPickupId] = useState<string | null>(null);
-
-
-  const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
 
   if (!profile) {
     return (
       <IonGrid className="h-full flex items-center justify-center">
         <IonRow>
           <IonCol className="text-center">
-            <IonButton color="primary" expand="block">
-              Loading Profile...
-            </IonButton>
+            <IonButton color="primary" expand="block">Loading Profile...</IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
     );
   }
 
-  const activePickups = (availablePickups ?? []).filter(
-    (pickup) => pickup.createdBy?.userId === profile.uid
-  );
+  const renderMainView = () => {
+    switch (mainView) {
+      case "UsersScheduleCard":
+        return <UserScheduleCard />;
+      case "DriversScheduleCard":
+        return <DriversScheduleCard />;
+      case "DriverRoutes":
+        return <DriverRoutes />;
+      case "DriverPickups":
+        return <DriverPickups />;
+      case "UserPickupForm":
+      default:
+        return (
+          <UserPickups
+            userLocations={userLocations}
+          />
+        );
+    }
+  };
 
-  if (activePickups.length >= 2) {
-    toast.error("Only 2 active pickups allowed.");
-    return;
-  }
+
 
   return (
-    <main className="container h-full max-w-2xl mx-auto flex flex-col overflow-auto drop-shadow-xl md:py-4 md:rounded-md ion-padding">
-      <IonModal
-        isOpen={modalState.createPickupOpen}
-        backdropDismiss={false}
-        onDidDismiss={() => closeModal("createPickupOpen")}
-      >
-        <CreatePickup profile={profile} handleClose={() => closeModal("createPickupOpen")} />
-      </IonModal>
+    <IonGrid className="container h-full max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
+      <header>
+        <IonRow id="pickups-header" className="border-b border-slate-200 w-full flex ion-padding">
+          <IonCol size="12">
+            <IonButton slot="icon-only" size="small"><IonIcon icon={settings} />
+            </IonButton>
+            <div className="text-sm">Hello there, {profile.displayName}</div>
+          </IonCol>
+        </IonRow>
+      </header>
 
-      <IonModal
-        isOpen={modalState.createLocationOpen}
-        onDidDismiss={() => closeModal("createLocationOpen")}
-      >
-        <CreateLocation profile={profile} handleClose={() => closeModal("createLocationOpen")} />
-      </IonModal>
+      <main id="pickups-mainView" className="ion-padding flex flex-col items-center flex-grow">
+        {renderMainView()}
+      </main>
 
-      <IonModal isOpen={modalState.scheduleOpen} onDidDismiss={() => closeModal("scheduleOpen")}>
-        <Schedule handleClose={() => closeModal("scheduleOpen")} />
-      </IonModal>
-
-      <IonRow className="ion-padding flex items-center justify-between border-b border-slate-200">
-        <IonCol size="9">
-          <div className="flex flex-col items-start justify-end space-y-1">
-            <IonText className="text-2xl font-semibold text-gray-900">
-              Hi There, {profile.displayName}
-            </IonText>
-            <IonText></IonText>
-          </div>
-        </IonCol>
-      </IonRow>
-
-      {profile?.accountType === "User"
-        ? <section className="flex-grow overflow-auto">
-          <IonRow className="ion-padding-bottom justify-end">
-            <IonCol size="auto" className="text-base font-bold">
-              <IonSelect
-                label=""
-                value={formData.addressData.address || ""}
-                className="w-full"
-                placeholder="Select Address for Pickup"
-                onIonChange={(e) => {
-                  const selected = userLocations.find((l) => l.address === e.detail.value);
-                  if (selected) {
-                    handleChange("addressData", { address: selected.address });
-                  }
-                }}
+      <footer id="pickups-footer">
+        {profile.accountType === "User" ? (
+          <IonRow className="gap-2 justify-center ion-padding">
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "UserPickupForm" ? "solid" : "clear"}
+                onClick={() => setMainView("UserPickupForm")}
               >
-                {userLocations.map((loc, idx) => {
-                  const parts = loc.address.split(",");
-                  const shortAddress = parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : loc.address;
-                  return (
-                    <IonSelectOption key={idx} value={loc.address}>
-                      {shortAddress}
-                    </IonSelectOption>
-                  );
-                })}
-              </IonSelect>
-            </IonCol>
-          </IonRow>
-
-          <IonRow onClick={() => setShowDropdown(!showDropdown)}
-            className={`bg-white rounded-lg ion-padding-horizontal justify-between items-center cursor-pointer transition-all duration-200 hover:border hover:border-[#75B657] ${showDropdown ? 'rounded-b-none' : ''}`}>
-            <IonCol>
-              <div className="text-sm py-2">What material are you recycling?</div>
+                Request Pickup
+              </IonButton>
             </IonCol>
             <IonCol size="auto">
-              <IonButton size="small" fill="clear" onClick={(e) => {
-                e.stopPropagation(); // Prevent double toggle from button + row
-                setShowDropdown(!showDropdown);
-              }}>
-                <IonIcon icon={arrowDown} />
+              <IonButton
+                size="small"
+                fill={mainView === "UsersScheduleCard" ? "solid" : "clear"}
+                onClick={() => setMainView("UsersScheduleCard")}
+              >
+                <IonIcon icon={calendar}></IonIcon>
               </IonButton>
             </IonCol>
           </IonRow>
-
-          {showDropdown && (
-            <IonRow className="w-full rounded-b-lg animate-slide-down ion-padding bg-white border-1 border-[#75B657] mt-1">
-              <IonCol size="12" className="rounded-md">
-                {["glass", "cardboard", "appliances", "non-ferrous"].map((material) => (
-                  <IonItem key={material} lines="none">
-                    <IonCheckbox
-                      slot="start"
-                      checked={formData.materials.includes(material as MaterialType)}
-                      onIonChange={(e) => {
-                        const selected = e.detail.checked;
-                        const updated: MaterialType[] = selected
-                          ? [...formData.materials, material as MaterialType]
-                          : formData.materials.filter((m) => m !== material);
-                        handleChange("materials", updated);
-                      }}
-                    />
-                    <IonLabel className="text-sm bg-slate-[#75B657] p-2">
-                      {material.charAt(0).toUpperCase() + material.slice(1).replace("-", " ")}
-                    </IonLabel>
-                  </IonItem>
-                ))}
-              </IonCol>
-            </IonRow>
-          )}
-
-          {formData.materials.length > 0 && (
-            <IonRow className="ion-padding-vertical">
-              <IonCol className="ion-padding-bottom flex flex-col">
-                <IonText className="text-sm font-medium text-green-800">
-                  Material:
-                </IonText>
-                <IonText>
-                  {formData.materials.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(", ")}
-                </IonText>
-              </IonCol>
-              <IonCol size="12">
-                <IonLabel className="text-xs font-bold" position="fixed">Pickup Date & Time</IonLabel>
-                <IonDatetime
-                  presentation="date-time"
-                  value={formData.pickupTime}
-                  className="rounded-md"
-                  onIonChange={(e) => {
-                    const iso = e.detail.value?.toString();
-                    if (iso) handleChange("pickupTime", iso);
-                  }}
-                  min={tomorrow7am.toISOString()}
-                  minuteValues="0,15,30,45"
-                />
-              </IonCol>
-            </IonRow>
-          )}
-          <AnimatePresence mode="wait">
-            {formData.materials.length === 0 && (
-              <motion.section
-                key="active-pickups"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.3 }}
+        ) : (
+          <IonRow className="gap-2 justify-center ion-padding">
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "DriverRoutes" ? "solid" : "clear"}
+                onClick={() => setMainView("DriverRoutes")}
               >
-                <IonHeader className="shadow-none ion-padding-vertical">Active Pickup(s)</IonHeader>
-                <IonRow className="ion-padding border-1 border-dotted rounded-lg">
-                  <IonCol>
-                    {upcomingPickups.length > 0 ? (
-                      upcomingPickups.map((pickup) => (
-                        <div key={pickup.id} className="mb-2">
-                          <IonText className="text-sm font-medium">
-                            {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
-                          </IonText>
-                          <div className="text-xs text-slate-500">{pickup.addressData.address}</div>
-                          <div className="text-xs">{pickup.materials.join(", ")}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <IonText className="text-xs text-gray-500">No upcoming pickups.</IonText>
-                    )}
-                  </IonCol>
-                </IonRow>
-              </motion.section>
-            )}
-          </AnimatePresence>
-        </section>
-        : <section className="flex-grow ion-padding-vertical overflow-auto flex flex-col">
-          <IonRow className="ion-padding-bottom">
-            <IonCol>
-              <IonText className="text-xl font-semibold text-gray-800">Available Pickups</IonText>
+                <IonIcon icon={compassOutline}></IonIcon>
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto" class="relative">
+              {mainView === "DriverPickups" ?
+                <span className="absolute top-[-25px] right-[0] w-full">
+                  <div className="bg-white w-4 h-4 text-center rounded-full ion-padding flex items-center justify-center border-[#75B657] border-2 shadow-lg text-sm">
+                    <div className="font-bold text-[#75B657]">
+                      {availablePickups.length}
+                    </div>
+
+                  </div>
+                </span>
+                : <></>
+              }
+              <IonButton
+                size="small"
+                fill={mainView === "DriverPickups" ? "solid" : "clear"}
+                onClick={() => setMainView("DriverPickups")}
+              >
+                View Pickups
+              </IonButton>
+            </IonCol>
+            <IonCol size="auto">
+              <IonButton
+                size="small"
+                fill={mainView === "DriversScheduleCard" ? "solid" : "clear"}
+                onClick={() => setMainView("DriversScheduleCard")}
+              >
+                <IonIcon icon={calendar}></IonIcon>
+              </IonButton>
             </IonCol>
           </IonRow>
+        )}
 
-          {acceptingPickupId ? (
-            <IonRow className="w-full h-full justify-center items-center">
-              <IonCol className="flex justify-center">
-                <IonText className="text-base font-medium text-gray-700 mr-2">Accepting...</IonText>
-                <IonSpinner name="crescent" color="primary" />
-              </IonCol>
-            </IonRow>
-          ) : availablePickups.length > 0 ? (
-            availablePickups.map((pickup) => (
-              <IonRow key={pickup.id} className="mb-4 p-2 border border-gray-200 rounded-md bg-white">
-                <IonCol size="12">
-                  <IonText className="font-medium text-base text-xs">
-                    {pickup.addressData?.address || "No address"}
-                  </IonText>
-                  <p className="text-gray-800">
-                    {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
-                  </p>
-                  <p className="text-sm">
-                    Materials: {pickup.materials.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(", ")}
-                  </p>
-                </IonCol>
-                <IonCol size="12" className="flex justify-start ion-padding-top">
-                  <IonButton
-                    size="small"
-                    color="success"
-                    onClick={() => handleAcceptPickup(pickup.id)}
-                  >
-                    Accept
-                  </IonButton>
-                </IonCol>
-              </IonRow>
-            ))
-          ) : (
-            <IonRow className="flex-grow">
-              <IonCol className="flex items-center justify-center">
-                <IonText className=" text-gray-500 font-bold">No pickups available right now.</IonText>
-              </IonCol>
-            </IonRow>
-          )}
+      </footer>
 
-        </section>
-      }
 
-      <IonRow className="pt-2 flex mx-auto gap-2">
-        <IonCol size="auto">
-          <IonButton size="small" onClick={handleSubmit}>Pickup Request</IonButton>
-        </IonCol>
-        <IonCol size="auto">
-          <IonButton size="small" onClick={() => openModal("scheduleOpen")}>
-            <IonIcon icon={list}></IonIcon>
-          </IonButton>
-        </IonCol>
-      </IonRow>
-    </main>
+
+    </IonGrid>
   );
 };
 

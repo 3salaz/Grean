@@ -117,13 +117,16 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerFor
                 </IonItem>
               </IonCol>
             </IonRow>
+            
 
             <IonRow className="mt-2 ion-padding-horizontal">
               <IonCol size="auto" className="text-center">
                 <IonButton
-                size="small"
-                  color="success"
-                  disabled={!isFormValid || loading}
+                  size="small"
+                  color="primary"
+                  fill="solid"
+                  // disabled={loading || isFormValid}
+                  className="drop-shadow"
                   onClick={handleSignIn}
                 >
                   {loading ? <IonSpinner name="crescent" /> : "Sign In"}

@@ -42,9 +42,10 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
     email: "",
     password: "",
     confirmPassword: "",
-    accountType: "",
+    accountType: "User",
+
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -72,7 +73,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
 
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
+    setLoading(true);
     try {
       const user = await signUp(formData.email, formData.password, formData.accountType);
 
@@ -90,7 +91,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
       console.error("❌ Sign Up Error:", error);
       toast.error("There was a problem creating your account.");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -123,13 +124,15 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
               </IonCol>
             </IonRow>
 
-            {isSubmitting ? (
-              <IonRow className="ion-justify-content-center ion-padding">
-                <IonCol size="12" className="ion-text-center flex flex-col">
-                  <IonSpinner />
+            {loading ? (
+
+              <IonRow className="ion-justify-content-center ion-align-items-center ion-padding">
+                <IonCol size="12" className="flex flex-col justify-center items-center gap-4">
+                  <IonSpinner name="crescent" color="primary" />
                   <IonText>Creating your account and profile...</IonText>
                 </IonCol>
               </IonRow>
+
             ) : (
               <>
                 {/* Email */}
@@ -223,13 +226,10 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
                         <IonSelectOption value="Driver">Driver</IonSelectOption>
                       </IonSelect>
                     </IonItem>
-                    {!formData.accountType && (
-                      <IonText color="danger" className="text-sm ion-padding-horizontal">
-                        Please select an account type.
-                      </IonText>
-                    )}
                   </IonCol>
                 </IonRow>
+
+
 
 
                 {/* Submit */}
@@ -237,12 +237,12 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
                   <IonCol size="auto" className="text-center">
                     <IonButton
                       expand="block"
-                      color="success"
+                      fill="solid"
+                      color="primary"
                       size="small"
-                      disabled={!isFormValid || isSubmitting}
                       onClick={handleSubmit}
                     >
-                      {isSubmitting ? <IonSpinner /> : "Sign Up"}
+                      {loading ? <IonSpinner /> : "Sign Up"}
                     </IonButton>
                   </IonCol>
                 </IonRow>

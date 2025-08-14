@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import React, {useState, useEffect, createContext, useContext} from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import {
   getAuth,
   onAuthStateChanged,
@@ -7,24 +7,27 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  sendEmailVerification,
+  sendPasswordResetEmail
 } from "firebase/auth";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 import { createProfileIfMissing } from "../utils/createProfileIfMissing";
 
 interface AuthContextValue {
   user: any; // or a custom Firebase user type
   loadingAuth: boolean;
-  signUp: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, accountType: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
   googleSignIn: () => Promise<any>;
   logOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const [user, setUser] = useState<any>(null);
@@ -45,11 +48,36 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
    * Shows a success toast if created,
    * or an error toast if something fails (e.g., email in use).
    */
+
+
+  // Inside AuthProvider:
+const resetPassword = async (email: string) => {
+  const auth = getAuth();
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast.success("Password reset email sent.");
+  } catch (error: any) {
+    console.error("Reset password error:", error);
+    switch (error.code) {
+      case "auth/user-not-found":
+        toast.error("No user found with that email.");
+        break;
+      case "auth/invalid-email":
+        toast.error("Invalid email address.");
+        break;
+      default:
+        toast.error("Could not send password reset email.");
+        break;
+    }
+    throw error;
+  }
+};
+
   const handleSignUpError = (error: any) => {
     switch (error.code) {
       case "auth/email-already-in-use":
         toast.error(
-          "That email is already in use. Please sign in or use a different email."
+          "Email is already in use! Please sign in or use a different email."
         );
         break;
       case "auth/weak-password":
@@ -64,15 +92,12 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, accountType: string) => {
     const auth = getAuth();
     try {
-      const userCreds = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await createProfileIfMissing(userCreds.user);
+      const userCreds = await createUserWithEmailAndPassword(auth, email, password);
+      await createProfileIfMissing(userCreds.user, accountType);
+      setUser(userCreds.user);
       return userCreds.user;
     } catch (error: any) {
       console.error("Sign Up Error:", error);
@@ -80,6 +105,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       throw error;
     }
   };
+
 
   /**
    * Sign in with email/password.
@@ -94,8 +120,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         email,
         password
       );
-      toast.success("Welcome back!");
-      await createProfileIfMissing(userCredential.user);
+
       return userCredential.user;
     } catch (error: any) {
       console.error("Sign In Error:", error);
@@ -163,7 +188,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     signUp,
     signIn,
     googleSignIn,
-    logOut
+    logOut,
+    resetPassword
   };
 
   return (

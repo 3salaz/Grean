@@ -98,7 +98,7 @@ function MyForest() {
   const [selectedTree, setSelectedTree] = useState(null);
 
   return (
-    <IonRow className="gap-2 ion-padding border-b border-slate-200">
+    <IonRow className="gap-2 ion-padding border-b border-slate-200 h-80">
       <IonCol size="12" className="flex items-center justify-center">
         <IonText className="text-lg bg-white text-center font-semibold text-[#3a6833] tracking-wide rounded-md px-2 mx-auto">
           Your Forest

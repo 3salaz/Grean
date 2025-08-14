@@ -12,6 +12,12 @@ export interface UserProfile {
   createdAt: FirebaseFirestore.FieldValue | FirebaseFirestore.Timestamp;
 }
 
+export interface Stats {
+  totalWeight: number;
+  completedPickups: number;
+  materials: Record<string, number>; // or Record<MaterialType, number> if you want stricter typing
+}
+
 /** ✅ Defines data for creating a new profile */
 export interface CreateProfileData {
   displayName: string;

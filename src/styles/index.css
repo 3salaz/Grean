@@ -70,3 +70,24 @@
 .no-scroll::-webkit-scrollbar {
     display: none;
 }
+
+.custom-keyboard-fix {
+    --offset-top: 0px;
+    --offset-bottom: 0px;
+    --keyboard-offset: 0px;
+    padding-bottom: env(safe-area-inset-bottom); /* safe padding for iOS */
+  }
+  
+
+/* .swiper-pagination {
+    @apply absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 justify-center z-10;
+  }
+  
+  .swiper-pagination-bullet {
+    @apply w-2.5 h-2.5 rounded-full bg-gray-300 opacity-80 transition-all;
+  }
+  
+  .swiper-pagination-bullet-active {
+    @apply bg-[#75B657] opacity-100 scale-110;
+  } */
+  

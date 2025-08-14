@@ -6,12 +6,13 @@ import { PickupsProvider } from "./PickupsContext";
 import { LocationsProvider } from "./LocationsContext";
 import { TabProvider } from "./TabContext";
 
-const AppProviders = ({ children }: { children: ReactNode }) => (
-  <AuthProvider>
-    <ProfileProvider>
-      <LocationsProvider>
-        <PickupsProvider>
-          <TabProvider>
+// 📦 Wraps the app in all necessary context providers
+export const AppProviders = ({ children }: { children: ReactNode }) => (
+  <AuthProvider>           {/* Handles Firebase Authentication */}
+    <ProfileProvider>      {/* Loads and maintains user profile */}
+      <LocationsProvider>  {/* Manages location-related state */}
+        <PickupsProvider>  {/* Handles pickups state and logic */}
+          <TabProvider>     {/* Manages UI state like active tabs */}
             {children}
           </TabProvider>
         </PickupsProvider>
@@ -20,4 +21,3 @@ const AppProviders = ({ children }: { children: ReactNode }) => (
   </AuthProvider>
 );
 
-export default AppProviders;

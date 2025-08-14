@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import {
   IonButton,
   IonHeader,
@@ -13,10 +13,14 @@ import {
   IonPage,
   IonSpinner,
   IonText,
-  IonAlert
+  IonAlert,
+  IonGrid,
+  IonList,
+  IonListHeader,
+  IonNav
 } from "@ionic/react";
-import {useProfile, UserProfile} from "../../context/ProfileContext";
-import {toast} from "react-toastify";
+import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { toast } from "react-toastify";
 
 // ** Define Props Interface **
 interface ProfileEditProps {
@@ -24,8 +28,8 @@ interface ProfileEditProps {
   onClose: () => void;
 }
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
-  const {updateProfile, deleteProfile} = useProfile();
+const ProfileEdit: React.FC<ProfileEditProps> = ({ profile, onClose }) => {
+  const { updateProfile, deleteProfile } = useProfile();
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,38 +131,55 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
 
   return (
     <IonPage>
+      <IonNav>
+        Edit Profile
+      </IonNav>
       <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="fixed">Name</IonLabel>
-          <IonInput
-            name="displayName"
-            value={formData.displayName || ""}
-            onIonInput={handleChange}
-            disabled={!isEditing}
-          />
-        </IonItem>
+        <IonGrid>
+          <IonList>
+            <IonListHeader>
+              Edit Profile
+            </IonListHeader>
+            <IonItem>
+              <IonLabel position="fixed">Name</IonLabel>
+              <IonInput
+                name="displayName"
+                value={formData.displayName || ""}
+                onIonInput={handleChange}
+                disabled={!isEditing}
+              />
+            </IonItem>
 
-        <IonItem>
-          <IonLabel position="fixed">Email</IonLabel>
-          <IonInput
-            name="email"
-            type="email"
-            value={formData.email || ""}
-            onIonInput={handleChange}
-            disabled={!isEditing}
-          />
-        </IonItem>
+            <IonItem>
+              <IonLabel position="fixed">Email</IonLabel>
+              <IonInput
+                name="email"
+                type="email"
+                value={formData.email || ""}
+                onIonInput={handleChange}
+                disabled={!isEditing}
+              />
+            </IonItem>
 
-        <IonItem>
-          <IonLabel position="fixed">Profile Picture URL</IonLabel>
-          <IonInput
-            name="photoURL"
-            type="text"
-            value={formData.photoURL || ""}
-            onIonInput={handleChange}
-            disabled={!isEditing}
-          />
-        </IonItem>
+            <IonItem>
+              <IonLabel position="fixed">Profile Picture URL</IonLabel>
+              <IonInput
+                name="photoURL"
+                type="text"
+                value={formData.photoURL || ""}
+                onIonInput={handleChange}
+                disabled={!isEditing}
+              />
+            </IonItem>
+            <IonItem>
+              <IonButton expand="block" color="danger" onClick={() => setShowDeleteAlert(true)}>
+                Delete
+              </IonButton>
+            </IonItem>
+          </IonList>
+
+        </IonGrid>
+
       </IonContent>
 
       <IonFooter className="ion-padding drop-shadow-none shadow-none">
@@ -166,15 +187,13 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({profile, onClose}) => {
           <IonButton
             expand="block"
             color="primary"
+            size="small"
             onClick={handleEditSaveButtonClick}
             disabled={isSaving}
           >
             {isSaving ? <IonSpinner name="crescent" /> : isEditing ? "Save" : "Edit"}
           </IonButton>
-          <IonButton expand="block" color="danger" onClick={() => setShowDeleteAlert(true)}>
-            Delete
-          </IonButton>
-          <IonButton expand="block" fill="outline" onClick={onClose}>
+          <IonButton size="small" expand="block" fill="outline" onClick={onClose}>
             Cancel
           </IonButton>
         </div>

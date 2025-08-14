@@ -4,7 +4,8 @@ import { setupIonicReact } from "@ionic/react";
 import App from "./App";
 
 import "./styles/index.css";
-import AppProviders from "./context/AppProviders";
+import { AppProviders } from "./context/AppProviders";
+
 
 setupIonicReact();
 

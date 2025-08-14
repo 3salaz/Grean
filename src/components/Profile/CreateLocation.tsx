@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocations } from "../../context/LocationsContext";
 import { useProfile, UserProfile } from "../../context/ProfileContext";
+import Cropper from 'react-easy-crop';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 import { motion } from "framer-motion";
 import {
   IonContent,
@@ -83,6 +86,29 @@ interface CreateLocationProps {
   handleClose: () => void;
 }
 
+async function getCroppedImg(imageSrc: string, crop: any): Promise<Blob> {
+  const image = new Image();
+  image.src = imageSrc;
+  await new Promise((res) => (image.onload = res));
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+  ctx.drawImage(
+    image,
+    crop.x,
+    crop.y,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    crop.width,
+    crop.height
+  );
+  return new Promise((res) => canvas.toBlob((blob) => res(blob!), 'image/jpeg'));
+}
+
 const CreateLocation: React.FC<CreateLocationProps> = ({
   profile,
   handleClose
@@ -91,6 +117,12 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
 
   const [formData, setFormData] = useState({
     locationType: "",
@@ -102,7 +134,10 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
     latitude: null as number | null,
     longitude: null as number | null,
     businessBio: "", // ✅ Add this
+    businessLogo: "",
   });
+
+
 
 
   // Track the selected place from autocomplete.
@@ -175,6 +210,11 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
           formData.businessPhoneNumber &&
           formData.category
           : formData.homeName;
+      case 3:
+        return formData.locationType === "Business"
+          ? formData.businessLogo
+          : true;
+
       default:
         return false;
     }
@@ -224,9 +264,12 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
         ...(formData.locationType === "Business" && {
           businessName: formData.businessName,
           businessPhoneNumber: formData.businessPhoneNumber,
-          category: formData.category
-        })
+          category: formData.category,
+          businessBio: formData.businessBio || "",         // 🔥 fix here
+          businessLogo: formData.businessLogo || "",     // ✅ Add this if you plan to handle logo uploads
+        }),
       };
+
       const newLocationId = await createLocation(newLocation);
       if (newLocationId) {
         // await updateProfile("locations", newLocationId, "addToArray");
@@ -243,6 +286,8 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
     }
   };
 
+
+
   return (
     <IonPage>
       <IonContent className="flex items-center justify-center">
@@ -252,7 +297,7 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
               <IonCardSubtitle className="text-xs font-light">{step === 0 ? "Select the type of location you want to add." : step === 1 ? "Enter the address of the location." : "Enter the name of the location."}</IonCardSubtitle>
               <IonCardTitle>Add Location</IonCardTitle>
             </IonCardHeader>
-            <IonCardContent className="flex flex-col items-center justify-center p-2 w-full text-[#75b657] bg-slate-100 ion-padding-top">
+            <IonCardContent className="flex flex-col items-center justify-center m-0 p-0 w-full text-[#75b657] bg-slate-100 ion-padding-top">
 
               <motion.div
                 key={step}
@@ -333,12 +378,19 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                             <IonLabel position="stacked">Phone Number</IonLabel>
                             <IonInput
                               value={formData.businessPhoneNumber}
-                              onIonChange={(e) =>
-                                handleInputChange(
-                                  "businessPhoneNumber",
-                                  e.detail.value ?? ""
-                                )
-                              }
+                              onIonInput={(e) => {
+                                const rawValue = (e as CustomEvent).detail.value ?? "";
+                                const digits = rawValue.replace(/\D/g, "").slice(0, 10);
+                                let formatted = digits;
+                                if (digits.length > 6) {
+                                  formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                                } else if (digits.length > 3) {
+                                  formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                                }
+                                handleInputChange("businessPhoneNumber", formatted);
+                              }}
+                              inputmode="numeric"
+                              pattern="[0-9]*"
                             />
                           </IonItem>
                           <IonItem>
@@ -376,10 +428,73 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                         </IonList>
                       )}
                     </IonCol>
-
                   </IonRow>
-
                 )}
+
+                {step === 3 && formData.locationType === "Business" && (
+                  <IonRow className="w-full flex flex-col gap-4 items-center justify-center">
+                    <IonCol size="12" className="flex flex-col items-center gap-2">
+                      <IonText className="font-medium text-lg">Upload Business Logo</IonText>
+                      <label className="bg-white px-4 py-2 rounded-md shadow-md cursor-pointer hover:bg-gray-100 transition-all duration-200">
+                        <span className="text-[#75b657] font-semibold">Choose Image</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = () => setImageSrc(reader.result as string);
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </IonCol>
+
+                    {imageSrc && (
+                      <>
+                        <IonCol size="12">
+                          <div style={{ position: 'relative', width: '100%', height: '256px', background: 'white' }}>
+                            <Cropper
+                              image={imageSrc}
+                              crop={crop}
+                              zoom={zoom}
+                              aspect={1}
+                              onCropChange={setCrop}
+                              onZoomChange={setZoom}
+                              onCropComplete={(_, croppedArea) => setCroppedAreaPixels(croppedArea)}
+                            />
+                          </div>
+                        </IonCol>
+
+
+                        <IonCol size="auto" className="flex justify-center">
+                          <IonButton
+                            disabled={uploadingImage}
+                            onClick={async () => {
+                              if (!croppedAreaPixels || !imageSrc) return;
+                              setUploadingImage(true);
+                              const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+                              const storage = getStorage();
+                              const storageRef = ref(storage, `locations/${profile?.uid}/${Date.now()}.jpg`);
+                              await uploadBytes(storageRef, croppedImageBlob);
+                              const url = await getDownloadURL(storageRef);
+                              setFormData((prev) => ({ ...prev, businessLogo: url }));
+                              setImageSrc(null); // Clear UI
+                              setUploadingImage(false);
+                              toast.success("Logo uploaded!");
+                            }}
+                          >
+                            {uploadingImage ? <IonSpinner name="crescent" /> : "Upload Cropped Logo"}
+                          </IonButton>
+                        </IonCol>
+                      </>
+                    )}
+                  </IonRow>
+                )}
+
 
                 {loadingCoordinates && <IonSpinner />}
               </motion.div>
@@ -393,7 +508,7 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                   </IonCol>
                 )}
 
-                {step < 2 ? (
+                {(formData.locationType === "Business" ? step < 3 : step < 2) ? (
                   <IonCol size="auto">
                     <IonButton size="small" expand="block" onClick={nextStep}>
                       Next
@@ -412,6 +527,7 @@ const CreateLocation: React.FC<CreateLocationProps> = ({
                   </IonCol>
                 )}
               </IonRow>
+
 
               <IonRow>
                 <IonCol size="auto" className="mx-auto">

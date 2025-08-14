@@ -4,6 +4,26 @@ import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
 import axios from "axios";
 import {useAuth} from "./AuthContext";
+import { MaterialType } from "../types/pickups";
+
+export const useProfile = () => {
+  const context = useContext(ProfileContext);
+  if (!context) {
+    throw new Error("useProfile must be used within a ProfileProvider");
+  }
+  return context;
+};
+
+interface UserStats {
+  completedPickups?: number;
+  totalWeight?: number;
+  weight?: {
+    aluminum?: number;
+    glass?: number;
+    plastic?: number;
+  };
+  materials?: Partial<Record<MaterialType, number>>;
+}
 
 // ✅ Define Profile Interface
 export interface UserProfile {
@@ -11,8 +31,9 @@ export interface UserProfile {
   profile?: string | null;
   email: string;
   uid: string;
-  inventory: string[];
+  inventory: string[]; 
   locations: string[];
+  stats?: UserStats;
   pickups: string[];
   accountType: string;
   photoURL?: string | null;
@@ -42,32 +63,12 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
 
   useEffect(() => {
     if (!user) {
-      // console.warn("⚠️ No user found");
       setProfile(null);
       setLoadingProfile(false);
       return;
     }
 
-    // ✅ First, check if profile exists
-    const checkProfileExists = async () => {
-      const profileRef = doc(db, "profiles", user.uid);
-      const profileSnap = await getDoc(profileRef);
-
-      if (!profileSnap.exists()) {
-        console.warn("⚠️ Users Profile does not exist in Firestore", user.uid);
-        setProfile(null);
-        setLoadingProfile(false);
-        return;
-      }
-    };
-
-    checkProfileExists().catch((err) => {
-      console.error("🔥 Error checking profile existence:", err);
-      setProfile(null);
-      setLoadingProfile(false);
-    });
-
-    // ✅ Firestore real-time listener (auto-updates when data changes)
+    // ✅ Use only onSnapshot to manage profile presence and updates
     const profileRef = doc(db, "profiles", user.uid);
     const unsubscribe = onSnapshot(
       profileRef,
@@ -88,7 +89,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
       }
     );
 
-    return () => unsubscribe(); // ✅ Cleanup listener
+    return () => unsubscribe(); // ✅ Clean up listener on unmount
   }, [user]);
 
   /** ✅ Create Profile */
@@ -107,6 +108,7 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
         uid: user.uid,
         locations: [],
         pickups: [],
+        inventory: [],
         accountType: ""
       };
 
@@ -199,12 +201,4 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
       {!loadingProfile && children}
     </ProfileContext.Provider>
   );
-};
-
-export const useProfile = () => {
-  const context = useContext(ProfileContext);
-  if (!context) {
-    throw new Error("useProfile must be used within a ProfileProvider");
-  }
-  return context;
 };

@@ -1,108 +1,36 @@
-import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import axios from "axios";
-import {toast} from "react-toastify";
-import {useAuth} from "./AuthContext";
-import {useProfile} from "./ProfileContext";
-import {collection, query, where, getDocs, onSnapshot} from "firebase/firestore";
-import {db} from "../firebase";
+import { toast } from "react-toastify";
+import { useAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
+import type { Pickup, PickupData } from "../types/pickups";
 
-// Define Pickup Type
-export interface Pickup {
-  id: string;
-  createdAt: string;
-  isAccepted: boolean;
-  isCompleted: boolean;
-  createdBy: {
-    userId: string;
-    displayName: string;
-    email: string;
-    photoURL: string;
-  };
-  acceptedBy?: string;
-  addressData: {address: string};
-  pickupDate: string;
-  pickupTime: string;
-  pickupNote?: string;
-  materials: string[];
-}
-
-interface MaterialConfig {
-  label: string;
-  requiresPhoto?: boolean;
-  requiresAgreement?: boolean;
-  agreementLabel?: string;
-  min?: number;
-  max?: number;
-  description?: string;
-}
-
-const materialConfig: Record<string, MaterialConfig> = {
-  glass: {
-    label: "Glass",
-    requiresAgreement: true,
-    agreementLabel: "I agree to the Glass Disclaimer",
-    min: 1,
-    max: 10,
-  },
-  cardboard: {
-    label: "Cardboard",
-    requiresPhoto: true,
-    min: 1,
-    max: 10,
-  },
-  appliances: {
-    label: "Appliances",
-    requiresPhoto: true,
-  },
-  "non-ferrous": {
-    label: "Non-Ferrous Metals",
-    requiresPhoto: true,
-    requiresAgreement: true,
-    agreementLabel: "I agree to the Non-Ferrous Metals Disclaimer",
-  },
-  pallets: {
-    label: "Pallets",
-    min: 4,
-    max: 30,
-  },
-  plastic: {
-    label: "Plastic",
-    min: 3,
-    max: 20,
-  },
-  aluminum: {
-    label: "Aluminum",
-    min: 3,
-    max: 20,
-  },
-};
-
-
-// Define PickupContext Type
 interface PickupContextType {
   allPickups: Pickup[];
   userOwnedPickups: Pickup[];
   userAssignedPickups: Pickup[];
   availablePickups: Pickup[];
   finishedPickups: Pickup[];
-  createPickup: (
-    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
-  ) => Promise<string | undefined>;
+  createPickup: (pickupData: PickupData) => Promise<string | undefined>;
   updatePickup: (pickupId: string, updatedData: Partial<Pickup>) => Promise<void>;
   deletePickup: (pickupId: string) => Promise<void>;
-  fetchAllPickups: () => (() => void) | undefined; // Return type updated
-  fetchUserOwnedPickups: (userId: string) => Promise<void>;
-  fetchUserAssignedPickups: (userId: string) => (() => void) | undefined; // Return type updated
+  fetchAllPickups: () => (() => void) | undefined;
+  fetchUserAssignedPickups: (userId: string) => (() => void) | undefined;
+  fetchUserOwnedPickups: (userId: string) => (() => void) | undefined;
   removePickup: (pickupId: string) => Promise<void>;
+  startPickup: (pickupId: string) => Promise<void>;
+  completePickup: (pickupId: string) => Promise<void>;
+  cancelPickup: (pickupId: string) => Promise<void>;
+  cancelUserPickup: (pickupId: string) => Promise<void>;
 }
 
-
-// Create Context
 const PickupContext = createContext<PickupContextType | null>(null);
 
-export function PickupsProvider({children}: {children: ReactNode}) {
-  const {user} = useAuth();
-  const {profile} = useProfile();
+export function PickupsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const { profile } = useProfile();
   const [allPickups, setAllPickups] = useState<Pickup[]>([]);
   const [userOwnedPickups, setUserOwnedPickups] = useState<Pickup[]>([]);
   const [userAssignedPickups, setUserAssignedPickups] = useState<Pickup[]>([]);
@@ -110,88 +38,87 @@ export function PickupsProvider({children}: {children: ReactNode}) {
   const [finishedPickups, setFinishedPickups] = useState<Pickup[]>([]);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-
-    if (user && profile) {
-      fetchUserAssignedPickups(user.uid); // Fetch pickups assigned to the current user
-      unsubscribe = fetchAllPickups(); // Fetch all pickups
-    }
-
+    if (!user || !profile?.accountType) return;
+  
+    const unsubOwned = fetchUserOwnedPickups(user.uid);
+    const unsubAssigned = fetchUserAssignedPickups(user.uid);
+    const unsubAll = fetchAllPickups();
+  
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      unsubOwned?.();
+      unsubAssigned?.();
+      unsubAll?.();
     };
-  }, [user, profile]);
+  }, [user?.uid, profile?.accountType]);
+  
+  
+  
 
   const fetchAllPickups = (): (() => void) | undefined => {
-    if (!user || !profile) return;
-
-    const q = query(
-      collection(db, "pickups"),
-      where("isAccepted", "==", false),
-      where("isCompleted", "==", false)
-    );
-
+    if (!user || !profile || !profile.accountType) return;
+  
+    const q = query(collection(db, "pickups"), where("status", "==", "pending"));
+  
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
         let pickups = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         })) as Pickup[];
-
+  
         if (profile.accountType === "Driver") {
-          // console.log("👷 Driver view: showing all unaccepted pickups.");
+          pickups = pickups.filter((pickup) => !pickup.acceptedBy?.uid);
         } else {
           pickups = pickups.filter((pickup) => pickup.createdBy.userId !== user.uid);
         }
-
+  
         setAvailablePickups(pickups);
-        // console.log("📦 Real-time availablePickups updated:", pickups);
       },
       (error) => {
         console.error("❌ Error in real-time pickup listener:", error);
-        // toast.error("Failed to load pickups in real-time.");
       }
     );
-
+  
     return unsubscribe;
   };
+  
+  
 
-  const fetchUserOwnedPickups = async (userId: string) => {
+  const fetchUserOwnedPickups = (userId: string): (() => void) | undefined => {
     try {
       const q = query(collection(db, "pickups"), where("createdBy.userId", "==", userId));
-      const querySnapshot = await getDocs(q);
-      const userPickups = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Pickup[];
-      setUserOwnedPickups(userPickups);
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const userPickups = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Pickup[];
+        setUserOwnedPickups(userPickups);
+      });
+      return unsubscribe;
     } catch (error) {
-      console.error("Error fetching user created pickups:", error);
-      toast.error("Failed to fetch user created pickups.");
+      console.error("Error in real-time user created pickups listener:", error);
+      toast.error("Failed to load user pickups in real-time.");
+      return undefined;
     }
   };
 
   const fetchUserAssignedPickups = (userId: string): (() => void) | undefined => {
     try {
-      const q = query(
-        collection(db, "pickups"),
-        where("acceptedBy", "==", userId),
-        where("isCompleted", "==", false)
-      );
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const assignedPickups = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Pickup[];
-        setUserAssignedPickups(assignedPickups);
+      const q = query(collection(db, "pickups"), where("acceptedBy.uid", "==", userId));
+
+      const unsubscribe = onSnapshot(q, (snap) => {
+        const activeStatuses = ["accepted", "inProgress", "pending"];
+        const myPickups = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Pickup))
+          .filter((p) => activeStatuses.includes(p.status));
+
+        setUserAssignedPickups(myPickups);
       });
 
       return unsubscribe;
-    } catch (error) {
-      console.error("Error in real-time user assigned pickups listener:", error);
+    } catch (err) {
+      console.error("Error in real-time assigned-pickups listener:", err);
       toast.error("Failed to load assigned pickups in real-time.");
       return undefined;
     }
@@ -207,21 +134,21 @@ export function PickupsProvider({children}: {children: ReactNode}) {
     }
   };
 
-  const createPickup = async (
-    pickupData: Omit<Pickup, "id" | "createdAt" | "isAccepted" | "isCompleted" | "createdBy">
-  ): Promise<string | undefined> => {
+  const createPickup = async (pickupData: PickupData): Promise<string | undefined> => {
     try {
       if (!user || !profile) throw new Error("User or Profile not found");
 
       const token = await user.getIdToken();
       const dataToSend = {
         ...pickupData,
+        status: "pending",
+        pickupDate: pickupData.pickupTime.split("T")[0],
         createdBy: {
           userId: user.uid,
           displayName: profile.displayName,
           email: profile.email,
-          photoURL: profile.photoURL
-        }
+          photoURL: profile.photoURL,
+        },
       };
 
       const response = await axios.post(
@@ -229,8 +156,8 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         dataToSend,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -254,37 +181,43 @@ export function PickupsProvider({children}: {children: ReactNode}) {
   ): Promise<void> => {
     try {
       const token = await user.getIdToken();
-      let dataToSend;
-
-      if (typeof fieldOrUpdates === "string") {
-        dataToSend = {
-          pickupId,
-          field: fieldOrUpdates,
-          value,
-          operation
-        };
-      } else {
-        dataToSend = {
-          pickupId,
-          updates: fieldOrUpdates
-        };
-      }
+      const dataToSend =
+        typeof fieldOrUpdates === "string"
+          ? { pickupId, field: fieldOrUpdates, value, operation }
+          : { pickupId, updates: fieldOrUpdates };
 
       await axios.post(
         "https://us-central1-grean-de04f.cloudfunctions.net/api/updatePickupFunction",
         dataToSend,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      toast.success("Pickup updated successfully!");
     } catch (error) {
       console.error("Error updating pickup:", error);
       toast.error("Failed to update pickup.");
     }
   };
+
+  const startPickup = (pickupId: string) => updatePickup(pickupId, { status: "inProgress" });
+
+  
+
+  const completePickup = async (pickupId: string, materials: any[]) => {
+    const token = await user.getIdToken();
+    await axios.post(
+      "https://us-central1-grean-de04f.cloudfunctions.net/api/completePickupFunction",
+      { pickupId, materials },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  };
+  
+
+  const cancelPickup = (pickupId: string) => updatePickup(pickupId, { status: "pending" });
+
+  const cancelUserPickup = (pickupId: string) => updatePickup(pickupId, { status: "cancelled" });
 
   const deletePickup = async (pickupId: string): Promise<void> => {
     try {
@@ -294,11 +227,12 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         "https://us-central1-grean-de04f.cloudfunctions.net/api/deletePickupFunction",
         {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          data: {pickupId}
+          data: { pickupId },
         }
       );
+
       toast.success("Pickup deleted successfully!");
     } catch (error) {
       console.error("Error deleting pickup:", error);
@@ -320,7 +254,11 @@ export function PickupsProvider({children}: {children: ReactNode}) {
         fetchAllPickups,
         fetchUserOwnedPickups,
         fetchUserAssignedPickups,
-        removePickup
+        removePickup,
+        startPickup,
+        completePickup,
+        cancelPickup,
+        cancelUserPickup,
       }}
     >
       {children}

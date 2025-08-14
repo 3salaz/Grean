@@ -24,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </IonHeader>
       )}
 
-      <IonContent fullscreen>
+      <IonContent fullscreen className="keyboard-fix">
         {children}
       </IonContent>
 

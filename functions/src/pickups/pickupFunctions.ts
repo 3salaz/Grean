@@ -17,7 +17,8 @@ import {
   DeletePickupData,
   PickupUpdateOperation,
 } from "./pickupTypes";
-import {db} from "../firebase";
+import {admin, db} from "../firebase";
+import {updateUserStats} from "../services/profileStats";
 
 export const createPickupFunction = [
   authMiddleware,
@@ -62,6 +63,7 @@ export const updatePickupFunction = [
       if (!uid) {
         throw new Error("User UID is undefined.");
       }
+
       logger.info("✅ User authenticated:", uid);
 
       const {
@@ -72,38 +74,49 @@ export const updatePickupFunction = [
         updates,
       } = req.body as UpdatePickupFieldData & UpdatePickupData;
 
-      // Fetch the user profile to check if they are a "Driver"
+      const pickupRef = db.collection("pickups").doc(pickupId);
+
+      // ✅ Fetch profile to check role
       const profileSnap = await db.collection("profiles").doc(uid).get();
       const profileData = profileSnap.data();
       const isDriver = profileData?.accountType === "Driver";
 
-      if (!isDriver && !field) {
+      if (!isDriver && !field && !updates) {
         throw new Error(
-            "Unauthorized-Only the pickup creator or a driver can update " +
-            "this pickup."
+            "Unauthorized: Only the pickup creator or a driver can update"
         );
       }
 
-      // Check if the pickup field exists, and call the appropriate function
+      // ✅ Handle array operations
       if (field && value !== undefined) {
-        if (isDriver && !["isAccepted", "acceptedBy"].includes(field)) {
-          throw new Error(
-              "Unauthorized: Drivers can only update " + "certain fields."
+        if (operation === "addToArray") {
+          await pickupRef.update({
+            [field]: admin.firestore.FieldValue.arrayUnion(value),
+          });
+        } else if (operation === "removeFromArray") {
+          await pickupRef.update({
+            [field]: admin.firestore.FieldValue.arrayRemove(value),
+          });
+        } else {
+          if (isDriver && !["acceptedBy", "status", "pickupNote"].includes(field)) {
+            throw new Error(
+                "Unauthorized: Drivers can update acceptedBy, status, or pickupNote."
+            );
+          }
+
+          await updatePickupField(
+              uid,
+              pickupId,
+              field,
+              value,
+            operation as PickupUpdateOperation
           );
         }
-        await updatePickupField(
-            uid,
-            pickupId,
-            field,
-            value,
-          operation as PickupUpdateOperation
-        );
       } else if (updates) {
         await updatePickupBulk(uid, pickupId, updates);
       } else {
-        throw new Error("Invalid update data.");
+        throw new Error("Invalid update request. Missing field or updates.");
       }
-
       res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in updatePickupFunction:", error);
@@ -111,6 +124,46 @@ export const updatePickupFunction = [
     }
   },
 ];
+
+export const completePickupFunction = [
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    logger.info("🔥 completePickupFunction TRIGGERED with data:", req.body);
+    try {
+      const {pickupId, materials} = req.body;
+
+      if (!pickupId || !Array.isArray(materials)) {
+        return res.status(400).json({error: "Missing pickupId or materials"});
+      }
+
+      const pickupRef = db.collection("pickups").doc(pickupId);
+      const pickupDoc = await pickupRef.get();
+
+      if (!pickupDoc.exists) {
+        return res.status(404).json({error: "Pickup not found"});
+      }
+
+      const pickup = pickupDoc.data();
+      const userId = pickup?.createdBy?.userId;
+      const driverId = pickup?.acceptedBy;
+
+      await pickupRef.update({
+        status: "completed",
+        materials,
+        isCompleted: true,
+      });
+
+      if (userId) await updateUserStats(userId, materials);
+      if (driverId) await updateUserStats(driverId, materials);
+
+      return res.status(200).json({success: true});
+    } catch (error) {
+      logger.error("❌ ERROR in completePickupFunction:", error);
+      return res.status(500).json({error: (error as Error).message});
+    }
+  },
+];
+
 
 export const deletePickupFunction = [
   authMiddleware,

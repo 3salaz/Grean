@@ -21,16 +21,9 @@ const Profile: React.FC = () => {
       <div className="snap-start">
         <Impact />
       </div>
-      {profile?.accountType === "User" && (
         <div className="snap-start">
           <MyLocations profile={profile} />
         </div>
-      )}
-      {profile?.accountType === "Driver" && (
-        <div className="snap-start">
-          <MyRoutes profile={profile} />
-        </div>
-      )}
 
     </main>
   );

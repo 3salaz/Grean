@@ -261,9 +261,9 @@ const UserPickups: React.FC<Props> = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.4 }}
-                  className=""
+                  className="w-full"
                 >
-                  <div className="bg-yellow-50 border-t-[#75B657] border-t-2 rounded-b-md flex items-center justify-center gap-2 ion-padding-horizontal">
+                  <div className="bg-yellow-50 w-full border-t-[#75B657] border-t-2 rounded-b-md flex items-center justify-center gap-2 ion-padding-horizontal">
                     <IonCheckbox
                       checked={formData.disclaimerAccepted}
                       onIonChange={(e) => handleChange("disclaimerAccepted", e.detail.checked)}
@@ -291,7 +291,7 @@ const UserPickups: React.FC<Props> = ({
             className="w-full"
           >
             <IonRow className="rounded-md bg-orange-50 ion-padding-vertical">
-              <IonCol size="12" className="ion-padding">
+              <IonCol size="12" className="ion-padding flex items-center justify-center">
                 <IonText className="font-bold w-full">Pickup Date & Time</IonText>
               </IonCol>
               {!pickupTimeConfirmed ? (

@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import { usePickups } from "../../context/PickupsContext";
 import { useUserLocations } from "../../hooks/useUserLocations";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { useProfile } from "../../context/ProfileContext";
 
 
 

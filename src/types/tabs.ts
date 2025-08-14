@@ -1,2 +1,2 @@
-export type TabOption = "pickups" | "account" | "profile" | "map" | "stats";
+export type TabOption = "pickups" | "profile" | "map" | "stats";
 

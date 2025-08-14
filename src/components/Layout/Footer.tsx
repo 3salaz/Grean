@@ -13,8 +13,20 @@ import {
   statsChartOutline
 } from 'ionicons/icons';
 import { useTab } from '../../context/TabContext';
+import { TabOption } from '../../types/tabs';
 
-function Footer() {
+interface FooterProps {
+  availableTabs: TabOption[];
+}
+
+const tabConfig: Record<TabOption, { label: string; icon: string }> = {
+  profile: { label: 'Profile', icon: personCircleOutline },
+  pickups: { label: 'Pickups', icon: leafOutline },
+  map: { label: 'Map', icon: navigateCircleOutline },
+  stats: { label: 'Stats', icon: statsChartOutline },
+};
+
+function Footer({ availableTabs }: FooterProps) {
   const { activeTab, setActiveTab } = useTab();
 
   return (
@@ -26,26 +38,14 @@ function Footer() {
         <IonSegment
           className="max-w-2xl mx-auto"
           value={activeTab}
-          onIonChange={(e: CustomEvent) =>
-            setActiveTab(e.detail.value)
-          }
+          onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
         >
-          <IonSegmentButton value="profile">
-            <IonLabel className="text-xs">Profile</IonLabel>
-            <IonIcon icon={personCircleOutline} />
-          </IonSegmentButton>
-          <IonSegmentButton value="pickups">
-            <IonLabel className="text-xs">Pickups</IonLabel>
-            <IonIcon icon={leafOutline} />
-          </IonSegmentButton>
-          <IonSegmentButton value="map">
-            <IonLabel className="text-xs">Map</IonLabel>
-            <IonIcon icon={navigateCircleOutline} />
-          </IonSegmentButton>
-          <IonSegmentButton value="stats">
-            <IonLabel className="text-xs">Stats</IonLabel>
-            <IonIcon icon={statsChartOutline} />
-          </IonSegmentButton>
+          {availableTabs.map((tab) => (
+            <IonSegmentButton key={tab} value={tab}>
+              <IonLabel className="text-xs">{tabConfig[tab].label}</IonLabel>
+              <IonIcon icon={tabConfig[tab].icon} />
+            </IonSegmentButton>
+          ))}
         </IonSegment>
       </IonToolbar>
     </IonFooter>

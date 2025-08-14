@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import type { InputCustomEvent } from "@ionic/core";
 import {
   IonInput,
   IonItem,
@@ -13,8 +12,6 @@ import {
   IonIcon,
   IonPage,
   IonContent,
-  IonSelect,
-  IonSelectOption
 } from "@ionic/react";
 
 import { motion } from "framer-motion";
@@ -209,23 +206,6 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
                         Passwords do not match.
                       </IonText>
                     )}
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol size="12">
-                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2 w-full">
-                      <IonLabel position="stacked">Account Type</IonLabel>
-                      <IonSelect
-                        value={formData.accountType}
-                        placeholder="Accoount Type"
-                        onIonChange={(e) => handleInputChange("accountType", e.detail.value)}
-                        className="w-full"
-                      >
-                        <IonSelectOption value="User">User</IonSelectOption>
-                        <IonSelectOption value="Driver">Driver</IonSelectOption>
-                      </IonSelect>
-                    </IonItem>
                   </IonCol>
                 </IonRow>
 

@@ -6,9 +6,10 @@ import {
   IonRow,
   IonCol,
   IonText,
+  IonButton,
 } from "@ionic/react";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useProfile, UserProfile } from "../context/ProfileContext";
+import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
@@ -16,6 +17,7 @@ import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
 import { ToastContainer } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
+import { useLocations } from "../context/LocationsContext";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -26,6 +28,8 @@ const Stats = lazy(() => import("../components/Stats/Stats"));
 const Account: React.FC = () => {
 
   const { activeTab, setActiveTab } = useTab();
+  const { profileLocations } = useLocations();
+  const hasLocation = profileLocations.length > 0;
   const { user } = useAuth();
   const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
@@ -70,6 +74,12 @@ const Account: React.FC = () => {
     }
   }, [user]);
 
+  const availableTabs: TabOption[] = [
+    "profile" as TabOption,
+    "map" as TabOption,
+    ...(hasLocation ? ["pickups", "stats"].map(t => t as TabOption) : []),
+  ];
+
   const handleProfileSetupComplete = () => {
     setShowProfileSetup(false);
   };
@@ -82,31 +92,36 @@ const Account: React.FC = () => {
       case "profile":
         return <Suspense fallback={fallback}><Profile /></Suspense>;
 
-        case "pickups":
-          if (
-            (Array.isArray(profile.locations) && profile.locations.length > 0) ||
-            profile.accountType === "Driver"
-          ) {
-            return <Suspense fallback={fallback}><Pickups /></Suspense>;
-          }
-          return (
-            <IonText className="text-center w-full p-4">
-              📍 Please add at least one location to request pickups.
-            </IonText>
-          );
-        
+      case "pickups":
+        if (
+          (Array.isArray(profile.locations) && profile.locations.length > 0) ||
+          profile.accountType === "Driver"
+        ) {
+          return <Suspense fallback={fallback}><Pickups /></Suspense>;
+        }
+        return (
+          <IonText className="text-center w-full p-4">
+            📍 Please add at least one location to request pickups.
+          </IonText>
+        );
+
 
       case "map":
-        return <Suspense fallback={fallback}><Map /></Suspense>;
+        return <Suspense fallback={fallback}><Map profile={profile} /></Suspense>;
 
       case "stats":
         if (profile.stats) {
           return <Suspense fallback={fallback}><Stats /></Suspense>;
         }
         return (
+          <IonRow className="flex items-center justify-center h-full">
+            <IonCol size="auto" className="flex flex-col">
           <IonText className="text-center w-full p-4">
             📊 No stats available yet. Complete a pickup to get started!
-          </IonText>
+          </IonText>      
+          <IonButton size="small">Create a pickup</IonButton>       
+            </IonCol>
+          </IonRow>
         );
 
       default:
@@ -172,7 +187,7 @@ const Account: React.FC = () => {
           </IonGrid>
         )}
       </IonContent>
-      <Footer />
+      <Footer availableTabs={availableTabs} />
     </IonPage>
   );
 };

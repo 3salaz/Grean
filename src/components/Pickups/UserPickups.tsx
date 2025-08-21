@@ -18,7 +18,7 @@ import { arrowDown } from "ionicons/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import dayjs from "dayjs";
 import { usePickups } from "../../context/PickupsContext";
-import { materialConfig, MaterialEntry, type MaterialType, type PickupData } from "../../types/pickups";
+import { materialConfig, MaterialEntry, materialTypes, type MaterialType, type PickupData } from "../../types/pickups";
 import { useLocations } from "../../context/LocationsContext";
 import { toast } from "react-toastify";
 
@@ -35,11 +35,11 @@ const UserPickups: React.FC<Props> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [presentLoading, dismissLoading] = useIonLoading();
 
-  const handleChange = <K extends keyof typeof formData>(key: K, value: typeof formData[K]) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+  const handleChange = <K extends keyof typeof pickupData>(key: K, value: typeof pickupData[K]) => {
+    setpickupData(prev => ({ ...prev, [key]: value }));
   };
 
-  const [formData, setFormData] = useState<PickupData>({
+  const [pickupData, setpickupData] = useState<PickupData>({
     pickupTime: "",
     addressData: { address: "" },
     materials: [],
@@ -54,13 +54,13 @@ const UserPickups: React.FC<Props> = ({
         toast.error("You can only have 2 active pickups at a time.");
         return;
       }
-      if (!formData.addressData.address || !formData.pickupTime || formData.materials.length === 0) {
+      if (!pickupData.addressData.address || !pickupData.pickupTime || pickupData.materials.length === 0) {
         toast.error("Complete all required fields.");
         return;
       }
-      const result = await createPickup(formData);
+      const result = await createPickup(pickupData);
       if (result) {
-        setFormData({
+        setpickupData({
           pickupTime: dayjs().add(1, "day").hour(7).minute(0).second(0).toISOString(),
           addressData: { address: "" },
           materials: [],
@@ -82,9 +82,9 @@ const UserPickups: React.FC<Props> = ({
     "non-ferrous": "Non-ferrous metals must be sorted separately and clean.",
   };
 
-  const [tempMaterials, setTempMaterials] = useState<MaterialEntry[]>(formData.materials);
-  const [tempPickupTime, setTempPickupTime] = useState(formData.pickupTime);
-  const [pickupTimeConfirmed, setPickupTimeConfirmed] = useState(!!formData.pickupTime);
+  const [tempMaterials, setTempMaterials] = useState<MaterialEntry[]>(pickupData.materials);
+  const [tempPickupTime, setTempPickupTime] = useState(pickupData.pickupTime);
+  const [pickupTimeConfirmed, setPickupTimeConfirmed] = useState(!!pickupData.pickupTime);
 
   const upcomingPickups = (userOwnedPickups ?? []).filter((pickup) =>
     dayjs(pickup.pickupTime).isAfter(dayjs())
@@ -95,12 +95,12 @@ const UserPickups: React.FC<Props> = ({
   );
 
 
-  const requiresDisclaimer = formData.materials.some(
+  const requiresDisclaimer = pickupData.materials.some(
     (m) => materialConfig[m.type]?.requiresAgreement
   );
 
   useEffect(() => {
-    if (currentLocation && !formData.addressData.address) {
+    if (currentLocation && !pickupData.addressData.address) {
       handleChange("addressData", { address: currentLocation.address });
     }
   }, [currentLocation]);
@@ -111,7 +111,7 @@ const UserPickups: React.FC<Props> = ({
       <motion.section initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.3 }} className="flex-grow flex flex-col gap-6 overflow-auto rounded-md ion-padding w-full">
+        transition={{ duration: 0.3 }} className="flex-grow flex flex-col gap-6 overflow-auto rounded-md w-full">
 
         {/* Select Material Dropdown Toggle */}
 
@@ -126,11 +126,11 @@ const UserPickups: React.FC<Props> = ({
           {/* Toggle Row */}
           <IonRow
             onClick={() => setShowDropdown(!showDropdown)}
-            className={`bg-white rounded-lg ion-padding-horizontal justify-between items-center cursor-pointer transition-all duration-200 border-white border hover:border-[#75B657] ${showDropdown ? "rounded-b-none" : ""
+            className={`bg-white rounded-2xl ion-padding-horizontal justify-between items-center cursor-pointer transition-all duration-200 border-white border hover:border-[#75B657] ${showDropdown ? "rounded-b-none" : ""
               }`}
           >
             <IonCol size="auto">
-              <div className="text-sm py-2">What material are you recycling?</div>
+              <div className="text-xs py-2">What material(s) are you recycling?</div>
             </IonCol>
             <IonCol size="auto">
               <IonButton
@@ -158,8 +158,8 @@ const UserPickups: React.FC<Props> = ({
             >
               <IonRow className="rounded-b-lg ion-padding bg-white">
                 <IonCol size="12" className="rounded-md">
-                  {["glass", "cardboard", "appliances", "non-ferrous"].map((material) => (
-                    <IonItem key={material} lines="none">
+                  {materialTypes.map((material) => (
+                    <IonItem className="text-xs" key={material} lines="none">
                       <IonCheckbox
                         slot="start"
                         checked={tempMaterials.some((m) => m.type === material)}
@@ -171,7 +171,7 @@ const UserPickups: React.FC<Props> = ({
                           setTempMaterials(updated);
                         }}
                       />
-                      <IonLabel className="text-sm bg-slate-[#75B657] p-2">
+                      <IonLabel className="bg-slate-[#75B657] p-1">
                         {material.charAt(0).toUpperCase() + material.slice(1).replace("-", " ")}
                       </IonLabel>
                     </IonItem>
@@ -208,8 +208,7 @@ const UserPickups: React.FC<Props> = ({
         </motion.div>
 
         {/* Materials Selected w/ disclaimer */}
-        {formData.materials.length > 0 && (
-
+        {pickupData.materials.length > 0 && (
           <motion.div
             key="material-list"
             initial={{ opacity: 0, y: -10 }}
@@ -218,15 +217,14 @@ const UserPickups: React.FC<Props> = ({
             transition={{ duration: 0.8 }}
             className="w-full"
           >
-            <IonRow className="rounded-md bg-white">
-              <IonCol size="12" className="bg-orange-50 rounded-md">
+            <IonRow className="rounded-xl p-2 bg-white">
+              <IonCol size="12" className="bg-orange-50 rounded-xl shadow-lg">
                 <div className="p-3">
-                  <IonText className="font-bold text-green-800">Material(s)</IonText>
-
+                  <IonText className="font-bold text-green-800">Pickup Details</IonText>
                 </div>
-                {formData.disclaimerAccepted ? (
+                {pickupData.disclaimerAccepted ? (
                   <div className="px-3 py-2 text-gray-800 text-sm rounded-md">
-                    {formData.materials
+                    {pickupData.materials
                       .map((m) =>
                         m.type
                           .split("-")
@@ -237,14 +235,16 @@ const UserPickups: React.FC<Props> = ({
                   </div>
                 ) : (
                   <div className="flex flex-col flex-wrap rounded-md bg-orange-50">
-                    {formData.materials.map((m, i) => {
+
+                    {pickupData.materials.map((m, i) => {
                       const formattedName = m.type
                         .split("-")
                         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(" ");
                       const disclaimer = materialDisclaimers[m.type] || "No disclaimer available.";
+
                       return (
-                        <div key={i} className="px-3 py-2 text-gray-800 text-sm rounded-md">
+                        <div key={i} className="px-3 py-2 text-slate-800 text-sm rounded-md">
                           <strong>{formattedName}</strong>
                           <p className="mt-1 text-gray-600 text-xs">{disclaimer}</p>
                         </div>
@@ -253,6 +253,7 @@ const UserPickups: React.FC<Props> = ({
                   </div>
                 )}
               </IonCol>
+
 
               {requiresDisclaimer && (
                 <motion.div
@@ -263,9 +264,9 @@ const UserPickups: React.FC<Props> = ({
                   transition={{ duration: 0.4 }}
                   className="w-full"
                 >
-                  <div className="bg-yellow-50 w-full border-t-[#75B657] border-t-2 rounded-b-md flex items-center justify-center gap-2 ion-padding-horizontal">
+                  <div className="bg-slate-50 w-full border-t-[#75B657] border-t-2 rounded-b-xl flex items-center justify-center gap-2 ion-padding-horizontal">
                     <IonCheckbox
-                      checked={formData.disclaimerAccepted}
+                      checked={pickupData.disclaimerAccepted}
                       onIonChange={(e) => handleChange("disclaimerAccepted", e.detail.checked)}
                       slot="start"
                     />
@@ -281,7 +282,7 @@ const UserPickups: React.FC<Props> = ({
 
 
         {/* Pickup Date & Time (only if at least one material is selected) */}
-        {formData.disclaimerAccepted && (
+        {pickupData.disclaimerAccepted && (
           <motion.div
             key="pickup-date"
             initial={{ opacity: 0, y: 10 }}
@@ -327,7 +328,7 @@ const UserPickups: React.FC<Props> = ({
                 <>
                   <IonCol size="12" className="ion-padding">
                     <IonText className="text-lg font-medium rounded-md bg-white ion-padding">
-                      {dayjs(formData.pickupTime).format("dddd, MMM D • h:mm A")}
+                      {dayjs(pickupData.pickupTime).format("dddd, MMM D • h:mm A")}
                     </IonText>
                   </IonCol>
                   <IonCol className="ion-padding">
@@ -349,7 +350,7 @@ const UserPickups: React.FC<Props> = ({
         )}
 
         {/* Select Location */}
-        {formData.pickupTime && (
+        {pickupData.pickupTime && (
           <motion.div key="select-location"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -368,7 +369,7 @@ const UserPickups: React.FC<Props> = ({
               <IonCol size="auto" className="font-bold w-full text-sm">
                 <IonSelect
                   className="border-2 border-dotted rounded-md px-2"
-                  value={formData.addressData.address || ""}
+                  value={pickupData.addressData.address || ""}
                   placeholder="Select Address for Pickup"
                   onIonChange={(e) => {
                     const selected = userLocations.find((l) => l.address === e.detail.value);
@@ -392,7 +393,7 @@ const UserPickups: React.FC<Props> = ({
           </motion.div>
         )}
 
-        {formData.pickupTime && formData.addressData.address && formData.disclaimerAccepted && (
+        {pickupData.pickupTime && pickupData.addressData.address && pickupData.disclaimerAccepted && (
           <motion.div
             key="submit"
             initial={{ opacity: 0, y: 10 }}

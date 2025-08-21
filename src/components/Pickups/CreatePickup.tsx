@@ -32,6 +32,9 @@ const disclaimers = {
   appliances: `Upload a clear photo. We accept standard household appliances. No hazardous components unless certified.`,
   cardboard: `Bundle must be at least 18x18x36\". Must be dry, clean, and flattened. Upload a photo.`,
   "non-ferrous": `Accepted: copper, aluminum, brass, etc. Must be clean, sorted. No ferrous (iron/steel). Photo required.`,
+  "aluminum": ``,
+  "plastic": ``,
+  "pallets": ``,
 };
 
 const CreatePickup: React.FC = () => {

@@ -19,7 +19,6 @@ import noPickupIcon from "../../../../assets/no-pickups.svg";
 import { useProfile } from "../../context/ProfileContext";
 const { profile } = useProfile();
 const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
-const { locations: userLocations } = useUserLocations(locationIds);
 
 function UserPickups() {
 
@@ -55,14 +54,14 @@ function UserPickups() {
                       {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
                     </IonText>
                     <div className="text-xs text-slate-100">
-                      {pickup.businessAddress}
+                      {pickup.addressData.address}
                     </div>
                   </IonCol>
                 </IonItem>
                 <div slot="content" className="ion-padding bg-slate-50 border-t border-gray-300 text-sm">
                   <div className="mb-2">
                     <strong>Status:</strong>{" "}
-                    {pickup.accepted ? (
+                    {pickup.acceptedBy ? (
                       <span className="text-green-600">Accepted</span>
                     ) : (
                       <span className="text-red-600">Pending</span>
@@ -70,7 +69,7 @@ function UserPickups() {
                   </div>
                   <div className="mb-2">
                     <strong>Completed:</strong>{" "}
-                    {pickup.isCompleted ? (
+                    {pickup.status ? (
                       <span className="text-green-600">Yes</span>
                     ) : (
                       <span className="text-gray-600">No</span>

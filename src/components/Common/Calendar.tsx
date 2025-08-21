@@ -2,11 +2,13 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonButton
+  IonButton,
+  IonIcon
 } from "@ionic/react";
 import { useState, useEffect } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { usePickups } from "../../context/PickupsContext";
+import { list } from "ionicons/icons";
 
 interface CalendarProps {
   selectedDate: Dayjs;
@@ -50,7 +52,7 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
           <IonText className="text-xl font-bold">Calendar</IonText>
         </IonCol>
       </IonRow>
-      <IonRow className="ion-justify-content-evenly ion-padding-vertical">
+      <IonRow className="ion-justify-content-evenly ion-padding-vertical gap-1">
         {weekDates.map((date) => {
           const isActive = date.isSame(selectedDate, 'day');
           const pickupCount = countPickupsOnDate(date);
@@ -59,15 +61,15 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
             <IonCol
               size="auto"
               key={date.format()}
-              className={`p-2 rounded-md cursor-pointer text-center ${isActive
-                  ? "border-2 border-green-600 shadow-md"
-                  : "border border-dotted border-gray-400"
+              className={`py-2 px-1 border-1 rounded-lg cursor-pointer text-center bg-yellow-50 text-xs drop-shadow-xl flex-wrap flex flex-col ${isActive
+                  ? "border-inset border-slate-100"
+                  : "border-yellow-50"
                 }`}
               onClick={() => onDateChange(date)}
             >
-              <div>{date.format("D")}</div>
+              <div className="text-lg">{date.format("D")}</div>
               <div className="text-xs">{date.format("ddd")}</div>
-              <div className="flex flex-wrap justify-center gap-1">
+              <div className="flex flex-wrap justify-center">
                 {Array.from({ length: pickupCount }).map((_, i) => (
                   <span key={i} className="bg-orange-500 w-2 h-2 rounded-full"></span>
                 ))}
@@ -78,12 +80,17 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
       </IonRow>
       <IonRow className="ion-justify-content-between ion-padding-horizontal">
         <IonCol size="auto">
-          <IonButton size="small" onClick={goToPreviousWeek}>
+          <IonButton color={"secondary"} size="small" onClick={goToPreviousWeek}>
             This Week
           </IonButton>
         </IonCol>
         <IonCol size="auto">
-          <IonButton size="small" onClick={goToNextWeek}>
+          <IonButton color={"light"}>
+            <IonIcon icon={list}></IonIcon>
+          </IonButton>
+        </IonCol>
+        <IonCol size="auto">
+          <IonButton color={"secondary"} size="small" onClick={goToNextWeek}>
             Next Week
           </IonButton>
         </IonCol>

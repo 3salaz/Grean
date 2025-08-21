@@ -57,7 +57,49 @@
     --ion-color-secondary-contrast: #ffffff;
     --ion-color-secondary-contrast-rgb: 255, 255, 255;
     --ion-color-secondary-shade: #427b3a;          /* Moss Green */
-    --ion-color-secondary-tint: #5fb559;           /* Fresh Sprout */
+    --ion-color-secondary-tint: #5fb559;   
+    
+        /* === Additional Palette === */
+
+    /* Tertiary - Clay */
+    --ion-color-tertiary: #ff8b25;                 
+    --ion-color-tertiary-rgb: 216, 140, 73;
+    --ion-color-tertiary-contrast: #ffffff;
+    --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+    --ion-color-tertiary-shade: #be7a41;           
+    --ion-color-tertiary-tint: #e19d62;           
+
+    /* Danger - Berry Red */
+    --ion-color-danger: #c3423f;                  
+    --ion-color-danger-rgb: 195, 66, 63;
+    --ion-color-danger-contrast: #ffffff;
+    --ion-color-danger-contrast-rgb: 255, 255, 255;
+    --ion-color-danger-shade: #ab3a37;
+    --ion-color-danger-tint: #cf5b58;
+
+    /* Warning - Mustard Gold */
+    --ion-color-warning: #e1b548;
+    --ion-color-warning-rgb: 225, 181, 72;
+    --ion-color-warning-contrast: #000000;
+    --ion-color-warning-contrast-rgb: 0, 0, 0;
+    --ion-color-warning-shade: #c79f40;
+    --ion-color-warning-tint: #e7c163;
+
+    /* Success - Fresh Mint */
+    --ion-color-success: #4caf6d;
+    --ion-color-success-rgb: 76, 175, 109;
+    --ion-color-success-contrast: #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade: #439962;
+    --ion-color-success-tint: #63b57f;
+
+    /* Info - Teal Sky */
+    --ion-color-info: #3b9ca8;
+    --ion-color-info-rgb: 59, 156, 168;
+    --ion-color-info-contrast: #ffffff;
+    --ion-color-info-contrast-rgb: 255, 255, 255;
+    --ion-color-info-shade: #348995;
+    --ion-color-info-tint: #56abb6;
 }
 
 

@@ -35,7 +35,7 @@ export default function UserScheduleCard() {
     };
 
     return (
-        <section className="h-full w-full ion-padding flex flex-col justify-end">
+        <section className="h-full w-full flex flex-col justify-end bg-[#75B657]/70 rounded-xl drop-shadow-xl">
             <IonCardHeader className="ion-padding">
                 <IonCardTitle className="font-bold">
                     {relevantPickups.length === 0
@@ -49,7 +49,7 @@ export default function UserScheduleCard() {
 
             <main className="flex-grow overflow-auto flex flex-col gap-2">
                 {relevantPickups.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center flex-grow rounded-md gap-2 bg-white">
+                    <div className="flex flex-col items-center justify-center flex-grow gap-2 bg-white">
                         <img src={noPickupsIcon} alt="No pickups" className="w-32 h-32 my-2" />
                         <IonText className="text-base text-gray-500 font-bold">
                             No pickups to display
@@ -100,6 +100,5 @@ export default function UserScheduleCard() {
             </main>
 
         </section>
-
     );
 }

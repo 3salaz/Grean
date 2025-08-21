@@ -24,7 +24,6 @@ import UserScheduleCard from "../Common/UsersScheduleCard";
 import DriversScheduleCard from "../Common/DriversScheduleCard";
 
 const Pickups: React.FC = () => {
-  const [presentLoading, dismissLoading] = useIonLoading();
   const [mainView, setMainView] = useState<
     "UserPickupForm" | "UsersScheduleCard" | "DriversScheduleCard" | "DriverPickups" | "DriverRoutes" | null
   >(null);
@@ -32,7 +31,7 @@ const Pickups: React.FC = () => {
 
 
 
-  const { createPickup, fetchUserOwnedPickups, userOwnedPickups, availablePickups } = usePickups();
+  const { fetchUserOwnedPickups } = usePickups();
   const { profile } = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
   const { locations: userLocations } = useUserLocations(locationIds);
@@ -43,11 +42,6 @@ const Pickups: React.FC = () => {
     }
   }, [profile?.uid]);
 
-  useEffect(() => {
-    if (profile?.accountType) {
-      setMainView(profile.accountType === "User" ? "UserPickupForm" : "DriverPickups");
-    }
-  }, [profile?.accountType]);
 
 
   if (!profile) {
@@ -66,12 +60,6 @@ const Pickups: React.FC = () => {
     switch (mainView) {
       case "UsersScheduleCard":
         return <UserScheduleCard />;
-      case "DriversScheduleCard":
-        return <DriversScheduleCard />;
-      case "DriverRoutes":
-        return <DriverRoutes />;
-      case "DriverPickups":
-        return <DriverPickups />;
       case "UserPickupForm":
       default:
         return (
@@ -86,13 +74,20 @@ const Pickups: React.FC = () => {
 
   return (
     <IonGrid className="container h-full max-w-2xl mx-auto flex flex-col drop-shadow-xl md:py-4 md:rounded-md">
-      <header>
-        <IonRow id="pickups-header" className="border-b border-slate-200 w-full flex ion-padding">
-          <IonCol size="12">
-            <IonButton slot="icon-only" size="small"><IonIcon icon={settings} />
-            </IonButton>
-            <div className="text-sm">Hello there, {profile.displayName}</div>
+      <header className="ion-padding-horizontal">
+        <IonRow id="pickups-header" className="border-b border-slate-200 w-full flex justify-between ion-padding-vertical">
+          <IonCol size="auto" className="flex flex-col items-center">
+            <div className="text-md text-[#75B657] font-bold bg-white px-4 py-1 rounded-2xl">Hi, {profile.displayName}</div>
+            <div className="text-sm px-2 font-semibold pt-2">{profile.accountType}</div>
           </IonCol>
+          <IonCol size="auto" className="flex items-end">
+            <IonButton color="danger" shape="round" size="small">
+              <IonIcon slot="icon-only" icon={settings} />
+            </IonButton>
+          </IonCol>
+        </IonRow>
+        <IonRow>
+
         </IonRow>
       </header>
 
@@ -101,74 +96,27 @@ const Pickups: React.FC = () => {
       </main>
 
       <footer id="pickups-footer">
-        {profile.accountType === "User" ? (
-          <IonRow className="gap-2 justify-center ion-padding">
-            <IonCol size="auto">
-              <IonButton
-                size="small"
-                fill={mainView === "UserPickupForm" ? "solid" : "clear"}
-                onClick={() => setMainView("UserPickupForm")}
-              >
-                Request Pickup
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton
-                size="small"
-                fill={mainView === "UsersScheduleCard" ? "solid" : "clear"}
-                onClick={() => setMainView("UsersScheduleCard")}
-              >
-                <IonIcon icon={calendar}></IonIcon>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        ) : (
-          <IonRow className="gap-2 justify-center ion-padding">
-            <IonCol size="auto">
-              <IonButton
-                size="small"
-                fill={mainView === "DriverRoutes" ? "solid" : "clear"}
-                onClick={() => setMainView("DriverRoutes")}
-              >
-                <IonIcon icon={compassOutline}></IonIcon>
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto" class="relative">
-              {mainView === "DriverPickups" ?
-                <span className="absolute top-[-25px] right-[0] w-full">
-                  <div className="bg-white w-4 h-4 text-center rounded-full ion-padding flex items-center justify-center border-[#75B657] border-2 shadow-lg text-sm">
-                    <div className="font-bold text-[#75B657]">
-                      {availablePickups.length}
-                    </div>
-
-                  </div>
-                </span>
-                : <></>
-              }
-              <IonButton
-                size="small"
-                fill={mainView === "DriverPickups" ? "solid" : "clear"}
-                onClick={() => setMainView("DriverPickups")}
-              >
-                View Pickups
-              </IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton
-                size="small"
-                fill={mainView === "DriversScheduleCard" ? "solid" : "clear"}
-                onClick={() => setMainView("DriversScheduleCard")}
-              >
-                <IonIcon icon={calendar}></IonIcon>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        )}
-
+        <IonRow className="gap-2 justify-center ion-padding">
+          <IonCol size="auto">
+            <IonButton
+              size="small"
+              fill={mainView === "UserPickupForm" ? "solid" : "clear"}
+              onClick={() => setMainView("UserPickupForm")}
+            >
+              Request Pickup
+            </IonButton>
+          </IonCol>
+          <IonCol size="auto">
+            <IonButton
+              size="small"
+              fill={mainView === "UsersScheduleCard" ? "solid" : "clear"}
+              onClick={() => setMainView("UsersScheduleCard")}
+            >
+              <IonIcon icon={calendar}></IonIcon>
+            </IonButton>
+          </IonCol>
+        </IonRow>
       </footer>
-
-
-
     </IonGrid>
   );
 };

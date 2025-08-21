@@ -1,4 +1,7 @@
 // types/pickups.ts
+
+export type PickupType = "bag25" | "bag50" | "greanBin";
+
 export const materialTypes: MaterialType[] = [
   "glass",
   "cardboard",
@@ -49,7 +52,6 @@ export interface Pickup extends Omit<PickupData, "materials"> {
   status: "pending" | "accepted" | "inProgress" | "completed" | "cancelled";
   createdBy: UserMeta;
   acceptedBy?: UserMeta | import("firebase/firestore").FieldValue;
-
   addressData: AddressData;
   pickupDate: string;
   pickupNote?: string;

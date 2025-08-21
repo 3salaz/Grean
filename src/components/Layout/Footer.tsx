@@ -30,13 +30,13 @@ function Footer({ availableTabs }: FooterProps) {
   const { activeTab, setActiveTab } = useTab();
 
   return (
-    <IonFooter className="h-[8svh] flex items-center justify-center">
+    <IonFooter className="flex items-center justify-center">
       <IonToolbar
         color="secondary"
-        className="flex items-center justify-center h-full"
+        className="flex items-center justify-center"
       >
         <IonSegment
-          className="max-w-2xl mx-auto"
+          className="max-w-2xl mx-auto p-1"
           value={activeTab}
           onIonChange={(e: CustomEvent) => setActiveTab(e.detail.value as TabOption)}
         >

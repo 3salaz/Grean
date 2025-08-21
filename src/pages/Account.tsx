@@ -34,7 +34,7 @@ const Account: React.FC = () => {
   const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
 
 
   // Restore tab from localStorage or set default
@@ -158,15 +158,15 @@ const Account: React.FC = () => {
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 1.2 }}
               className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
               onAnimationComplete={() => {
                 // Ensure we hide the welcome overlay from React after animation ends
                 setShowWelcome(false);
               }}
             >
-              <IonText className="text-2xl font-bold animate-fade-in-out">
-                👋 Hello, {profile?.displayName || "there"}!
+              <IonText className="text-2xl font-bold text-[#75B657] animate-fade-in-out">
+                Hi, {profile?.displayName || "there"}
               </IonText>
             </motion.div>
           )}

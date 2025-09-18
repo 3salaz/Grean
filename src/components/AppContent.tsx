@@ -10,7 +10,7 @@ const AppContent: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800); // Simulate load
+    const timer = setTimeout(() => setLoading(false), 1000); // Simulate load
     return () => clearTimeout(timer);
   }, []);
 
@@ -25,12 +25,12 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <IonGrid className="bg-[#75B657] h-screen w-full">
-      <div className="flex items-center justify-center h-screen bg-white transition-opacity duration-700">
+      <IonGrid className="bg-[#75B657] h-full w-full">
+      <div className="flex items-center justify-center h-full transition-opacity duration-700">
         <img
           src={logo}
           alt="Grean Logo"
-          className="animate-spin w-24 h-24"
+          className="animate-spin w-16 h-16 p-2 rounded-full"
         />
       </div>
       </IonGrid>

@@ -90,7 +90,7 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border ion-no-padding bg-[#75b657]">
+    <IonHeader className="ion-no-border py-2 bg-[#75b657]">
       <IonToolbar color="primary"  className="h-full max-w-2xl mx-auto">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton
@@ -100,7 +100,7 @@ function Navbar() {
         </IonButtons>
         <div className="flex items-center justify-center w-full">
           <img
-            className="h-10 rounded-full"
+            className="h-8 rounded-full"
             src={logo}
             alt="Grean Logo"
           />
@@ -202,7 +202,7 @@ function Navbar() {
             </IonContent>
           </IonPopover>
         )}
-
+        
         {/* Auth Modal */}
         <IonModal
           isOpen={isAuthModalOpen}
@@ -223,6 +223,7 @@ function Navbar() {
             )}
           </IonContent>
         </IonModal>
+
       </IonToolbar>
     </IonHeader>
   );

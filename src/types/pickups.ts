@@ -31,6 +31,9 @@ export type MaterialType =
 export interface MaterialEntry {
   type: MaterialType;
   weight: number;
+  storageMethod?: PickupType;   // bag25, bag50, greanBin
+  photos?: string[];            // Firebase Storage URLs
+  note?: string;                // optional user-provided notes
 }
 
 
@@ -78,7 +81,7 @@ export const materialConfig: Record<MaterialType, MaterialConfig> = {
   },
   cardboard: {
     label: "Cardboard",
-    requiresPhoto: true,
+    requiresPhoto: false,
     requiresAgreement: true, // ✅ now requires agreement
     agreementLabel: "I agree to the Cardboard Disclaimer",
     min: 1,

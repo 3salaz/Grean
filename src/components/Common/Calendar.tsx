@@ -46,7 +46,7 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
   };
 
   return (
-    <div className="w-full drop-shadow-lg ion-padding">
+    <div className="w-full drop-shadow-lg ion-padding-horizontal">
       <IonRow className="w-full">
         <IonCol size="auto">
           <IonText className="text-xl font-bold">Calendar</IonText>
@@ -56,7 +56,7 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
         {weekDates.map((date) => {
           const isActive = date.isSame(selectedDate, 'day');
           const pickupCount = countPickupsOnDate(date);
-
+          
           return (
             <IonCol
               size="auto"
@@ -66,7 +66,7 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
                   : "border-yellow-50"
                 }`}
               onClick={() => onDateChange(date)}
-            >
+            > 
               <div className="text-lg">{date.format("D")}</div>
               <div className="text-xs">{date.format("ddd")}</div>
               <div className="flex flex-wrap justify-center">
@@ -78,14 +78,14 @@ export default function Calendar({ selectedDate, onDateChange }: CalendarProps) 
           );
         })}
       </IonRow>
-      <IonRow className="ion-justify-content-between ion-padding-horizontal">
+      <IonRow className="ion-justify-content-between ion-padding">
         <IonCol size="auto">
           <IonButton color={"secondary"} size="small" onClick={goToPreviousWeek}>
             This Week
           </IonButton>
         </IonCol>
         <IonCol size="auto">
-          <IonButton color={"light"}>
+          <IonButton size="small" color={"light"}>
             <IonIcon icon={list}></IonIcon>
           </IonButton>
         </IonCol>

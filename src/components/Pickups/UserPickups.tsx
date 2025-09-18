@@ -14,8 +14,8 @@ import {
   IonHeader,
   useIonLoading,
 } from "@ionic/react";
-import { arrowDown } from "ionicons/icons";
-import { AnimatePresence, motion } from "framer-motion";
+import { arrowDown, caretForwardOutline, documentTextOutline } from "ionicons/icons";
+import { AnimatePresence, m, motion } from "framer-motion";
 import dayjs from "dayjs";
 import { usePickups } from "../../context/PickupsContext";
 import { materialConfig, MaterialEntry, materialTypes, type MaterialType, type PickupData } from "../../types/pickups";
@@ -105,7 +105,6 @@ const UserPickups: React.FC<Props> = ({
     }
   }, [currentLocation]);
 
-
   return (
     <AnimatePresence mode="wait">
       <motion.section initial={{ opacity: 0, y: 10 }}
@@ -121,7 +120,8 @@ const UserPickups: React.FC<Props> = ({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="w-full"
+
+          className="w-full ion-padding-horizontal"
         >
           {/* Toggle Row */}
           <IonRow
@@ -207,6 +207,8 @@ const UserPickups: React.FC<Props> = ({
 
         </motion.div>
 
+
+        {/* Pickup Details */}
         {/* Materials Selected w/ disclaimer */}
         {pickupData.materials.length > 0 && (
           <motion.div
@@ -217,41 +219,114 @@ const UserPickups: React.FC<Props> = ({
             transition={{ duration: 0.8 }}
             className="w-full"
           >
-            <IonRow className="rounded-xl p-2 bg-white">
+            <IonRow className="shadow-none">
               <IonCol size="12" className="bg-orange-50 rounded-xl shadow-lg">
-                <div className="p-3">
-                  <IonText className="font-bold text-green-800">Pickup Details</IonText>
+                <div className="p-2 w-full">
+                  <IonText className="font-bold text-green-800 w-full text-center">Pickup Details</IonText>
                 </div>
-                {pickupData.disclaimerAccepted ? (
-                  <div className="px-3 py-2 text-gray-800 text-sm rounded-md">
-                    {pickupData.materials
-                      .map((m) =>
-                        m.type
-                          .split("-")
-                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                          .join(" ")
-                      )
-                      .join(", ")}
-                  </div>
-                ) : (
-                  <div className="flex flex-col flex-wrap rounded-md bg-orange-50">
+                <p className="px-2 pb-1 text-xs font-semibold text-center">Lets tell the driver what to expect</p>
+                <IonText></IonText>
+                {pickupData.materials.map((m, i) => {
+                  const config = materialConfig[m.type];
+                  const formattedName = config.label;
 
-                    {pickupData.materials.map((m, i) => {
-                      const formattedName = m.type
-                        .split("-")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ");
-                      const disclaimer = materialDisclaimers[m.type] || "No disclaimer available.";
+                  return (
+                    <div key={i} className="px-3 py-2 bg-white">
+                      <IonText className="font-medium text-green-800"><IonIcon icon={caretForwardOutline}></IonIcon>{formattedName}</IonText>
+                      {/* Weight / Quantity */}
+                      {config.min !== undefined && (
+                        <IonItem lines="none">
+                          <IonLabel position="stacked" className="text-xs">Quantity / Weight</IonLabel>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={m.weight || ""}
+                            min={config.min}
+                            max={config.max}
+                            onChange={(e) => {
+                              // Only allow numbers
+                              const val = e.target.value;
+                              if (/^\d*$/.test(val)) {
+                                const value = parseInt(val) || 0;
+                                handleChange("materials", pickupData.materials.map((mat, idx) =>
+                                  idx === i ? { ...mat, weight: value } : mat
+                                ));
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              // Prevent non-numeric input
+                              if (
+                                ["e", "E", "+", "-", ".", ",", " "].includes(e.key) ||
+                                (e.ctrlKey && ["v", "V"].includes(e.key))
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
+                            className="border rounded-md px-2 py-1 text-sm w-full"
+                          />
+                          <IonText className="text-[10px] text-gray-500">
+                            Min {config.min} • Max {config.max}
+                          </IonText>
+                        </IonItem>
+                      )}
 
-                      return (
-                        <div key={i} className="px-3 py-2 text-slate-800 text-sm rounded-md">
-                          <strong>{formattedName}</strong>
-                          <p className="mt-1 text-gray-600 text-xs">{disclaimer}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                      {/* Storage Method (Plastic/Aluminum) */}
+                      {(m.type === "plastic" || m.type === "aluminum") && (
+                        <IonItem lines="none">
+                          <IonLabel position="stacked" className="text-xs">Storage Method</IonLabel>
+                          <IonSelect
+                            value={m.storageMethod}
+                            placeholder="Select Method"
+                            onIonChange={(e) => {
+                              handleChange("materials", pickupData.materials.map((mat, idx) =>
+                                idx === i ? { ...mat, storageMethod: e.detail.value } : mat
+                              ));
+                            }}
+                          >
+                            <IonSelectOption value="bag25">25 lb Bag</IonSelectOption>
+                            <IonSelectOption value="bag50">50 lb Bag</IonSelectOption>
+                            <IonSelectOption value="greanBin">Grean Bin</IonSelectOption>
+                          </IonSelect>
+                        </IonItem>
+                      )}
+
+                      {/* Photos (if required) */}
+                      {config.requiresPhoto && (
+                        <IonItem lines="none">
+                          <IonLabel position="stacked" className="text-xs">Upload Photo</IonLabel>
+                          <input
+                            className="border-1 border-red-400 rounded-md p-2 w-full"
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                // TODO: upload to Firebase Storage and get URL
+                                const url = URL.createObjectURL(file);
+                                handleChange("materials", pickupData.materials.map((mat, idx) =>
+                                  idx === i ? { ...mat, photos: [...(mat.photos || []), url] } : mat
+                                ));
+                              }
+                            }}
+                          />
+                          {m.photos && (
+                            <div className="flex gap-2 mt-1">
+                              {m.photos.map((p, idx) => (
+                                <img key={idx} src={p} alt="preview" className="w-12 h-12 rounded object-cover" />
+                              ))}
+                            </div>
+                          )}
+                        </IonItem>
+                      )}
+
+                      {/* Show disclaimer text if disclaimer not yet accepted */}
+                      {!pickupData.disclaimerAccepted && config.requiresAgreement && (
+                        <p className="text-xs text-gray-600 mt-1 ion-padding-horizontal">{config.agreementLabel}</p>
+                      )}
+                    </div>
+                  );
+                })}
               </IonCol>
 
 

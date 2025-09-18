@@ -11,6 +11,7 @@ import { addCircle, settings, settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
 import { UserProfile } from "../../context/ProfileContext";
 import { useLocations } from "../../context/LocationsContext";
+import { Route } from "react-router-dom";
 
 interface ProfileHeaderProps {
   openModal?: () => void;
@@ -31,17 +32,16 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
       {/* Profile Info */}
       <IonCol size="9">
         <div className="flex flex-col items-start justify-end space-y-1">
-          <IonText className="text-2xl font-semibold text-gray-900">
-            {profile?.displayName || "User 1"}
+          <IonText className="text-md text-[#75B657] border-1 font-bold bg-white px-4 py-1 rounded-2xl">
+            {profile?.displayName|| "User 1"}
           </IonText>
           {profile?.accountType === "User" ?
-            <IonText className="text-xs text-gray-700">
+            <IonText className="text-xs px-2 font-semibold pt-2">
               Location: {shortAddress || "None selected"}
             </IonText> : <IonText className="">
               {profile?.accountType}
             </IonText>
           }
-
 
         </div>
       </IonCol>
@@ -60,7 +60,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
           >
             <IonIcon slot="icon-only" icon={settings} />
           </IonButton>
-
+          
           {!profile?.locations?.length && openModal && (
             <IonButton onClick={openModal} size="small" shape="round" fill="clear">
               <IonIcon slot="icon-only" icon={addCircle} />

@@ -9,7 +9,7 @@ interface MyRoutesProps {
 const MyRoutes: React.FC<MyRoutesProps> = ({profile}) => {
   if (!profile) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full bg-orange-300">
         <IonSpinner />
       </div>
     );

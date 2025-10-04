@@ -1,0 +1,80 @@
+# ===================================
+# 🧠 Core .gitignore for Grean Project
+# (multi-app: client-app + driver-app)
+# ===================================
+
+# Node dependencies
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+**/dist/
+**/build/
+
+# Firebase + tooling
+.firebase/
+.firebase/*
+.firebaserc
+firebase-debug.log
+storage-debug.log
+
+# Environment variables
+.env
+.env.*
+!.env.example  # keep sample env files if you have them
+
+# OS / system files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Coverage / testing
+coverage/
+**/coverage/
+.vscode-test/
+jest-cache/
+jest-results/
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.sw?
+*.swo
+*.swn
+
+# Lock files (optional if using npm ci)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+*.local
+*.tmp
+*.bak
+*.log
+*.orig
+*.rej
+
+# ===================================
+# 🧱 Project specific ignores
+# ===================================
+# Ionic / Capacitor / React
+www/
+.sourcemaps/
+plugins/
+platforms/
+
+# Cache / temp
+.cache/
+**/.cache/
+.tmp/
+**/.tmp/

@@ -1,0 +1,20 @@
+{
+  "name": "grean-monorepo",
+  "private": true,
+  "workspaces": [
+    "client-app",
+    "driver-app",
+    "shared"
+  ],
+  "scripts": {
+    "start:client": "cd client-app && npm start",
+    "start:driver": "cd driver-app && npm start",
+    "build:client": "cd client-app && npm run build",
+    "build:driver": "cd driver-app && npm run build",
+    "deploy:client": "firebase deploy --only hosting:client",
+    "deploy:driver": "firebase deploy --only hosting:driver"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  }
+}

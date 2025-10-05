@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+    /* === CUSTOM IONIC COLORS === */
+
+    /* Forest Fern */
+    --ion-color-forest: #1F7334;
+    --ion-color-forest-rgb: 31, 115, 52;
+    --ion-color-forest-contrast: #ffffff;
+    --ion-color-forest-contrast-rgb: 255, 255, 255;
+    --ion-color-forest-shade: #1b652e;
+    --ion-color-forest-tint: #358a47;
+
+    /* Evergreen Depths */
+    --ion-color-evergreen: #115923;
+    --ion-color-evergreen-rgb: 17, 89, 35;
+    --ion-color-evergreen-contrast: #ffffff;
+    --ion-color-evergreen-contrast-rgb: 255, 255, 255;
+    --ion-color-evergreen-shade: #0f4f1f;
+    --ion-color-evergreen-tint: #2f713d;
+
+    /* Meadow Grass */
+    --ion-color-meadow: #2B8C44;
+    --ion-color-meadow-rgb: 43, 140, 68;
+    --ion-color-meadow-contrast: #ffffff;
+    --ion-color-meadow-contrast-rgb: 255, 255, 255;
+    --ion-color-meadow-shade: #257b3c;
+    --ion-color-meadow-tint: #429e5b;
+
+    /* Sagebrush Mist */
+    --ion-color-sage: #658C6F;
+    --ion-color-sage-rgb: 101, 140, 111;
+    --ion-color-sage-contrast: #ffffff;
+    --ion-color-sage-contrast-rgb: 255, 255, 255;
+    --ion-color-sage-shade: #597d63;
+    --ion-color-sage-tint: #769b80;
+
+    /* Pale Eucalyptus */
+    --ion-color-eucalyptus: #A8BFAA;
+    --ion-color-eucalyptus-rgb: 168, 191, 170;
+    --ion-color-eucalyptus-contrast: #000000;
+    --ion-color-eucalyptus-contrast-rgb: 0, 0, 0;
+    --ion-color-eucalyptus-shade: #94a896;
+    --ion-color-eucalyptus-tint: #b6c9b8;
+
+    /* === ORIGINAL IONIC COLORS === */
+
+    --ion-color-primary: #75b657;                  /* Leaf Green */
+    --ion-color-primary-rgb: 117, 182, 87;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #669b4f;            /* Garden Green */
+    --ion-color-primary-tint: #85c169;             /* Sprout Green */
+
+    --ion-color-secondary: #4a8c42;                /* Vine Green */
+    --ion-color-secondary-rgb: 74, 140, 66;
+    --ion-color-secondary-contrast: #ffffff;
+    --ion-color-secondary-contrast-rgb: 255, 255, 255;
+    --ion-color-secondary-shade: #427b3a;          /* Moss Green */
+    --ion-color-secondary-tint: #5fb559;   
+    
+        /* === Additional Palette === */
+
+    /* Tertiary - Clay */
+    --ion-color-tertiary: #ff8b25;                 
+    --ion-color-tertiary-rgb: 216, 140, 73;
+    --ion-color-tertiary-contrast: #ffffff;
+    --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+    --ion-color-tertiary-shade: #be7a41;           
+    --ion-color-tertiary-tint: #e19d62;           
+
+    /* Danger - Berry Red */
+    --ion-color-danger: #c3423f;                  
+    --ion-color-danger-rgb: 195, 66, 63;
+    --ion-color-danger-contrast: #ffffff;
+    --ion-color-danger-contrast-rgb: 255, 255, 255;
+    --ion-color-danger-shade: #ab3a37;
+    --ion-color-danger-tint: #cf5b58;
+
+    /* Warning - Mustard Gold */
+    --ion-color-warning: #e1b548;
+    --ion-color-warning-rgb: 225, 181, 72;
+    --ion-color-warning-contrast: #000000;
+    --ion-color-warning-contrast-rgb: 0, 0, 0;
+    --ion-color-warning-shade: #c79f40;
+    --ion-color-warning-tint: #e7c163;
+
+    /* Success - Fresh Mint */
+    --ion-color-success: #4caf6d;
+    --ion-color-success-rgb: 76, 175, 109;
+    --ion-color-success-contrast: #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade: #439962;
+    --ion-color-success-tint: #63b57f;
+
+    /* Info - Teal Sky */
+    --ion-color-info: #3b9ca8;
+    --ion-color-info-rgb: 59, 156, 168;
+    --ion-color-info-contrast: #ffffff;
+    --ion-color-info-contrast-rgb: 255, 255, 255;
+    --ion-color-info-shade: #348995;
+    --ion-color-info-tint: #56abb6;
+}
+
+
+/* Prevent Scroll */
+.no-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.custom-keyboard-fix {
+    --offset-top: 0px;
+    --offset-bottom: 0px;
+    --keyboard-offset: 0px;
+    padding-bottom: env(safe-area-inset-bottom); /* safe padding for iOS */
+  }
+  
+
+/* .swiper-pagination {
+    @apply absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 justify-center z-10;
+  }
+  
+  .swiper-pagination-bullet {
+    @apply w-2.5 h-2.5 rounded-full bg-gray-300 opacity-80 transition-all;
+  }
+  
+  .swiper-pagination-bullet-active {
+    @apply bg-[#75B657] opacity-100 scale-110;
+  } */
+  

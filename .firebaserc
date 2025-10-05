@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "grean-de04f"
-  }
+  },
+  "targets": {
+    "grean-de04f": {
+      "hosting": {
+        "driver": [
+          "grean-de04f-driver"
+        ],
+        "client": [
+          "grean-de04f-client"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

@@ -14,7 +14,7 @@ import {
   IonHeader,
   useIonLoading,
 } from "@ionic/react";
-import { arrowDown, caretForwardOutline, documentTextOutline } from "ionicons/icons";
+import { arrowDown, caretForwardOutline, documentTextOutline, ellipse } from "ionicons/icons";
 import { AnimatePresence, m, motion } from "framer-motion";
 import dayjs from "dayjs";
 import { usePickups } from "../../context/PickupsContext";
@@ -219,20 +219,21 @@ const UserPickups: React.FC<Props> = ({
             transition={{ duration: 0.8 }}
             className="w-full"
           >
-            <IonRow className="shadow-none">
-              <IonCol size="12" className="bg-orange-50 rounded-xl shadow-lg">
+            <IonRow className="shadow-none bg-orange-50 rounded-xl shadow-lg">
+              <IonCol size="12" className="ion-padding">
                 <div className="p-2 w-full">
                   <IonText className="font-bold text-green-800 w-full text-center">Pickup Details</IonText>
                 </div>
-                <p className="px-2 pb-1 text-xs font-semibold text-center">Lets tell the driver what to expect</p>
-                <IonText></IonText>
+                <p className="px-2 pb-1 text-xs">Lets tell the driver what to expect</p>
+              </IonCol>
+              <IonCol size="12" className="ion-padding-vertical">
                 {pickupData.materials.map((m, i) => {
                   const config = materialConfig[m.type];
                   const formattedName = config.label;
 
                   return (
                     <div key={i} className="px-3 py-2 bg-white">
-                      <IonText className="font-medium text-green-800"><IonIcon icon={caretForwardOutline}></IonIcon>{formattedName}</IonText>
+                      <IonText className="font-medium text-green-800">{formattedName}</IonText>
                       {/* Weight / Quantity */}
                       {config.min !== undefined && (
                         <IonItem lines="none">
@@ -293,10 +294,10 @@ const UserPickups: React.FC<Props> = ({
 
                       {/* Photos (if required) */}
                       {config.requiresPhoto && (
-                        <IonItem lines="none">
-                          <IonLabel position="stacked" className="text-xs">Upload Photo</IonLabel>
+                        <IonItem lines="none" className="flex flex-col">
+                          <IonLabel color={"danger"} position="stacked" className="text-xs pb-8 text-red-500">Upload Photo*</IonLabel>
                           <input
-                            className="border-1 border-red-400 rounded-md p-2 w-full"
+                            className="border-1 border-slate-150 drop-shadow-lg rounded-md text-center p-2 w-28 aspect-square cursor-pointer"
                             type="file"
                             accept="image/*"
                             onChange={async (e) => {
@@ -353,143 +354,150 @@ const UserPickups: React.FC<Props> = ({
               )}
             </IonRow>
           </motion.div>
-        )}
+        )
+        }
 
 
         {/* Pickup Date & Time (only if at least one material is selected) */}
-        {pickupData.disclaimerAccepted && (
-          <motion.div
-            key="pickup-date"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.4 }}
-            className="w-full"
-          >
-            <IonRow className="rounded-md bg-orange-50 ion-padding-vertical">
-              <IonCol size="12" className="ion-padding flex items-center justify-center">
-                <IonText className="font-bold w-full">Pickup Date & Time</IonText>
-              </IonCol>
-              {!pickupTimeConfirmed ? (
-                <>
-                  <IonCol size="12" className="ion-padding-vertical">
-                    <IonDatetime
-                      presentation="date-time"
-                      value={tempPickupTime}
-                      className="rounded-md w-full bg-white"
-                      onIonChange={(e) => {
-                        const iso = e.detail.value?.toString();
-                        if (iso) setTempPickupTime(iso);
-                      }}
-                      min={tomorrow7am.toISOString()}
-                      minuteValues="0,15,30,45"
-                    />
-                    <div className="bg-white ion-padding">
+        {
+          pickupData.disclaimerAccepted && (
+            <motion.div
+              key="pickup-date"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.4 }}
+              className="w-full"
+            >
+              <IonRow className="rounded-md bg-orange-50 ion-padding-vertical">
+                <IonCol size="12" className="ion-padding flex items-center justify-center">
+                  <IonText className="font-bold w-full">Pickup Date & Time</IonText>
+                </IonCol>
+                {!pickupTimeConfirmed ? (
+                  <>
+                    <IonCol size="12" className="ion-padding-vertical">
+                      <IonDatetime
+                        presentation="date-time"
+                        value={tempPickupTime}
+                        className="rounded-md w-full bg-white"
+                        onIonChange={(e) => {
+                          const iso = e.detail.value?.toString();
+                          if (iso) setTempPickupTime(iso);
+                        }}
+                        min={tomorrow7am.toISOString()}
+                        minuteValues="0,15,30,45"
+                      />
+                      <div className="bg-white ion-padding">
+                        <IonButton
+                          size="small"
+                          color="light"
+                          onClick={() => {
+                            handleChange("pickupTime", tempPickupTime);
+                            setPickupTimeConfirmed(true);
+                          }}
+                        >
+                          Confirm Pickup Time
+                        </IonButton>
+                      </div>
+                    </IonCol>
+
+                  </>
+                ) : (
+                  <>
+                    <IonCol size="12" className="ion-padding">
+                      <IonText className="text-lg font-medium rounded-md bg-white ion-padding">
+                        {dayjs(pickupData.pickupTime).format("dddd, MMM D • h:mm A")}
+                      </IonText>
+                    </IonCol>
+                    <IonCol className="ion-padding">
                       <IonButton
                         size="small"
                         color="light"
-                        onClick={() => {
-                          handleChange("pickupTime", tempPickupTime);
-                          setPickupTimeConfirmed(true);
-                        }}
+                        fill="solid"
+                        className="w-auto"
+                        onClick={() => setPickupTimeConfirmed(false)}
                       >
-                        Confirm Pickup Time
+                        Edit Pickup Time
                       </IonButton>
-                    </div>
-                  </IonCol>
+                    </IonCol>
+                  </>
+                )}
+              </IonRow>
+            </motion.div>
 
-                </>
-              ) : (
-                <>
-                  <IonCol size="12" className="ion-padding">
-                    <IonText className="text-lg font-medium rounded-md bg-white ion-padding">
-                      {dayjs(pickupData.pickupTime).format("dddd, MMM D • h:mm A")}
-                    </IonText>
-                  </IonCol>
-                  <IonCol className="ion-padding">
-                    <IonButton
-                      size="small"
-                      color="light"
-                      fill="solid"
-                      className="w-auto"
-                      onClick={() => setPickupTimeConfirmed(false)}
-                    >
-                      Edit Pickup Time
-                    </IonButton>
-                  </IonCol>
-                </>
-              )}
-            </IonRow>
-          </motion.div>
-
-        )}
+          )
+        }
 
         {/* Select Location */}
-        {pickupData.pickupTime && (
-          <motion.div key="select-location"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="w-full">
-            <IonRow>
-              <IonCol size="12">
-                <IonText className="text-sm">
-                  What location are we adding this pickup for?
-                </IonText>
+        {
+          pickupData.pickupTime && (
+            <motion.div key="select-location"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="w-full">
+              <IonRow>
+                <IonCol size="12">
+                  <IonText className="text-sm">
+                    What location are we adding this pickup for?
+                  </IonText>
 
-              </IonCol>
-            </IonRow>
-            <IonRow className="w-full">
-              <IonCol size="auto" className="font-bold w-full text-sm">
-                <IonSelect
-                  className="border-2 border-dotted rounded-md px-2"
-                  value={pickupData.addressData.address || ""}
-                  placeholder="Select Address for Pickup"
-                  onIonChange={(e) => {
-                    const selected = userLocations.find((l) => l.address === e.detail.value);
-                    if (selected) {
-                      handleChange("addressData", { address: selected.address });
-                    }
-                  }}
-                >
-                  {userLocations.map((loc, idx) => {
-                    const parts = loc.address.split(",");
-                    const shortAddress = parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : loc.address;
-                    return (
-                      <IonSelectOption key={idx} value={loc.address}>
-                        {shortAddress}
-                      </IonSelectOption>
-                    );
-                  })}
-                </IonSelect>
-              </IonCol>
-            </IonRow>
-          </motion.div>
-        )}
+                </IonCol>
+              </IonRow>
+              <IonRow className="w-full">
+                <IonCol size="auto" className="font-bold w-full text-sm">
+                  <IonSelect
+                    className="border-2 border-dotted rounded-md px-2"
+                    value={pickupData.addressData.address || ""}
+                    placeholder="Select Address for Pickup"
+                    onIonChange={(e) => {
+                      const selected = userLocations.find((l) => l.address === e.detail.value);
+                      if (selected) {
+                        handleChange("addressData", { address: selected.address });
+                      }
+                    }}
+                  >
+                    {userLocations.map((loc, idx) => {
+                      const parts = loc.address.split(",");
+                      const shortAddress = parts.length >= 2 ? `${parts[0]}, ${parts[1]}` : loc.address;
+                      return (
+                        <IonSelectOption key={idx} value={loc.address}>
+                          {shortAddress}
+                        </IonSelectOption>
+                      );
+                    })}
+                  </IonSelect>
+                </IonCol>
+              </IonRow>
+            </motion.div>
+          )
+        }
 
-        {pickupData.pickupTime && pickupData.addressData.address && pickupData.disclaimerAccepted && (
-          <motion.div
-            key="submit"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.4 }}
-            className="w-full"
-          >
-            {/* Show submit only if disclaimer accepted or not required */}
-            <IonRow className="gap-2 w-full ion-padding">
-              <IonCol size="auto" className="mx-auto">
-                <IonButton color="primary" fill="outline" size="small" onClick={handleSubmit}>
-                  Submit Pickup
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </motion.div>
-        )}
+        {
+          pickupData.pickupTime && pickupData.addressData.address && pickupData.disclaimerAccepted && (
+            <motion.div
+              key="submit"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.4 }}
+              className="w-full"
+            >
+              {/* Show submit only if disclaimer accepted or not required */}
+              <IonRow className="gap-2 w-full ion-padding">
+                <IonCol size="auto" className="mx-auto">
+                  <IonButton color="primary" fill="outline" size="small" onClick={handleSubmit}>
+                    Submit Pickup
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </motion.div>
+          )
+        }
 
-      </motion.section>
-    </AnimatePresence>
+      </motion.section >
+    </AnimatePresence >
   );
 };
 

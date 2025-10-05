@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from "react";
-import {
-  IonButton,
-  IonCol,
-  IonGrid,
-  IonRow,
-  IonIcon,
-  IonText,
-} from "@ionic/react";
-import { calendar, settings } from "ionicons/icons";
-import { useProfile } from "../../context/ProfileContext";
-import { usePickups } from "../../context/PickupsContext";
-import { useUserLocations } from "../../hooks/useUserLocations";
+import React, {useEffect, useState} from "react";
+import {IonButton, IonCol, IonGrid, IonRow, IonIcon, IonText} from "@ionic/react";
+import {calendar, settings} from "ionicons/icons";
+import {useProfile} from "../../context/ProfileContext";
+import {usePickups} from "../../context/PickupsContext";
+import {useUserLocations} from "../../hooks/useUserLocations";
 import UserPickups from "./UserPickups";
 import UserScheduleCard from "../Common/UsersScheduleCard";
 
@@ -19,10 +12,10 @@ const Pickups: React.FC = () => {
     "UserPickupForm"
   );
 
-  const { fetchUserOwnedPickups } = usePickups();
-  const { profile } = useProfile();
+  const {fetchUserOwnedPickups} = usePickups();
+  const {profile} = useProfile();
   const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
-  const { locations: userLocations } = useUserLocations(locationIds);
+  const {locations: userLocations} = useUserLocations(locationIds);
 
   useEffect(() => {
     if (profile?.uid) {
@@ -56,9 +49,7 @@ const Pickups: React.FC = () => {
             <IonText className="text-md text-[#75B657] border-[#75B657] border-1 font-bold bg-white px-4 py-1 rounded-2xl">
               {profile.displayName}
             </IonText>
-            <div className="text-sm px-2 font-semibold pt-2">
-              {profile.accountType}
-            </div>
+            <div className="text-sm px-2 font-semibold pt-2">{profile.accountType}</div>
           </IonCol>
 
           <IonCol size="auto" className="flex">
@@ -66,7 +57,6 @@ const Pickups: React.FC = () => {
               <IonIcon color="primary" slot="icon-only" icon={settings} />
             </IonButton>
           </IonCol>
-
         </IonRow>
       </header>
 
@@ -84,24 +74,33 @@ const Pickups: React.FC = () => {
 
       {/* Footer */}
       <footer id="pickups-footer">
-        <IonRow className="gap-2 justify-center ion-padding">
-          <IonCol size="auto">
+        <IonRow className="gap-4 justify-center ion-padding">
+          {/* Request Pickups */}
+          <IonCol size="auto" className="text-center">
             <IonButton
-              size="small"
+              className="pb-1"
               fill={mainView === "UserPickupForm" ? "solid" : "clear"}
               onClick={() => setMainView("UserPickupForm")}
             >
-              Request Pickup
+              Request Pickups
             </IonButton>
+            {mainView === "UserPickupForm" && (
+              <div className="w-full h-1 bg-[#75B657] rounded-full"></div>
+            )}
           </IonCol>
-          <IonCol size="auto">
+
+          {/* Schedule */}
+          <IonCol size="auto" className="text-center">
             <IonButton
-              size="small"
+              className="pb-1"
               fill={mainView === "UsersScheduleCard" ? "solid" : "clear"}
               onClick={() => setMainView("UsersScheduleCard")}
             >
-              <IonIcon icon={calendar}></IonIcon>
+              <IonIcon icon={calendar} />
             </IonButton>
+            {mainView === "UsersScheduleCard" && (
+              <div className="w-full h-1 bg-[#75B657] rounded-full"></div>
+            )}
           </IonCol>
         </IonRow>
       </footer>

@@ -11,11 +11,10 @@ const Profile: React.FC = () => {
   return (
 
     <main className="container max-w-2xl mx-auto flex-grow overflow-auto snap-y snap-mandatory h-screen">
-
-        <ProfileHeader profile={profile} />
-        <MyForest />
-        <Impact />
-        <MyLocations profile={profile} />
+      <ProfileHeader profile={profile} />
+      <MyForest />
+      <Impact />
+      <MyLocations profile={profile} />
     </main>
   );
 };

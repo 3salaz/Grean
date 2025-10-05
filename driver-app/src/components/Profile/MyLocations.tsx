@@ -93,10 +93,10 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
       </IonCol>
 
       {userLocations.length === 0 ? (
-        <IonCol className="ion-padding-horizontal">
+        <IonCol size="12" className="ion-padding">
           <div className="text-center font-medium italic ion-padding bg-white bg-opacity-40 rounded-md">
             <IonText className="text-xs text-[#3a6833]">
-              No Locations (Add a location to get started)
+              No Locations Added
             </IonText>
           </div>
         </IonCol>
@@ -167,6 +167,9 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
                           {loc.businessBio}
                         </IonText>
                         <IonText className="text-xs text-gray-400 text-center">{loc.address}</IonText>
+                        <IonButton size="small" onClick={() => setEditingIndex(selectedIndex)}>
+          Edit
+        </IonButton>
                       </>
                     )}
                   </div>
@@ -187,9 +190,6 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
           onClick={() => setShowCreateModal(true)}
         >
           <IonIcon slot="icon-only" icon={addCircle} />
-        </IonButton>
-        <IonButton size="small" onClick={() => setEditingIndex(selectedIndex)}>
-          Edit
         </IonButton>
       </IonCol>
 

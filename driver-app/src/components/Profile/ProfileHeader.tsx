@@ -30,7 +30,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
   return (
     <IonRow className="ion-padding flex items-center justify-between border-b border-slate-200">
       {/* Profile Info */}
-      <IonCol size="9">
+      <IonCol size="9" className="ion-padding-horizontal">
         <div className="flex flex-col items-start justify-end space-y-1">
           <IonText className="text-md text-[#75B657] border-1 font-bold bg-white px-4 py-1 rounded-2xl">
             {profile?.displayName|| "User 1"}
@@ -38,7 +38,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
           {profile?.accountType === "User" ?
             <IonText className="text-xs px-2 font-semibold pt-2">
               Location: {shortAddress || "None selected"}
-            </IonText> : <IonText className="">
+            </IonText> : <IonText className="font-bold ion-padding-horizontal text-center">
               {profile?.accountType}
             </IonText>
           }
@@ -47,7 +47,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
       </IonCol>
 
       {/* Action Buttons */}
-      <IonCol size="auto" className="flex flex-col items-end justify-end ion-padding-vertical">
+      <IonCol size="auto" className="flex flex-col items-end justify-end ion-padding-horizontal">
         <div className="flex items-center justify-center gap-1">
           <IonButton
             onClick={() => setIsModalOpen(true)}

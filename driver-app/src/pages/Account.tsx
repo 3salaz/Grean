@@ -6,18 +6,18 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonButton,
+  IonButton
 } from "@ionic/react";
-import { useEffect, useState, Suspense, lazy } from "react";
-import { useProfile } from "../context/ProfileContext";
-import { useAuth } from "../context/AuthContext";
-import { useTab } from "../context/TabContext";
-import { TabOption } from "../types/tabs";
+import {useEffect, useState, Suspense, lazy} from "react";
+import {useProfile} from "../context/ProfileContext";
+import {useAuth} from "../context/AuthContext";
+import {useTab} from "../context/TabContext";
+import {TabOption} from "../types/tabs";
 import Navbar from "../components/Layout/Navbar";
 import Footer from "../components/Layout/Footer";
-import { ToastContainer } from "react-toastify";
-import { AnimatePresence, motion } from "framer-motion";
-import { useLocations } from "../context/LocationsContext";
+import {ToastContainer} from "react-toastify";
+import {AnimatePresence, motion} from "framer-motion";
+import {useLocations} from "../context/LocationsContext";
 
 // Lazy load components
 const Profile = lazy(() => import("../components/Profile/Profile"));
@@ -26,16 +26,14 @@ const Map = lazy(() => import("../components/Map/Map"));
 const Stats = lazy(() => import("../components/Stats/Stats"));
 
 const Account: React.FC = () => {
-
-  const { activeTab, setActiveTab } = useTab();
-  const { profileLocations } = useLocations();
+  const {activeTab, setActiveTab} = useTab();
+  const {profileLocations} = useLocations();
   const hasLocation = profileLocations.length > 0;
-  const { user } = useAuth();
-  const { profile } = useProfile();
-  const [loading, setLoading] = useState(true);
-  const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const {user} = useAuth();
+  const {profile} = useProfile();
 
+  const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   // Restore tab from localStorage or set default
   useEffect(() => {
@@ -57,13 +55,6 @@ const Account: React.FC = () => {
     loadTab();
   }, [activeTab]);
 
-  // Show profile setup modal
-  useEffect(() => {
-    if (user && !profile) {
-      setShowProfileSetup(true);
-    }
-  }, [user, profile]);
-
   // One-time welcome overlay
   useEffect(() => {
     const hasWelcomed = sessionStorage.getItem("hasWelcomedUser");
@@ -77,12 +68,8 @@ const Account: React.FC = () => {
   const availableTabs: TabOption[] = [
     "profile" as TabOption,
     "map" as TabOption,
-    ...(hasLocation ? ["pickups", "stats"].map(t => t as TabOption) : []),
+    ...(hasLocation ? (["pickups", "stats"] as TabOption[]) : [])
   ];
-
-  const handleProfileSetupComplete = () => {
-    setShowProfileSetup(false);
-  };
 
   const renderActiveTab = () => {
     const fallback = <IonSpinner name="crescent" color="primary" />;
@@ -90,55 +77,55 @@ const Account: React.FC = () => {
 
     switch (activeTab) {
       case "profile":
-        return <Suspense fallback={fallback}><Profile /></Suspense>;
-
-      case "pickups":
-        if (
-          (Array.isArray(profile.locations) && profile.locations.length > 0) ||
-          profile.accountType === "Driver"
-        ) {
-          return <Suspense fallback={fallback}><Pickups /></Suspense>;
-        }
         return (
-          <IonText className="text-center w-full p-4">
-            📍 Please add at least one location to request pickups.
-          </IonText>
+          <Suspense fallback={fallback}>
+            <Profile />
+          </Suspense>
         );
 
+      case "pickups":
+        return (
+          <Suspense fallback={fallback}>
+            <Pickups />
+          </Suspense>
+        );
 
       case "map":
-        return <Suspense fallback={fallback}><Map profile={profile} /></Suspense>;
+        return (
+          <Suspense fallback={fallback}>
+            <Map profile={profile} />
+          </Suspense>
+        );
 
       case "stats":
         if (profile.stats) {
-          return <Suspense fallback={fallback}><Stats /></Suspense>;
+          return (
+            <Suspense fallback={fallback}>
+              <Stats />
+            </Suspense>
+          );
         }
         return (
           <IonRow className="flex items-center justify-center h-full">
             <IonCol size="auto" className="flex flex-col">
-          <IonText className="text-center w-full p-4">
-            📊 No stats available yet. Complete a pickup to get started!
-          </IonText>      
-          <IonButton size="small">Create a pickup</IonButton>       
+              <IonText className="text-center w-full p-4">
+                📊 No stats available yet. Complete a pickup to get started!
+              </IonText>
+              <IonButton size="small" onClick={() => setActiveTab("pickups")}>
+                Go to Pickups
+              </IonButton>
             </IonCol>
           </IonRow>
         );
 
       default:
-        return (
-          <IonText className="text-center w-full p-4">
-            Invalid tab selected.
-          </IonText>
-        );
+        return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
     }
   };
 
-
   return (
     <IonPage>
-
       <Navbar />
-
       <IonContent scrollY={false} className="relative bg-gradient-to-t from-grean to-blue-300">
         <ToastContainer
           position="top-center"
@@ -150,28 +137,25 @@ const Account: React.FC = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          toastClassName="!z-[999] mt-[50px]" // Adjust the margin-top based on your navbar height
+          toastClassName="!z-[999] mt-[50px]"
         />
+
         <AnimatePresence>
           {showWelcome && (
             <motion.div
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
+              initial={{opacity: 1}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+              transition={{duration: 1.2}}
               className="absolute top-0 left-0 w-full h-full z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
-              onAnimationComplete={() => {
-                // Ensure we hide the welcome overlay from React after animation ends
-                setShowWelcome(false);
-              }}
+              onAnimationComplete={() => setShowWelcome(false)}
             >
               <IonText className="text-2xl font-bold text-[#75B657] animate-fade-in-out">
-                Hi, {profile?.displayName || "there"}
+                Hi, {profile?.displayName || "Driver"}
               </IonText>
             </motion.div>
           )}
         </AnimatePresence>
-
 
         {loading ? (
           <IonGrid className="h-full ion-no-padding container mx-auto">
@@ -187,6 +171,7 @@ const Account: React.FC = () => {
           </IonGrid>
         )}
       </IonContent>
+
       <Footer availableTabs={availableTabs} />
     </IonPage>
   );

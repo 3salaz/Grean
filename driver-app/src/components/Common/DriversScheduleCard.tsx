@@ -1,39 +1,51 @@
 import {
-  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
-  IonAccordionGroup, IonItem, IonLabel, IonText,
-  IonAccordion, IonGrid, IonRow, IonCol, IonButton
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonAccordionGroup,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonAccordion,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonButton
 } from "@ionic/react";
 import noPickupsIcon from "../../assets/no-pickups.svg";
-import { formatDateInfo } from "../../utils/dateUtils";
-import { usePickups } from "../../context/PickupsContext";
-import { useProfile } from "../../context/ProfileContext";
-import { toast } from "react-toastify";
-import { deleteField } from "firebase/firestore";
-import { useState } from "react";
+import {formatDateInfo} from "../../utils/dateUtils";
+import {usePickups} from "../../context/PickupsContext";
+import {useProfile} from "../../context/ProfileContext";
+import {toast} from "react-toastify";
+import {deleteField} from "firebase/firestore";
+import {useState} from "react";
 import dayjs from "dayjs";
 import Calendar from "./Calendar";
 
-
 export default function DriversScheduleCard() {
-  const { userAssignedPickups, updatePickup } = usePickups();
+  const {userAssignedPickups, updatePickup} = usePickups();
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const inProgressPickup = userAssignedPickups.find(p => p.status === "inProgress");
-
+  const inProgressPickup = userAssignedPickups.find((p) => p.status === "inProgress");
 
   const relevantPickups = userAssignedPickups;
   const driverStatuses = ["accepted"];
 
-  const pickupsByStatus: Record<string, typeof relevantPickups> =
-    relevantPickups.reduce((acc, p) => {
+  const pickupsByStatus: Record<string, typeof relevantPickups> = relevantPickups.reduce(
+    (acc, p) => {
       acc[p.status] = acc[p.status] || [];
       acc[p.status].push(p);
       return acc;
-    }, {} as Record<string, typeof relevantPickups>);
-  driverStatuses.forEach(s => { if (!pickupsByStatus[s]) pickupsByStatus[s] = []; });
+    },
+    {} as Record<string, typeof relevantPickups>
+  );
+  driverStatuses.forEach((s) => {
+    if (!pickupsByStatus[s]) pickupsByStatus[s] = [];
+  });
 
   const handleStartPickup = async (pickupId: string) => {
     try {
-      await updatePickup(pickupId, { status: "inProgress" });
+      await updatePickup(pickupId, {status: "inProgress"});
     } catch (err) {
       console.error("Failed to start pickup:", err);
     }
@@ -43,7 +55,7 @@ export default function DriversScheduleCard() {
     try {
       await updatePickup(pickupId, {
         acceptedBy: deleteField(),
-        status: "pending",
+        status: "pending"
       });
       toast.success("Pickup has been reset to pending.");
     } catch (error) {
@@ -54,12 +66,10 @@ export default function DriversScheduleCard() {
 
   return (
     <section className="h-full w-full flex flex-col justify-end">
-      <div className='flex-none ion-padding'>
+      <div className="flex-none ion-padding">
         <IonCardHeader>
           <IonCardTitle className="font-bold">
-            {relevantPickups.length === 0
-              ? "No Pickups"
-              : `Pickups: (${relevantPickups.length})`}
+            {relevantPickups.length === 0 ? "No Pickups" : `Pickups: (${relevantPickups.length})`}
           </IonCardTitle>
           <IonCardSubtitle className="text-white">Your assigned pickups</IonCardSubtitle>
         </IonCardHeader>
@@ -67,7 +77,10 @@ export default function DriversScheduleCard() {
 
       <main className="flex-grow overflow-auto ion-padding-vertical flex flex-col justify-between">
         <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
-        <IonAccordionGroup className="flex flex-col gap-1 justify-end h-full bg-white/40 rounded-md p-2" expand="compact">
+        <IonAccordionGroup
+          className="flex flex-col gap-1 justify-end h-full bg-white/40 rounded-md p-2"
+          expand="compact"
+        >
           {relevantPickups.length === 0 ? (
             <div className="flex flex-grow flex-col items-center justify-center rounded-md gap-2 bg-white ion-padding">
               <img src={noPickupsIcon} alt="No pickups" className="w-32 h-32" />
@@ -75,23 +88,23 @@ export default function DriversScheduleCard() {
             </div>
           ) : (
             relevantPickups.map((p) => {
-              const { dayOfWeek, monthName, day, year } = formatDateInfo(p.pickupTime);
+              const {dayOfWeek, monthName, day, year} = formatDateInfo(p.pickupTime);
               return (
                 <IonAccordion className="rounded-md" key={p.id} value={p.id}>
                   {/* Header */}
                   <IonItem slot="header">
-
                     <IonRow>
                       <IonCol size="12">
                         <span
-                          className={`px-2 py-0.5 text-[11px] rounded-full font-medium text-white ${p.status === "pending"
-                            ? "bg-yellow-500"
-                            : p.status === "accepted"
+                          className={`px-2 py-0.5 text-[11px] rounded-full font-medium text-white ${
+                            p.status === "pending"
+                              ? "bg-yellow-500"
+                              : p.status === "accepted"
                               ? "bg-blue-500"
                               : p.status === "inProgress"
-                                ? "bg-purple-500"
-                                : "bg-green-800"
-                            }`}
+                              ? "bg-purple-500"
+                              : "bg-green-800"
+                          }`}
                         >
                           {p.status}
                         </span>
@@ -99,9 +112,9 @@ export default function DriversScheduleCard() {
                       <IonCol>
                         <p className="text-sm font-medium">{`${dayOfWeek}, ${monthName} ${day}, ${year}`}</p>
                         <p className="text-xs text-gray-500">
-                          {p.addressData?.address?.split(",").slice(0, 2).join(", ") || "Unknown Address"}
+                          {p.addressData?.address?.split(",").slice(0, 2).join(", ") ||
+                            "Unknown Address"}
                         </p>
-
                       </IonCol>
                     </IonRow>
                   </IonItem>
@@ -113,7 +126,8 @@ export default function DriversScheduleCard() {
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-700 mb-2">
                         {p.materials.map((m, index) => (
                           <div key={index}>
-                            <strong>{m.type.charAt(0).toUpperCase() + m.type.slice(1)}:</strong> {m.weight} lbs
+                            <strong>{m.type.charAt(0).toUpperCase() + m.type.slice(1)}:</strong>{" "}
+                            {m.weight} lbs
                           </div>
                         ))}
                       </div>
@@ -121,9 +135,7 @@ export default function DriversScheduleCard() {
 
                     {/* Note */}
                     {p.pickupNote && (
-                      <p className="text-[11px] text-gray-500 italic mb-2">
-                        Note: {p.pickupNote}
-                      </p>
+                      <p className="text-[11px] text-gray-500 italic mb-2">Note: {p.pickupNote}</p>
                     )}
 
                     {/* Action Buttons */}
@@ -156,9 +168,7 @@ export default function DriversScheduleCard() {
         </IonAccordionGroup>
 
         {/* Calendar Component */}
-
       </main>
     </section>
   );
 }
-

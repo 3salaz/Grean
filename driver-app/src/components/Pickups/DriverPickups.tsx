@@ -10,24 +10,26 @@ import {
   IonCardSubtitle,
   IonAccordionGroup,
   IonAccordion,
-  IonItem
+  IonItem,
+  IonIcon
 } from "@ionic/react";
-import { usePickups } from "../../context/PickupsContext";
-import type { MaterialType } from "../../types/pickups";
-import { useProfile } from "../../context/ProfileContext";
+import {usePickups} from "../../context/PickupsContext";
+import type {MaterialType} from "../../types/pickups";
+import {useProfile} from "../../context/ProfileContext";
 import dayjs from "dayjs";
 import noPickupIcon from "../../assets/no-pickups.svg";
-import { useAuth } from "../../context/AuthContext";
+import {useAuth} from "../../context/AuthContext";
 import PickupInProgress from "./PickupInProgress";
+import {filter} from "ionicons/icons";
 
 const DriverPickups: React.FC = () => {
-  const { profile, updateProfile } = useProfile();
-  const { availablePickups, updatePickup } = usePickups();
+  const {profile, updateProfile} = useProfile();
+  const {availablePickups, updatePickup} = usePickups();
   const [acceptingPickupId, setAcceptingPickupId] = React.useState<string | null>(null);
   const [weights, setWeights] = React.useState<Record<string, Record<string, string>>>({});
 
   const handleWeightChange = (pickupId: string, materialType: string, value: string) => {
-    setWeights(prev => ({
+    setWeights((prev) => ({
       ...prev,
       [pickupId]: {
         ...(prev[pickupId] || {}),
@@ -47,7 +49,7 @@ const DriverPickups: React.FC = () => {
           uid: profile.uid,
           displayName: profile.displayName,
           email: profile.email,
-          photoURL: profile.photoURL,
+          photoURL: profile.photoURL
         },
         status: "accepted"
       });
@@ -61,19 +63,21 @@ const DriverPickups: React.FC = () => {
     }
   };
 
-
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header */}
-      <header className="flex-none ion-padding">
+      <header className="flex-none ion-padding relative">
         <IonCardHeader className="drop-shadow-none">
           <IonCardTitle>
-            {availablePickups.length === 0
-              ? "No Pickups"
-              : `Pickups (${availablePickups.length})`}
+            {availablePickups.length === 0 ? "No Pickups" : `Pickups (${availablePickups.length})`}
           </IonCardTitle>
           <IonCardSubtitle className="text-white">Current Pickups Available</IonCardSubtitle>
         </IonCardHeader>
+        <span className="absolute top-0 right-0 mt-4 mr-4">
+          <IonButton color="primary" size="small">
+            <IonIcon icon={filter}></IonIcon>
+          </IonButton>
+        </span>
       </header>
 
       {/* Scrollable main content */}
@@ -84,7 +88,10 @@ const DriverPickups: React.FC = () => {
             <IonSpinner name="crescent" color="primary" />
           </div>
         ) : availablePickups.length > 0 ? (
-          <IonAccordionGroup className="flex flex-col gap-1 justify-end h-full bg-white/40 rounded-md p-2" expand="compact">
+          <IonAccordionGroup
+            className="flex flex-col gap-1 justify-end h-full bg-white/40 rounded-md p-2"
+            expand="compact"
+          >
             {availablePickups.map((pickup) => (
               <IonAccordion className="rounded-md" key={pickup.id} value={pickup.id}>
                 <IonItem slot="header">
@@ -93,13 +100,16 @@ const DriverPickups: React.FC = () => {
                       {dayjs(pickup.pickupTime).format("dddd, MMM D • h:mm A")}
                     </IonText>
                     <p className="text-xs text-gray-500">
-                      {pickup.addressData?.address?.split(",").slice(0, 2).join(", ") || "Unknown Address"}
+                      {pickup.addressData?.address?.split(",").slice(0, 2).join(", ") ||
+                        "Unknown Address"}
                     </p>
                   </IonCol>
                 </IonItem>
                 <div slot="content" className="ion-padding bg-slate-50 border-t border-gray-300">
                   <div className="text-xs">
-                    {pickup.materials.map(m => m.type.charAt(0).toUpperCase() + m.type.slice(1)).join(", ")}
+                    {pickup.materials
+                      .map((m) => m.type.charAt(0).toUpperCase() + m.type.slice(1))
+                      .join(", ")}
                   </div>
                   <IonButton
                     size="small"
@@ -124,6 +134,5 @@ const DriverPickups: React.FC = () => {
     </div>
   );
 };
-
 
 export default DriverPickups;

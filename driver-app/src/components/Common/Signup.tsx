@@ -39,7 +39,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
     email: "",
     password: "",
     confirmPassword: "",
-    accountType: "User",
+    accountType: "Driver",
 
   });
   const [loading, setLoading] = useState(false);
@@ -86,7 +86,6 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
       history.push("/");
     } catch (error) {
       console.error("❌ Sign Up Error:", error);
-      toast.error("There was a problem creating your account.");
     } finally {
       setLoading(false);
     }

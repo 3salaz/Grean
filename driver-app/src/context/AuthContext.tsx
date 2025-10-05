@@ -77,7 +77,7 @@ const resetPassword = async (email: string) => {
     switch (error.code) {
       case "auth/email-already-in-use":
         toast.error(
-          "Email is already in use! Please sign in or use a different email."
+          "Email is already in use!"
         );
         break;
       case "auth/weak-password":
@@ -130,7 +130,7 @@ const resetPassword = async (email: string) => {
           break;
         case "auth/user-not-found":
           toast.error(
-            "No user found with that email. Please check or sign up first."
+            "No user found with that email"
           );
           break;
         case "auth/too-many-requests":

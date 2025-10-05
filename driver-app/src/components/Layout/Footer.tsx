@@ -32,7 +32,7 @@ function Footer({ availableTabs }: FooterProps) {
   return (
     <IonFooter className="flex items-center justify-center">
       <IonToolbar
-        color="secondary"
+        color="tertiary"
         className="flex items-center justify-center"
       >
         <IonSegment

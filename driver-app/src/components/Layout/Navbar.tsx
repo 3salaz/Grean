@@ -90,8 +90,8 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border py-2 bg-[#75b657]">
-      <IonToolbar color="primary"  className="h-full max-w-2xl mx-auto">
+    <IonHeader className="ion-no-border">
+      <IonToolbar color="tertiary"  className="h-full mx-auto">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton
             onClick={handleOpenRoutesPopover}
@@ -184,10 +184,10 @@ function Navbar() {
             event={popoverEvent}
             onDidDismiss={handleClosePopover}
           >
-            <IonContent>
-              <IonList>
+            <IonContent className="mt-4" color={"primary"}>
+              <IonList className="bg-blue-500 p-4">
                 {/* Profile Email Header */}
-                <IonListHeader className="bg-slate-200 flex justify-end px-3 py-2">
+                <IonListHeader className="bg-slate-100 flex justify-end px-3">
                   <IonText className="text-xs text-gray-600">
                     {user.email}
                   </IonText>

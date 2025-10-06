@@ -9,39 +9,37 @@ import {
   IonTextarea,
   IonModal
 } from "@ionic/react";
-import { useEffect, useRef, useState } from "react";
-import { addCircle } from "ionicons/icons";
+import {useEffect, useRef, useState} from "react";
+import {addCircle} from "ionicons/icons";
 import CreateLocation from "./CreateLocation";
-import { UserProfile } from "../../context/ProfileContext";
-import { useUserLocations, LocationData } from "../../hooks/useUserLocations";
-import { useLocations } from "../../context/LocationsContext";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
+import {UserProfile} from "../../context/ProfileContext";
+import {useUserLocations, LocationData} from "../../hooks/useUserLocations";
+import {useLocations} from "../../context/LocationsContext";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Pagination} from "swiper/modules";
 
-import 'swiper/css';
-import 'swiper/css/pagination';
-import { toast } from "react-toastify";
+import "swiper/css";
+import "swiper/css/pagination";
+import {toast} from "react-toastify";
 
 interface MyLocationsProps {
   profile: UserProfile | null;
 }
 
-const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
+const MyLocations: React.FC<MyLocationsProps> = ({profile}) => {
   const presentingElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    presentingElement.current = document.querySelector('ion-router-outlet');
+    presentingElement.current = document.querySelector("ion-router-outlet");
   }, []);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { currentLocation, setCurrentLocation, updateLocation } = useLocations();
-  const { locations: userLocations, refreshLocations } = useUserLocations(profile?.locations || []);
+  const {currentLocation, setCurrentLocation, updateLocation} = useLocations();
+  const {locations: userLocations, refreshLocations} = useUserLocations(profile?.locations || []);
   const [editedLocations, setEditedLocations] = useState<LocationData[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-
-
 
   useEffect(() => {
     setEditedLocations(userLocations);
@@ -50,7 +48,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
   const updateField = (index: number, field: keyof LocationData, value: string) => {
     setEditedLocations((prev) => {
       const newArr = [...prev];
-      newArr[index] = { ...newArr[index], [field]: value };
+      newArr[index] = {...newArr[index], [field]: value};
       return newArr;
     });
   };
@@ -64,7 +62,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
       await updateLocation(updated.id, {
         businessName: updated.businessName,
         businessPhoneNumber: updated.businessPhoneNumber,
-        businessBio: updated.businessBio,
+        businessBio: updated.businessBio
       });
 
       await refreshLocations();
@@ -77,14 +75,9 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
     }
   };
 
-
-
   return (
     <IonRow className="border-b border-slate-200 ion-padding">
-      <IonModal
-        isOpen={showCreateModal}
-        presentingElement={presentingElement.current ?? undefined}
-      >
+      <IonModal isOpen={showCreateModal} presentingElement={presentingElement.current ?? undefined}>
         <CreateLocation profile={profile} handleClose={() => setShowCreateModal(false)} />
       </IonModal>
 
@@ -104,7 +97,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
         <IonCol size="12" className="ion-padding relative">
           <Swiper
             modules={[Pagination]}
-            pagination={{ clickable: true }}
+            pagination={{clickable: true}}
             spaceBetween={16}
             slidesPerView={1}
             onSlideChange={(swiper) => {
@@ -120,9 +113,11 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
                 <SwiperSlide key={loc.id}>
                   <div
                     className={`p-4 rounded-lg shadow-lg w-full min-h-[300px] flex flex-col items-center transition-all duration-200
-      ${selectedIndex === idx
-                        ? "border-2 border-[#75B657] bg-white"
-                        : "border border-gray-200 bg-white/80 backdrop-blur"}`}
+      ${
+        selectedIndex === idx
+          ? "border-2 border-[#75B657] bg-white"
+          : "border border-gray-200 bg-white/80 backdrop-blur"
+      }`}
                   >
                     {isSaving && idx === selectedIndex ? (
                       <div className="flex justify-center items-center min-h-[300px] w-full">
@@ -134,23 +129,33 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
                           label="Business Name"
                           value={locData.businessName || ""}
                           placeholder="Name"
-                          onIonChange={e => updateField(idx, "businessName", e.detail.value!)}
+                          onIonChange={(e) => updateField(idx, "businessName", e.detail.value!)}
                         />
                         <IonInput
                           label="Phone"
                           value={locData.businessPhoneNumber || ""}
                           placeholder="Phone"
-                          onIonChange={e => updateField(idx, "businessPhoneNumber", e.detail.value!)}
+                          onIonChange={(e) =>
+                            updateField(idx, "businessPhoneNumber", e.detail.value!)
+                          }
                         />
                         <IonTextarea
                           label="Bio"
                           value={locData.businessBio || ""}
                           placeholder="Bio"
-                          onIonChange={e => updateField(idx, "businessBio", e.detail.value!)}
+                          onIonChange={(e) => updateField(idx, "businessBio", e.detail.value!)}
                         />
                         <div className="flex gap-2 mt-2">
-                          <IonButton size="small" onClick={() => saveEdit(idx)}>Save</IonButton>
-                          <IonButton size="small" fill="clear" onClick={() => setEditingIndex(null)}>Cancel</IonButton>
+                          <IonButton size="small" onClick={() => saveEdit(idx)}>
+                            Save
+                          </IonButton>
+                          <IonButton
+                            size="small"
+                            fill="clear"
+                            onClick={() => setEditingIndex(null)}
+                          >
+                            Cancel
+                          </IonButton>
                         </div>
                       </>
                     ) : (
@@ -162,11 +167,19 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
                             className="w-20 h-20 rounded-full object-cover border border-gray-300"
                           />
                         )}
-                        <h3 className="text-base font-semibold text-center text-gray-800">{loc.businessName}</h3>
+                        <h3 className="text-base font-semibold text-center text-gray-800">
+                          {loc.businessName}
+                        </h3>
                         <IonText className="text-xs text-gray-500 text-center px-2 line-clamp-3 w-full">
                           {loc.businessBio}
                         </IonText>
-                        <IonText className="text-xs text-gray-400 text-center">{loc.address}</IonText>
+                        <IonText className="text-xs text-gray-400 text-center">
+                          {loc.address}
+                        </IonText>
+
+                        <IonButton size="small" onClick={() => setEditingIndex(selectedIndex)}>
+                          Edit
+                        </IonButton>
                       </>
                     )}
                   </div>
@@ -187,9 +200,6 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
           onClick={() => setShowCreateModal(true)}
         >
           <IonIcon slot="icon-only" icon={addCircle} />
-        </IonButton>
-        <IonButton size="small" onClick={() => setEditingIndex(selectedIndex)}>
-          Edit
         </IonButton>
       </IonCol>
 

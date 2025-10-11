@@ -1,0 +1,36 @@
+name: 🧱 Refactor / Code Improvement
+description: Propose structural or stylistic improvements
+title: "[Refactor]: "
+labels: [refactor]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for tech debt cleanup, restructuring, or UI/UX polish.
+  - type: input
+    id: area
+    attributes:
+      label: Area of Code
+      placeholder: e.g. CreatePickup component or Firestore utils
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Reason
+      description: Why does this code need refactoring?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Changes
+      description: How do you plan to improve it?
+  - type: dropdown
+    id: app
+    attributes:
+      label: Scope
+      options:
+        - client-app
+        - driver-app
+        - shared

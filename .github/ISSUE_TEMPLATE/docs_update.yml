@@ -1,0 +1,15 @@
+name: 📝 Documentation Update
+description: Suggest an update or improvement to the docs
+title: "[Docs]: "
+labels: [documentation]
+body:
+  - type: input
+    id: area
+    attributes:
+      label: File or Section
+      placeholder: e.g. CONTRIBUTING.md or setup instructions
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Update
+      description: What should be added or changed?

@@ -1,0 +1,54 @@
+name: 🐛 Bug Report
+description: Report a reproducible bug or issue in Grean
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in all fields below.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: A short summary of the bug.
+      placeholder: e.g. Pickup creation fails on mobile
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Go to...
+        2. Click...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser, or device info
+      placeholder: e.g. iOS 17, Chrome v130
+  - type: dropdown
+    id: app
+    attributes:
+      label: Affected App
+      options:
+        - client-app
+        - driver-app
+        - shared

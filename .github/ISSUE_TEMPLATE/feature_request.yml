@@ -1,0 +1,35 @@
+name: ✨ Feature Request
+description: Suggest a new idea or improvement for Grean
+title: "[Feature]: "
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Great! Let’s capture your idea clearly below.
+  - type: input
+    id: title
+    attributes:
+      label: Feature Title
+      placeholder: e.g. Add pickup scheduling reminders
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this feature do and why is it needed?
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Expected Benefits
+      description: How will this improve user or system experience?
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Affected Area
+      options:
+        - client-app
+        - driver-app
+        - shared
+        - backend

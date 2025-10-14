@@ -13,7 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import React from "react";
 import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import AppContent from "./components/AppContent";
+import AppContent from "./AppContent";
 
 export default function App() {
   console.log("✅ App mounted");

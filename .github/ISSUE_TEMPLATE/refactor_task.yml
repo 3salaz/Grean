@@ -1,6 +1,6 @@
 name: 🧱 Refactor / Code Improvement
 description: Propose structural or stylistic improvements
-title: ""
+title: "[Refactor]: "
 labels: [refactor]
 body:
   - type: markdown

@@ -1,15 +1,22 @@
-import { ReactNode, useEffect } from "react";
-import { useHistory } from "react-router-dom"; // ✅ Use `useHistory` for v5
+import React, { ReactNode, useEffect } from "react";
+import { Route, Redirect, RouteProps, useHistory } from "react-router-dom"; // ✅ v5 imports
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 
-interface ProtectedRouteProps {
-  children: ReactNode;
+interface ProtectedRouteProps extends RouteProps {
+  /** A React component to render if authorized */
+  component?: React.ComponentType<any>;
+  /** Optional fallback content if user not authorized */
+  children?: ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  component: Component,
+  children,
+  ...rest
+}) => {
   const { user, loadingAuth } = useAuth();
-  const history = useHistory(); // ✅ Correct hook for v5
+  const history = useHistory();
 
   // ✅ Redirect only after authentication check completes
   useEffect(() => {
@@ -18,9 +25,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [user, loadingAuth, history]);
 
-  return (
-    <AnimatePresence>
-      {loadingAuth ? (
+  if (loadingAuth) {
+    return (
+      <AnimatePresence>
         <motion.div
           className="fixed inset-0 z-30 flex items-center justify-center bg-white h-[80%] mt-[8svh]"
           initial={{ opacity: 1 }}
@@ -36,10 +43,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             Loading...
           </motion.div>
         </motion.div>
-      ) : (
-        user ? children : null // ✅ Render children only if authenticated
-      )}
-    </AnimatePresence>
+      </AnimatePresence>
+    );
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        user ? (
+          Component ? (
+            <Component {...props} />
+          ) : (
+            children
+          )
+        ) : (
+          <Redirect to="/" />
+        )
+      }
+    />
   );
 };
 

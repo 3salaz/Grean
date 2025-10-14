@@ -11,28 +11,28 @@
     "dev:client": "cd client-app && npm run dev",
     "dev:driver": "cd driver-app && npm run dev",
     "dev:both": "concurrently \"npm run dev:client\" \"npm run dev:driver\"",
-
     "// 🏗️ Build": "",
     "build": "npm run build:client && npm run build:driver",
     "build:client": "cd client-app && npm run build",
     "build:driver": "cd driver-app && npm run build",
-
     "// 🚀 Deploy (Firebase Hosting)": "",
     "deploy": "npm run deploy:client && npm run deploy:driver",
     "deploy:client": "firebase deploy --only hosting:client",
     "deploy:driver": "firebase deploy --only hosting:driver",
-
     "// 🧹 Maintenance": "",
     "clean": "rm -rf client-app/node_modules driver-app/node_modules functions/node_modules && npm install",
     "lint": "cd client-app && npm run lint && cd ../driver-app && npm run lint",
     "format": "prettier --write .",
-
     "// 🔧 Git Branch Setup (optional helper)": "",
     "setup:branches": "./scripts/setup_branches.sh"
   },
   "devDependencies": {
-    "firebase-tools": "^13.0.0",
     "concurrently": "^8.2.2",
+    "firebase-tools": "^13.0.0",
     "prettier": "^3.2.5"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "tailwindcss": "^4.1.14"
   }
 }

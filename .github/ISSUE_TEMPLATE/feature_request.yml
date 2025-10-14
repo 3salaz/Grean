@@ -33,3 +33,4 @@ body:
         - driver-app
         - shared
         - backend
+        - root

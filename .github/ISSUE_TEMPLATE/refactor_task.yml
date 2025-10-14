@@ -1,6 +1,6 @@
 name: 🧱 Refactor / Code Improvement
 description: Propose structural or stylistic improvements
-title: "[Refactor]: "
+title: ""
 labels: [refactor]
 body:
   - type: markdown
@@ -10,8 +10,8 @@ body:
   - type: input
     id: area
     attributes:
-      label: Area of Code
-      placeholder: e.g. CreatePickup component or Firestore utils
+      label: Specific Files / Components
+      placeholder: e.g., `LoginScreen`, `api.js`, `Header`
     validations:
       required: true
   - type: textarea
@@ -34,3 +34,5 @@ body:
         - client-app
         - driver-app
         - shared
+        - backend
+        - root

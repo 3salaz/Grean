@@ -30,7 +30,7 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // Analytics
-export const analytics = getAnalytics(app);
+// export const analytics = getAnalytics(app);
 
 // Ensure Functions Uses the Correct Region
 export const functions = getFunctions(app, "us-central1");

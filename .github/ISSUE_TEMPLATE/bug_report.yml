@@ -52,3 +52,5 @@ body:
         - client-app
         - driver-app
         - shared
+        - backend
+        - root

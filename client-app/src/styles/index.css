@@ -1,4 +1,12 @@
-@import "tailwindcss";
+@import "tailwindcss"; */
+/* @config "../../tailwind.config.js";
+
+/* Temporary styles for debugging */
+body {
+  font-family: sans-serif;
+  background: #f8f8f8;
+  color: #222;
+}
 
 :root {
     /* === CUSTOM IONIC COLORS === */

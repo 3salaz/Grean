@@ -12,8 +12,8 @@ import { useProfile, UserProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useTab } from "../context/TabContext";
 import { TabOption } from "../types/tabs";
-import Navbar from "../components/Layout/Navbar";
-import Footer from "../components/Layout/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { ToastContainer } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
 

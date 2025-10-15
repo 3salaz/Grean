@@ -1,7 +1,5 @@
-name: 🚧 Deploy Preview Channels for Client & Driver Apps
-
+# 🚧 Deploy Preview Channel for Client App Only
 on: pull_request
-
 permissions:
   contents: read
   checks: write
@@ -11,51 +9,31 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      # 🔐 Inject Vite environment variables from GitHub Secrets
       - name: Inject Vite environment variables
         run: |
-          echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
           echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> $GITHUB_ENV
           echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> $GITHUB_ENV
-          echo "VITE_FIREBASE_DATABASE_URL=${{ secrets.VITE_FIREBASE_DATABASE_URL }}" >> $GITHUB_ENV
           echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
-          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> $GITHUB_ENV
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> $GITHUB_ENV
-          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> $GITHUB_ENV
-          echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> $GITHUB_ENV
-          echo "VITE_GOOGLE_MAPS_MAP_ID=${{ secrets.VITE_GOOGLE_MAPS_MAP_ID }}" >> $GITHUB_ENV
+          echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
           echo "VITE_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_MAPBOX_ACCESS_TOKEN }}" >> $GITHUB_ENV
 
-      # ⚙️ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 🧱 Build client-app
       - name: Install client dependencies
         run: npm ci
         working-directory: ./client-app
 
-      - name: Build client-app
+      - name: Build client app
         run: npm run build
         working-directory: ./client-app
 
-      # 🚚 Build driver-app
-      - name: Install driver dependencies
-        run: npm ci
-        working-directory: ./driver-app
-
-      - name: Build driver-app
-        run: npm run build
-        working-directory: ./driver-app
-
-      # 🚀 Deploy both apps to preview channel
-      - name: Deploy Preview Channels (client + driver)
+      - name: Deploy client preview
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

@@ -1,10 +1,10 @@
 import React, {createContext, useContext, useState, useEffect} from "react";
 import {doc, onSnapshot, getDoc} from "firebase/firestore";
-import {db} from "../firebase"; // ✅ Ensure Firebase is initialized
+import {db} from "@/firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
 import axios from "axios";
-import {useAuth} from "./AuthContext";
-import { MaterialType } from "../types/pickups";
+import {useAuth} from "@/context/AuthContext";
+import { MaterialType } from "@/types/pickups";
 
 export const useProfile = () => {
   const context = useContext(ProfileContext);

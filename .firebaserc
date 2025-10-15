@@ -5,7 +5,9 @@
   "targets": {
     "grean-de04f": {
       "hosting": {
-        "grean-client": ["grean-client"]
+        "grean-de04f-client": [
+          "grean-de04f-client"
+        ]
       }
     }
   }

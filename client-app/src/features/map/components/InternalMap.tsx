@@ -197,7 +197,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                                                 setSearchResults(results);
                                             }
                                         }}
-                                        className="w-full p-2 border border-2 border-[#75B657] bg-white rounded-lg"
+                                        className="w-full p-2 border-2 border-[#75B657] bg-white rounded-lg"
                                     />
                                 </IonCol>
                             </IonRow>

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "grean-de04f"
+  },
+  "targets": {
+    "grean-de04f": {
+      "hosting": {
+        "grean-de04f-client": [
+          "grean-de04f-client"
+        ]
+      }
+    }
+  }
+}

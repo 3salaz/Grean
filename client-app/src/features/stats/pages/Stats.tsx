@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { IonGrid } from "@ionic/react";
-import History from "./History";
-import RecyclingStats from "./RecyclingStats";
-import Metrics from "./Metrics";
-import { MaterialType } from "../../types/pickups";
-import { useProfile } from "../../context/ProfileContext";
+import History from "@/features/stats/components/History";
+import RecyclingStats from "@/features/stats/components/RecyclingStats";
+import Metrics from "@/features/stats/components/Metrics";
+import { MaterialType } from "@/types/pickups";
+import { useProfile } from "@/context/ProfileContext";
 
 
 

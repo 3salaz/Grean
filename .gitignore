@@ -18,14 +18,15 @@ build/
 # Firebase + tooling
 .firebase/
 .firebase/*
-.firebaserc
 firebase-debug.log
 storage-debug.log
+!.firebaserc           # keep Firebase project mapping file
+.firebase-tools.json
 
 # Environment variables
 .env
 .env.*
-!.env.example  # keep sample env files if you have them
+!.env.example          # keep sample env files if you have them
 
 # OS / system files
 .DS_Store
@@ -51,8 +52,9 @@ jest-results/
 *.swo
 *.swn
 
-# Lock files (optional if using npm ci)
-package-lock.json
+# Lock files (optional)
+# (Keep one for reproducible builds)
+# package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -78,3 +80,7 @@ platforms/
 **/.cache/
 .tmp/
 **/.tmp/
+
+# Functions (if added later)
+functions/lib/
+functions/node_modules/

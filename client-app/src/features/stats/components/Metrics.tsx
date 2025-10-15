@@ -5,7 +5,7 @@ import {
   materialTypes,
   materialConfig,
   MaterialType,
-} from "../../types/pickups";
+} from "@/types/pickups";
 
 interface Props {
   materials: Partial<Record<MaterialType, number>>;

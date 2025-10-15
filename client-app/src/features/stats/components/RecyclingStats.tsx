@@ -14,7 +14,7 @@ import {
   wineOutline,
 } from "ionicons/icons";
 import React from "react";
-import type { MaterialType } from "../../types/pickups";
+import type { MaterialType } from "@/types/pickups";
 
 interface StatItemProps {
   icon: string;

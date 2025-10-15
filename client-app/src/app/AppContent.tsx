@@ -1,26 +1,39 @@
-import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
-import AppLayout from "@/app/layouts/AppLayout";
-import Landing from "@/components/Layout/Views/Landing";
-import Services from "@/components/Layout/Views/Services";
-import Contact from "@/components/Layout/Views/Contact";
-import Account from "@/pages/Account";
-import ProtectedRoute from "@/pages/ProtectedRoute";
+import PublicLayout from "@/app/layouts/PublicLayout";
+import ClientLayout from "@/app/layouts/ClientLayout";
+import ProtectedRoute from "@/app/routes/ProtectedRoute";
+
+import Home from "@/app/routes/Home";
+import Account from "@/app/routes/Account";
+import ErrorPage from "@/app/routes/ErrorPage";
 
 export default function AppContent() {
   console.log("✅ Routing initialized");
 
   return (
-    <AppLayout>
-      <Switch>
-        <Route exact path="/" component={Landing} />
+    <Switch>
+      {/* Public routes */}
+      <Route exact path="/">
+        <PublicLayout>
+          <Home />
+        </PublicLayout>
+      </Route>
 
-        {/* Protected routes */}
-        <ProtectedRoute exact path="/account" component={Account} />
+      {/* Protected client routes */}
+      <ProtectedRoute path="/account">
+        <ClientLayout>
+          <Account />
+        </ClientLayout>
+      </ProtectedRoute>
 
-        {/* Catch-all redirect */}
-        <Redirect to="/" />
-      </Switch>
-    </AppLayout>
+      {/* Catch-all */}
+      <Route path="*">
+        <PublicLayout>
+          <ErrorPage />
+        </PublicLayout>
+      </Route>
+
+      <Redirect to="/" />
+    </Switch>
   );
 }

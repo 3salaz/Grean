@@ -8,12 +8,10 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  sendEmailVerification,
   sendPasswordResetEmail
 } from "firebase/auth";
 import { toast } from "react-toastify";
-
-import { createProfileIfMissing } from "../utils/createProfileIfMissing";
+import { createProfileIfMissing } from "@/utils/createProfileIfMissing";
 
 interface AuthContextValue {
   user: any; // or a custom Firebase user type

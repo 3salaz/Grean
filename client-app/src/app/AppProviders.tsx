@@ -1,10 +1,10 @@
 // src/context/AppProviders.tsx
 import { ReactNode } from "react";
-import { AuthProvider } from "./AuthContext";
-import { ProfileProvider } from "./ProfileContext";
-import { PickupsProvider } from "./PickupsContext";
-import { LocationsProvider } from "./LocationsContext";
-import { TabProvider } from "./TabContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProfileProvider } from "@/context/ProfileContext";
+import { PickupsProvider } from "@/context/PickupsContext";
+import { LocationsProvider } from "@/context/LocationsContext";
+import { TabProvider } from "@/context/TabContext";
 
 // 📦 Wraps the app in all necessary context providers
 export const AppProviders = ({ children }: { children: ReactNode }) => (

@@ -1,7 +1,7 @@
 {
   "hosting": [
     {
-      "target": "grean-client",
+      "target": "grean-de04f-client",
       "public": "client-app/dist",
       "ignore": ["**/.*", "**/node_modules/**"],
       "rewrites": [

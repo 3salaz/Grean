@@ -1,5 +1,3 @@
-// Full updated Pickups component with simplified layout and unified view control
-
 import React, {useEffect, useState} from "react";
 import {IonButton, IonCol, IonGrid, IonRow, IonIcon} from "@ionic/react";
 import {calendar, settings} from "ionicons/icons";

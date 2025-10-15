@@ -12,9 +12,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { addCircle } from "ionicons/icons";
 import CreateLocation from "./CreateLocation";
-import { UserProfile } from "../../context/ProfileContext";
-import { useUserLocations, LocationData } from "../../hooks/useUserLocations";
-import { useLocations } from "../../context/LocationsContext";
+import { UserProfile } from "@/context/ProfileContext";
+import { useUserLocations, LocationData } from "@/hooks/useUserLocations";
+import { useLocations } from "@/context/LocationsContext";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 

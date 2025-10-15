@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { IonGrid, IonRow, IonCol, IonSpinner, IonCard, IonButton, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle, IonIcon } from "@ionic/react";
 import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocations, Location } from "../../context/LocationsContext";
-import { UserProfile } from "../../context/ProfileContext";
-import businessIcon from "../../assets/icons/business.png";
-import homeIcon from "../../assets/icons/home.png";
+import { useLocations, Location } from "@/context/LocationsContext";
+import { UserProfile } from "@/context/ProfileContext";
+import businessIcon from "@/assets/icons/business.png";
+import homeIcon from "@/assets/icons/home.png";
 import { close } from "ionicons/icons";
 
 // San Francisco center
@@ -143,7 +143,7 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                 style={{ width: "100%", height: "100%" }}
                 defaultCenter={mapCenter}
                 defaultZoom={mapZoom}
-                mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || ""}
+                mapId={ import.meta.env.VITE_MAPBOX_MAP_ID || ""}
                 gestureHandling="greedy"
             >
                 {filteredLocations.map((location) => {
@@ -243,9 +243,9 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full p-2"
+                        className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full px-2"
                     >
-                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-md flex flex-col gap-4">
+                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-t-lg flex flex-col gap-4">
                             <IonCardHeader color="light" className="ion-padding">
                                 <IonCardTitle>
                                     {selectedLocation.businessName || "Unnamed Business"}

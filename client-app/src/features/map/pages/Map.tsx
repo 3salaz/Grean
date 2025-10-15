@@ -1,6 +1,6 @@
 import { APIProvider } from "@vis.gl/react-google-maps";
-import { UserProfile } from "../../context/ProfileContext";
-import InternalMap from "./InternalMap";
+import { UserProfile } from "@/context/ProfileContext";
+import InternalMap from "@/features/map/components/InternalMap";
 
 interface MapContainerProps {
   profile: UserProfile | null;

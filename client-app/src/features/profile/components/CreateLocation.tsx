@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocations } from "../../context/LocationsContext";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { useLocations } from "@/context/LocationsContext";
+import { useProfile, UserProfile } from "@/context/ProfileContext";
 import Cropper from 'react-easy-crop';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -31,8 +31,8 @@ import {
   IonPage
 } from "@ionic/react";
 import { toast } from "react-toastify";
-import homeIcon from "../../assets/icons/home.png";
-import businessIcon from "../../assets/icons/business.png";
+import homeIcon from "@/assets/icons/home.png";
+import businessIcon from "@/assets/icons/business.png";
 
 // Import APIProvider and useMapsLibrary for autocomplete functionality.
 import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";

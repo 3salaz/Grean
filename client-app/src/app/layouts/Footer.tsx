@@ -18,7 +18,7 @@ function Footer() {
   const { activeTab, setActiveTab } = useTab();
 
   return (
-    <IonFooter className="max-w-xl mx-auto">
+    <IonFooter className="mx-auto">
       <IonToolbar
         color="secondary"
         className="flex items-center justify-center rounded-t-lg"

@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import type { InputCustomEvent } from "@ionic/core";
 import {
   IonInput,
   IonItem,
@@ -13,8 +12,6 @@ import {
   IonIcon,
   IonPage,
   IonContent,
-  IonSelect,
-  IonSelectOption
 } from "@ionic/react";
 
 import { motion } from "framer-motion";
@@ -22,10 +19,7 @@ import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { useHistory } from "react-router-dom";
-import { useProfile } from "@/context/ProfileContext";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebase";
-import { sendEmailVerification } from "firebase/auth"; // add this import
+import { sendEmailVerification } from "firebase/auth";
 
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPassword = (password: string) => password.length >= 6;
@@ -209,23 +203,6 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
                         Passwords do not match.
                       </IonText>
                     )}
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol size="12">
-                    <IonItem className="bg-white/20 backdrop-blur-md rounded-md mt-2 w-full">
-                      <IonLabel position="stacked">Account Type</IonLabel>
-                      <IonSelect
-                        value={formData.accountType}
-                        placeholder="Accoount Type"
-                        onIonChange={(e) => handleInputChange("accountType", e.detail.value)}
-                        className="w-full"
-                      >
-                        <IonSelectOption value="User">User</IonSelectOption>
-                        <IonSelectOption value="Driver">Driver</IonSelectOption>
-                      </IonSelect>
-                    </IonItem>
                   </IonCol>
                 </IonRow>
 

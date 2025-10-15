@@ -9,7 +9,7 @@ import {
     IonText,
   } from '@ionic/react';
   import React from 'react';
-  import { usePickups } from '../../context/PickupsContext';
+  import { usePickups } from '@/context/PickupsContext';
   import dayjs from 'dayjs';
   import { toast } from 'react-toastify';
   

@@ -1,8 +1,8 @@
 import {useState} from "react";
 import logo from "../../assets/logo.png";
 import {Link} from "react-router-dom";
-import Signup from "@/features/auth/components/Signup"; // if you want to show sign up from navbar
-import Signin from "@/features/auth/components/Signin"; // if you want to show sign in from navbar
+import Signup from "@/features/auth/components/Signup";
+import Signin from "@/features/auth/components/Signin"; 
 import {
   IonModal,
   IonPopover,
@@ -15,7 +15,6 @@ import {
   IonItem,
   IonText,
   IonHeader,
-  IonTitle,
   IonButtons,
   IonMenuButton
 } from "@ionic/react";
@@ -25,11 +24,10 @@ import {
   logoInstagram,
   logoLinkedin,
   logOutOutline,
-  menuOutline,
   personCircleOutline
 } from "ionicons/icons";
-import {useAuth} from "../../context/AuthContext";
-import {useProfile} from "../../context/ProfileContext";
+import {useAuth} from "@/context/AuthContext";
+import {useProfile} from "@/context/ProfileContext";
 
 function Navbar() {
   const {user, logOut} = useAuth();
@@ -89,8 +87,8 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border ion-no-padding">
-      <IonToolbar color="secondary"  className="h-full max-w-2xl mx-auto rounded-b-xl">
+    <IonHeader className="ion-no-border py-0 md:px-10">
+      <IonToolbar color="secondary"  className="h-full mx-auto rounded-b-xl">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton
             onClick={handleOpenRoutesPopover}

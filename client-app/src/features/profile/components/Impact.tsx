@@ -7,9 +7,9 @@ import {
 } from "@ionic/react";
 import { informationCircle } from "ionicons/icons";
 import { motion } from "framer-motion";
-import cubicFeetIcon from "../../assets/icons/GreanIcons/CubicFeet.png";
-import milesIcon from "../../assets/icons/GreanIcons/Miles.png";
-import energyIcon from "../../assets/icons/GreanIcons/HomePowered.png";
+import cubicFeetIcon from "@/assets/icons/GreanIcons/CubicFeet.png";
+import milesIcon from "@/assets/icons/GreanIcons/Miles.png";
+import energyIcon from "@/assets/icons/GreanIcons/HomePowered.png";
 
 interface ImpactProps {
   totalWeight?: number;

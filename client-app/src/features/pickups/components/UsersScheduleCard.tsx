@@ -1,14 +1,11 @@
 import {
-    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
-    IonAccordionGroup, IonItem, IonLabel, IonText,
-    IonAccordion, IonGrid, IonRow, IonCol, IonInput, IonButton
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonText, IonButton
 } from "@ionic/react";
-import noPickupsIcon from "../../assets/no-pickups.svg";
-import { useProfile } from "../../context/ProfileContext";
-import { usePickups } from "../../context/PickupsContext";
-import { formatDateInfo } from "../../utils/dateUtils";
+import noPickupsIcon from "@/assets/no-pickups.svg";
+import { usePickups } from "@/context/PickupsContext";
+import { formatDateInfo } from "@/utils/dateUtils";
 import { useState } from "react";
-import Calendar from "./Calendar";
+// import Calendar from "./Calendar";
 import dayjs from "dayjs";
 
 export default function UserScheduleCard() {
@@ -96,7 +93,7 @@ export default function UserScheduleCard() {
                         );
                     })
                 )}
-                <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+                {/* <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} /> */}
             </main>
 
         </section>

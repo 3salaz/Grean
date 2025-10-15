@@ -1,10 +1,9 @@
 
-import ProfileHeader from "./ProfileHeader";
-import MyForest from "./MyForest";
-import MyLocations from "./MyLocations";
-import Impact from "./Impact";
-import { useProfile } from "../../context/ProfileContext";
-import MyRoutes from "./MyRoutes";
+import ProfileHeader from "@/features/profile/components/ProfileHeader";
+import MyForest from "@/features/profile/components/MyForest";
+import MyLocations from "@/features/profile/components/MyLocations";
+import Impact from "@/features/profile/components/Impact";
+import { useProfile } from "@/context/ProfileContext";
 
 const Profile: React.FC = () => {
   const { profile } = useProfile();
@@ -21,16 +20,10 @@ const Profile: React.FC = () => {
       <div className="snap-start">
         <Impact />
       </div>
-      {profile?.accountType === "User" && (
+
         <div className="snap-start">
           <MyLocations profile={profile} />
         </div>
-      )}
-      {profile?.accountType === "Driver" && (
-        <div className="snap-start">
-          <MyRoutes profile={profile} />
-        </div>
-      )}
 
     </main>
   );

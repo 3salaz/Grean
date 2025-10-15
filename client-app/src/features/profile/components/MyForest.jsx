@@ -2,11 +2,11 @@ import { useState } from "react";
 import { IonRow, IonCol, IonText } from "@ionic/react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import sprout from "../../assets/icons/sprout.png";
-import glassTree from "../../assets/icons/glassTree.png";
-import aluminumTree from "../../assets/icons/aluminumTree.png";
-import plasticTree from "../../assets/icons/plasticTree.png";
-import mediumTree from "../../assets/icons/mediumTree.png";
+import sprout from "@/assets/icons/sprout.png";
+import glassTree from "@/assets/icons/glassTree.png";
+import aluminumTree from "@/assets/icons/aluminumTree.png";
+import plasticTree from "@/assets/icons/plasticTree.png";
+import mediumTree from "@/assets/icons/mediumTree.png";
 
 // Tree data with different growth stages
 const treeData = {

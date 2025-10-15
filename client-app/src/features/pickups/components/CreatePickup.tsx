@@ -21,9 +21,9 @@ import {
 import { closeOutline, chevronDownOutline, chevronUpOutline } from "ionicons/icons";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import { usePickups } from "../../context/PickupsContext";
-import { useUserLocations } from "../../hooks/useUserLocations";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { usePickups } from "@/context/PickupsContext";
+import { useUserLocations } from "@/hooks/useUserLocations";
+import { useProfile, UserProfile } from "@/context/ProfileContext";
 
 
 

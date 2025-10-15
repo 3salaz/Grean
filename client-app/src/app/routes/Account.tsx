@@ -17,10 +17,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import Footer from "@/app/layouts/Footer";
 
 // Lazy load components
-const Profile = lazy(() => import("@/features/profile/components/Profile"));
-const Pickups = lazy(() => import("@/features/pickups/components/Pickups"));
-const Map = lazy(() => import("@/features/map/components/Map"));
-const Stats = lazy(() => import("@/features/stats/components/Stats"));
+const Profile = lazy(() => import("@/features/profile/pages/Profile"));
+const Pickups = lazy(() => import("@/features/pickups/pages/Pickups"));
+const Map = lazy(() => import("@/features/map/pages/Map"));
+const Stats = lazy(() => import("@/features/stats/pages/Stats"));
 
 const Account: React.FC = () => {
 

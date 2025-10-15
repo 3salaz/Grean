@@ -16,7 +16,7 @@ import {
   chevronForward,
   closeCircleOutline
 } from "ionicons/icons";
-import {Pickup, usePickups} from "../../context/PickupsContext";
+import {Pickup, usePickups} from "@/context/PickupsContext";
 import {useState} from "react";
 import noPickupIcon from "../../assets/no-pickups.svg";
 import PickupDetails from "./PickupDetails";

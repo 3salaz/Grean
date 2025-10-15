@@ -19,7 +19,7 @@ import {
   IonListHeader,
   IonNav
 } from "@ionic/react";
-import { useProfile, UserProfile } from "../../context/ProfileContext";
+import { useProfile, UserProfile } from "@/context/ProfileContext";
 import { toast } from "react-toastify";
 
 // ** Define Props Interface **

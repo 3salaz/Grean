@@ -11,7 +11,7 @@ import {
   IonFabButton,
   IonList
 } from "@ionic/react";
-import {usePickups} from "../../context/PickupsContext";
+import {usePickups} from "@/context/PickupsContext";
 import dayjs from "dayjs";
 import {closeOutline} from "ionicons/icons";
 import {useEffect, useState} from "react";

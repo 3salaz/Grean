@@ -9,8 +9,8 @@ import {
 } from "@ionic/react";
 import { addCircle, settings, settingsOutline } from "ionicons/icons";
 import ProfileEdit from "./ProfileEdit";
-import { UserProfile } from "../../context/ProfileContext";
-import { useLocations } from "../../context/LocationsContext";
+import { UserProfile } from "@/context/ProfileContext";
+import { useLocations } from "@/context/LocationsContext";
 
 interface ProfileHeaderProps {
   openModal?: () => void;

@@ -11,12 +11,10 @@ import {
   IonItem,
   IonButton,
 } from "@ionic/react";
-import { motion } from "framer-motion";
-import { usePickups } from "../../context/PickupsContext";
-import { useAuth } from "../../context/AuthContext";
+import { usePickups } from "@/context/PickupsContext";
 import dayjs from "dayjs";
-import noPickupIcon from "../../../../assets/no-pickups.svg";
-import { useProfile } from "../../context/ProfileContext";
+import noPickupIcon from "@/assets/no-pickups.svg";
+import { useProfile } from "@/context/ProfileContext";
 const { profile } = useProfile();
 const locationIds = Array.isArray(profile?.locations) ? profile.locations : [];
 const { locations: userLocations } = useUserLocations(locationIds);
@@ -24,10 +22,6 @@ const { locations: userLocations } = useUserLocations(locationIds);
 function UserPickups() {
 
   const { userOwnedPickups } = usePickups();
-
-  const handleRefresh = () => {
-    // Add actual logic here to refresh visible pickups
-  };
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">

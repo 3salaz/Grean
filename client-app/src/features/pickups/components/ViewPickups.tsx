@@ -15,14 +15,12 @@ import {
 } from "@ionic/react";
 import {
   calendarNumberOutline,
-  checkmarkCircleOutline,
   chevronForward,
-  closeCircleOutline
 } from "ionicons/icons";
-import {usePickups} from "../../context/PickupsContext";
+import {usePickups} from "@/context/PickupsContext";
 import {useEffect, useState} from "react";
-import PickupDetails from "./PickupDetails";
-import {useProfile} from "../../context/ProfileContext";
+import PickupDetails from "@/features/pickups/components/PickupDetails";
+import {useProfile} from "@/context/ProfileContext";
 
 interface Pickup {
   id: string;

@@ -21,9 +21,9 @@ import {
   IonToolbar
 } from "@ionic/react";
 import {closeOutline} from "ionicons/icons";
-import {Pickup, usePickups} from "../../context/PickupsContext";
-import {useProfile} from "../../context/ProfileContext";
-import Navbar from "../Layout/Navbar";
+import {Pickup, usePickups} from "@/context/PickupsContext";
+import {useProfile} from "@/context/ProfileContext";
+import Navbar from "@/app/layouts/Navbar";
 import {toast} from "react-toastify";
 
 interface PickupDetailsProps {

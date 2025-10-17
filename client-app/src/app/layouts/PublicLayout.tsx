@@ -3,9 +3,9 @@ import Navbar from "@/app/layouts/Navbar";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
+  disableScroll?: boolean;
 }
-
-const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
+const PublicLayout: React.FC<PublicLayoutProps> = ({ children, disableScroll }) => {
   return (
     <IonPage className="relative">
       {/* Navbar sits absolutely on top */}
@@ -16,8 +16,8 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
       {/* Main scrollable content behind Navbar */}
       <IonContent
         fullscreen
-        scrollY
-        className="relative z-0 !pt-0 overflow-y-auto"
+        scrollY={!disableScroll} // ✅ turn off Ionic scrolling if Home handles it
+        className={`relative z-0 !pt-0 ${disableScroll ? "overflow-hidden" : "overflow-y-auto"}`}
       >
         {children}
       </IonContent>

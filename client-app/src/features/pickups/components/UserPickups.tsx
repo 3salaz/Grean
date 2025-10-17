@@ -18,7 +18,7 @@ import { arrowDown } from "ionicons/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import dayjs from "dayjs";
 import { usePickups } from "@/context/PickupsContext";
-import { materialConfig, MaterialEntry, type MaterialType, type PickupData } from "@/types/pickups";
+import { materialConfig, MaterialEntry, type MaterialType, type PickupData } from "@/features/pickups/types/pickups";
 import { useLocations } from "@/context/LocationsContext";
 import { toast } from "react-toastify";
 

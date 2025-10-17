@@ -63,8 +63,8 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerFor
   return (
     <IonPage>
       <ToastContainer/>
-      <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
-        <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
+      <IonContent fullscreen className="flex flex-col items-center justify-center bg-transparent">
+        <IonGrid className="w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">
               <IonCol size="auto">
@@ -79,9 +79,9 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerFor
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}>
 
-            <IonRow>
-              <IonCol size="12" className="text-center">
-                <h3 className="text-xl font-semibold text-[#75B657]">Sign In</h3>
+            <IonRow className="ion-padding">
+              <IonCol size="12" className="text-center ion-padding">
+                <div className="text-2xl font-bold text-[#75B657]">Sign In</div>
               </IonCol>
             </IonRow>
 

@@ -5,6 +5,7 @@ import RecyclingStats from "@/features/stats/components/RecyclingStats";
 import Metrics from "@/features/stats/components/Metrics";
 import { MaterialType } from "@/features/pickups/types/pickups";
 import { useProfile } from "@/context/ProfileContext";
+import Impact from "@/features/profile/components/Impact";
 
 
 
@@ -44,9 +45,9 @@ const Stats: React.FC = () => {
   }, [profile]);
 
   return (
-    <main className="container max-w-2xl mx-auto flex-grow overflow-auto">
+    <main className="container max-w-6xl mx-auto flex-grow overflow-auto">
       <RecyclingStats stats={profile?.stats || {}} />
-      <Metrics materials={profile?.stats?.materials || {}} />
+      <Impact/>
       {/* <History /> */}
     </main>
   );

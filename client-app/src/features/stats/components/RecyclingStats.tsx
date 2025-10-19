@@ -60,8 +60,8 @@ const RecyclingStats: React.FC<RecyclingStatsProps> = ({ stats }) => {
           <StatItem icon={scaleOutline} label="Total Weight" value={`${totalWeight} lbs`} />
           <StatItem icon={flashOutline} label="Energy Saved" value={energySaved} />
           <StatItem icon={cubeOutline} label="Cardboard" value={`${materials.cardboard || 0} lbs`} />
-          <StatItem icon={hardwareChipOutline} label="Appliances" value={`${materials.appliances || 0} lbs`} />
-          <StatItem icon={wineOutline} label="Glass" value={`${materials.glass || 0} lbs`} />
+          {/* <StatItem icon={hardwareChipOutline} label="Appliances" value={`${materials.appliances || 0} lbs`} /> */}
+          {/* <StatItem icon={wineOutline} label="Glass" value={`${materials.glass || 0} lbs`} /> */}
         </div>
       </IonCardContent>
     </section>

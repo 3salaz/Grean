@@ -107,45 +107,15 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
     }
 
     return (
-        <main className="relative w-full flex-grow overflow-auto">
-            {/* Overlay: Category Filter */}
-            <IonGrid className="absolute top-0 left-0 w-full z-10 px-2">
-                <IonRow
-                    ref={filterRowRef}
-                    className="flex-nowrap overflow-x-auto no-scrollbar bg-white p-2 rounded-b-xl shadow-md text-xs gap-2 max-w-lg mx-auto"
-                    style={{ WebkitOverflowScrolling: "touch" }}
-                >
-                    <IonCol
-                        size="auto"
-                        className={`flex-shrink-0 px-3 py-1 rounded-full ${selectedCategory === null ? "bg-green-600 text-white" : "bg-gray-200"
-                            }`}
-                    >
-                        <button onClick={() => {
-                            setSelectedCategory(null);
-                        }}>All</button>
-                    </IonCol>
-                    {BUSINESS_CATEGORIES.map((category) => (
-                        <IonCol
-                            key={category}
-                            size="auto"
-                            className={`flex-shrink-0 px-3 py-1 rounded-full ${selectedCategory === category ? "bg-green-600 text-white" : "bg-gray-200"
-                                }`}
-                        >
-                            <button onClick={() => setSelectedCategory(category)}>{category}</button>
-                        </IonCol>
-                    ))}
-                </IonRow>
-            </IonGrid>
-
-
-            {/* Map */}
+        <main className="md:max-w-6xl mx-auto relative w-full h-full overflow-auto ion-padding rounded-xl drop-shadow-2xl">
             <Map
-                style={{ width: "100%", height: "100%" }}
+                style={{ width: "100%", height: "100%", borderRadius: "1rem" }}
                 defaultCenter={mapCenter}
                 defaultZoom={mapZoom}
-                mapId={ import.meta.env.VITE_MAPBOX_MAP_ID || ""}
+                mapId={import.meta.env.VITE_MAPBOX_MAP_ID || ""}
                 gestureHandling="greedy"
             >
+
                 {filteredLocations.map((location) => {
                     const { latitude, longitude } = location;
                     if (latitude == null || longitude == null) return null;
@@ -161,195 +131,225 @@ const InternalMap: React.FC<InternalMapProps> = ({ profile }) => {
                         </AdvancedMarker>
                     );
                 })}
-            </Map>
 
-            <AnimatePresence>
-                {!selectedLocation && (
-                    <motion.div
-                        initial={{ y: "100%", opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: "100%", opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bottom-0 left-0 w-full z-20 flex justify-center"
+                <IonGrid className="absolute top-0 left-0 w-full z-10 px-2">
+                    <IonRow
+                        ref={filterRowRef}
+                        className="flex-nowrap overflow-x-auto no-scrollbar bg-white p-2 rounded-b-xl shadow-md text-xs gap-2 max-w-lg mx-auto"
+                        style={{ WebkitOverflowScrolling: "touch" }}
                     >
-                        <IonGrid className="w-full max-w-xl flex-col gap-2 p-2 rounded-xl">
-                            <IonRow>
-                                <IonCol size="12" className="shadow-lg">
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name or address"
-                                        onFocus={() => {
-                                            setSelectedCategory(null);
-                                        }}
-                                        value={searchQuery}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setSearchQuery(value);
-                                            if (value.trim() === "") {
-                                                setSearchResults([]);
-                                            } else {
-                                                const results = filteredLocations.filter((loc) =>
-                                                    [loc.businessName, loc.homeName, loc.address]
-                                                        .some((field) =>
-                                                            field?.toLowerCase().includes(value.toLowerCase())
-                                                        )
-                                                );
-                                                setSearchResults(results);
-                                            }
-                                        }}
-                                        className="w-full p-2 border-2 border-[#75B657] bg-white rounded-lg"
-                                    />
-                                </IonCol>
-                            </IonRow>
-                            {searchResults.length > 0 && (
+                        <IonCol
+                            size="auto"
+                            className={`flex-shrink-0 px-3 py-1 rounded-full ${selectedCategory === null ? "bg-green-600 text-white" : "bg-gray-200"
+                                }`}
+                        >
+                            <button onClick={() => {
+                                setSelectedCategory(null);
+                            }}>All</button>
+                        </IonCol>
+                        {BUSINESS_CATEGORIES.map((category) => (
+                            <IonCol
+                                key={category}
+                                size="auto"
+                                className={`flex-shrink-0 px-3 py-1 rounded-full ${selectedCategory === category ? "bg-green-600 text-white" : "bg-gray-200"
+                                    }`}
+                            >
+                                <button onClick={() => setSelectedCategory(category)}>{category}</button>
+                            </IonCol>
+                        ))}
+                    </IonRow>
+                </IonGrid>
+
+                {/* Search Bar */}
+                <AnimatePresence>
+                    {!selectedLocation && (
+                        <motion.div
+                            initial={{ y: "100%", opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "100%", opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                            className="absolute bottom-0 left-0 w-full z-20 flex justify-center"
+                        >
+                            <IonGrid className="w-full max-w-xl flex-col gap-2 p-2 rounded-xl">
                                 <IonRow>
-                                    <IonCol size="auto" className="bg-white border rounded-lg overflow-y-auto h-40 w-full">
-                                        {searchResults.map((loc) => (
-                                            <div
-                                                key={loc.id}
-                                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => {
-                                                    setSelectedLocation(loc);
-                                                    setMapCenter({ lat: loc.latitude!, lng: loc.longitude! });
-                                                    setMapZoom(14);
-                                                    setSearchQuery("");
+                                    <IonCol size="12" className="shadow-lg">
+                                        <input
+                                            type="text"
+                                            placeholder="Search by name or address"
+                                            onFocus={() => {
+                                                setSelectedCategory(null);
+                                            }}
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setSearchQuery(value);
+                                                if (value.trim() === "") {
                                                     setSearchResults([]);
-                                                    if (loc.latitude && loc.longitude) {
-                                                        map?.panTo({ lat: loc.latitude, lng: loc.longitude });
-                                                        map?.setZoom(14);
-                                                    }
-                                                }}
-                                            >
-                                                <div className="font-semibold">
-                                                    {loc.businessName || loc.homeName || "Unnamed"}
-                                                </div>
-                                                <div className="text-sm text-gray-500">{loc.address}</div>
-                                            </div>
-                                        ))}
+                                                } else {
+                                                    const results = filteredLocations.filter((loc) =>
+                                                        [loc.businessName, loc.homeName, loc.address]
+                                                            .some((field) =>
+                                                                field?.toLowerCase().includes(value.toLowerCase())
+                                                            )
+                                                    );
+                                                    setSearchResults(results);
+                                                }
+                                            }}
+                                            className="w-full p-2 border-2 border-[#75B657] bg-white rounded-lg"
+                                        />
                                     </IonCol>
                                 </IonRow>
-                            )}
-                        </IonGrid>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Bottom Panel */}
-            <AnimatePresence>
-                {selectedLocation && (
-                    <motion.section
-                        ref={panelRef}
-                        initial={{ y: "100%" }}
-                        animate={{ y: 0 }}
-                        exit={{ y: "100%" }}
-                        transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                        className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full px-2"
-                    >
-                        <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-t-lg flex flex-col gap-4">
-                            <IonCardHeader color="light" className="ion-padding">
-                                <IonCardTitle>
-                                    {selectedLocation.businessName || "Unnamed Business"}
-                                </IonCardTitle>
-                                <IonCardSubtitle className="text-xs font-base">
-                                    {selectedLocation.address || "No address provided"}
-                                </IonCardSubtitle>
-                            </IonCardHeader>
-
-                            {selectedLocation.locationType === "Business" ? (
-                                <IonCardContent className="ion-no-padding">
-                                    <span className="absolute top-1 right-2 text-lg">
-                                        <img
-                                            src={selectedLocation.businessLogo || 'https://via.placeholder.com/150'}
-                                            alt="Business Logo"
-                                            className="w-16 h-16 rounded-full object-cover border border-gray-300"
-                                        />
-                                    </span>
-                                    <IonRow className="ion-padding-horizontal">
-                                        <IonCol size="12">
-                                            <p className="text-gray-600">Category: {selectedLocation.category || "N/A"}</p>
-                                        </IonCol>
-                                        <IonCol size="12">
-                                            <p className={`${showFullDescription ? "" : "line-clamp-3"} text-sm text-gray-700`}>
-                                                {selectedLocation.businessBio || "No description available yet."}
-                                            </p>
-                                            {(selectedLocation.businessBio || "").length
-                                                > 100 && (
-                                                    <button
-                                                        onClick={() => setShowFullDescription(!showFullDescription)}
-                                                        className="text-green-500 text-sm mt-1 self-start"
-                                                    >
-                                                        {showFullDescription ? "Show Less" : "Read More"}
-                                                    </button>
-                                                )}
+                                {searchResults.length > 0 && (
+                                    <IonRow>
+                                        <IonCol size="auto" className="bg-white border rounded-lg overflow-y-auto h-40 w-full">
+                                            {searchResults.map((loc) => (
+                                                <div
+                                                    key={loc.id}
+                                                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => {
+                                                        setSelectedLocation(loc);
+                                                        setMapCenter({ lat: loc.latitude!, lng: loc.longitude! });
+                                                        setMapZoom(14);
+                                                        setSearchQuery("");
+                                                        setSearchResults([]);
+                                                        if (loc.latitude && loc.longitude) {
+                                                            map?.panTo({ lat: loc.latitude, lng: loc.longitude });
+                                                            map?.setZoom(14);
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="font-semibold">
+                                                        {loc.businessName || loc.homeName || "Unnamed"}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500">{loc.address}</div>
+                                                </div>
+                                            ))}
                                         </IonCol>
                                     </IonRow>
-                                    <IonRow class="flex items-center align-items ion-padding gap-2 mx-auto">
-                                        <IonCol size="auto">
-                                            <a
-                                                href={selectedLocation.website || "https://google.com"}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-green-600 font-medium underline"
-                                            >
-                                                Visit Website
-                                            </a>
-                                        </IonCol>
+                                )}
+                            </IonGrid>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                                    </IonRow>
-                                    <IonRow className="ion-padding-horizontal flex flex-col justify-between items-end gap-2">
-                                        {/* <IonCol size="auto">
+                {/* Panel for Selected Location */}
+                <AnimatePresence>
+                    {selectedLocation && (
+                        <motion.section
+                            ref={panelRef}
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                            className="absolute bg-slate-800/20 bg-opacity-50 bottom-0 left-0 shadow-lg rounded-t-lg md:h-[40%] w-full px-2"
+                        >
+                            <IonCard className="bg-white max-w-xl mx-auto border-2 border-[#75B657] h-full min-h-[200px] relative ion-padding rounded-t-lg flex flex-col gap-4">
+                                <IonCardHeader color="light" className="ion-padding">
+                                    <IonCardTitle>
+                                        {selectedLocation.businessName || "Unnamed Business"}
+                                    </IonCardTitle>
+                                    <IonCardSubtitle className="text-xs font-base">
+                                        {selectedLocation.address || "No address provided"}
+                                    </IonCardSubtitle>
+                                </IonCardHeader>
+
+                                {selectedLocation.locationType === "Business" ? (
+                                    <IonCardContent className="ion-no-padding">
+                                        <span className="absolute top-1 right-2 text-lg">
+                                            <img
+                                                src={selectedLocation.businessLogo || 'https://via.placeholder.com/150'}
+                                                alt="Business Logo"
+                                                className="w-16 h-16 rounded-full object-cover border border-gray-300"
+                                            />
+                                        </span>
+                                        <IonRow className="ion-padding-horizontal">
+                                            <IonCol size="12">
+                                                <p className="text-gray-600">Category: {selectedLocation.category || "N/A"}</p>
+                                            </IonCol>
+                                            <IonCol size="12">
+                                                <p className={`${showFullDescription ? "" : "line-clamp-3"} text-sm text-gray-700`}>
+                                                    {selectedLocation.businessBio || "No description available yet."}
+                                                </p>
+                                                {(selectedLocation.businessBio || "").length
+                                                    > 100 && (
+                                                        <button
+                                                            onClick={() => setShowFullDescription(!showFullDescription)}
+                                                            className="text-green-500 text-sm mt-1 self-start"
+                                                        >
+                                                            {showFullDescription ? "Show Less" : "Read More"}
+                                                        </button>
+                                                    )}
+                                            </IonCol>
+                                        </IonRow>
+                                        <IonRow class="flex items-center align-items ion-padding gap-2 mx-auto">
+                                            <IonCol size="auto">
+                                                <a
+                                                    href={selectedLocation.website || "https://google.com"}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-green-600 font-medium underline"
+                                                >
+                                                    Visit Website
+                                                </a>
+                                            </IonCol>
+
+                                        </IonRow>
+                                        <IonRow className="ion-padding-horizontal flex flex-col justify-between items-end gap-2">
+                                            {/* <IonCol size="auto">
                                             <IonButton size="small" className="" expand="block" color="primary" onClick={() => handlePickup(selectedLocation)}>
                                                 Request Pickup
                                             </IonButton>
                                         </IonCol> */}
-                                        <IonCol size="auto">
-                                            <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
-                                                <IonButton size="small" expand="block" color="primary">
-                                                    Call
+                                            <IonCol size="auto">
+                                                <a href={`tel:${selectedLocation.businessPhoneNumber}`}>
+                                                    <IonButton size="small" expand="block" color="primary">
+                                                        Call
+                                                    </IonButton>
+                                                </a>
+                                            </IonCol>
+
+                                            <IonCol size="auto">
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.latitude},${selectedLocation.longitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 underline"
+                                                >
+                                                    <IonButton size="small" expand="block" color="primary">
+                                                        Directions
+                                                    </IonButton>
+
+                                                </a>
+                                            </IonCol>
+
+                                            <IonCol size="auto" className="flex aspect-square">
+                                                <IonButton
+                                                    shape="round"
+                                                    color="danger"
+                                                    size="small"
+                                                    className=""
+                                                    onClick={() => setSelectedLocation(null)}
+                                                >
+                                                    <IonIcon slot="icon-only" icon={close} />
                                                 </IonButton>
-                                            </a>
-                                        </IonCol>
+                                            </IonCol>
+                                        </IonRow>
+                                    </IonCardContent>
+                                ) : (
+                                    <>
+                                        <h3 className="text-lg font-semibold">
+                                            {selectedLocation.homeName || "Unnamed Home"}
+                                        </h3>
+                                        <p className="text-gray-600">{selectedLocation.address || "No address provided"}</p>
+                                    </>
+                                )}
+                            </IonCard>
 
-                                        <IonCol size="auto">
-                                            <a
-                                                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.latitude},${selectedLocation.longitude}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 underline"
-                                            >
-                                                <IonButton size="small" expand="block" color="primary">
-                                                Directions
-                                                </IonButton>
+                        </motion.section>
+                    )}
+                </AnimatePresence>
+            </Map>
 
-                                            </a>
-                                        </IonCol>
-
-                                        <IonCol size="auto" className="flex aspect-square">
-                                            <IonButton
-                                                shape="round"
-                                                color="danger"
-                                                size="small"
-                                                className=""
-                                                onClick={() => setSelectedLocation(null)}
-                                            >
-                                                <IonIcon slot="icon-only" icon={close} />
-                                            </IonButton>
-                                        </IonCol>
-                                    </IonRow>
-                                </IonCardContent>
-                            ) : (
-                                <>
-                                    <h3 className="text-lg font-semibold">
-                                        {selectedLocation.homeName || "Unnamed Home"}
-                                    </h3>
-                                    <p className="text-gray-600">{selectedLocation.address || "No address provided"}</p>
-                                </>
-                            )}
-                        </IonCard>
-
-                    </motion.section>
-                )}
-            </AnimatePresence>
         </main >
     );
 };

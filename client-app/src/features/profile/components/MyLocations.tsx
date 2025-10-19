@@ -81,8 +81,7 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
 
 
   return (
-    <IonCol size="12" className="ion-padding bg-white rounded-md drop-shadow-lg shadow-lg">
-
+    <IonCol size="12" className="ion-padding bg-white rounded-md drop-shadow-lg shadow-lg flex-grow">
       <IonModal isOpen={showCreateModal} presentingElement={presentingElement.current!}>
         <CreateLocation profile={profile} handleClose={() => setShowCreateModal(false)} />
       </IonModal>
@@ -193,8 +192,6 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
           </div>
         </div>
       )}
-
-
 
     </IonCol>
   );

@@ -75,7 +75,7 @@ const Account: React.FC = () => {
       case "map":
         return <Suspense fallback={fallback}><Map /></Suspense>;
       case "stats":
-        return profile.stats ? (
+        return !profile.stats ? (
           <Suspense fallback={fallback}><Stats /></Suspense>
         ) : (
           <IonText className="text-center w-full p-4">

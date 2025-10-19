@@ -13,7 +13,7 @@ const Profile: React.FC = () => {
   return (
     <main id="profileTab" className="mx-auto max-w-6xl flex-grow overflow-auto snap-y snap-mandatory h-full ion-padding flex flex-col gap-2">
       <ProfileHeader profile={profile} />
-      <IonRow className="gap-2">
+      <IonRow className="gap-2 flex">
         <MyForest />
         <MyLocations profile={profile} />
       </IonRow>

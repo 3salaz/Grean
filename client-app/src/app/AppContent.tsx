@@ -8,8 +8,6 @@ import Account from "@/app/routes/Account";
 import ErrorPage from "@/app/routes/ErrorPage";
 
 export default function AppContent() {
-  console.log("✅ Routing initialized");
-
   return (
     <Switch>
       {/* Public routes */}

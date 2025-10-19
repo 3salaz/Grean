@@ -16,7 +16,6 @@ import { IonReactRouter } from "@ionic/react-router";
 import AppContent from "./AppContent";
 
 export default function App() {
-  console.log("✅ App mounted");
   return (
     <IonApp>
       <IonReactRouter>

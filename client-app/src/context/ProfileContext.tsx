@@ -4,7 +4,7 @@ import {db} from "@/firebase"; // ✅ Ensure Firebase is initialized
 import {toast} from "react-toastify";
 import axios from "axios";
 import {useAuth} from "@/context/AuthContext";
-import { MaterialType } from "@/types/pickups";
+import { MaterialType } from "@/features/pickups/types/pickups";
 
 export const useProfile = () => {
   const context = useContext(ProfileContext);

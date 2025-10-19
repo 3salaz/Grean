@@ -4,27 +4,19 @@ import MyForest from "@/features/profile/components/MyForest";
 import MyLocations from "@/features/profile/components/MyLocations";
 import Impact from "@/features/profile/components/Impact";
 import { useProfile } from "@/context/ProfileContext";
+import { IonRow } from "@ionic/react";
+
 
 const Profile: React.FC = () => {
-  const { profile } = useProfile();
+  const {profile} = useProfile();
 
   return (
-
-    <main className="container max-w-2xl mx-auto flex-grow overflow-auto snap-y snap-mandatory h-screen">
-      <div className="snap-start">
-        <ProfileHeader profile={profile} />
-      </div>
-      <div className="snap-start">
+    <main id="profileTab" className="mx-auto max-w-6xl flex-grow overflow-auto snap-y snap-mandatory h-full ion-padding flex flex-col gap-2">
+      <ProfileHeader profile={profile} />
+      <IonRow className="gap-2">
         <MyForest />
-      </div>
-      <div className="snap-start">
-        <Impact />
-      </div>
-
-        <div className="snap-start">
-          <MyLocations profile={profile} />
-        </div>
-
+        <MyLocations profile={profile} />
+      </IonRow>
     </main>
   );
 };

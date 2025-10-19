@@ -18,7 +18,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useHistory } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ToastContainer } from "react-toastify";
 
 interface SigninProps {
   handleClose: () => void;
@@ -62,7 +61,7 @@ const Signin: React.FC<SigninProps> = ({ handleClose, toggleToSignup, triggerFor
 
   return (
     <IonPage>
-      <ToastContainer/>
+
       <IonContent fullscreen className="flex flex-col items-center justify-center bg-transparent">
         <IonGrid className="w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">

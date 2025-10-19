@@ -87,7 +87,7 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border py-0 md:px-10">
+    <IonHeader id="navbar" className="ion-no-border py-0 md:px-10">
       <IonToolbar color="secondary"  className="h-full mx-auto rounded-b-xl">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton

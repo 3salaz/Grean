@@ -10,7 +10,7 @@ import {
   IonModal
 } from "@ionic/react";
 import { useEffect, useRef, useState } from "react";
-import { addCircle } from "ionicons/icons";
+import { addCircle, settingsOutline, settingsSharp } from "ionicons/icons";
 import CreateLocation from "./CreateLocation";
 import { UserProfile } from "@/context/ProfileContext";
 import { useUserLocations, LocationData } from "@/hooks/useUserLocations";
@@ -21,6 +21,7 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { toast } from "react-toastify";
+import { settings } from "firebase/analytics";
 
 interface MyLocationsProps {
   profile: UserProfile | null;
@@ -80,28 +81,27 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
 
 
   return (
-    <IonRow className="border-b border-slate-200 ion-padding">
-      <IonModal
-        isOpen={showCreateModal}
-        presentingElement={presentingElement.current ?? undefined}
-      >
+    <IonCol size="12" className="ion-padding bg-white rounded-md drop-shadow-lg shadow-lg">
+
+      <IonModal isOpen={showCreateModal} presentingElement={presentingElement.current!}>
         <CreateLocation profile={profile} handleClose={() => setShowCreateModal(false)} />
       </IonModal>
 
-      <IonCol size="12" className="ion-padding-horizontal">
+      <div className="ion-padding">
         <IonText className="text-lg font-semibold text-[#3a6833]">My Locations</IonText>
-      </IonCol>
+      </div>
 
       {userLocations.length === 0 ? (
-        <IonCol className="ion-padding-horizontal">
+        <div className="ion-padding">
           <div className="text-center font-medium italic ion-padding bg-white bg-opacity-40 rounded-md">
             <IonText className="text-xs text-[#3a6833]">
               No Locations (Add a location to get started)
             </IonText>
           </div>
-        </IonCol>
+        </div>
+
       ) : (
-        <IonCol size="12" className="ion-padding relative">
+        <div className="drop-shadow-2xl relative bg-[#75B657]/80 rounded-md p-2">
           <Swiper
             modules={[Pagination]}
             pagination={{ clickable: true }}
@@ -119,13 +119,13 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
               return (
                 <SwiperSlide key={loc.id}>
                   <div
-                    className={`p-4 rounded-lg shadow-lg w-full min-h-[300px] flex flex-col items-center transition-all duration-200
+                    className={`rounded-lg drop-shadow-lg w-full flex flex-col items-center transition-all duration-200 ion-padding
       ${selectedIndex === idx
                         ? "border-2 border-[#75B657] bg-white"
                         : "border border-gray-200 bg-white/80 backdrop-blur"}`}
                   >
                     {isSaving && idx === selectedIndex ? (
-                      <div className="flex justify-center items-center min-h-[300px] w-full">
+                      <div className="flex justify-center items-center w-full">
                         <IonSpinner name="dots" />
                       </div>
                     ) : isEditing ? (
@@ -175,28 +175,28 @@ const MyLocations: React.FC<MyLocationsProps> = ({ profile }) => {
             })}
           </Swiper>
           <div className="swiper-pagination absolute bottom-4 left-1/2 transform -translate-x-1/2" />
-        </IonCol>
+          <div className="ion-padding-horizontal flex justify-center gap-4 p-2 pb-0">
+            <IonButton
+              fill="solid"
+              color="light"
+              shape="round"
+              size="small"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <IonIcon color="secondary" slot="icon-only" icon={addCircle} />
+            </IonButton>
+
+            <IonButton fill="solid" color="light" shape="round" size="small" onClick={() => setEditingIndex(selectedIndex)}>
+              <IonIcon color="secondary" slot="icon-only" icon={settingsSharp} />
+            </IonButton>
+
+          </div>
+        </div>
       )}
 
-      <IonCol className="ion-padding-horizontal flex justify-center gap-4">
-        <IonButton
-          fill="outline"
-          color="primary"
-          shape="round"
-          size="small"
-          onClick={() => setShowCreateModal(true)}
-        >
-          <IonIcon slot="icon-only" icon={addCircle} />
-        </IonButton>
-        <IonButton size="small" onClick={() => setEditingIndex(selectedIndex)}>
-          Edit
-        </IonButton>
-      </IonCol>
 
-      <IonModal isOpen={showCreateModal} presentingElement={presentingElement.current!}>
-        <CreateLocation profile={profile} handleClose={() => setShowCreateModal(false)} />
-      </IonModal>
-    </IonRow>
+
+    </IonCol>
   );
 };
 

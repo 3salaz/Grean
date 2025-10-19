@@ -27,7 +27,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
     .trim();
 
   return (
-    <IonRow className="ion-padding flex items-center justify-between border-b border-slate-200">
+    <IonRow id="profileHeader" className="ion-padding flex items-center justify-between border-b border-slate-200">
       {/* Profile Info */}
       <IonCol size="9">
         <div className="flex flex-col items-start justify-end space-y-1">
@@ -68,6 +68,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ openModal, profile }) => 
           )}
         </div>
       </IonCol>
+      
       <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
         <ProfileEdit profile={profile} onClose={() => setIsModalOpen(false)} />
       </IonModal>

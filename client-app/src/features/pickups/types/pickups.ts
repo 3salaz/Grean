@@ -1,4 +1,8 @@
 // types/pickups.ts
+
+export type PickupType = "bag25" | "bag50" | "greanBin" | "halfGreanBin";
+
+
 export const materialTypes: MaterialType[] = [
   "glass",
   "cardboard",
@@ -28,6 +32,9 @@ export type MaterialType =
 export interface MaterialEntry {
   type: MaterialType;
   weight: number;
+  storageMethod?: PickupType;   // bag25, bag50, greanBin
+  photos?: string[];            // Firebase Storage URLs
+  note?: string;                // optional user-provided notes
 }
 
 
@@ -49,7 +56,6 @@ export interface Pickup extends Omit<PickupData, "materials"> {
   status: "pending" | "accepted" | "inProgress" | "completed" | "cancelled";
   createdBy: UserMeta;
   acceptedBy?: UserMeta | import("firebase/firestore").FieldValue;
-
   addressData: AddressData;
   pickupDate: string;
   pickupNote?: string;
@@ -74,18 +80,11 @@ export const materialConfig: Record<MaterialType, MaterialConfig> = {
     min: 1,
     max: 10,
   },
-  cardboard: {
-    label: "Cardboard",
-    requiresPhoto: true,
-    requiresAgreement: true, // ✅ now requires agreement
-    agreementLabel: "I agree to the Cardboard Disclaimer",
-    min: 1,
-    max: 10,
-  },
   appliances: {
     label: "Appliances",
     requiresPhoto: true,
   },
+
   "non-ferrous": {
     label: "Non-Ferrous Metals",
     requiresPhoto: true,
@@ -97,15 +96,19 @@ export const materialConfig: Record<MaterialType, MaterialConfig> = {
     min: 4,
     max: 30,
   },
-  plastic: {
-    label: "Plastic",
-    min: 3,
-    max: 20,
-  },
-  aluminum: {
-    label: "Aluminum",
-    min: 3,
-    max: 20,
-  },
-};
+plastic: {
+  label: "Plastic",
+  description: "Accepted in 25 gal bags or Grean Bins",
+},
+aluminum: {
+  label: "Aluminum",
+  description: "Accepted in 25 gal bags or Grean Bins",
+},
+cardboard: {
+  label: "Cardboard",
+  description: "Must fill a full Grean Bin before pickup",
+  requiresAgreement: true,
+  agreementLabel: "I agree to the Cardboard Disclaimer"
+},
 
+};

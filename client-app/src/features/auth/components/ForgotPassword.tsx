@@ -15,7 +15,6 @@ import {
 } from "@ionic/react";
 import { closeOutline } from "ionicons/icons";
 import { motion } from "framer-motion";
-import { ToastContainer } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 
 interface ForgotPasswordProps {
@@ -50,7 +49,6 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ handleClose, toggleToSi
 
   return (
     <IonPage>
-      <ToastContainer />
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">

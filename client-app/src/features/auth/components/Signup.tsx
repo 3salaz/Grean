@@ -16,7 +16,7 @@ import {
 
 import { motion } from "framer-motion";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { sendEmailVerification } from "firebase/auth";
@@ -93,7 +93,6 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
   return (
     <IonPage>
       <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
-        <ToastContainer />
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">

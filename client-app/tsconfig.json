@@ -21,12 +21,7 @@
     },  
     "noEmit": true, // Prevents emitting compiled JS files (Vite handles this)
     "jsx": "react-jsx",
-    "types": ["vite/client", "@ionic/react"],
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/vite/types",
-      "./node_modules"
-    ]
+    "types": ["vite/client"],
   },
   "include": ["src", "types"],
   "exclude": ["node_modules", "dist"]

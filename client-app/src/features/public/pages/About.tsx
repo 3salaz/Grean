@@ -3,13 +3,13 @@ import { motion } from "framer-motion";
 
 const About: React.FC = () => {
   return (
-    <IonGrid className="relative h-full w-full text-white bg-[#103050]">
+    <IonGrid className="relative h-full w-full">
       {/* Optional subtle background accent */}
       <div className="absolute inset-0 opacity-20 bg-gradient-to-b from-[#0c2444] via-[#103050] to-[#0c2444]" />
 
       {/* Content */}
       <IonRow className="relative z-10 h-full flex items-center justify-center">
-        <IonCol size="12" className="text-center max-w-xl mx-auto p-6">
+        <IonCol size="6" className="text-center max-w-xl mx-auto p-6 bg-white">
           <motion.h1
             className="text-5xl md:text-6xl font-bold mb-6 tracking-wide"
             initial={{ opacity: 0, y: 40 }}

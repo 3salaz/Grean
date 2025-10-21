@@ -1,5 +1,5 @@
 import {db, admin} from "../firebase";
-import {UserProfile} from "./profileTypes";
+import {UserProfile} from "./types";
 import * as logger from "firebase-functions/logger";
 
 /**

@@ -6,10 +6,10 @@
     "grean-de04f": {
       "hosting": {
         "client": [
-          "client-app"
+          "grean-client"
         ],
         "driver": [
-          "driver-app"
+          "grean-driver"
         ]
       }
     }

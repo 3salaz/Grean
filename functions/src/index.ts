@@ -8,21 +8,21 @@ import {
   updatePickup,
   deletePickup,
   completePickup,
-} from "./pickups/functions";
+} from "./pickups/handlers";
 
 // Location routes
 import {
-  createLocationFunction,
-  updateLocationFunction,
-  deleteLocationFunction,
-} from "./locations/locationFunctions";
+  createLocation,
+  updateLocation,
+  deleteLocation,
+} from "./locations/handlers";
 
 // Profile routes
 import {
-  createProfileFunction,
-  updateProfileFunction,
-  deleteProfileFunction,
-} from "./profile/profileFunctions";
+  createProfile,
+  updateProfile,
+  deleteProfile,
+} from "./profile/handlers";
 
 // Initialize Express app
 const app = express();
@@ -31,14 +31,14 @@ const app = express();
 app.use(cors({ origin: true }));
 
 // Profile Routes
-app.post("/profile/create", createProfileFunction);
-app.post("/profile/update", updateProfileFunction);
-app.post("/profile/delete", deleteProfileFunction);
+app.post("/profile/create", createProfile);
+app.post("/profile/update", updateProfile);
+app.post("/profile/delete", deleteProfile);
 
 // Location Routes
-app.post("/location/create", createLocationFunction);
-app.post("/location/update", updateLocationFunction);
-app.post("/location/delete", deleteLocationFunction);
+app.post("/location/create", createLocation);
+app.post("/location/update", updateLocation);
+app.post("/location/delete", deleteLocation);
 
 // Pickup Routes
 app.post("/pickup/create", createPickup);

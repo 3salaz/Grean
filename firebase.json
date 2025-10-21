@@ -10,8 +10,10 @@
       "target": "driver",
       "public": "driver-app/dist",
       "ignore": ["**/.*", "**/node_modules/**"],
-      "rewrites": [{ "source": "**", "destination": "/index.html" }
-      ]
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
     }
-  ]
+  ],
+  "functions": {
+    "source": "functions"
+  }
 }

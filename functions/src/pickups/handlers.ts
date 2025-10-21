@@ -6,7 +6,7 @@ import {
   updatePickupBulk,
   deletePickup as deletePickupService,
   createPickup as createPickupService,
-} from "./services";
+} from "./service";
 import {
   UpdatePickupData,
   UpdatePickupFieldData,

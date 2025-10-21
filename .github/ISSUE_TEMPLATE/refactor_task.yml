@@ -6,12 +6,19 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this for tech debt cleanup, restructuring, or UI/UX polish.
+        Use this form for tech debt cleanup, restructuring, or UI/UX polish. Be clear about the intent and affected area.
+  - type: input
+    id: title
+    attributes:
+      label: Refactor Title
+      placeholder: e.g. Simplify pickup request logic
+    validations:
+      required: true
   - type: input
     id: area
     attributes:
       label: Specific Files / Components
-      placeholder: e.g., `LoginScreen`, `api.js`, `Header`
+      placeholder: e.g., `PickupRequestScreen`, `api.ts`, `HeaderComponent`
     validations:
       required: true
   - type: textarea
@@ -25,14 +32,31 @@ body:
     id: proposal
     attributes:
       label: Proposed Changes
-      description: How do you plan to improve it?
+      description: What changes will be made to improve it?
   - type: dropdown
-    id: app
+    id: scope
     attributes:
-      label: Scope
+      label: Affected Area
+      description: What part of the app is this refactor targeting?
       options:
         - client-app
         - driver-app
         - shared
-        - backend
+        - functions
         - root
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **🛠 Suggested Branch Naming Convention**
+        
+        Based on your input, your branch should follow this format:
+        
+        ```
+        refactor/<scope>-<slugified-title>
+        ```
+
+        Example: `refactor/shared-cleanup-header-component`
+
+        Use short, dash-separated keywords. If this is a fix instead of a cleanup, use `fix/` instead.

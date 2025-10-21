@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Great! Let’s capture your idea clearly below.
+        Great! Let’s capture your idea clearly below. Please provide all relevant details.
   - type: input
     id: title
     attributes:
@@ -28,9 +28,28 @@ body:
     id: scope
     attributes:
       label: Affected Area
+      description: What part of the app is this related to?
       options:
         - client-app
         - driver-app
         - shared
         - backend
         - root
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **🪴 Suggested Branch Naming Convention**
+        
+        Based on your input, your branch should follow this format:
+        
+        ```
+        feature/<scope>-<slugified-title>
+        ```
+
+        Example: `feature/client-pickup-scheduling-reminders`
+
+        Replace `<slugified-title>` with a short, dash-separated version of your feature title.
+
+        If this is a bug fix or refactor, use `fix/` or `refactor/` instead of `feature/`.

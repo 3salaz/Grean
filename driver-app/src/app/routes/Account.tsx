@@ -60,28 +60,28 @@ const Account: React.FC = () => {
     switch (activeTab) {
       case "profile":
         return <Suspense fallback={fallback}><Profile /></Suspense>;
-      // case "pickups":
-      //   if (
-      //     (Array.isArray(profile.locations) && profile.locations.length > 0) ||
-      //     profile.accountType === "Driver"
-      //   ) {
-      //     return <Suspense fallback={fallback}><Pickups /></Suspense>;
-      //   }
-      //   return (
-      //     <IonText className="text-center w-full p-4">
-      //       📍 Please add at least one location to request pickups.
-      //     </IonText>
-      //   );
-      // case "map":
-      //   return <Suspense fallback={fallback}><Map /></Suspense>;
-      // case "stats":
-      //   return !profile.stats ? (
-      //     <Suspense fallback={fallback}><Stats /></Suspense>
-      //   ) : (
-      //     <IonText className="text-center w-full p-4">
-      //       📊 No stats available yet. Complete a pickup to get started!
-      //     </IonText>
-      //   );
+      case "pickups":
+        if (
+          (Array.isArray(profile.locations) && profile.locations.length > 0) ||
+          profile.accountType === "Driver"
+        ) {
+          return <Suspense fallback={fallback}><Pickups /></Suspense>;
+        }
+        return (
+          <IonText className="text-center w-full p-4">
+            📍 Please add at least one location to request pickups.
+          </IonText>
+        );
+      case "map":
+        return <Suspense fallback={fallback}><Map /></Suspense>;
+      case "stats":
+        return !profile.stats ? (
+          <Suspense fallback={fallback}><Stats /></Suspense>
+        ) : (
+          <IonText className="text-center w-full p-4">
+            📊 No stats available yet. Complete a pickup to get started!
+          </IonText>
+        );
       
         default:
         return <IonText className="text-center w-full p-4">Invalid tab selected.</IonText>;
@@ -89,7 +89,7 @@ const Account: React.FC = () => {
   };
 
   return (
-    <div className="relative h-full max-w-full bg-gradient-to-t from-grean to-blue-300">
+    <div className="relative h-full max-w-full bg-gradient-to-t from-grean to-green-500">
       {/* Toast */}
       <ToastContainer
         position="top-center"

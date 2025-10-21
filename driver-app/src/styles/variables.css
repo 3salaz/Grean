@@ -1,0 +1,19 @@
+/* driver-app/src/theme/variables.css */
+:root {
+  --ion-color-primary: #41557e;
+  --ion-color-primary-rgb: 64,123,255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #386ee6;
+  --ion-color-primary-tint: #5990ff;
+
+  --ion-color-secondary: #5D9CEC;
+  --ion-color-secondary-contrast: #ffffff;
+
+  --ion-color-success: #10dc60;
+  --ion-color-warning: #ffce00;
+  --ion-color-danger: #f04141;
+  --ion-color-light: #f4f5f8;
+  --ion-color-medium: #92949c;
+  --ion-color-dark: #222428;
+}

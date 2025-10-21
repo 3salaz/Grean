@@ -3,15 +3,14 @@ import {
   IonAccordionGroup, IonItem, IonLabel, IonText,
   IonAccordion, IonGrid, IonRow, IonCol, IonButton
 } from "@ionic/react";
-import noPickupsIcon from "../../assets/no-pickups.svg";
-import { formatDateInfo } from "../../utils/dateUtils";
-import { usePickups } from "../../context/PickupsContext";
-import { useProfile } from "../../context/ProfileContext";
+import noPickupsIcon from "@/assets/no-pickups.svg";
+import { formatDateInfo } from "@/utils/dateUtils";
+import { usePickups } from "@/context/PickupsContext";
 import { toast } from "react-toastify";
 import { deleteField } from "firebase/firestore";
 import { useState } from "react";
 import dayjs from "dayjs";
-import Calendar from "./Calendar";
+import Calendar from "@/features/pickups/components/Calendar";
 
 
 export default function DriversScheduleCard() {

@@ -100,7 +100,7 @@ function MyForest() {
   return (
     <IonCol 
       id="userForest" size="12"
-      className="ion-padding bg-white rounded-lg drop-shadow-md"
+      className="ion-padding rounded-lg drop-shadow-md"
       >
       <div id="forestTitleDiv" className="w-full">
         <IonText className="text-xl mx-auto text-center font-semibold text-[#3a6833] tracking-wide rounded-md">

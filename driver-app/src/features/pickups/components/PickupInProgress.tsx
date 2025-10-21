@@ -61,7 +61,7 @@ import {
       <IonRow className="rounded-md">
         <IonCol size="12" className="text-center">
           <IonText className="text-lg font-semibold ion-padding">
-            Pickup In Progress
+            Pickup In Progressss
           </IonText>
         </IonCol>
         <IonCol size="12" className="ion-padding-horizontal">

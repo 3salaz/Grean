@@ -12,12 +12,10 @@ import {
   IonAccordion,
   IonItem
 } from "@ionic/react";
-import { usePickups } from "../../context/PickupsContext";
-import type { MaterialType } from "../../types/pickups";
-import { useProfile } from "../../context/ProfileContext";
+import { usePickups } from "@/context/PickupsContext";
+import { useProfile } from "@/context/ProfileContext";
 import dayjs from "dayjs";
-import noPickupIcon from "../../assets/no-pickups.svg";
-import { useAuth } from "../../context/AuthContext";
+import noPickupIcon from "@/assets/no-pickups.svg";
 import PickupInProgress from "./PickupInProgress";
 
 const DriverPickups: React.FC = () => {

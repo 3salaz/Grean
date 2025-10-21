@@ -1,6 +1,6 @@
 import { IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonRow, IonText } from '@ionic/react'
 import React from 'react'
-import { usePickups } from '../../context/PickupsContext';
+import { usePickups } from '@/context/PickupsContext';
 
 type Props = {}
 

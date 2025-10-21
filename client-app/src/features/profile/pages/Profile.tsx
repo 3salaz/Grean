@@ -7,7 +7,7 @@ import { IonRow } from "@ionic/react";
 
 
 const Profile: React.FC = () => {
-  const {profile} = useProfile();
+  const { profile } = useProfile();
 
   return (
     <main id="profileTab" className="mx-auto max-w-6xl flex-grow overflow-auto snap-y snap-mandatory h-full ion-padding flex flex-col gap-2">
@@ -15,6 +15,10 @@ const Profile: React.FC = () => {
       <IonRow className="gap-2 flex">
         <MyForest />
         <MyLocations profile={profile} />
+        <div className="bg-primary text-white p-4 rounded-xl">
+          Client Primary Color Test
+        </div>
+
       </IonRow>
     </main>
   );

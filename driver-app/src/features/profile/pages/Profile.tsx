@@ -1,7 +1,7 @@
 
 import ProfileHeader from "@/features/profile/components/ProfileHeader";
 import MyForest from "@/features/profile/components/MyForest";
-import MyLocations from "@/features/profile/components/MyLocations";
+import MyRoutes from "@/features/profile/components/MyRoutes";
 import { useProfile } from "@/context/ProfileContext";
 import { IonRow } from "@ionic/react";
 
@@ -14,7 +14,7 @@ const Profile: React.FC = () => {
       <ProfileHeader profile={profile} />
       <IonRow className="gap-2 flex">
         <MyForest />
-        <MyLocations profile={profile} />
+        <MyRoutes profile={profile} />
       </IonRow>
     </main>
   );

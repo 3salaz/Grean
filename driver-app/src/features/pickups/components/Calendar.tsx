@@ -6,7 +6,7 @@ import {
 } from "@ionic/react";
 import { useState, useEffect } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { usePickups } from "../../context/PickupsContext";
+import { usePickups } from "@/context/PickupsContext";
 
 interface CalendarProps {
   selectedDate: Dayjs;

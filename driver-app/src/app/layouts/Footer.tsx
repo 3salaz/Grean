@@ -34,7 +34,7 @@ function Footer() {
             <IonLabel className="text-xs">Profile</IonLabel>
             <IonIcon icon={personCircleOutline} />
           </IonSegmentButton>
-          {/* <IonSegmentButton value="pickups">
+          <IonSegmentButton value="pickups">
             <IonLabel className="text-xs">Pickups</IonLabel>
             <IonIcon icon={leafOutline} />
           </IonSegmentButton>
@@ -46,7 +46,7 @@ function Footer() {
           <IonSegmentButton value="stats">
             <IonLabel className="text-xs">Stats</IonLabel>
             <IonIcon icon={statsChartOutline} />
-          </IonSegmentButton> */}
+          </IonSegmentButton>
         </IonSegment>
       </IonToolbar>
     </IonFooter>

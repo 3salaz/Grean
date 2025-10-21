@@ -31,15 +31,11 @@ const DriverLayout: React.FC<DriverLayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <IonPage id="driver-layout" className="flex flex-col relative bg-gradient-to-t from-grean to-blue-300">
-      {/* Fixed Navbar */}
-      <div ref={navbarRef} className="z-50">
+    <IonPage id="driver-layout" className="flex flex-col relative bg-gradient-to-t from-grean to-green-500">
         <Navbar />
-      </div>
 
       <IonContent
         scrollY
-        className="relative z-0"
       >
         {children}
       </IonContent>

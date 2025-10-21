@@ -39,7 +39,15 @@ const MyRoutes: React.FC<MyRoutesProps> = ({profile}) => {
         <div className="bg-gray-100 rounded-md flex items-center justify-center">
         </div>
       </IonCol>
+      <IonCol size="12">
+            <div className="grid grid-flow-col grid-rows-3 gap-4">
+        <div className="row-span-3 bg-orange-300">01</div>  
+        <div className="col-span-2 bg-blue-300">02</div>
+        <div className="col-span-2 row-span-2 bg-green-400">03</div>
+    </div>
+      </IonCol>
     </IonRow>
+
   </IonGrid>;
 };
 

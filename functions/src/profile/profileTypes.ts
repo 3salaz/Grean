@@ -9,6 +9,7 @@ export interface UserProfile {
   locations: string[]; // Locations (default to empty array)
   pickups: string[]; // Pickups (default to empty array)
   accountType: string; // Account type (default to "user")
+  roles: string[]; // User roles (default to ["User"])
   createdAt: FirebaseFirestore.FieldValue | FirebaseFirestore.Timestamp;
 }
 

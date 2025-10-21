@@ -1,0 +1,86 @@
+name: 🔄 Grean Branch-Based Deployments
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - client-app
+      - driver-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set environment variables
+        run: |
+          echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "PROJECT_ID=grean-de04f" >> $GITHUB_ENV
+            echo "CHANNEL_ID=live" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF##*/}" == "dev" ]]; then
+            echo "PROJECT_ID=grean-de04f" >> $GITHUB_ENV
+            echo "CHANNEL_ID=staging" >> $GITHUB_ENV
+          else
+            echo "PROJECT_ID=grean-de04f" >> $GITHUB_ENV
+            echo "CHANNEL_ID=${GITHUB_REF##*/}-preview" >> $GITHUB_ENV
+          fi
+
+      ########################
+      ## Build & Deploy Client App
+      ########################
+      - name: Build Client App
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'dev' || env.BRANCH == 'client-app' }}
+        run: |
+          npm ci
+          npm run build
+        working-directory: ./client-app
+
+      - name: Deploy Client App
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'dev' || env.BRANCH == 'client-app' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: ${{ env.PROJECT_ID }}
+          target: client
+          channelId: ${{ env.CHANNEL_ID }}
+
+      ########################
+      ## Build & Deploy Driver App
+      ########################
+      - name: Build Driver App
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'dev' || env.BRANCH == 'driver-app' }}
+        run: |
+          npm ci
+          npm run build
+        working-directory: ./driver-app
+
+      - name: Deploy Driver App
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'dev' || env.BRANCH == 'driver-app' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: ${{ env.PROJECT_ID }}
+          target: driver
+          channelId: ${{ env.CHANNEL_ID }}
+
+      ########################
+      ## Deploy Firebase Functions
+      ########################
+      - name: Deploy Firebase Functions
+        if: ${{ env.BRANCH == 'main' || env.BRANCH == 'dev' }}
+        run: |
+          npm ci
+          npm run build
+          firebase deploy --only functions --project ${{ env.PROJECT_ID }}
+        working-directory: ./functions

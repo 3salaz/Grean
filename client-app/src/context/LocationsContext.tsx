@@ -1,24 +1,25 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+// src/context/LocationContext.tsx
+
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "./AuthContext";
-import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../firebase";
-
-// Define types for location
-export interface Location {
-  id?: string;
-  locationType: string;
-  address: string;
-  latitude?: number;
-  longitude?: number;
-  homeName?: string;
-  businessName?: string;
-  businessPhoneNumber?: string;
-  businessBio?: string;
-  businessLogo?: string,
-  category?: string;
-}
+import type { Location } from "@shared/types/location"; // ✅ Shared Location type
 
 export interface LocationContextType {
   locations: Location[];
@@ -26,13 +27,15 @@ export interface LocationContextType {
   profileLocations: Location[];
   currentLocation: Location | null;
   setCurrentLocation: (location: Location | null) => void;
-  createLocation: (locationData: Location) => Promise<string | undefined>;
-  deleteLocation: (locationId: string) => Promise<void>;
-  updateLocation: (locationId: string, updates: Partial<Location>) => Promise<void>;
+  createLocationReq: (locationData: Location) => Promise<string | undefined>;
+  deleteLocationReq: (locationId: string) => Promise<void>;
+  updateLocationReq: (
+    locationId: string,
+    updates: Partial<Location>
+  ) => Promise<void>;
   loading: boolean;
 }
 
-// Create Context
 const LocationsContext = createContext<LocationContextType | null>(null);
 
 export function LocationsProvider({ children }: { children: ReactNode }) {
@@ -56,7 +59,7 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
     const unsubscribeBusiness = onSnapshot(businessQuery, (snapshot) => {
       const businessLocations: Location[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...(doc.data() as Location)
+        ...(doc.data() as Location),
       }));
       setBusinessLocations(businessLocations);
       setLoading(false);
@@ -84,21 +87,20 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
               : null;
           });
 
-          const resolvedUserLocations: Location[] = (await Promise.all(locationPromises)).filter(
-            Boolean
-          ) as Location[];
+          const resolvedUserLocations: Location[] = (
+            await Promise.all(locationPromises)
+          ).filter(Boolean) as Location[];
 
           setProfileLocations(resolvedUserLocations);
           setLocations(resolvedUserLocations);
 
-          // ✅ Set default active location if not already set
           if (!currentLocation && resolvedUserLocations.length > 0) {
             setCurrentLocation(resolvedUserLocations[0]);
           }
         } else {
           setProfileLocations([]);
           setLocations([]);
-          setCurrentLocation(null); // Clear if no locations
+          setCurrentLocation(null);
         }
       } catch (error) {
         console.error("Error fetching user locations:", error);
@@ -112,20 +114,21 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
-  const createLocation = async (locationData: Location): Promise<string | undefined> => {
+  // 🔁 Renamed API Request Functions
+
+  const createLocationReq = async (
+    locationData: Location
+  ): Promise<string | undefined> => {
     try {
-      console.log("🚀 Creating location with data:", locationData);
       const token = await user.getIdToken();
       const response = await axios.post(
-        "https://us-central1-grean-de04f.cloudfunctions.net/api/createLocationFunction",
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/location/create",
         locationData,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data && typeof response.data === "object" && "locationId" in response.data) {
-        return response.data.locationId as string;
+      if (response.data?.locationId) {
+        return response.data.locationId;
       } else {
         throw new Error("Unexpected response format.");
       }
@@ -135,11 +138,13 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteLocation = async (locationId: string): Promise<void> => {
+  const deleteLocationReq = async (locationId: string): Promise<void> => {
     try {
+      const token = await user.getIdToken();
       await axios.post(
-        "https://us-central1-grean-de04f.cloudfunctions.net/api/deleteLocationFunction",
-        { locationId }
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/location/delete",
+        { locationId },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Location deleted successfully!");
     } catch (error) {
@@ -148,25 +153,23 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateLocation = async (locationId: string, updates: Partial<Location>): Promise<void> => {
+  const updateLocationReq = async (
+    locationId: string,
+    updates: Partial<Location>
+  ): Promise<void> => {
     try {
-      const token = await user.getIdToken(); // ✅ Get the user's Firebase ID token
-  
+      const token = await user.getIdToken();
       await axios.post(
-        "https://us-central1-grean-de04f.cloudfunctions.net/api/updateLocationFunction",
+        "https://us-central1-grean-de04f.cloudfunctions.net/api/location/update",
         { locationId, updates },
-        {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Pass it in headers
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-  
       toast.success("Location updated successfully!");
     } catch (error) {
       console.error("Error updating location:", error);
       toast.error("Failed to update location.");
     }
   };
-  
 
   return (
     <LocationsContext.Provider
@@ -176,10 +179,10 @@ export function LocationsProvider({ children }: { children: ReactNode }) {
         profileLocations,
         currentLocation,
         setCurrentLocation,
-        createLocation,
-        deleteLocation,
-        updateLocation,
-        loading
+        createLocationReq,
+        deleteLocationReq,
+        updateLocationReq,
+        loading,
       }}
     >
       {children}

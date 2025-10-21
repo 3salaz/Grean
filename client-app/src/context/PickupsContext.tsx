@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext";
 import { useProfile } from "./ProfileContext";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import type { Pickup, PickupData } from "../types/pickups";
+import type { Pickup, PickupData } from "@/features/pickups/types/pickups";
 
 interface PickupContextType {
   allPickups: Pickup[];

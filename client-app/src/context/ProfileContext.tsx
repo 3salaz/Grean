@@ -36,6 +36,7 @@ export interface UserProfile {
   stats?: UserStats;
   pickups: string[];
   accountType: string;
+  roles: string[];
   photoURL?: string | null;
 }
 
@@ -109,7 +110,8 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
         locations: [],
         pickups: [],
         inventory: [],
-        accountType: ""
+        accountType: "",
+        roles: ["User"],
       };
 
       console.log("🚀 Creating profile with data:", initialData);

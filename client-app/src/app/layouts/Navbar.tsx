@@ -1,5 +1,5 @@
 import {useState} from "react";
-import logo from "../../assets/logo.png";
+import logo from "@/assets/logo.png";
 import {Link} from "react-router-dom";
 import Signup from "@/features/auth/components/Signup";
 import Signin from "@/features/auth/components/Signin"; 
@@ -87,7 +87,7 @@ function Navbar() {
   };
 
   return (
-    <IonHeader className="ion-no-border py-0 md:px-10">
+    <IonHeader id="navbar" className="ion-no-border py-0 md:px-10">
       <IonToolbar color="secondary"  className="h-full mx-auto rounded-b-xl">
         <IonButtons className="lg:hidden" slot="start">
           <IonMenuButton

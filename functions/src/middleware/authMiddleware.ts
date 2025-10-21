@@ -37,3 +37,15 @@ export const authMiddleware = async (
     res.status(401).send({error: "Invalid authentication token provided."});
   }
 };
+
+export const decodeAuthToken = async (req: Request) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    throw new Error("No authentication token provided.");
+  }
+
+  const token = authHeader.split("Bearer ")[1];
+  return await admin.auth().verifyIdToken(token);
+};
+

@@ -62,7 +62,7 @@ const Pickups: React.FC = () => {
       <main id="pickups-mainView" className="ion-padding flex flex-col items-center flex-grow">
         {renderMainView()}
       </main>
-
+      
       <footer id="pickups-footer">
           <IonRow className="gap-2 justify-center ion-padding">
             <IonCol size="auto">

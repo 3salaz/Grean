@@ -4,12 +4,50 @@ title: "[Docs]: "
 labels: [documentation]
 body:
   - type: input
+    id: title
+    attributes:
+      label: Title of Change
+      placeholder: e.g. Improve setup instructions
+    validations:
+      required: true
+  - type: input
     id: area
     attributes:
       label: File or Section
-      placeholder: e.g. CONTRIBUTING.md or setup instructions
+      placeholder: e.g. `CONTRIBUTING.md`, `README`, `Onboarding Notes`
+    validations:
+      required: true
   - type: textarea
     id: suggestion
     attributes:
       label: Suggested Update
-      description: What should be added or changed?
+      description: What should be added, removed, or improved?
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Affected Area
+      description: What part of the app or repo does this documentation relate to?
+      options:
+        - client-app
+        - driver-app
+        - shared
+        - backend
+        - root
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **📚 Suggested Branch Naming Convention**
+        
+        For documentation updates, use:
+        
+        ```
+        chore/<scope>-docs-<slugified-title>
+        ```
+
+        Example: `chore/root-docs-setup-update`
+
+        Use `chore/` as the prefix to reflect non-functional updates. Keep it clean and short.

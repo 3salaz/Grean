@@ -1,6 +1,6 @@
 import { IonPage, IonContent } from "@ionic/react";
-import Footer from "@/app/layouts/Footer";
 import Navbar from "@/app/layouts/Navbar";
+import Footer from "@/app/layouts/Footer";
 import { useEffect, useRef, useState } from "react";
 
 interface ClientLayoutProps {
@@ -44,7 +44,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
         {children}
       </IonContent>
 
-      {/* Fixed Footer */}
         <Footer />
     </IonPage>
   );

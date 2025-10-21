@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "jest",
-    "deploy": "firebase deploy",
+    "deploy": "firebase deploy --only hosting:client",
+    "deploy:build": "vite build && firebase deploy --only hosting:client",
     "lint": "eslint --ext .js,.ts ."
   },
   "dependencies": {

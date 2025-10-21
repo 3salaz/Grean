@@ -10,17 +10,20 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import React from "react";
 import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import AppContent from "./AppContent";
 
-export default function App() {
+import AppContent from "@/app/AppContent";
+
+function App() {
   return (
     <IonApp>
       <IonReactRouter>
-        <AppContent />
+          <AppContent />
       </IonReactRouter>
     </IonApp>
   );
 }
+
+
+export default App;

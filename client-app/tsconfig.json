@@ -17,7 +17,8 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/*"]
     },  
     "noEmit": true, // Prevents emitting compiled JS files (Vite handles this)
     "jsx": "react-jsx",

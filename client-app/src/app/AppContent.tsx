@@ -1,11 +1,13 @@
 import { Route, Switch, Redirect } from "react-router-dom";
-import PublicLayout from "@/app/layouts/PublicLayout";
-import ClientLayout from "@/app/layouts/ClientLayout";
 import ProtectedRoute from "@/app/routes/ProtectedRoute";
 
-import Home from "@/app/routes/Home";
 import Account from "@/app/routes/Account";
-import ErrorPage from "@/app/routes/ErrorPage";
+import PublicLayout from "@/app/layouts/PublicLayout";
+import ClientLayout from "@/app/layouts/ClientLayout";
+
+// Pages
+import Home from "@/app/routes/Home";
+import ErrorPage from "@shared/components/ErrorPage";
 
 export default function AppContent() {
   return (

@@ -3,6 +3,7 @@
     "target": "esnext",  // Use "esnext" for better modern JS compatibility
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -14,10 +15,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/*"]
+    },  
     "noEmit": true, // Prevents emitting compiled JS files (Vite handles this)
     "jsx": "react-jsx",
-    "types": ["vite/client"] // Ensures Vite types are recognized
+    "types": ["vite/client"],
   },
-  "include": ["src"],
+  "include": ["src", "types"],
   "exclude": ["node_modules", "dist"]
 }

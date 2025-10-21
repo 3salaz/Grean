@@ -9,12 +9,11 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "react-toastify/dist/ReactToastify.css";
-import "mapbox-gl/dist/mapbox-gl.css";
 
 import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
-import AppContent from "./components/AppContent";
+import AppContent from "@/app/AppContent";
 
 function App() {
   return (

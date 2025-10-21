@@ -1,14 +1,16 @@
 {
   "hosting": [
     {
-      "target": "grean-de04f-client",
+      "target": "client",
       "public": "client-app/dist",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "driver",
+      "public": "driver-app/dist",
       "ignore": ["**/.*", "**/node_modules/**"],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
+      "rewrites": [{ "source": "**", "destination": "/index.html" }
       ]
     }
   ]

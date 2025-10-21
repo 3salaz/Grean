@@ -1,0 +1,114 @@
+// types/pickups.ts
+
+export type PickupType = "bag25" | "bag50" | "greanBin" | "halfGreanBin";
+
+
+export const materialTypes: MaterialType[] = [
+  "glass",
+  "cardboard",
+  "appliances",
+  "non-ferrous",
+  "pallets",
+  "plastic",
+  "aluminum",
+];
+
+export interface UserMeta {
+  uid: string;
+  displayName: string;
+  email: string;
+  photoURL: string;
+}
+
+export type MaterialType =
+  | "glass"
+  | "cardboard"
+  | "appliances"
+  | "non-ferrous"
+  | "pallets"
+  | "plastic"
+  | "aluminum";
+
+export interface MaterialEntry {
+  type: MaterialType;
+  weight: number;
+  storageMethod?: PickupType;   // bag25, bag50, greanBin
+  photos?: string[];            // Firebase Storage URLs
+  note?: string;                // optional user-provided notes
+}
+
+
+export interface AddressData {
+  address: string;
+}
+
+export interface PickupData {
+  pickupTime: string;
+  addressData: AddressData;
+  materials: MaterialEntry[];
+  disclaimerAccepted: boolean; 
+
+}
+
+export interface Pickup extends Omit<PickupData, "materials"> {
+  id: string;
+  createdAt: string;
+  status: "pending" | "accepted" | "inProgress" | "completed" | "cancelled";
+  createdBy: UserMeta;
+  acceptedBy?: UserMeta | import("firebase/firestore").FieldValue;
+  addressData: AddressData;
+  pickupDate: string;
+  pickupNote?: string;
+  materials: MaterialEntry[];
+}
+
+export interface MaterialConfig {
+  label: string;
+  requiresPhoto?: boolean;
+  requiresAgreement?: boolean;
+  agreementLabel?: string;
+  min?: number;
+  max?: number;
+  description?: string;
+}
+
+export const materialConfig: Record<MaterialType, MaterialConfig> = {
+  glass: {
+    label: "Glass",
+    requiresAgreement: true,
+    agreementLabel: "I agree to the Glass Disclaimer",
+    min: 1,
+    max: 10,
+  },
+  appliances: {
+    label: "Appliances",
+    requiresPhoto: true,
+  },
+
+  "non-ferrous": {
+    label: "Non-Ferrous Metals",
+    requiresPhoto: true,
+    requiresAgreement: true,
+    agreementLabel: "I agree to the Non-Ferrous Metals Disclaimer",
+  },
+  pallets: {
+    label: "Pallets",
+    min: 4,
+    max: 30,
+  },
+plastic: {
+  label: "Plastic",
+  description: "Accepted in 25 gal bags or Grean Bins",
+},
+aluminum: {
+  label: "Aluminum",
+  description: "Accepted in 25 gal bags or Grean Bins",
+},
+cardboard: {
+  label: "Cardboard",
+  description: "Must fill a full Grean Bin before pickup",
+  requiresAgreement: true,
+  agreementLabel: "I agree to the Cardboard Disclaimer"
+},
+
+};

@@ -33,7 +33,7 @@ body:
         - client-app
         - driver-app
         - shared
-        - backend
+        - functions
         - root
     validations:
       required: true

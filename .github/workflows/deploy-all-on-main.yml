@@ -1,0 +1,76 @@
+name: Deploy All on Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_client:
+    name: Build & Deploy Client App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install client dependencies
+        working-directory: ./client-app
+        run: npm ci
+      - name: Build client app
+        working-directory: ./client-app
+        run: npm run build
+      - name: Deploy client to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          channelId: live
+          # optionally set target or entryPoint if needed
+
+  deploy_driver:
+    name: Build & Deploy Driver App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install driver dependencies
+        working-directory: ./driver-app
+        run: npm ci
+      - name: Build driver app
+        working-directory: ./driver-app
+        run: npm run build
+      - name: Deploy driver to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          channelId: live
+          # If driver-hosting is a different site/target, add `target: driver-site-name`
+
+  deploy_functions:
+    name: Deploy Cloud Functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm ci
+      - name: Build functions (if you have build step)
+        working-directory: ./functions
+        run: npm run build
+      - name: Deploy functions via Firebase CLI
+        run: |
+          npx firebase-tools deploy --only functions --project grean-de04f --non-interactive
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}

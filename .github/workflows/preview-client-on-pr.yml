@@ -1,0 +1,30 @@
+name: Preview – Client App
+
+on:
+  pull_request:
+    branches:
+      - client-app
+
+jobs:
+  preview_client:
+    name: Build & Deploy Preview Client App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install client dependencies
+        working-directory: ./client-app
+        run: npm ci
+      - name: Build client app
+        working-directory: ./client-app
+        run: npm run build
+      - name: Deploy client preview to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          channelId: pr-${{ github.event.pull_request.number }}

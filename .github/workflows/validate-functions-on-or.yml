@@ -1,0 +1,26 @@
+name: Validate Functions (on PR)
+
+on:
+  pull_request:
+    paths:
+      - functions/**
+
+jobs:
+  lint_and_build_functions:
+    name: Lint/Build Functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm ci
+      - name: Build functions (if applicable)
+        working-directory: ./functions
+        run: npm run build
+      - name: Lint functions
+        working-directory: ./functions
+        run: npm run lint

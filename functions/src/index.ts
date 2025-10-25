@@ -28,7 +28,7 @@ import {
 const app = express();
 
 // Middleware
-app.use(cors({ origin: true }));
+app.use(cors({origin: true}));
 
 // Profile Routes
 app.post("/profile/create", createProfile);

@@ -1,4 +1,4 @@
-import { Response } from "express";
+import {Response} from "express";
 import * as logger from "firebase-functions/logger";
 import * as functions from "firebase-functions/v1";
 import {
@@ -16,9 +16,9 @@ import {
   UpdateProfileData,
   ProfileUpdateOperation,
 } from "./types";
-import { UserRecord } from "firebase-admin/auth";
-import { db } from "../firebase";
-import { FieldValue } from "firebase-admin/firestore";
+import {UserRecord} from "firebase-admin/auth";
+import {db} from "../firebase";
+import {FieldValue} from "firebase-admin/firestore";
 
 // ✅ Firebase Auth Trigger: Automatically create a profile
 export const autoCreateProfile = functions.auth.user().onCreate(async (user: UserRecord) => {
@@ -60,10 +60,10 @@ export const createProfile = [
       };
 
       await createProfileService(uid, initialData);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in createProfile:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -76,24 +76,24 @@ export const updateProfile = [
       const uid = req.user?.uid;
       if (!uid) throw new Error("User UID is undefined.");
 
-      const { field, value, operation = "update" } = req.body as UpdateProfileData;
+      const {field, value, operation = "update"} = req.body as UpdateProfileData;
 
       const profileRef = db.collection("profiles").doc(uid);
 
       if (operation === "addToArray") {
-        await profileRef.update({ [field]: FieldValue.arrayUnion(value) });
+        await profileRef.update({[field]: FieldValue.arrayUnion(value)});
       } else if (operation === "removeFromArray") {
-        await profileRef.update({ [field]: FieldValue.arrayRemove(value) });
+        await profileRef.update({[field]: FieldValue.arrayRemove(value)});
       } else if (operation === "update" || operation === "set") {
         await updateProfileFieldService(uid, field, value, operation as ProfileUpdateOperation);
       } else {
-        await updateProfileBulkService(uid, { [field]: value });
+        await updateProfileBulkService(uid, {[field]: value});
       }
 
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in updateProfile:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -108,10 +108,10 @@ export const deleteProfile = [
       logger.info("✅ User authenticated:", uid);
 
       await deleteProfileService(uid);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in deleteProfile:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];

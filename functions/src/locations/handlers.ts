@@ -1,7 +1,11 @@
-import { Response } from "express";
+import {Response} from "express";
 import * as logger from "firebase-functions/logger";
-import { createLocation as createLocationService, updateLocation as updateLocationService, deleteLocation as deleteLocationService } from "./service";
-import { authMiddleware, AuthenticatedRequest } from "../middleware/authMiddleware";
+import {
+  createLocation as createLocationService,
+  updateLocation as updateLocationService,
+  deleteLocation as deleteLocationService,
+} from "./service";
+import {authMiddleware, AuthenticatedRequest} from "../middleware/authMiddleware";
 import {
   CreateLocationData,
   UpdateLocationData,
@@ -22,10 +26,10 @@ export const createLocation = [
       const result = await createLocationService(uid, locationData);
 
       logger.info("✅ Location created with ID:", result.locationId);
-      res.status(200).send({ locationId: result.locationId });
+      res.status(200).send({locationId: result.locationId});
     } catch (error) {
       logger.error("❌ ERROR in createLocation:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -40,14 +44,14 @@ export const updateLocation = [
       const uid = req.user?.uid;
       if (!uid) throw new Error("User UID is undefined.");
 
-      const { locationId, updates } = req.body as UpdateLocationData;
+      const {locationId, updates} = req.body as UpdateLocationData;
       await updateLocationService(uid, locationId, updates);
 
       logger.info("✅ Location updated:", locationId);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in updateLocation:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];
@@ -62,14 +66,14 @@ export const deleteLocation = [
       const uid = req.user?.uid;
       if (!uid) throw new Error("User UID is undefined.");
 
-      const { locationId } = req.body as DeleteLocationData;
+      const {locationId} = req.body as DeleteLocationData;
       await deleteLocationService(uid, locationId);
 
       logger.info("✅ Location deleted:", locationId);
-      res.status(200).send({ success: true });
+      res.status(200).send({success: true});
     } catch (error) {
       logger.error("❌ ERROR in deleteLocation:", error);
-      res.status(500).send({ error: (error as Error).message });
+      res.status(500).send({error: (error as Error).message});
     }
   },
 ];

@@ -28,5 +28,6 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "max-len": ["warn", {"code": 100}],
+    'valid-jsdoc': 'off',
   },
 };

@@ -1,0 +1,89 @@
+# ─────────────────────────────────────────────
+# 🚀 Final Deploy on push to main (production release)
+# ─────────────────────────────────────────────
+name: Deploy Full App Stack (main)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./client-app
+
+      - name: Build client app
+        run: npm run build
+        working-directory: ./client-app
+
+      - name: Deploy client app
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          target: client
+          channelId: live
+
+  build-and-deploy-driver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./driver-app
+
+      - name: Build driver app
+        run: npm run build
+        working-directory: ./driver-app
+
+      - name: Deploy driver app
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          target: driver
+          channelId: live
+
+  build-and-deploy-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./functions
+
+      - name: Build functions
+        run: npm run build
+        working-directory: ./functions
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase Functions
+        run: firebase deploy --only functions --project grean-de04f
+        working-directory: ./functions

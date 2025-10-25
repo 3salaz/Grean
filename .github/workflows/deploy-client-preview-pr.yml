@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────
+# 🚀 Preview Deploy: PR to client-app branch
+# ─────────────────────────────────────────────
+name: Deploy Client App Preview (PR)
+
+on:
+  pull_request:
+    branches:
+      - client-app
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ./client-app
+
+      - name: Build Client App
+        run: npm run build
+        working-directory: ./client-app
+
+      - name: Deploy Client Preview
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          target: client
+          channelId: pr-${{ github.event.number }}

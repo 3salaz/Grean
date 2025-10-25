@@ -11,12 +11,12 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 import { toast } from "react-toastify";
-import { createProfileIfMissing } from "@/utils/createProfileIfMissing";
+import { createProfile } from "@/utils/createProfile";
 
 interface AuthContextValue {
   user: any; // or a custom Firebase user type
   loadingAuth: boolean;
-  signUp: (email: string, password: string, accountType: string) => Promise<any>;
+  signUp: (email: string, password: string, accountType: string, roles?: string[]) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
   googleSignIn: () => Promise<any>;
   logOut: () => Promise<void>;
@@ -49,27 +49,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 
   // Inside AuthProvider:
-const resetPassword = async (email: string) => {
-  const auth = getAuth();
-  try {
-    await sendPasswordResetEmail(auth, email);
-    toast.success("Password reset email sent.");
-  } catch (error: any) {
-    console.error("Reset password error:", error);
-    switch (error.code) {
-      case "auth/user-not-found":
-        toast.error("No user found with that email.");
-        break;
-      case "auth/invalid-email":
-        toast.error("Invalid email address.");
-        break;
-      default:
-        toast.error("Could not send password reset email.");
-        break;
+  const resetPassword = async (email: string) => {
+    const auth = getAuth();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent.");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      switch (error.code) {
+        case "auth/user-not-found":
+          toast.error("No user found with that email.");
+          break;
+        case "auth/invalid-email":
+          toast.error("Invalid email address.");
+          break;
+        default:
+          toast.error("Could not send password reset email.");
+          break;
+      }
+      throw error;
     }
-    throw error;
-  }
-};
+  };
 
   const handleSignUpError = (error: any) => {
     switch (error.code) {
@@ -90,11 +90,16 @@ const resetPassword = async (email: string) => {
     }
   };
 
-  const signUp = async (email: string, password: string, accountType: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    accountType: string,
+    roles: string[] = ["User"]
+  ) => {
     const auth = getAuth();
     try {
       const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-      await createProfileIfMissing(userCreds.user, accountType);
+      await createProfile(userCreds.user, accountType, roles);
       setUser(userCreds.user);
       return userCreds.user;
     } catch (error: any) {
@@ -103,6 +108,7 @@ const resetPassword = async (email: string) => {
       throw error;
     }
   };
+
 
 
   /**

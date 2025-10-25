@@ -1,0 +1,40 @@
+
+
+
+
+# ─────────────────────────────────────────────
+# 🔁 Push to driver-app branch: Live Deploy
+# ─────────────────────────────────────────────
+name: Deploy Driver App (driver-app)
+
+on:
+  push:
+    branches:
+      - driver-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ./driver-app
+
+      - name: Build Driver App
+        run: npm run build
+        working-directory: ./driver-app
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GREAN_DE04F }}
+          projectId: grean-de04f
+          target: driver
+          channelId: live

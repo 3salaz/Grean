@@ -16,7 +16,7 @@ import {
 
 import { motion } from "framer-motion";
 import { closeOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { sendEmailVerification } from "firebase/auth";
@@ -27,16 +27,16 @@ const isValidPassword = (password: string) => password.length >= 6;
 interface SignupProps {
   handleClose: () => void;
   toggleToSignin: () => void;
-  triggerForgotPassword: () => void;
 }
 
-function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupProps) {
+function Signup({ handleClose, toggleToSignin }: SignupProps) {
   const history = useHistory();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     accountType: "User",
+    roles: ["User"],
 
   });
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
   const passwordsMatch = formData.password === formData.confirmPassword;
 
   const isFormValid = useMemo(() => {
-    const { email, password, confirmPassword, accountType } = formData;
+    const { email, password, confirmPassword, accountType, roles } = formData;
     return (
       email &&
       password &&
@@ -60,7 +60,8 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
       isValidEmail(email) &&
       isValidPassword(password) &&
       passwordsMatch &&
-      accountType
+      accountType &&
+      roles
     );
   }, [formData, passwordsMatch]);
 
@@ -91,9 +92,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
 
 
   return (
-    <IonPage>
-      <IonContent fullscreen className="flex flex-col items-center justify-center p-4 bg-transparent">
-        <ToastContainer />
+      // <IonContent className="flex flex-col items-center justify-center p-4 bg-transparent">
         <IonGrid className="max-w-xl w-full mx-auto h-full flex flex-col justify-center">
           <header className="absolute right-0 top-0">
             <IonRow className="justify-end">
@@ -218,9 +217,11 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
                       color="primary"
                       size="small"
                       onClick={handleSubmit}
+                      disabled={!isFormValid || loading} // 👈 here!
                     >
                       {loading ? <IonSpinner /> : "Sign Up"}
                     </IonButton>
+
                   </IonCol>
                 </IonRow>
 
@@ -237,8 +238,7 @@ function Signup({ handleClose, toggleToSignin, triggerForgotPassword }: SignupPr
             )}
           </motion.main>
         </IonGrid>
-      </IonContent>
-    </IonPage>
+      // </IonContent>
   );
 }
 

@@ -45,7 +45,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "jest",
-    "deploy": "firebase deploy",
+    "deploy": "firebase deploy --only hosting:driver",
+    "deploy:build": "vite build && firebase deploy --only hosting:driver",
     "lint": "eslint --ext .js,.ts ."
   },
   "eslintConfig": {

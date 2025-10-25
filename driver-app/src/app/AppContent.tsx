@@ -13,7 +13,7 @@ export default function AppContent() {
   return (
     <Switch>
       <Route exact path="/">
-        <PublicLayout>
+        <PublicLayout disableScroll>
           <Home />
         </PublicLayout>
       </Route>
